@@ -37,7 +37,7 @@ count=0
 for src_file in "$SRC"/*.md; do
   [ -f "$src_file" ] || continue
   name=$(basename "$src_file" .md)
-  case "$name" in README|.*) continue ;; esac
+  case "$name" in README | .*) continue ;; esac
 
   dst="$CODEX_DIR/${PREFIX}${name}.md"
   ln -sfn "$src_file" "$dst"
@@ -71,7 +71,7 @@ echo "Invocation in Codex:"
 for src_file in "$SRC"/*.md; do
   [ -f "$src_file" ] || continue
   name=$(basename "$src_file" .md)
-  case "$name" in README|.*) continue ;; esac
+  case "$name" in README | .*) continue ;; esac
   echo "  /prompts:${PREFIX}${name}"
 done
 echo ""

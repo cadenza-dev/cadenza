@@ -26,8 +26,8 @@ INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
 
 case "$FILE_PATH" in
-  *.md) ;;
-  *) exit 0 ;;
+*.md) ;;
+*) exit 0 ;;
 esac
 
 [ -f "$FILE_PATH" ] || exit 0
@@ -38,7 +38,7 @@ STATE_FILE="$STATE_DIR/md-lint-counts.json"
 THRESHOLD="${CADENZA_MD_LINT_THRESHOLD:-3}"
 
 mkdir -p "$STATE_DIR"
-[ -f "$STATE_FILE" ] || echo '{"counts":{},"suggested":[]}' > "$STATE_FILE"
+[ -f "$STATE_FILE" ] || echo '{"counts":{},"suggested":[]}' >"$STATE_FILE"
 
 # --- Gracefully skip if markdownlint-cli2 not installed (Phase 0 pre-B-M3) ---
 if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
@@ -66,7 +66,7 @@ for rule in $rule_ids; do
   current=$(jq -r --arg r "$rule" '.counts[$r] // 0' "$STATE_FILE")
   new=$((current + 1))
   tmp=$(mktemp)
-  jq --arg r "$rule" --argjson n "$new" '.counts[$r] = $n' "$STATE_FILE" > "$tmp" && mv "$tmp" "$STATE_FILE"
+  jq --arg r "$rule" --argjson n "$new" '.counts[$r] = $n' "$STATE_FILE" >"$tmp" && mv "$tmp" "$STATE_FILE"
 done
 
 # --- Identify rules newly over threshold AND not yet suggested ---
@@ -83,8 +83,8 @@ is_structural() {
   # Heuristic: rules that enforce document structure / safety are
   # usually better fixed than disabled. Adjust per project experience.
   case "$1" in
-    MD001|MD003|MD022|MD025|MD032|MD042|MD047) return 0 ;;
-    *) return 1 ;;
+  MD001 | MD003 | MD022 | MD025 | MD032 | MD042 | MD047) return 0 ;;
+  *) return 1 ;;
   esac
 }
 
@@ -138,6 +138,6 @@ done
 # --- Mark suggestions as emitted so we don't re-prompt this session ---
 tmp=$(mktemp)
 jq --argjson rules "$(printf '"%s"\n' $new_suggestions | jq -s .)" \
-   '.suggested |= (. + $rules | unique)' "$STATE_FILE" > "$tmp" && mv "$tmp" "$STATE_FILE"
+  '.suggested |= (. + $rules | unique)' "$STATE_FILE" >"$tmp" && mv "$tmp" "$STATE_FILE"
 
 exit 0

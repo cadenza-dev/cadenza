@@ -27,8 +27,8 @@ fi
 
 # 2. spec/ or packages/ touched but trace/ not touched → likely missed tracker update
 PORCELAIN=$(git status --porcelain 2>/dev/null)
-if echo "$PORCELAIN" | grep -qE '(^|\s)(spec/|packages/)' \
-   && ! echo "$PORCELAIN" | grep -qE '(^|\s)trace/'; then
+if echo "$PORCELAIN" | grep -qE '(^|\s)(spec/|packages/)' &&
+  ! echo "$PORCELAIN" | grep -qE '(^|\s)trace/'; then
   cat >&2 <<NOTE
 note (stop-audit): spec/ or packages/ was modified, but trace/<phase>/ was not.
   Per AGENTS.md §7.3, trace/<phase>/tracker.md must be updated when a batch completes.

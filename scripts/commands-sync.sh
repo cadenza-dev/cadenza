@@ -26,9 +26,9 @@ is_command_file() {
   local name="$1"
   # Exclude READMEs and anything dot-prefixed
   case "$name" in
-    README.md|.*) return 1 ;;
-    *.md) return 0 ;;
-    *) return 1 ;;
+  README.md | .*) return 1 ;;
+  *.md) return 0 ;;
+  *) return 1 ;;
   esac
 }
 
@@ -113,7 +113,7 @@ for src_file in "$SRC"/*.md; do
     # Ensure trailing newline before closing delimiter.
     case "$body_tr" in *$'\n') ;; *) printf '\n' ;; esac
     printf "'''\n"
-  } > "$dst"
+  } >"$dst"
 
   kept_gem["$name_noext.toml"]=1
   gem_count=$((gem_count + 1))

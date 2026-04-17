@@ -18,11 +18,10 @@ fi
 
 # Scope: trigger only for spec/**/*.md
 case "$FILE_PATH" in
-  */spec/*.md|*/spec/*/*.md)
-    ;;
-  *)
-    exit 0
-    ;;
+*/spec/*.md | */spec/*/*.md) ;;
+*)
+  exit 0
+  ;;
 esac
 
 if [ ! -f "$FILE_PATH" ]; then
@@ -41,8 +40,8 @@ WARN
 fi
 
 # Requirement-ID hygiene (best-effort): look for obviously malformed IDs
-BAD_IDS=$(grep -oE '^\s*\*\*?ID\*\*?:\s*\S+' "$FILE_PATH" 2>/dev/null \
-  | grep -vE '\*\*?ID\*\*?:\s*[A-Z]{2,6}-[0-9]{3,4}$' || true)
+BAD_IDS=$(grep -oE '^\s*\*\*?ID\*\*?:\s*\S+' "$FILE_PATH" 2>/dev/null |
+  grep -vE '\*\*?ID\*\*?:\s*[A-Z]{2,6}-[0-9]{3,4}$' || true)
 if [ -n "$BAD_IDS" ]; then
   cat >&2 <<WARN
 note (post-spec-edit): $FILE_PATH contains potentially malformed requirement IDs:
