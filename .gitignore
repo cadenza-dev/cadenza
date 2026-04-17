@@ -69,6 +69,7 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+.codex
 
 # Claude Code / AI agent workspaces (keep shared, ignore private)
 .claude/local/
