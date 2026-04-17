@@ -1,0 +1,10 @@
+Cadenza
+Copyright 2026 Eden Wang and Cadenza contributors
+
+This product includes software developed by Eden Wang and the Cadenza
+contributor community.
+
+Cadenza is built on top of Remotion (<https://www.remotion.dev/>), which is
+distributed under its own separate license. Users of Cadenza remain directly
+subject to Remotion's license terms; Cadenza does not redistribute Remotion.
+See <https://www.remotion.dev/docs/license> for details.

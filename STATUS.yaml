@@ -1,0 +1,88 @@
+# Cadenza — top-level status index.
+# This file is a THIN routing document. Phase-specific execution detail
+# lives in trace/<phase>/. Root files never grow mid-phase.
+# Updated by: maintainer at phase boundaries, agents at session milestones.
+
+version: 1
+project: cadenza
+repository: https://github.com/cadenza-dev/cadenza
+
+# ------------------------------------------------------------------
+# Current phase pointer (agents read this first)
+# ------------------------------------------------------------------
+current_phase: "0"
+current_phase_name: "Technical Pre-Commitment"
+current_phase_status: in_progress
+current_phase_started: "2026-04-17"
+current_phase_trace: trace/phase0/
+
+# Dominant role for this phase. See phases.<n>.owners for the full list.
+current_phase_dominant_owner: architect
+
+# ------------------------------------------------------------------
+# Phase index (per-phase status snapshots)
+# ------------------------------------------------------------------
+phases:
+  "0":
+    name: "Technical Pre-Commitment"
+    status: in_progress
+    owners: [architect]   # Builder joins only if the Architect authors PHASE0_KICK_BUILDER.md during M6
+    trace: trace/phase0/
+    exit_criteria_ref: "docs/analysis/analysis-final.en.md §7"
+  "1":
+    name: "Core Framework and Typed API (MVP)"
+    status: not_started
+    owners: []
+    trace: trace/phase1/
+  "2":
+    name: "AI Authoring Strengthening"
+    status: not_started
+    owners: []
+    trace: trace/phase2/
+  "3":
+    name: "Presentation Product Layer (pruned)"
+    status: not_started
+    owners: []
+    trace: trace/phase3/
+  "4":
+    name: "Export / Collaboration / Protocol Extensions (further pruned)"
+    status: not_started
+    owners: []
+    trace: trace/phase4/
+
+# ------------------------------------------------------------------
+# Role → ownership boundaries. Canonical definitions live in
+# AGENTS.md §3; this block mirrors them for quick lookup.
+# ------------------------------------------------------------------
+ownership:
+  scout:
+    writes: [ROADMAP.md, docs/research/]
+    must_not_touch: [spec/, packages/, docs/adr/]
+  architect:
+    writes: [spec/, docs/adr/, docs/design/, prompt/]
+    must_not_touch: [packages/**/src/]
+  builder:
+    writes: [packages/, tests, trace/, infra configs]
+    must_not_touch: [spec/ (when CONTRACT_FROZEN), docs/adr/ (when Accepted)]
+
+# ------------------------------------------------------------------
+# Where to find things (agents cross-reference during context recovery)
+# ------------------------------------------------------------------
+index:
+  agents_guide: AGENTS.md
+  analysis_en: docs/analysis/analysis-final.en.md
+  analysis_zh: docs/analysis/analysis-final.md
+  adr_index: docs/adr/README.md
+  design: docs/design/
+  spec_format: spec/README.md
+  trace_format: trace/README.md
+  kick_files: prompt/
+  workflow: docs/agentic-workflow.md
+
+# ------------------------------------------------------------------
+# Maintainers
+# ------------------------------------------------------------------
+maintainers:
+  - handle: DrEden33773
+    role: lead_maintainer
+    email_contact: edwardwang33773@gmail.com
