@@ -70,8 +70,8 @@ tmp/
 temp/
 *.tmp
 
-# Codex — custom prompt bridges are retired; ignore private local state.
-.codex/*
+# Codex — prompt bridges are retired; ignore private local state.
+.codex
 
 # Claude Code / AI agent workspaces (keep shared, ignore private)
 .claude/local/

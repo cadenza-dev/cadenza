@@ -159,7 +159,7 @@ cadenza/
 
 The source of truth for command-like Cadenza workflows is
 `.agents/skills/cadenza-*/SKILL.md`. These are project-level agent skills, not
-legacy custom prompts.
+legacy prompt bridges.
 
 Current operational skills:
 
