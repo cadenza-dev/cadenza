@@ -51,11 +51,11 @@ Cadenza sits in the gap those leave open.
 │  discrete deck tree → continuous Remotion timeline         │
 └──────────────────────────┬─────────────────────────────────┘
                            │
-┌──────────────────────────▼─────────────────────────────────┐
-│  Render-Safe Component Layer                               │
-│  <SafeImage> / <SafeFont> / <TypographyBox> / <MediaFrame> │
-│  Encapsulates Remotion's asset-loading and timing invariants│
-└──────────────────────────┬─────────────────────────────────┘
+┌──────────────────────────▼────────────────────────────────────┐
+│  Render-Safe Component Layer                                  │
+│  <SafeImage> / <SafeFont> / <TypographyBox> / <MediaFrame>    │
+│  Encapsulates Remotion's asset-loading and timing invariants  │
+└──────────────────────────┬────────────────────────────────────┘
                            │
 ┌──────────────────────────▼─────────────────────────────────┐
 │  Remotion Runtime (Player / Transitions / Lambda export)   │
