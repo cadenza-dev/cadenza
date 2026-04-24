@@ -1,1 +1,0 @@
-../../commands/spec-lint.md
