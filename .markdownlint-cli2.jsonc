@@ -7,10 +7,9 @@
         "**/*.md"
     ],
     "ignores": [
-        "node_modules",
-        "CHANGELOG.md"
+        "node_modules"
     ],
-    "fix": false,
+    "fix": true,
     "outputFormatters": [
         [
             "markdownlint-cli2-formatter-pretty"
