@@ -18,3 +18,9 @@
 
 - Added `pnpm format:check` as an explicit AGENTS.md completion gate so code formatting is checked independently from `pnpm lint`.
 - Updated the Phase 0 exception text to require `format:check`, `spec:lint`, and `phase:check` to be runnable and green.
+
+## 2026-04-25 — Cross-agent hook architecture note
+
+- Added bilingual design notes under `docs/design/cross-agent-hook-architecture.md` and `docs/design/cross-agent-hook-architecture.zh.md`.
+- Captured the shared-policy plus per-agent-adapter architecture for Claude Code, Codex, Gemini CLI, OpenCode, and later agent tools.
+- Recorded implementation priority: universal hard gates first, then Codex hooks, Gemini hooks, OpenCode plugin adapter, and additional agents only when used.

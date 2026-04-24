@@ -192,15 +192,15 @@ See [`docs/adr/0009-advisory-role-binding.md`](./adr/0009-advisory-role-binding.
 
 Every phase has one kick file per role under `prompt/PHASE<N>_KICK_<ROLE>.md`. The template, inherited from vhs-analyzer and eden-skills, has six fixed sections:
 
-| Section             | Purpose                                                                            |
-| :------------------ | :--------------------------------------------------------------------------------- |
-| **Your identity**   | Role name, suggested model/tool, Startup Protocol reminder, escalation path        |
-| **Context**         | Read order specific to this role × phase; prioritized                              |
-| **Pre-flight**      | Mechanical checks; if any fails, stop and report — do not improvise                |
-| **Mission**         | Concrete deliverables, in roughly the right order, each with done-criteria          |
-| **Hard constraints**| The non-negotiables — subset of AGENTS.md §7 plus phase-specific additions          |
-| **Success criteria**| What the phase closure looks like for this role                                     |
-| **When stuck**      | Ordered fallback list: re-read docs → check ADRs → ask user (one question, not three) |
+| Section | Purpose |
+| :--- | :--- |
+| **Your identity** | Role name, suggested model/tool, Startup Protocol reminder, escalation path |
+| **Context** | Read order specific to this role × phase; prioritized |
+| **Pre-flight** | Mechanical checks; if any fails, stop and report — do not improvise |
+| **Mission** | Concrete deliverables, in roughly the right order, each with done-criteria |
+| **Hard constraints** | The non-negotiables — subset of AGENTS.md §7 plus phase-specific additions |
+| **Success criteria** | What the phase closure looks like for this role |
+| **When stuck** | Ordered fallback list: re-read docs → check ADRs → ask user (one question, not three) |
 
 Kick files are **not** prompts that get pasted into the agent at session start. They are reference documents the agent reads (per `AGENTS.md` §1 Read Order). The session's actual prompt is a one-liner like: "Proceed with `PHASE0_KICK_ARCHITECT.md` batch A-M1."
 
@@ -332,6 +332,6 @@ A: Yes. The workflow is not agent-specific — it is a contract-first workflow t
 
 ## 13. Revision history
 
-| Version | Date       | Summary                                                            |
+| Version | Date | Summary |
 | :------ | :--------- | :----------------------------------------------------------------- |
-| v0.1    | 2026-04-18 | Initial draft: Phase 0 baseline capturing AGENTS.md + hooks + kick-file + spec/trace conventions |
+| v0.1 | 2026-04-18 | Initial draft: Phase 0 baseline capturing AGENTS.md + hooks + kick-file + spec/trace conventions |
