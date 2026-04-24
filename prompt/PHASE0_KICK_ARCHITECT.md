@@ -26,13 +26,18 @@ Full protocol: [`AGENTS.md`](../AGENTS.md) §4.
 
 ## 2. Context (read in this order before you act)
 
+This file may be used as the only handoff pointer for a fresh Architect session.
+`AGENTS.md` §1 remains authoritative; the list below expands it with
+Phase-0-Architect-specific context.
+
 1. [`AGENTS.md`](../AGENTS.md) — full file. Memorize §2 Authority, §3 Roles, §4 Startup, §7 Hard Constraints.
-2. [`STATUS.yaml`](../STATUS.yaml) — confirm `current_phase` is `0` and owner column names **architect**.
-3. [`docs/analysis/analysis-final.md`](../docs/analysis/analysis-final.md) — read **§0 Executive Summary** and **§7 Staged Roadmap**. Skim §1–§6; you will revisit on demand.
-4. [`docs/design/compiler-design.md`](../docs/design/compiler-design.md) — this is the central artifact Phase 0 must land.
-5. [`docs/adr/README.md`](../docs/adr/README.md) — know which ADRs are already accepted (0001–0005).
-6. [`goals-non-goals.md`](../goals-non-goals.md) — your scope ceiling for everything below.
-7. [`docs/agentic-workflow.md`](../docs/agentic-workflow.md) §6 — the kick-file template you will use when you author downstream kick files in M6 below.
+2. [`STATUS.yaml`](../STATUS.yaml) — confirm `current_phase` is `0` and Phase 0 owners include **architect**.
+3. [`trace/phase0/tracker.md`](../trace/phase0/tracker.md) — read newest entries first; stop when the remaining history is no longer relevant.
+4. [`docs/analysis/analysis-final.md`](../docs/analysis/analysis-final.md) — read **§0 Executive Summary** and **§7 Staged Roadmap**. Skim §1–§6; you will revisit on demand.
+5. [`docs/design/compiler-design.md`](../docs/design/compiler-design.md) — this is the central artifact Phase 0 must land.
+6. [`docs/adr/README.md`](../docs/adr/README.md) — know which ADRs are already accepted (0001–0005).
+7. [`goals-non-goals.md`](../goals-non-goals.md) — your scope ceiling for everything below.
+8. [`docs/agentic-workflow.md`](../docs/agentic-workflow.md) §6 — the kick-file template you will use when you author downstream kick files in M6 below.
 
 ---
 
@@ -44,7 +49,7 @@ Before you begin, verify each of these. If any fails, **stop and surface the fai
 - [ ] `STATUS.yaml` exists and reports `current_phase: 0`.
 - [ ] `docs/design/compiler-design.md` exists and is marked `Draft`.
 - [ ] ADRs 0001–0005 are present under `docs/adr/` and listed in `docs/adr/README.md`.
-- [ ] The directory [`prompt/`](.) contains both this file and `PHASE0_KICK_BUILDER.md`.
+- [ ] The directory [`prompt/`](.) contains this file. `PHASE0_KICK_BUILDER.md` may be absent; that is valid until M6 decides Phase 0 needs Builder infrastructure work.
 - [ ] The directory `docs/analysis/` contains both `analysis-final.md` (English) and `analysis-final.zh.md` (中文).
 - [ ] `docs/communications/remotion-notification-email.md` exists as a draft.
 
@@ -124,11 +129,13 @@ Per the workflow, **downstream kick files are authored by the role immediately a
 
 Use the six-section template documented in [`docs/agentic-workflow.md`](../docs/agentic-workflow.md) §6: Identity / Context / Pre-flight / Mission / Hard Constraints / Success Criteria / When-stuck.
 
-### M7. Populate `trace/phase0/`
+### M7. Maintain `trace/phase0/`
 
-`trace/phase0/status.yaml` and `trace/phase0/tracker.md` are currently empty. As you progress through M1–M6:
+`trace/phase0/status.yaml` may still be empty at the start of Architect work;
+`trace/phase0/tracker.md` already contains maintenance history. As you progress
+through M1–M6:
 
-- Append narrative batch logs to `tracker.md` after each significant milestone (ADR drafted, spec finalized, Remotion email drafted, kick file authored, etc.).
+- Insert narrative milestone logs directly below the H1 in `tracker.md`, newest-first, with heading format `YYYY-MM-DD HH:MM +ZZZZ — Title`.
 - Update `status.yaml` at mission boundaries with machine-readable deliverable statuses, exit-criteria checkboxes, and summary stats.
 
 Follow [`trace/README.md`](../trace/README.md) for the expected split between `status.yaml` (machine-readable) and `tracker.md` (narrative).

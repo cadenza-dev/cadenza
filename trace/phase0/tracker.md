@@ -1,5 +1,11 @@
 # Phase 0 Tracker
 
+## 2026-04-25 06:28 +0800 — Architect kick file handoff cleanup
+
+- Updated `prompt/PHASE0_KICK_ARCHITECT.md` so it can safely serve as the sole next-session handoff pointer.
+- Added a tracker read step for fresh Architect sessions so newest operational history is visible before Phase 0 work begins.
+- Marked absent `PHASE0_KICK_BUILDER.md` as valid until M6 decides Builder infrastructure work is needed, and corrected M7 trace instructions to use newest-first head insertion.
+
 ## 2026-04-25 06:10 +0800 — Tracker ordering rule clarification
 
 - Reordered this tracker to newest-first so cold-start agents encounter the latest operational state before superseded history.
