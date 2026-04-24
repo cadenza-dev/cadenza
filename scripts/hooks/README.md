@@ -4,16 +4,16 @@ Shell scripts invoked by Claude Code hooks (configured in [`.claude/settings.jso
 
 ## Script index
 
-| Script                            | Event                   | Purpose                                                                   |
-| :-------------------------------- | :---------------------- | :------------------------------------------------------------------------ |
-| `session-brief.sh`                | SessionStart            | Print current phase, role mapping, and §4 Startup Protocol reminder       |
-| `enforce-architect-boundary.sh`   | PreToolUse `Write\|Edit`| Block architect sessions from writing `packages/**/src/**`                |
-| `block-dangerous-bash.sh`         | PreToolUse `Bash`       | Block destructive commands (rm -rf /, force push, publish, hook bypass)   |
-| `post-spec-edit.sh`               | PostToolUse `Write\|Edit` | After `spec/` edits, run structural sanity + `pnpm spec:lint` if present|
-| `rebuild-adr-index.sh`            | PostToolUse `Write\|Edit` | After ADR file edits, warn if `docs/adr/README.md` index is out of sync |
-| `post-md-edit.sh`                 | PostToolUse `Write\|Edit` | After any `*.md` edit, run `markdownlint-cli2`; when a rule fires ≥ N times in a session, suggest relaxing it in `.markdownlint-cli2.jsonc` project-wide rather than per-file |
-| `session-stop-audit.sh`           | Stop                    | Warn about uncommitted work or missing `trace/<phase>/` updates           |
-| `pre-compact-preserve.sh`         | PreCompact              | Inject `STATUS.yaml` + read-order reminder before context compaction      |
+| Script | Event | Purpose |
+| :--- | :--- | :--- |
+| `session-brief.sh` | SessionStart | Print current phase, role mapping, and §4 Startup Protocol reminder |
+| `enforce-architect-boundary.sh` | PreToolUse `Write\|Edit` | Block architect sessions from writing `packages/**/src/**` |
+| `block-dangerous-bash.sh` | PreToolUse `Bash` | Block destructive commands (rm -rf /, force push, publish, hook bypass) |
+| `post-spec-edit.sh` | PostToolUse `Write\|Edit` | After `spec/` edits, run structural sanity + `pnpm spec:lint` if present |
+| `rebuild-adr-index.sh` | PostToolUse `Write\|Edit` | After ADR file edits, warn if `docs/adr/README.md` index is out of sync |
+| `post-md-edit.sh` | PostToolUse `Write\|Edit` | After any `*.md` edit, run `markdownlint-cli2`; when a rule fires ≥ N times in a session, suggest relaxing it in `.markdownlint-cli2.jsonc` project-wide rather than per-file |
+| `session-stop-audit.sh` | Stop | Warn about uncommitted work or missing `trace/<phase>/` updates |
+| `pre-compact-preserve.sh` | PreCompact | Inject `STATUS.yaml` + read-order reminder before context compaction |
 
 ## Hook protocol (Claude Code)
 
