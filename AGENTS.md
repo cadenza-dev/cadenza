@@ -101,13 +101,14 @@ Any claim of completion must be preceded by **all of**:
 pnpm typecheck       # tsc --noEmit across all packages
 pnpm test            # vitest workspace, all tests green
 pnpm lint            # biome check, zero warnings
+pnpm format:check    # biome format --check .
 pnpm spec:lint       # scripts/lint-specs.ts — spec structure + traceability
 pnpm phase:check     # scripts/phase-check.ts — current-phase exit criteria
 ```
 
 If any command fails, **do not claim done**. Fix or report.
 
-Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-ops — but `spec:lint` and `phase:check` must still be runnable and green.
+Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-ops — but `format:check`, `spec:lint`, and `phase:check` must still be runnable and green.
 
 ---
 

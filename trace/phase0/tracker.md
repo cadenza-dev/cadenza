@@ -13,3 +13,8 @@
 - Replaced stale English analysis path references with `docs/analysis/analysis-final.md`; the English report now lives at that path.
 - Corrected Chinese analysis references to `docs/analysis/analysis-final.zh.md` where the index needs both language variants.
 - Re-ran `scripts/commands-sync.sh` so generated onboard commands now point at the current analysis path.
+
+## 2026-04-25 — Verification gate clarification
+
+- Added `pnpm format:check` as an explicit AGENTS.md completion gate so code formatting is checked independently from `pnpm lint`.
+- Updated the Phase 0 exception text to require `format:check`, `spec:lint`, and `phase:check` to be runnable and green.

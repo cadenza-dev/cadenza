@@ -239,7 +239,7 @@ Hard. Runs in every session regardless of which agent tool produced the diff. Ph
 
 - `scripts/check-contract-frozen.ts` — rejects commits that modify frozen specs without `[FREEZE-OVERRIDE]`.
 - `scripts/check-role-boundary.ts` — rejects commits outside the session role's allowed globs.
-- `pnpm typecheck`, `pnpm lint`, `pnpm spec:lint` — standard correctness gates.
+- `pnpm typecheck`, `pnpm lint`, `pnpm format:check`, `pnpm spec:lint` — standard correctness gates.
 
 This is the most reliable layer because it cannot be bypassed without `--no-verify`, which is itself blocked by [`scripts/hooks/block-dangerous-bash.sh`](../scripts/hooks/block-dangerous-bash.sh) in Claude Code sessions and requires explicit user approval elsewhere.
 
