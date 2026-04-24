@@ -9,6 +9,7 @@ Shell scripts invoked by Claude Code hooks (configured in [`.claude/settings.jso
 | `session-brief.sh` | SessionStart | Print current phase, role mapping, and §4 Startup Protocol reminder |
 | `enforce-architect-boundary.sh` | PreToolUse `Write\|Edit` | Block architect sessions from writing `packages/**/src/**` |
 | `block-dangerous-bash.sh` | PreToolUse `Bash` | Block destructive commands (rm -rf /, force push, publish, hook bypass) |
+| `post-format-edit.sh` | PostToolUse `Write\|Edit` | After `*.md` edits, run `markdownlint-cli2 --fix`; after `*.sh` edits, run `shfmt -w` with repo `.editorconfig` options |
 | `post-spec-edit.sh` | PostToolUse `Write\|Edit` | After `spec/` edits, run structural sanity + `pnpm spec:lint` if present |
 | `rebuild-adr-index.sh` | PostToolUse `Write\|Edit` | After ADR file edits, warn if `docs/adr/README.md` index is out of sync |
 | `post-md-edit.sh` | PostToolUse `Write\|Edit` | After any `*.md` edit, run `markdownlint-cli2`; when a rule fires ≥ N times in a session, suggest relaxing it in `.markdownlint-cli2.jsonc` project-wide rather than per-file |
@@ -35,7 +36,8 @@ Boundary-enforcing hooks read `CADENZA_AGENT_ROLE` (values: `scout`, `architect`
 - `bash` ≥ 4.0
 - `jq` (recommended; hooks gracefully no-op without it)
 - `git` (for `session-stop-audit.sh`)
-- `markdownlint-cli2` (optional; `post-md-edit.sh` skips gracefully when absent). Installed as a devDependency during Phase 0 Builder work.
+- `markdownlint-cli2` (optional; Markdown hooks skip gracefully when absent). Installed as a devDependency during Phase 0 Builder work.
+- `shfmt` (optional; `post-format-edit.sh` skips shell formatting gracefully when absent). Shell formatting options come from the root `.editorconfig`.
 
 ## Tunables (env vars)
 

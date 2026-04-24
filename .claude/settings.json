@@ -26,6 +26,7 @@
       {
         "matcher": "Write|Edit",
         "hooks": [
+          { "type": "command", "command": "bash scripts/hooks/post-format-edit.sh" },
           { "type": "command", "command": "bash scripts/hooks/post-spec-edit.sh" },
           { "type": "command", "command": "bash scripts/hooks/rebuild-adr-index.sh" },
           { "type": "command", "command": "bash scripts/hooks/post-md-edit.sh" }

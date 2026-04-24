@@ -39,16 +39,16 @@ for file in "${files[@]}"; do
   fi
 
   case "$(basename "$file")" in
-  SPEC_TEST_MATRIX.md)
-    while IFS= read -r req_id; do
-      [ -n "$req_id" ] || continue
-      phase_dir="$(dirname "$file")"
-      if ! grep -R --exclude='SPEC_TEST_MATRIX.md' -q "$req_id" "$phase_dir"; then
-        findings+=("$file : error : requirement $req_id has no originating spec in $phase_dir")
-        errors=$((errors + 1))
-      fi
-    done < <(grep -Eo '[A-Z][A-Z0-9_]*-[0-9]+' "$file" | sort -u)
-    ;;
+    SPEC_TEST_MATRIX.md)
+      while IFS= read -r req_id; do
+        [ -n "$req_id" ] || continue
+        phase_dir="$(dirname "$file")"
+        if ! grep -R --exclude='SPEC_TEST_MATRIX.md' -q "$req_id" "$phase_dir"; then
+          findings+=("$file : error : requirement $req_id has no originating spec in $phase_dir")
+          errors=$((errors + 1))
+        fi
+      done < <(grep -Eo '[A-Z][A-Z0-9_]*-[0-9]+' "$file" | sort -u)
+      ;;
   esac
 done
 

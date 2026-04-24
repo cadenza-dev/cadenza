@@ -18,10 +18,10 @@ fi
 
 # Match only docs/adr/NNNN-*.md (exclude README.md and template.md)
 case "$FILE_PATH" in
-*/docs/adr/[0-9][0-9][0-9][0-9]-*.md) ;;
-*)
-  exit 0
-  ;;
+  */docs/adr/[0-9][0-9][0-9][0-9]-*.md) ;;
+  *)
+    exit 0
+    ;;
 esac
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

@@ -14,9 +14,9 @@ CLAUDE_DIR="$REPO_ROOT/.claude/skills"
 PREFIX="cadenza-"
 
 case "${1:-}" in
-"" | --all | --skills-only) ;;
--h | --help)
-  cat <<'USAGE'
+  "" | --all | --skills-only) ;;
+  -h | --help)
+    cat <<'USAGE'
 Usage: scripts/commands-sync.sh [--all|--skills-only]
 
 Sync .agents/skills/cadenza-* to .claude/skills/ as relative symlinks.
@@ -24,12 +24,12 @@ Sync .agents/skills/cadenza-* to .claude/skills/ as relative symlinks.
   --all           Sync all supported skill bridges (default).
   --skills-only   Same as --all; kept for explicit caller intent.
 USAGE
-  exit 0
-  ;;
-*)
-  echo "error: unknown argument: $1" >&2
-  exit 1
-  ;;
+    exit 0
+    ;;
+  *)
+    echo "error: unknown argument: $1" >&2
+    exit 1
+    ;;
 esac
 
 if [ ! -d "$SRC" ]; then

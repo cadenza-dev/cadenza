@@ -5,7 +5,7 @@
 > **评审标准**：Phase 0 Builder 开始实现跨 agent hooks 前，必须先阅读本文档或其后续替代设计。
 > **关联文档**：
 >
-> - [`AGENTS.md`](../../AGENTS.md) §6-§8（验证命令、硬约束、跨工具命令桥接）
+> - [`AGENTS.md`](../../AGENTS.md) §6-§8（验证命令、硬约束、skills map）
 > - [`docs/agentic-workflow.md`](../agentic-workflow.md) §8（enforcement layers）
 > - [`scripts/hooks/README.md`](../../scripts/hooks/README.md)（当前 Claude Code hooks 行为）
 > - [`docs/design/compiler-design.zh.md`](./compiler-design.zh.md)（Phase 0 技术设计文档风格参考）
@@ -87,6 +87,7 @@ scripts/agent-hooks/
 ├── policies/
 │   ├── block-dangerous-bash.sh
 │   ├── role-boundary.sh
+│   ├── format-post-edit.sh
 │   ├── spec-post-edit.sh
 │   ├── markdown-post-edit.sh
 │   ├── adr-index-post-edit.sh
@@ -156,6 +157,7 @@ Policy scripts 返回一个小型内部结果：
 | `session-brief.sh` | `session-brief` | session start / prompt submit context | `AGENTS.md` read order |
 | `block-dangerous-bash.sh` | `block-dangerous-bash` | shell tool use 前 / permission request | git discipline、CI、用户审批 |
 | `enforce-architect-boundary.sh` | `role-boundary` | 支持时在文件编辑前 | pre-commit + CI |
+| `post-format-edit.sh` | `format-post-edit` | 支持时在 Markdown 或 shell 编辑后 | `markdownlint-cli2`、`shfmt`、pre-commit + CI |
 | `post-spec-edit.sh` | `spec-post-edit` | 支持时在文件编辑后 | `pnpm spec:lint`, pre-commit + CI |
 | `rebuild-adr-index.sh` | `adr-index-post-edit` | 支持时在 ADR 编辑后 | `pnpm phase:check`, review |
 | `post-md-edit.sh` | `markdown-post-edit` | 支持时在 Markdown 编辑后 | `pnpm lint` / markdown lint |
@@ -173,7 +175,7 @@ Codex 特别注意：在 Codex 能可靠拦截文件写入和非 shell 工具之
 应在 Phase 0 Builder infrastructure bootstrap 中优先完成：
 
 1. `package.json` 和 `pnpm-workspace.yaml`。
-2. `pnpm format:check`、`pnpm lint`、`pnpm spec:lint`、`pnpm phase:check`。
+2. `pnpm format:check`、`pnpm lint`、Markdown lint/format、shell `shfmt`、`pnpm spec:lint`、`pnpm phase:check`。
 3. 用 git pre-commit 或等价本地 gate 检查 frozen spec 变更和 role boundary。
 4. CI 复刻同一批 gates。
 

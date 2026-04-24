@@ -102,11 +102,18 @@ pnpm typecheck       # tsc --noEmit across all packages
 pnpm test            # vitest workspace, all tests green
 pnpm lint            # biome check, zero warnings
 pnpm format:check    # biome format --check .
+markdownlint-cli2 "**/*.md"  # Markdown lint/format rules
+find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d  # shell format check; options come from .editorconfig
 pnpm spec:lint       # scripts/lint-specs.ts — spec structure + traceability
 pnpm phase:check     # scripts/phase-check.ts — current-phase exit criteria
 ```
 
 If any command fails, **do not claim done**. Fix or report.
+
+For Markdown or shell-script edits, apply formatters before the final check:
+`markdownlint-cli2 --fix "**/*.md"` and
+`find scripts .agents -name '*.sh' -exec shfmt -w {} +`.
+Shell formatting options are configured in `.editorconfig`.
 
 Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-ops — but `format:check`, `spec:lint`, and `phase:check` must still be runnable and green.
 

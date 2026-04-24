@@ -26,8 +26,8 @@ INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null)
 
 case "$FILE_PATH" in
-*.md) ;;
-*) exit 0 ;;
+  *.md) ;;
+  *) exit 0 ;;
 esac
 
 [ -f "$FILE_PATH" ] || exit 0
@@ -83,8 +83,8 @@ is_structural() {
   # Heuristic: rules that enforce document structure / safety are
   # usually better fixed than disabled. Adjust per project experience.
   case "$1" in
-  MD001 | MD003 | MD022 | MD025 | MD032 | MD042 | MD047) return 0 ;;
-  *) return 1 ;;
+    MD001 | MD003 | MD022 | MD025 | MD032 | MD042 | MD047) return 0 ;;
+    *) return 1 ;;
   esac
 }
 

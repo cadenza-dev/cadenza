@@ -5,7 +5,7 @@
 > **Review standard**: Phase 0 Builder infrastructure work should not implement cross-agent hooks until this document, or a superseding design, has been read and scoped.
 > **Related documents**:
 >
-> - [`AGENTS.md`](../../AGENTS.md) §6-§8 (verification commands, hard constraints, command bridge map)
+> - [`AGENTS.md`](../../AGENTS.md) §6-§8 (verification commands, hard constraints, skill map)
 > - [`docs/agentic-workflow.md`](../agentic-workflow.md) §8 (enforcement layers)
 > - [`scripts/hooks/README.md`](../../scripts/hooks/README.md) (current Claude Code hook behavior)
 > - [`docs/design/compiler-design.md`](./compiler-design.md) (style reference for Phase 0 design documents)
@@ -87,6 +87,7 @@ scripts/agent-hooks/
 ├── policies/
 │   ├── block-dangerous-bash.sh
 │   ├── role-boundary.sh
+│   ├── format-post-edit.sh
 │   ├── spec-post-edit.sh
 │   ├── markdown-post-edit.sh
 │   ├── adr-index-post-edit.sh
@@ -156,6 +157,7 @@ or:
 | `session-brief.sh` | `session-brief` | Session start / prompt submit context | `AGENTS.md` read order |
 | `block-dangerous-bash.sh` | `block-dangerous-bash` | Pre shell tool use / permission request | git discipline, CI, user approval |
 | `enforce-architect-boundary.sh` | `role-boundary` | Pre file edit where supported | pre-commit + CI |
+| `post-format-edit.sh` | `format-post-edit` | After Markdown or shell edit where supported | `markdownlint-cli2`, `shfmt`, pre-commit + CI |
 | `post-spec-edit.sh` | `spec-post-edit` | After file edit where supported | `pnpm spec:lint`, pre-commit + CI |
 | `rebuild-adr-index.sh` | `adr-index-post-edit` | After ADR edit where supported | `pnpm phase:check`, review |
 | `post-md-edit.sh` | `markdown-post-edit` | After Markdown edit where supported | `pnpm lint` / markdown lint |
@@ -173,7 +175,7 @@ Codex-specific caution: until Codex can reliably intercept file writes and non-s
 Implement first in the Phase 0 Builder infrastructure bootstrap:
 
 1. `package.json` and `pnpm-workspace.yaml`.
-2. `pnpm format:check`, `pnpm lint`, `pnpm spec:lint`, `pnpm phase:check`.
+2. `pnpm format:check`, `pnpm lint`, Markdown lint/format, shell `shfmt`, `pnpm spec:lint`, and `pnpm phase:check`.
 3. git pre-commit or equivalent local gate for frozen spec changes and role-boundary checks.
 4. CI mirror of the same gates.
 

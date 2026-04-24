@@ -1,5 +1,14 @@
 # Phase 0 Tracker
 
+## 2026-04-25 — Markdown and shell formatter hook coverage
+
+- Confirmed existing Claude Code hooks already ran Markdown advisory lint through `scripts/hooks/post-md-edit.sh`, but did not have a dedicated formatting hook and did not cover shell formatting with `shfmt`.
+- Added root `.editorconfig` so plain `shfmt` applies the repo shell style (`indent_size = 2`, `switch_case_indent = true`), including VSCode integrations that bridge to shfmt.
+- Added `scripts/hooks/post-format-edit.sh` for PostToolUse formatting: `markdownlint-cli2 --fix` on `*.md` and `shfmt -w` on `*.sh`, both fail-open when optional tools are unavailable.
+- Registered the formatter hook before spec/ADR/Markdown reporting hooks in `.claude/settings.json` so reporting sees post-format file contents.
+- Updated `AGENTS.md`, `scripts/hooks/README.md`, and `docs/design/cross-agent-hook-architecture.md` to document Markdown lint/format and shell format checks.
+- Verification run: `bash -n` for hook scripts, `jq empty` for JSON configs, `markdownlint-cli2` on touched docs, plain `shfmt -d` across `scripts/` and `.agents/`, `scripts/commands-sync.sh`, bundled spec fallback, hook simulations on Markdown and shell files, and `git diff --check` passed.
+
 ## 2026-04-25 — Codex command bridge maintenance
 
 - Superseded by the later "Agent skills migration for command-like workflows" entry in this tracker.

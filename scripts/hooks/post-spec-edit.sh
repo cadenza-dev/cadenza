@@ -18,10 +18,10 @@ fi
 
 # Scope: trigger only for spec/**/*.md
 case "$FILE_PATH" in
-*/spec/*.md | */spec/*/*.md) ;;
-*)
-  exit 0
-  ;;
+  */spec/*.md | */spec/*/*.md) ;;
+  *)
+    exit 0
+    ;;
 esac
 
 if [ ! -f "$FILE_PATH" ]; then
