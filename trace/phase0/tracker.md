@@ -1,5 +1,41 @@
 # Phase 0 Tracker
 
+## 2026-04-25 07:09 +0800 — Phase 1 Stage A specs drafted
+
+- Created `spec/phase1/` with eight Stage A `CONTRACT_DRAFT` specs: typed API, compiler, render-safe layer, player runtime, validation, skills, test matrix, and traceability.
+- Added 44 requirement IDs, 14 acceptance scenarios, and 13 Freeze Candidates / Stage B review items.
+- Kept all Phase 1 specs unfrozen; they are ready for maintainer review before Stage B.
+- Bundled spec fallback passed after moving the test-matrix-only review note out of Freeze Candidate ID syntax to avoid false traceability errors in the Phase 0 fallback script.
+
+## 2026-04-25 07:09 +0800 — M1 frozen and pending ADRs captured
+
+- Maintainer approved all five compiler-design OQ recommendations and authorized continuing Phase 0 Architect work.
+- Marked `docs/design/compiler-design.md` and `docs/design/compiler-design.zh.md` as `CONTRACT_FROZEN`, with v0.3 version history entries.
+- Drafted and accepted ADR 0006-0010: dual OSS + hosted tier, two-stage Remotion engagement, single-maintainer + AI-agent decision loop, advisory role binding, and Cadenza / `cadenza-dev` naming.
+- Updated `docs/adr/README.md` so the ADR index now references 0001-0010.
+- Updated `trace/phase0/status.yaml`: M1 is frozen, M2 is complete, and the corresponding exit criteria are marked met.
+
+## 2026-04-25 06:37 +0800 — Compiler design bilingual OQ refinement
+
+- Integrated `docs/design/compiler-design.zh.md` into the M1 review loop after maintainer feedback that the English resolution pass was too one-sided.
+- Updated both English and Chinese compiler-design documents to use "recommended resolution / 建议决议" language, preserving the fact that maintainer approval is still required before freezing.
+- Added decision notes for all five open questions so the trade-off and reopen condition are visible before the maintainer decides.
+- Synced the Chinese review copy to `v0.2 Review-ready` instead of leaving it at the older `v0.1 Draft` state.
+
+## 2026-04-25 06:37 +0800 — Compiler design advanced to review-ready
+
+- Re-read `docs/design/compiler-design.md` top to bottom against `prompt/PHASE0_KICK_ARCHITECT.md` M1.
+- Advanced the compiler design from `Draft` to `Review-ready`, without marking `CONTRACT_FROZEN`.
+- Resolved all five §8 open questions: single deck-wide FPS, semantic `onCursorChange` events, 60-minute warning without hard cap, Phase 1 i18n exclusion with reopen condition, and offline export TimelineMap rules for Remotion Lambda parity.
+- Verified all seven §9 Phase 0 review checklist items and recorded the M1 state in `trace/phase0/status.yaml`.
+- Next required human checkpoint: maintainer review and explicit approval before any freeze marker is added.
+
+## 2026-04-25 06:37 +0800 — Architect identity approved for Phase 0
+
+- Launched as Phase 0 Architect via `prompt/PHASE0_KICK_ARCHITECT.md`.
+- Detected identity: `gpt-5.x/codex`; maintainer clarified the active model is effectively `gpt-5.5` and approved `gpt-5.x/codex` as the preferred Architect pairing for this session.
+- Proceeding with Phase 0 Architect work from M1 after the AGENTS.md Startup Protocol gate.
+
 ## 2026-04-25 06:28 +0800 — Architect kick file handoff cleanup
 
 - Updated `prompt/PHASE0_KICK_ARCHITECT.md` so it can safely serve as the sole next-session handoff pointer.

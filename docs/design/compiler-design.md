@@ -1,6 +1,6 @@
-# **Cadenza State-to-Timeline Compiler — Technical Design (v0.1 Draft)**
+# **Cadenza State-to-Timeline Compiler — Technical Design (v0.3 CONTRACT_FROZEN)**
 
-> **Status**: Draft, pending Phase 0 review
+> **Status**: CONTRACT_FROZEN
 > **Author**: Eden Wang (`@DrEden33773`)
 > **Review standard**: Phase 1 does not begin until this document passes core-contributor review.
 > **Related documents**:
@@ -510,34 +510,43 @@ These must be automatically verifiable in tests:
 
 ## **8. Open Questions**
 
-These require resolution during Phase 0 review, or must be explicitly "parked until mid-Phase 1":
+The following resolutions were approved by the maintainer on 2026-04-25 and are
+part of the frozen Phase 1 compiler contract.
 
 ### **OQ-1: Should FPS be enforced uniformly across the Deck?**
 
 - Option A: enforce a single FPS for the entire Deck.
 - Option B: allow each Slide to configure its own FPS (requires handling transitions that cross FPS boundaries).
 
-**Leaning**: Option A. Mixed FPS is extremely complex in Remotion and offers no benefit to slide semantics.
+**Resolution**: Enforce a single FPS for the entire Deck in Phase 1. Slide-level FPS remains out of scope because transition math, step anchors, `seekTo(frame)` navigation, and preview/export parity all depend on one shared frame grid. Authors who need different visual cadence should express it through duration tokens, animation curves, or transition settings rather than changing the timeline's base clock.
+
+**Decision note**: This favors deterministic compiler behavior over local expressiveness. Reopen only if a real alpha deck demonstrates a slide-level FPS need that cannot be represented through duration or animation primitives.
 
 ### **OQ-2: Throttling granularity for Cursor `onChange` events?**
 
 - During `in-transition`, `progress` changes every frame — should every frame emit?
 - Or emit only on state transitions?
 
-**Leaning**: emit only on state transitions (at-step ↔ in-transition ↔ loading). `progress` is queried via a separate API.
+**Resolution**: `onCursorChange` emits only on semantic state transitions: `at-step`, `in-transition`, and `loading`, plus changes to the slide or step identity. Frame-level transition progress remains observable through `getCursor()` while the cursor is `in-transition`, but it is not pushed every frame as an event.
+
+**Decision note**: This keeps presenter UI updates predictable and avoids turning navigation metadata into a render-loop side channel. If Phase 1 implementation needs frame-granular progress subscriptions, add a separate, explicitly named transition-progress API instead of overloading `onCursorChange`.
 
 ### **OQ-3: Upper bound on Deck duration?**
 
 - Should single-Deck duration be capped to prevent memory/render issues from over-long timelines?
 
-**Leaning**: no hard cap, but emit a compile-time warning when the timeline exceeds 60 minutes.
+**Resolution**: Do not impose a hard duration cap in Phase 1. Emit a compile-time warning when the compiled timeline exceeds 60 minutes, including total frames and estimated duration at the deck FPS.
+
+**Decision note**: This preserves legitimate long-form decks while still surfacing risk early. A hard cap should be introduced only after real alpha decks expose concrete memory, Player, or Lambda constraints.
 
 ### **OQ-4: Multi-locale slides (i18n)**
 
 - If Slide content varies by locale, timeline length may vary (text-rendering differences cause overflow).
 - Should the compile step produce an independent TimelineMap per locale?
 
-**Leaning**: Phase 1 does not handle i18n. If needed in Phase 3, compile once per locale independently.
+**Resolution**: Phase 1 does not support multi-locale slide variants. If i18n enters the roadmap in Phase 3, the compiler should produce one independent TimelineMap per locale rather than trying to share anchors across layouts whose text density may differ.
+
+**Decision note**: This keeps the Phase 1 compiler focused on a single deterministic content tree. Reopen earlier only if a Phase 1 alpha deck has an unavoidable locale-switching requirement tied to the MVP acceptance scenario.
 
 ### **OQ-5: Frame consistency with Remotion Lambda**
 
@@ -545,21 +554,23 @@ These require resolution during Phase 0 review, or must be explicitly "parked un
 - Exporting to Lambda requires a "frozen" static timeline.
 - How do we guarantee the exported MP4 matches the local preview frame-for-frame?
 
-**Leaning**: on export, the compiler runs in "offline mode" — all `wait-for-event` steps use an author-specified "export duration" instead of their runtime behavior — producing a static TimelineMap handed off to Lambda.
+**Resolution**: Export uses an explicit offline compilation mode. In offline mode, every `wait-for-event` step must resolve to an `exportDuration`, and every `computed` step must either resolve before compilation or fail with a typed export error.
+
+**Decision note**: Cadenza guarantees frame-for-frame parity for the offline TimelineMap handed to Remotion Lambda, not for arbitrary live-presenter dwell times during an interactive preview. This makes export deterministic without pretending that an interactive talk has one canonical video length.
 
 ---
 
 ## **9. Phase 0 Review Checklist**
 
-This document must pass the following review before Phase 0 closes:
+This document must pass the following review before Phase 0 closes.
 
-- [ ] §2's four responsibilities are clearly bounded and non-overlapping.
-- [ ] §3's two identity invariants (monotonicity + completeness) are correct and automatable.
-- [ ] §5's six edge cases each include: problem / decision / rationale / test cases.
-- [ ] §5 test case naming and given-when-then structure are consistent and directly translatable into Vitest / Playwright tests.
-- [ ] §6 invariants can be asserted in unit tests.
-- [ ] §7 non-goals are endorsed as hard boundaries for this compiler.
-- [ ] §8 open questions either have a clear leaning or are explicitly parked for mid-Phase 1.
+- [x] §2's four responsibilities are clearly bounded and non-overlapping. Verified: collection, timeline map production, runtime API exposure, and intent-to-`seekTo` translation each own a distinct boundary.
+- [x] §3's two identity invariants (monotonicity + completeness) are correct and automatable. Verified: both can be asserted by iterating compiled segments and frame ranges in unit tests.
+- [x] §5's six edge cases each include: problem / decision / rationale / test cases. Verified: §§5.1–5.6 all follow this structure.
+- [x] §5 test case naming and given-when-then structure are consistent and directly translatable into Vitest / Playwright tests. Verified: all edge-case tests use `TC-5.x.y` names and scenario clauses.
+- [x] §6 invariants can be asserted in unit tests. Verified: each invariant has a concrete TimelineMap-level assertion target.
+- [x] §7 non-goals are endorsed as hard boundaries for this compiler. Verified: they match ADR 0002 and the Phase 1 scope ceiling.
+- [x] §8 open questions either have a clear resolution or an explicit reopen condition. Verified: OQ-1 through OQ-5 were approved by the maintainer on 2026-04-25.
 
 If this document does not pass review, **Phase 1 does not begin.**
 
@@ -569,4 +580,6 @@ If this document does not pass review, **Phase 1 does not begin.**
 
 | Version | Date | Notes |
 | :---- | :---- | :---- |
+| v0.3 | 2026-04-25 | Maintainer approved the five OQ resolutions and froze the compiler contract. |
+| v0.2 | 2026-04-25 | Phase 0 Architect review pass: integrated bilingual OQ recommendations, verified review checklist, and advanced status to Review-ready. |
 | v0.1 | 2026-04-17 | Initial draft: 6 known edge cases + invariants + non-goals + 5 open questions. |

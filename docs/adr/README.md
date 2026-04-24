@@ -31,3 +31,8 @@ See [`template.md`](./template.md).
 | [0003](./0003-skills-before-mcp.md) | Skills-first AI integration; MCP deferred | Accepted | 2026-04-17 |
 | [0004](./0004-tsx-first-authoring.md) | TSX-first authoring; DSL deferred | Accepted | 2026-04-17 |
 | [0005](./0005-apache-2-0-license.md) | Apache License 2.0 for the project | Accepted | 2026-04-17 |
+| [0006](./0006-dual-oss-core-hosted-commercial-tier.md) | Dual OSS core plus hosted commercial tier | Accepted | 2026-04-25 |
+| [0007](./0007-two-stage-remotion-engagement.md) | Two-stage Remotion engagement | Accepted | 2026-04-25 |
+| [0008](./0008-single-maintainer-ai-agent-decision-loop.md) | Single-maintainer plus AI-agent decision loop | Accepted | 2026-04-25 |
+| [0009](./0009-advisory-role-binding.md) | Advisory role binding with Startup Protocol | Accepted | 2026-04-25 |
+| [0010](./0010-project-name-cadenza-github-org.md) | Project name Cadenza and GitHub org cadenza-dev | Accepted | 2026-04-25 |

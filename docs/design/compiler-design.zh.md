@@ -1,6 +1,6 @@
-# **Cadenza State-to-Timeline Compiler — 技术设计文档 (v0.1 草案)**
+# **Cadenza State-to-Timeline Compiler — 技术设计文档 (v0.3 CONTRACT_FROZEN)**
 
-> **状态**：Draft, pending Phase 0 review
+> **状态**：CONTRACT_FROZEN
 > **作者**：Eden Wang (`@DrEden33773`)
 > **评审标准**：Phase 0 核心贡献者评审通过后方可启动 Phase 1
 > **关联文档**：
@@ -510,34 +510,43 @@ and <Chapter> contributes outline metadata only, not timeline structure
 
 ## **8. 未解问题（Open Questions）**
 
-以下问题需在 Phase 0 评审期间达成共识，或明确"暂时搁置，Phase 1 中期再决定"：
+以下决议已于 2026-04-25 经 maintainer 批准，属于冻结后的 Phase 1
+compiler contract。
 
 ### **OQ-1：FPS 应否在 Deck 层强制统一？**
 
 - 选项 A：强制整个 Deck 使用单一 FPS
 - 选项 B：允许每个 Slide 自定义 FPS（需处理 transition 跨 FPS 问题）
 
-**倾向**：选项 A。多 FPS 在 Remotion 中极其复杂，且对 slides 语义无收益。
+**决议**：Phase 1 强制整个 Deck 使用单一 FPS。Slide-level FPS 暂不进入范围，因为 transition 计算、step anchor、`seekTo(frame)` 导航以及 preview/export parity 都依赖同一套 frame grid。作者如果需要不同的视觉节奏，应通过 duration token、animation curve 或 transition setting 表达，而不是改变 timeline 的基础时钟。
+
+**决策备注**：这项选择牺牲的是局部表达自由，换来 compiler 行为的确定性。只有当真实 alpha deck 证明存在无法用 duration 或 animation primitive 表达的 slide-level FPS 需求时，才重新打开。
 
 ### **OQ-2：Cursor onChange 事件的节流粒度？**
 
 - `in-transition` 期间 `progress` 每帧都在变化，是否每帧都 emit？
 - 还是只在状态切换时 emit？
 
-**倾向**：只在状态切换（at-step ↔ in-transition ↔ loading）时 emit；`progress` 通过单独 API 查询。
+**决议**：`onCursorChange` 只在语义状态变化时 emit：`at-step`、`in-transition`、`loading`，以及 slide/step identity 变化。`in-transition` 期间的 frame-level `progress` 仍可通过 `getCursor()` 查询，但不作为每帧事件推送。
+
+**决策备注**：这样可以让 presenter UI 更新保持可预测，避免把 navigation metadata 变成另一条 render-loop side channel。如果 Phase 1 实现确实需要 frame-granular progress subscription，应新增一个命名清晰的 transition-progress API，而不是重载 `onCursorChange`。
 
 ### **OQ-3：Deck duration 的上限？**
 
 - 是否限制单个 Deck 最长时长？防止 timeline 过长导致内存/渲染问题
 
-**倾向**：不硬限制，但在 timeline 超过 60 分钟时发出 compile-time warning。
+**决议**：Phase 1 不设置硬性时长上限。当编译后的 timeline 超过 60 分钟时，发出 compile-time warning，并包含 total frames 与按 Deck FPS 估算的总时长。
+
+**决策备注**：这保留了合法的长篇 technical talk，同时提前暴露风险。只有当真实 alpha deck 暴露出具体的内存、Remotion Player 或 Lambda 约束后，才引入硬性上限。
 
 ### **OQ-4：多语言 slides（i18n）**
 
 - Slide 内容若随 locale 变化，timeline 长度可能变化（文字渲染差异导致 overflow）
 - 是否在 compile 阶段为每个 locale 产出独立 TimelineMap？
 
-**倾向**：Phase 1 不处理 i18n；Phase 3 若需要，每 locale 独立 compile。
+**决议**：Phase 1 不支持 multi-locale slide variant。如果 Phase 3 把 i18n 纳入路线图，compiler 应为每个 locale 独立产出 TimelineMap，而不是试图在 text density 可能不同的 layout 之间共享 anchor。
+
+**决策备注**：这让 Phase 1 compiler 专注于单一确定性的 content tree。只有当 Phase 1 alpha deck 出现与 MVP acceptance scenario 绑定的、不可避免的 locale-switching 需求时，才提前重开。
 
 ### **OQ-5：与 Remotion Lambda 的帧一致性**
 
@@ -545,21 +554,23 @@ and <Chapter> contributes outline metadata only, not timeline structure
 - 导出到 Lambda 时，timeline 需要"冻结"为静态版本
 - 如何保证两者产出的 MP4 与本地 preview 完全一致？
 
-**倾向**：导出时 compiler 运行 "offline mode"，将所有 `wait-for-event` 用作者预设的 "export duration" 替代，生成静态 TimelineMap 交给 Lambda。
+**决议**：导出时 compiler 运行显式的 offline compilation mode。在 offline mode 中，每个 `wait-for-event` step 必须解析为 `exportDuration`；每个 `computed` step 必须在 compilation 前完成解析，否则抛出 typed export error。
+
+**决策备注**：Cadenza 保证交给 Remotion Lambda 的 offline TimelineMap 具备 frame-for-frame parity，而不是保证任意一次 live presenter preview 的停留时长都能对应唯一 canonical video length。这样既让 export 可确定，也不假装交互式演讲天然有固定视频长度。
 
 ---
 
 ## **9. Phase 0 评审 Checklist**
 
-本文档须通过以下评审方可关闭 Phase 0：
+本文档须通过以下评审方可关闭 Phase 0。
 
-- [ ] §2 四项职责边界清晰、互不越界
-- [ ] §3 两条恒等关系（monotonicity + completeness）正确且可自动化验证
-- [ ] §5 六个边界情形每项都有：问题 / 决策 / 理由 / 测试用例
-- [ ] §5 测试用例命名与 given-when-then 结构一致，可直接转为 Vitest / Playwright 测试
-- [ ] §6 不变量可在单元测试中自动化校验
-- [ ] §7 Non-goals 被认可为本 compiler 的硬边界
-- [ ] §8 Open questions 或有明确倾向，或被显式 park 到 Phase 1 中期
+- [x] §2 四项职责边界清晰、互不越界。已核验：声明收集、TimelineMap 生成、runtime API 暴露、intent 到 `seekTo` 的翻译各自边界独立。
+- [x] §3 两条恒等关系（monotonicity + completeness）正确且可自动化验证。已核验：二者都可以通过遍历 compiled segments 与 frame ranges 在单元测试中断言。
+- [x] §5 六个边界情形每项都有：问题 / 决策 / 理由 / 测试用例。已核验：§§5.1–5.6 均符合该结构。
+- [x] §5 测试用例命名与 given-when-then 结构一致，可直接转为 Vitest / Playwright 测试。已核验：所有边界测试均使用 `TC-5.x.y` 命名与场景式描述。
+- [x] §6 不变量可在单元测试中自动化校验。已核验：每条 invariant 都有明确的 TimelineMap-level assertion target。
+- [x] §7 Non-goals 被认可为本 compiler 的硬边界。已核验：与 ADR 0002 和 Phase 1 scope ceiling 一致。
+- [x] §8 Open questions 或有明确决议，或有显式重开条件。已核验：OQ-1 到 OQ-5 均已于 2026-04-25 获 maintainer 批准。
 
 本文档评审不通过 ⇒ Phase 1 不启动。
 
@@ -569,4 +580,6 @@ and <Chapter> contributes outline metadata only, not timeline structure
 
 | 版本 | 日期 | 说明 |
 | :---- | :---- | :---- |
+| v0.3 | 2026-04-25 | Maintainer 批准五项 OQ 决议，并冻结 compiler contract。 |
+| v0.2 | 2026-04-25 | Phase 0 Architect 评审稿：整合中英文 OQ 建议决议，核验评审 checklist，并将状态推进到 Review-ready。 |
 | v0.1 | 2026-04-17 | 初稿，覆盖 6 项已知边界情形 + 不变量 + non-goals + 5 个 open questions |
