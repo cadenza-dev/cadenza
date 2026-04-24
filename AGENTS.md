@@ -119,6 +119,11 @@ Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-op
 3. **Always update `trace/<phase>/tracker.md`** after a batch completes. Missing traces make context recovery fail.
 4. **Raw Remotion primitives** (`useCurrentFrame`, `delayRender`, `continueRender`, `TransitionSeries` direct use) are escape-hatch only in Cadenza code. Prefer the typed API + render-safe layer. If you must use raw APIs, add a `// why:` comment pointing to the reason.
 5. **Do not publish to npm, push to `main`, or open external PRs** without explicit user approval in the same session.
+6. **Communicate with the maintainer primarily in Chinese.** Keep English technical terms, API names, model/tool names, and term-like phrases in English when that is clearer.
+7. **Use English for repository artifacts by default.** Unless the user explicitly asks for another language, new or edited files, docs, specs, ADRs, prompts, code comments, and scripts should be written in English.
+8. **Load relevant local skills on demand.** Agents may use any locally configured skill that is relevant to the task assigned in the current session.
+9. **Use internet research tools when useful.** Agents may use web search, and when justified, higher-fidelity tools such as agent-browser or Playwright, to verify external facts, current behavior, official docs, or browser-observable workflows.
+10. **Use sub-agents for parallel work when appropriate.** Agents are encouraged to delegate bounded, independent subtasks to sub-agents when parallel execution is feasible, useful, and safe to integrate.
 
 ---
 
