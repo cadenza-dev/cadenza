@@ -28,7 +28,7 @@ phases:
     status: in_progress
     owners: [architect]   # Builder joins only if the Architect authors PHASE0_KICK_BUILDER.md during M6
     trace: trace/phase0/
-    exit_criteria_ref: "docs/analysis/analysis-final.en.md §7"
+    exit_criteria_ref: "docs/analysis/analysis-final.md §7"
   "1":
     name: "Core Framework and Typed API (MVP)"
     status: not_started
@@ -70,8 +70,8 @@ ownership:
 # ------------------------------------------------------------------
 index:
   agents_guide: AGENTS.md
-  analysis_en: docs/analysis/analysis-final.en.md
-  analysis_zh: docs/analysis/analysis-final.md
+  analysis_en: docs/analysis/analysis-final.md
+  analysis_zh: docs/analysis/analysis-final.zh.md
   adr_index: docs/adr/README.md
   design: docs/design/
   spec_format: spec/README.md

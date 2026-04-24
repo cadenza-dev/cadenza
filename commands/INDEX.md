@@ -47,7 +47,7 @@ Codex uses the `cadenza-` prefix because its prompts are user-scope; the prefix 
 ### What it does
 
 1. Orders a full read of `AGENTS.md` (with §2 Authority / §3 Roles / §4 Startup Protocol / §7 Hard Constraints emphasized).
-2. Orders a read of `STATUS.yaml`, `docs/adr/README.md`, and `docs/analysis/analysis-final.en.md` §0.
+2. Orders a read of `STATUS.yaml`, `docs/adr/README.md`, and `docs/analysis/analysis-final.md` §0.
 3. Points the agent at the role's kick file under `prompt/PHASE<N>_KICK_<ROLE>.md`.
 4. Forces the agent through AGENTS.md §4 Startup Protocol — self-report identity, compare to the suggested mapping, stop and ask on mismatch, wait for explicit user approval before any write.
 
@@ -113,9 +113,9 @@ A structured findings table + summary + exit code. If errors > 0, the agent must
 Full authoring rules live in [`README.md`](./README.md) §"Adding a new command". The checklist in short:
 
 1. Write `commands/<name>.md` with YAML frontmatter (`description`, `argument-hint`, optional `allowed-tools`) and a markdown body.
-2. Run `scripts/commands-sync.sh` — regenerates `.claude/commands/*.md` symlinks and `.gemini/commands/*.toml` artifacts.
+2. Run `scripts/commands-sync.sh` — regenerates `.claude/commands/*.md` symlinks, `.gemini/commands/*.toml` artifacts, and `.codex/prompts/cadenza-*.md` artifacts.
 3. **Append a row to the Summary table in this file** (and add a detailed section following the layout above).
-4. Commit all of: the source, the generated Gemini TOML, the Claude symlink, and this INDEX update.
+4. Commit all of: the source, the generated Gemini TOML, the generated Codex prompt, the Claude symlink, and this INDEX update.
 5. Tell Codex users to run `scripts/install-codex-commands.sh` on their next pull to pick up the new command.
 
 ## Authoring conventions

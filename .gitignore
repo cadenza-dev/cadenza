@@ -69,7 +69,11 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
-.codex
+
+# Codex — keep shared prompt bridge artifacts, ignore private local state.
+.codex/*
+!.codex/prompts/
+!.codex/prompts/*.md
 
 # Claude Code / AI agent workspaces (keep shared, ignore private)
 .claude/local/

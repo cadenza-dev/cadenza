@@ -28,7 +28,7 @@ Full protocol: [`AGENTS.md`](../AGENTS.md) §4.
 
 1. [`AGENTS.md`](../AGENTS.md) — full file. Memorize §2 Authority, §3 Roles, §4 Startup, §7 Hard Constraints.
 2. [`STATUS.yaml`](../STATUS.yaml) — confirm `current_phase` is `0` and owner column names **architect**.
-3. [`docs/analysis/analysis-final.en.md`](../docs/analysis/analysis-final.en.md) — read **§0 Executive Summary** and **§7 Staged Roadmap**. Skim §1–§6; you will revisit on demand.
+3. [`docs/analysis/analysis-final.md`](../docs/analysis/analysis-final.md) — read **§0 Executive Summary** and **§7 Staged Roadmap**. Skim §1–§6; you will revisit on demand.
 4. [`docs/design/compiler-design.md`](../docs/design/compiler-design.md) — this is the central artifact Phase 0 must land.
 5. [`docs/adr/README.md`](../docs/adr/README.md) — know which ADRs are already accepted (0001–0005).
 6. [`goals-non-goals.md`](../goals-non-goals.md) — your scope ceiling for everything below.
@@ -45,7 +45,7 @@ Before you begin, verify each of these. If any fails, **stop and surface the fai
 - [ ] `docs/design/compiler-design.md` exists and is marked `Draft`.
 - [ ] ADRs 0001–0005 are present under `docs/adr/` and listed in `docs/adr/README.md`.
 - [ ] The directory [`prompt/`](.) contains both this file and `PHASE0_KICK_BUILDER.md`.
-- [ ] The directory `docs/analysis/` contains both `analysis-final.md` (中文) and `analysis-final.en.md`.
+- [ ] The directory `docs/analysis/` contains both `analysis-final.md` (English) and `analysis-final.zh.md` (中文).
 - [ ] `docs/communications/remotion-notification-email.md` exists as a draft.
 
 Phase 0 is strictly design + docs + infra. **No production code is written in Phase 0 by anyone.** If a pre-flight item is missing, raise it with the user first.
@@ -174,7 +174,7 @@ When **all** of those conditions are met and the user approves, Phase 0 closes.
 
 In order of preference:
 
-1. Re-read the relevant section of `analysis-final.en.md` or `compiler-design.md`. Most answers are already there.
+1. Re-read the relevant section of `analysis-final.md` or `compiler-design.md`. Most answers are already there.
 2. Check `docs/adr/` — a prior decision may apply.
 3. Ask the user one specific question. Not three. One.
 4. Never guess on licensing, external communication wording, or frozen-contract intent.

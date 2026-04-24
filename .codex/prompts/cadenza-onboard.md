@@ -1,9 +1,7 @@
-# GENERATED — do not edit by hand.
-# Source: commands/onboard.md
-# Regenerate: scripts/commands-sync.sh
+---
+description: "Run the cold-start onboarding checklist for a fresh Cadenza session"
+---
 
-description = "Run the cold-start onboarding checklist for a fresh Cadenza session"
-prompt = '''
 
 You are entering a Cadenza session with cold context. Run this onboarding checklist before taking any action. Do not skim; read each file.
 
@@ -27,4 +25,3 @@ Respond with a compact numbered summary:
 - A single concrete question if anything is unclear, or "ready to proceed pending user confirmation" if the match is clean
 
 **Do not begin work yet.** Stop here and wait.
-'''

@@ -42,7 +42,7 @@ Note: per [`AGENTS.md`](../AGENTS.md) §3–§4, this env var is part of the **a
 
 ## Skills (Phase 1+)
 
-Skills for Cadenza will ship alongside the Phase 1 MVP (see [analysis-final §5.4](../docs/analysis/analysis-final.en.md)). Initial roster:
+Skills for Cadenza will ship alongside the Phase 1 MVP (see [analysis-final §5.4](../docs/analysis/analysis-final.md)). Initial roster:
 
 - `cadenza-typed-api` — how to use `<Deck>` / `<Slide>` / `<Step>` / `<Transition>`
 - `cadenza-render-safe` — correct usage of `<SafeImage>` / `<SafeFont>` / `<TypographyBox>`, and the anti-patterns they forbid

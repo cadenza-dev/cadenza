@@ -1,6 +1,6 @@
 # Cadenza — Roadmap
 
-> Strategic brief, operational summary of [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md). This document is the Scout's output: what we are building, for whom, in what sequence, and what "done" looks like at each stage. It is linkable evidence for positioning; it is not a contract. Specs in `spec/<phase>/` are the contracts.
+> Strategic brief, operational summary of [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md). This document is the Scout's output: what we are building, for whom, in what sequence, and what "done" looks like at each stage. It is linkable evidence for positioning; it is not a contract. Specs in `spec/<phase>/` are the contracts.
 
 ---
 

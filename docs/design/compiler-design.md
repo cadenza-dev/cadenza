@@ -5,7 +5,7 @@
 > **Review standard**: Phase 1 does not begin until this document passes core-contributor review.
 > **Related documents**:
 >
-> - [`docs/analysis/analysis-final.en.md`](../analysis/analysis-final.en.md) §4.3 (problem statement and constraints)
+> - [`docs/analysis/analysis-final.md`](../analysis/analysis-final.md) §4.3 (problem statement and constraints)
 > - [`docs/adr/0002-typed-api-first-architecture.md`](../adr/0002-typed-api-first-architecture.md) (architectural decision)
 
 ---

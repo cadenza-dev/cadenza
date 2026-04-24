@@ -15,7 +15,7 @@ After compaction, re-read in AGENTS.md §1 Read Order:
   1. AGENTS.md in full — especially §2 (Authority), §4 (Startup Protocol), §7 (Hard Constraints)
   2. STATUS.yaml (below, inline for convenience)
   3. docs/adr/README.md (ADR index)
-  4. docs/analysis/analysis-final.en.md §0 (Executive Summary only)
+  4. docs/analysis/analysis-final.md §0 (Executive Summary only)
   5. prompt/PHASE<N>_KICK_<ROLE>.md (your role brief)
   6. trace/<current-phase>/tracker.md (if resuming mid-batch)
 

@@ -94,7 +94,7 @@ Done when: maintainer reviews and accepts.
 
 ### 3.2 Architect Stage A — exploratory
 
-Inputs: `ROADMAP.md`, `docs/analysis/analysis-final.en.md`, prior phase's frozen specs.
+Inputs: `ROADMAP.md`, `docs/analysis/analysis-final.md`, prior phase's frozen specs.
 Output: `spec/<phase>/SPEC_*.md` files with `CONTRACT_DRAFT` markers and Freeze Candidate entries.
 Done when: every contested domain has ≥ 2 options considered and any unresolved tension is an explicit Freeze Candidate.
 

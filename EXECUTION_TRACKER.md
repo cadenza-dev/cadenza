@@ -24,7 +24,7 @@ Follow [`AGENTS.md`](./AGENTS.md) §1 Read Order. The authoritative sequence is:
 1. `AGENTS.md`
 2. `STATUS.yaml`
 3. `docs/adr/README.md`
-4. `docs/analysis/analysis-final.en.md` §0
+4. `docs/analysis/analysis-final.md` §0
 5. `prompt/PHASE<N>_KICK_<ROLE>.md`
 6. `spec/<current-phase>/`
 7. `trace/<current-phase>/tracker.md`

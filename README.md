@@ -18,7 +18,7 @@ No runtime code has been written yet. We are currently:
 2. Locking in architectural decisions in [`docs/adr/`](./docs/adr/)
 3. Establishing positioning and non-goals in [`goals-non-goals.md`](./goals-non-goals.md)
 
-The full strategic analysis that led to this project lives in [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) (中文) and [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md) (English).
+The full strategic analysis that led to this project lives in [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) (English) and [`docs/analysis/analysis-final.zh.md`](./docs/analysis/analysis-final.zh.md) (中文).
 
 Phase 1 (MVP) does not begin until the compiler design passes review.
 
@@ -69,7 +69,7 @@ Four ideas carry the architecture:
 3. **Skills before MCP.** Phase 1 AI investment goes into `AI-ready docs + system prompts + skill pack`. MCP is layered later, once structured lookup becomes a real bottleneck.
 4. **TSX-first authoring.** Modern LLMs write usable TSX today. We constrain them through the typed API, not through a new language.
 
-See [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md) §4 for the full argument.
+See [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) §4 for the full argument.
 
 ---
 
@@ -89,7 +89,7 @@ See [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md)
 - Teams that need WYSIWYG editing, real-time collaboration, comments, or version history as a primary workflow — at least not before the core framework reaches 1.0
 - Users who don't want to touch code
 
-If you're not sure whether this is for you, skim [`goals-non-goals.md`](./goals-non-goals.md) and [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md) §1.2.
+If you're not sure whether this is for you, skim [`goals-non-goals.md`](./goals-non-goals.md) and [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) §1.2.
 
 ---
 
@@ -127,7 +127,7 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 | **3** | Presentation product layer: presenter mode, chapters, intelligent typography, data-viz templates | 10+ developers use Cadenza for real-world talks |
 | **4** | Export, multi-device, tool-based MCP, Lambda integration | Determined by PMF state and commercialization decision |
 
-Full roadmap and rationale: [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md) §7.
+Full roadmap and rationale: [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) §7.
 
 ---
 
@@ -155,8 +155,8 @@ Cadenza stands on the shoulders of several projects:
 
 ## Links
 
-- Strategic analysis (中文): [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md)
-- Strategic analysis (English): [`docs/analysis/analysis-final.en.md`](./docs/analysis/analysis-final.en.md)
+- Strategic analysis (English): [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md)
+- Strategic analysis (中文): [`docs/analysis/analysis-final.zh.md`](./docs/analysis/analysis-final.zh.md)
 - Compiler design: [`docs/design/compiler-design.md`](./docs/design/compiler-design.md)
 - Architectural decisions: [`docs/adr/`](./docs/adr/)
 - Goals and non-goals: [`goals-non-goals.md`](./goals-non-goals.md)
