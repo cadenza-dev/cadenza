@@ -47,7 +47,7 @@ Translates Scout's strategic direction into frozen contracts. Produces specs, AD
 
 **Writes**: `spec/`, `docs/adr/`, `docs/design/`, `prompt/`.
 **Must not touch**: `packages/**/src/` (enforced by [`scripts/hooks/enforce-architect-boundary.sh`](../scripts/hooks/enforce-architect-boundary.sh) when `CADENZA_AGENT_ROLE=architect`).
-**Suggested model/tool**: `claude-opus-4-7` via `claude-code`.
+**Suggested model/tool**: `claude-opus-4-7` via `claude-code`, or `gpt-5-5` via `codex`.
 
 ### Builder
 
@@ -55,7 +55,7 @@ Consumes frozen specs; writes tests first (red); implements (green); refactors. 
 
 **Writes**: `packages/`, tests, `trace/<phase>/`, infra configs (Biome, Vitest, TSConfig, CI).
 **Must not touch**: `spec/` (when `CONTRACT_FROZEN`), `docs/adr/` (when `Accepted`).
-**Suggested model/tool**: `gpt-5-4` via `codex`.
+**Suggested model/tool**: `gpt-5-5` via `codex`.
 
 ### Why we don't have a Tester role
 
@@ -171,7 +171,8 @@ If you feel pressure to freeze early, ask whether there's a genuine contested de
 
 The `(role, model, tool)` binding in `AGENTS.md` §3 is a **suggestion**, not a hard constraint. Two reasons:
 
-1. Model IDs drift. `claude-opus-4-7` becomes `claude-opus-4-8` on some future release; hard-coding breaks.
+1. Model IDs drift. `claude-opus-4-7` becomes `claude-opus-4-8` on some future release; hard-coding breaks
+    - What's more, with the publishing of `gpt-5-5`, it could be considered as an alternative option of `claude-opus-4-7`.
 2. Agents cannot always reliably self-identify. Enforcement that depends on unreliable self-reports will misfire.
 
 Instead, enforcement is behavioral: every session runs the **Startup Protocol** (AGENTS.md §4). It boils down to:
@@ -294,8 +295,8 @@ Changes to this document, to `AGENTS.md`, or to the kick file templates go throu
 | :---------------------- | :--------------------------------------------------------------------------- |
 | **Spec**                | A `spec/<phase>/SPEC_*.md` file; a binding contract with requirement IDs     |
 | **CONTRACT_DRAFT**      | Spec status: still editable; Architect Stage A                               |
-| **CONTRACT_FROZEN**     | Spec status: binding; changes require explicit user approval via ADR        |
-| **Freeze Candidate**    | A Stage A marker for a contested decision that must resolve before freeze   |
+| **CONTRACT_FROZEN**     | Spec status: binding; changes require explicit user approval via ADR         |
+| **Freeze Candidate**    | A Stage A marker for a contested decision that must resolve before freeze    |
 | **Requirement ID**      | `<PREFIX>-<DIGITS>`, globally unique within the repo                         |
 | **Test Case ID**        | `TC-<DOMAIN>-<NN>` tied back to one or more requirement IDs                  |
 | **Batch**               | A Builder work unit of ~5–20 related test cases + implementation             |
@@ -310,7 +311,7 @@ Changes to this document, to `AGENTS.md`, or to the kick file templates go throu
 ## 12. FAQ
 
 **Q: I am Claude Code. Can I do Builder work?**
-A: Yes, but set `CADENZA_AGENT_ROLE=builder` before you start writing, and run the Startup Protocol to confirm with the user that your model is acceptable for Builder (the suggested model is `gpt-5-4`, and the user may want you to wait for Codex instead).
+A: Yes, but set `CADENZA_AGENT_ROLE=builder` before you start writing, and run the Startup Protocol to confirm with the user that your model is acceptable for Builder (the suggested model is `gpt-5-5`, and the user may want you to wait for Codex instead).
 
 **Q: A spec says X, the user in chat said Y. Which wins?**
 A: The spec, if `CONTRACT_FROZEN`. If unfrozen, ask the user which to prefer and capture the resolution in the spec.

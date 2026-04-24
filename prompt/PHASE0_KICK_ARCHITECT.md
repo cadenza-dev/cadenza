@@ -8,7 +8,7 @@
 
 You are acting as **architect** for Cadenza Phase 0.
 
-**Suggested model/tool (advisory, not enforced)**: `claude-opus-4-7` via `claude-code`.
+**Suggested model/tool (advisory, not enforced)**: `claude-opus-4-7` via `claude-code`, or `gpt-5-5` via `codex`.
 
 **Mandatory Startup Protocol** — before any write action:
 
@@ -16,7 +16,7 @@ You are acting as **architect** for Cadenza Phase 0.
 2. Compare to the suggestion above.
 3. If you cannot reliably identify yourself, **or** if the detected identity differs from the suggestion:
    - **STOP.** Do not make any writes.
-   - Tell the user: "I was launched as **architect** for Phase 0. My detected identity is **`<model>/<tool>`**; AGENTS.md §3 suggests **`claude-opus-4-7`/`claude-code`**. Proceed as architect? (y/n)"
+   - Tell the user: "I was launched as **architect** for Phase 0. My detected identity is **`<model>/<tool>`**; AGENTS.md §3 suggests **`claude-opus-4-7`/`claude-code`** or **`gpt-5-5`/`codex`**. Proceed as architect? (y/n)"
    - Wait for explicit approval (`y`, `yes`, `proceed`, or similar).
 4. If the suggestion matches, proceed without asking.
 

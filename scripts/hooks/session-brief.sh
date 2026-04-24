@@ -30,7 +30,8 @@ echo ""
 echo "Suggested role → model/tool mapping (advisory, NOT enforced):"
 echo "  scout      →  gemini-3-1-pro    via  gemini-cli"
 echo "  architect  →  claude-opus-4-7   via  claude-code"
-echo "  builder    →  gpt-5-4           via  codex"
+echo "       (or)  →  gpt-5-5           via  codex"
+echo "  builder    →  gpt-5-5           via  codex"
 
 echo ""
 if [ -n "${CADENZA_AGENT_ROLE:-}" ]; then

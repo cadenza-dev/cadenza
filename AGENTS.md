@@ -44,11 +44,11 @@ If a `CONTRACT_FROZEN` spec contradicts what a user tells you in chat, **stop an
 
 ## 3. Roles (suggested defaults — enforcement is advisory, not strict)
 
-| Role      | Suggested model      | Suggested tool  | Writes                                                      | Does not write                            |
+| Role | Suggested model | Suggested tool | Writes | Does not write |
 | :-------- | :------------------- | :-------------- | :---------------------------------------------------------- | :---------------------------------------- |
-| scout     | `gemini-3-1-pro`     | `gemini-cli`    | `ROADMAP.md`, `docs/research/`                              | `spec/`, `packages/`, `docs/adr/`         |
-| architect | `claude-opus-4-7`    | `claude-code`   | `spec/`, `docs/adr/`, `docs/design/`, `prompt/`             | `packages/**/src/`, production code       |
-| builder   | `gpt-5-4`            | `codex`         | `packages/`, tests, `trace/<phase>/`, infra configs         | `spec/` (frozen), `docs/adr/` (accepted)  |
+| scout | `gemini-3-1-pro` | `gemini-cli` | `ROADMAP.md`, `docs/research/` | `spec/`, `packages/`, `docs/adr/` |
+| architect | `claude-opus-4-7` / `gpt-5-5` | `claude-code` / `codex` | `spec/`, `docs/adr/`, `docs/design/`, `prompt/` | `packages/**/src/`, production code |
+| builder | `gpt-5-5` | `codex` | `packages/`, tests, `trace/<phase>/`, infra configs | `spec/` (frozen), `docs/adr/` (accepted) |
 
 These are **suggestions**, not hard constraints. Reality breaks the suggestion in three places:
 

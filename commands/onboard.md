@@ -13,7 +13,7 @@ You are entering a Cadenza session with cold context. Run this onboarding checkl
 5. Locate your role's kick file at `prompt/PHASE<N>_KICK_<ROLE>.md` where `<N>` is the current phase. Read it if present; say so explicitly if it is absent.
 6. If a kick file was present and spelled out a Read Order of its own, follow it.
 7. Execute AGENTS.md §4 Startup Protocol:
-   - Self-report your model and tool (be specific: `claude-opus-4-7` / `claude-code`, etc.)
+   - Self-report your model and tool (be specific: `claude-opus-4-7` / `claude-code`, or `gpt-5-5` / `codex`, etc.)
    - Compare to §3's suggested mapping for the role you were launched as
    - **If mismatch or uncertain**, STOP and reply to the user: "I was launched as **<role>**. My detected identity is **<model>/<tool>**; AGENTS.md §3 suggests **<suggested-model>/<suggested-tool>**. Proceed as <role>? (y/n)"
    - Wait for explicit approval (`y`, `yes`, `proceed`) before any write.
