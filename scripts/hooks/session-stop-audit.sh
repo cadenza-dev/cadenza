@@ -32,6 +32,7 @@ if echo "$PORCELAIN" | grep -qE '(^|\s)(spec/|packages/)' &&
   cat >&2 <<NOTE
 note (stop-audit): spec/ or packages/ was modified, but trace/<phase>/ was not.
   Per AGENTS.md §7.3, trace/<phase>/tracker.md must be updated when a batch completes.
+  Insert the entry directly below the H1, newest-first, with timestamped heading.
 NOTE
 fi
 

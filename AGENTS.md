@@ -123,7 +123,7 @@ Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-op
 
 1. **Never modify a `CONTRACT_FROZEN` file** without user approval. If unfreezing is genuinely needed, open an ADR that supersedes the decision first.
 2. **Never bypass git hooks** (`--no-verify`, `--force`, `git reset --hard` on uncommitted work). If a hook blocks you, read its output and fix the root cause.
-3. **Always update `trace/<phase>/tracker.md`** after a batch completes. Missing traces make context recovery fail.
+3. **Always update `trace/<phase>/tracker.md`** after a batch completes. Insert entries directly below the H1, newest-first, with heading format `YYYY-MM-DD HH:MM +ZZZZ — Title`.
 4. **Raw Remotion primitives** (`useCurrentFrame`, `delayRender`, `continueRender`, `TransitionSeries` direct use) are escape-hatch only in Cadenza code. Prefer the typed API + render-safe layer. If you must use raw APIs, add a `// why:` comment pointing to the reason.
 5. **Do not publish to npm, push to `main`, or open external PRs** without explicit user approval in the same session.
 6. **Communicate with the maintainer primarily in Chinese.** Keep English technical terms, API names, model/tool names, and term-like phrases in English when that is clearer.

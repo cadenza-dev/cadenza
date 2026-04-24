@@ -112,7 +112,7 @@ The phase's `SPEC_TEST_MATRIX.md` defines an ordered list of test scenarios. Bui
 2. Write each test, confirm it fails (red).
 3. Implement the smallest code change to make it pass (green).
 4. Refactor if needed, confirm tests still green.
-5. Update `trace/<phase>/tracker.md` with the batch log.
+5. Insert the batch log at the top of `trace/<phase>/tracker.md`, directly below the H1, using the heading format `YYYY-MM-DD HH:MM +ZZZZ — Title`.
 
 Between batches, the maintainer reviews and triggers the next. Builder does not "just keep going" — it is a pace-controlled loop.
 
@@ -212,7 +212,7 @@ Claude Code's `/compact`, context-window exhaustion, or just closing and reopeni
 
 1. **Read Order** (AGENTS.md §1) is **authoritative**. Agents re-enter the workflow by reading the same files in the same sequence, producing the same mental model they would have on first entry.
 2. **PreCompact hook** ([`scripts/hooks/pre-compact-preserve.sh`](../scripts/hooks/pre-compact-preserve.sh)) pre-injects `STATUS.yaml` and the Read Order reminder before Claude Code compacts, so the post-compact context starts with the right pointers.
-3. **Trace files** are intentionally information-dense. `trace/<phase>/tracker.md` should contain enough narrative that a fresh agent can pick up mid-batch without re-reading the whole session.
+3. **Trace files** are intentionally information-dense. `trace/<phase>/tracker.md` is newest-first and should contain enough narrative that a fresh agent can pick up mid-batch without re-reading the whole session.
 4. **Tracker updates are mandatory**, not polite. The `session-stop-audit.sh` hook warns on session exit if spec/ or packages/ was touched without a tracker update.
 
 If you are an agent reading this after a compaction: you should already have the preservation block injected above this in your context. If you do not, that is a hook failure — flag it to the user.
