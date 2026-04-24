@@ -6,11 +6,11 @@ If you are not running Claude Code (e.g., you are Codex, Gemini CLI, or a human 
 
 ## What's here
 
-| File                          | Purpose                                                                                                        |
-| :---------------------------- | :------------------------------------------------------------------------------------------------------------- |
-| `settings.json`               | Hooks configuration (SessionStart / PreToolUse / PostToolUse / Stop / PreCompact) pointing at `scripts/hooks/` |
-| `skills/`                     | Claude Code symlink mirror of project skills sourced from `.agents/skills/cadenza-*`                           |
-| `README.md` (this file)       | Overview of this directory                                                                                     |
+| File | Purpose |
+| :--- | :--- |
+| `settings.json` | Hooks configuration (SessionStart / PreToolUse / PostToolUse / Stop / PreCompact) pointing at `scripts/hooks/` |
+| `skills/` | Claude Code symlink mirror of project skills sourced from `.agents/skills/cadenza-*` |
+| `README.md` (this file) | Overview of this directory |
 
 ## How the hooks work
 
