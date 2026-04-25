@@ -1,5 +1,11 @@
 # Phase 0 Tracker
 
+## 2026-04-25 23:24 +0800 — Windows CI line endings fixed
+
+- GitHub Actions run `24934116072` proved the expanded matrix on `ubuntu-24.04` and `macos-15`, but `windows-2025` failed during `pnpm lint`.
+- The Windows failure was caused by CRLF checkout line endings making Biome report format diffs for text files.
+- Added `.gitattributes` to keep text checkout line endings LF-only across all runners and developer platforms.
+
 ## 2026-04-25 23:16 +0800 — CI matrix expanded for platform coverage
 
 - Updated `.github/workflows/ci.yml` from a single Ubuntu runner to a pinned OS matrix: `ubuntu-24.04`, `windows-2025`, and `macos-15`.
