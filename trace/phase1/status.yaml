@@ -237,6 +237,15 @@ batches:
           - packages/core/src/all-domain-mvp.fixture.test.ts
         implementation:
           - packages/core/src/fixtures/allDomainMvp.ts
+      - id: B1.4-C
+        completed_at: "2026-04-26 07:25 +0800"
+        summary: "Phase 1 exit demo handoff boundary proved from the all-domain fixture."
+        tests:
+          - packages/core/src/phase-exit-demo.test.ts
+        implementation:
+          - packages/core/src/fixtures/phaseExitDemo.ts
+        artifacts:
+          - trace/phase1/phase-exit-demo.md
     planned_batches:
       - id: B1.4-B1
         status: complete
@@ -272,7 +281,7 @@ batches:
           - integrated TimelineMap and cursor coverage
           - validation report and skill-pack repair loop
       - id: B1.4-C
-        status: pending
+        status: complete
         summary: "Prove the Phase 1 exit demo and export handoff boundary."
         expected_focus:
           - deterministic TimelineMap from the all-domain fixture
@@ -286,7 +295,7 @@ batches:
           - newest-first tracker closeout
           - full verification stack
           - stop before Phase 2 work
-    next_batch: B1.4-C
+    next_batch: B1.4-D
 
 exit_criteria:
   all_phase1_scenarios_green:
@@ -298,4 +307,4 @@ exit_criteria:
   traceability_recorded:
     status: met
   phase_exit_demo_ready:
-    status: unmet
+    status: met

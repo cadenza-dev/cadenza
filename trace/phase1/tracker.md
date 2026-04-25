@@ -1,5 +1,17 @@
 # Phase 1 Tracker
 
+## 2026-04-26 07:25 +0800 — B1.4-C phase exit demo handoff green
+
+- Startup identity: continued as Builder with maintainer approval in this session.
+- Publish checkpoint before this batch: committed and pushed `411754c` (`test: add phase 1 all-domain MVP fixture`) to `main`, scoped only to B1.4-B3 artifacts.
+- Batch scope: `B1.4-C` only; proved the Phase 1 exit demo/export handoff boundary from the all-domain MVP fixture without claiming unsupported MP4/PDF export support.
+- RED: added `packages/core/src/phase-exit-demo.test.ts`; `pnpm test -- packages/core/src/phase-exit-demo.test.ts` failed because `./fixtures/phaseExitDemo.js` did not exist.
+- GREEN: added `packages/core/src/fixtures/phaseExitDemo.ts` and `trace/phase1/phase-exit-demo.md`, capturing deterministic preview/offline TimelineMap signatures, browser preview verification command, validation report handoff, and the explicit export boundary.
+- REFACTOR: applied Biome import ordering to the new phase-exit fixture helper.
+- Implementation links: `packages/core/src/phase-exit-demo.test.ts`, `packages/core/src/fixtures/phaseExitDemo.ts`, `trace/phase1/phase-exit-demo.md`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, escalated `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Next B1.4 batch: `B1.4-D`, trace closeout and full phase-close verification.
+
 ## 2026-04-26 07:15 +0800 — B1.4-B3 all-domain MVP fixture green
 
 - Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after maintainer approval in this session.
