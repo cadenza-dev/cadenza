@@ -1,5 +1,17 @@
 # Phase 1 Tracker
 
+## 2026-04-26 06:55 +0800 — B1.4-B2 readiness and browser-depth gaps green
+
+- Startup identity: continued as Builder with maintainer approval already granted in this session.
+- Batch scope: `B1.4-B2`; closed readiness timeout diagnostics and browser-depth gaps for `VAL-005`, `RSAF-003`, `RSAF-004`, `PLAY-001`, and `RSAF-006` without modifying frozen specs or Accepted ADRs.
+- RED/GREEN 1: added a failing timeout test in `packages/core/src/render-safe.readiness.test.ts`, then added runtime `getDiagnostics()` plus per-resource timeout handling so asset/font/video readiness failures emit `RSAF_RESOURCE_TIMEOUT` warnings and continue into degraded preview state.
+- RED/GREEN 2: added Playwright keyboard coverage in `tests/browser/render-safe-preview.spec.ts`, then wired `tests/browser/cadenza-browser-entry.ts` to the public `bindKeyboardNavigation` API for real browser `keydown` events.
+- RED/GREEN 3: added controlled browser fixtures for `SafeFont` and `SafeVideo` readiness, then wired them through `createResourceReadiness`, `compile`, and `createRuntime`.
+- RED/GREEN 4: added a browser `MediaFrame` aspect-ratio measurement test, then extended `validatePreviewLayout` with `MediaFrameMeasurement` and `RSAF_MEDIAFRAME_ASPECT_RATIO` diagnostics.
+- Implementation links: `packages/core/src/runtime/createRuntime.ts`, `packages/core/src/validation/browser.ts`, `packages/core/src/index.ts`, `tests/browser/cadenza-browser-entry.ts`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, escalated `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Next B1.4 batch: `B1.4-B3`, creating the all-domain MVP fixture after semantic/browser-depth gaps are closed.
+
 ## 2026-04-26 06:30 +0800 — B1.4-B1 compiler/runtime semantics green
 
 - Startup identity: continued as Builder with maintainer approval already granted in this session.

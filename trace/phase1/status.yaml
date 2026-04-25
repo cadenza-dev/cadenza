@@ -211,6 +211,18 @@ batches:
           - packages/core/src/compiler/compile.ts
           - packages/core/src/compiler/cursor.ts
           - packages/core/src/runtime/createRuntime.ts
+      - id: B1.4-B2
+        completed_at: "2026-04-26 06:55 +0800"
+        summary: "Readiness timeout diagnostics and browser-depth coverage closed."
+        requirements: [VAL-005, RSAF-003, RSAF-004, PLAY-001, RSAF-006]
+        tests:
+          - packages/core/src/render-safe.readiness.test.ts
+          - tests/browser/render-safe-preview.spec.ts
+        implementation:
+          - packages/core/src/runtime/createRuntime.ts
+          - packages/core/src/validation/browser.ts
+          - packages/core/src/index.ts
+          - tests/browser/cadenza-browser-entry.ts
     planned_batches:
       - id: B1.4-B1
         status: complete
@@ -223,7 +235,7 @@ batches:
           - 60-minute compile warning metadata
           - semantic-only onCursorChange emissions
       - id: B1.4-B2
-        status: pending
+        status: complete
         summary: "Close readiness timeout and browser-depth gaps."
         requirements: [VAL-005, RSAF-003, RSAF-004, PLAY-001, RSAF-006]
         expected_focus:

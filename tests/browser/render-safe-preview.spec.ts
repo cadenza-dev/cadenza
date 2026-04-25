@@ -113,4 +113,130 @@ test.describe("B1.3 browser preview harness", () => {
         isSupported: true,
       });
   });
+
+  test("TC-PLAY-001 routes real browser keyboard events through runtime navigation", async ({
+    page,
+  }) => {
+    await page.setContent(
+      '<main id="preview-surface" tabindex="0">talk</main>',
+    );
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      window.CadenzaBrowserFixture.installKeyboardNavigation(),
+    );
+    await page.locator("#preview-surface").focus();
+
+    await page.keyboard.press("ArrowRight");
+    await page.keyboard.press("PageDown");
+    await page.keyboard.press("ArrowLeft");
+
+    expect(
+      await page.evaluate(() => window.CadenzaBrowserFixture.keyboardCalls()),
+    ).toEqual(["next", "next", "previous"]);
+
+    await page.evaluate(() =>
+      window.CadenzaBrowserFixture.unbindKeyboardNavigation(),
+    );
+    await page.keyboard.press("ArrowRight");
+
+    expect(
+      await page.evaluate(() => window.CadenzaBrowserFixture.keyboardCalls()),
+    ).toEqual(["next", "next", "previous"]);
+  });
+
+  test("TC-RSAF-002 gates controlled font and video readiness in browser preview", async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <main>
+        <h1 id="talk-title">Typed talks without fallback font flash</h1>
+        <video id="demo-video" src="/demo.mp4"></video>
+      </main>
+    `);
+    await loadCadenzaFixture(page);
+
+    expect(
+      await page.evaluate(() =>
+        window.CadenzaBrowserFixture.installReadinessGate(
+          "#talk-title",
+          "#demo-video",
+        ),
+      ),
+    ).toEqual({
+      cursor: { kind: "loading", reason: "font", slideId: "media" },
+      titleVisibility: "hidden",
+      videoReady: false,
+    });
+
+    expect(
+      await page.evaluate(() =>
+        window.CadenzaBrowserFixture.markControlledFontReady(),
+      ),
+    ).toEqual({
+      cursor: { kind: "loading", reason: "video", slideId: "media" },
+      titleVisibility: "visible",
+      videoReady: false,
+    });
+
+    expect(
+      await page.evaluate(() =>
+        window.CadenzaBrowserFixture.dispatchControlledVideoMetadata(),
+      ),
+    ).toEqual({
+      cursor: { kind: "at-step", slideId: "media", stepIndex: 0 },
+      titleVisibility: "visible",
+      videoReady: true,
+    });
+  });
+
+  test("TC-RSAF-005 measures MediaFrame aspect ratio in a real browser DOM", async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <main>
+        <div
+          data-cadenza-media-frame="demo-frame"
+          style="height: 180px; width: 320px;"
+        ></div>
+        <div
+          data-cadenza-media-frame="squashed-frame"
+          style="height: 240px; width: 240px;"
+        ></div>
+      </main>
+    `);
+    await loadCadenzaFixture(page);
+
+    expect(
+      await page.evaluate(() =>
+        window.CadenzaBrowserFixture.validateMediaFrames([
+          { expectedAspectRatio: 16 / 9, source: "demo-frame" },
+          { expectedAspectRatio: 16 / 9, source: "squashed-frame" },
+        ]),
+      ),
+    ).toEqual({
+      diagnostics: [
+        expect.objectContaining({
+          code: "RSAF_MEDIAFRAME_ASPECT_RATIO",
+          requirementId: "RSAF-006",
+          severity: "warning",
+          source: "squashed-frame",
+        }),
+      ],
+      measurements: [
+        {
+          clientHeight: 180,
+          clientWidth: 320,
+          measuredAspectRatio: 16 / 9,
+          source: "demo-frame",
+        },
+        {
+          clientHeight: 240,
+          clientWidth: 240,
+          measuredAspectRatio: 1,
+          source: "squashed-frame",
+        },
+      ],
+    });
+  });
 });

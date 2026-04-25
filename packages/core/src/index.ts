@@ -100,6 +100,7 @@ export {
   Transition,
 } from "./typed-api/primitives.js";
 export type {
+  MediaFrameMeasurement,
   PreviewLayoutMeasurement,
   TypographyBoxMeasurement,
 } from "./validation/browser.js";

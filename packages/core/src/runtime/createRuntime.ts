@@ -1,5 +1,6 @@
-import type { TimelineMap } from "../compiler/compile.js";
+import type { TimelineMap, TimelineResource } from "../compiler/compile.js";
 import { type Cursor, cursorAtFrame } from "../compiler/cursor.js";
+import type { CadenzaDiagnostic } from "../diagnostics/types.js";
 import type { ResourceReadiness } from "../render-safe/readiness.js";
 
 export type SeekPlayer = {
@@ -31,6 +32,7 @@ export type CadenzaRuntime = {
   next(): void;
   previous(): void;
   getCursor(): Cursor;
+  getDiagnostics(): CadenzaDiagnostic[];
   getPresenterMetadata(): PresenterMetadata;
   onCursorChange(handler: (cursor: Cursor) => void): () => void;
 };
@@ -49,10 +51,14 @@ export function createRuntime(
   const runtimeTimeline = cloneTimeline(timeline);
   const clock = options.clock ?? { now: () => Date.now() };
   let anchors = collectStepAnchors(runtimeTimeline);
+  const diagnostics: CadenzaDiagnostic[] = [...runtimeTimeline.diagnostics];
   const listeners = new Set<(cursor: Cursor) => void>();
+  const degradedResourceIds = new Set<string>();
   const startedAtMs = clock.now();
   let inactiveElapsedMs = 0;
   let loadingStartedAtMs: number | undefined;
+  let loadingResource: TimelineResource | undefined;
+  let loadingTimeout: ReturnType<typeof setTimeout> | undefined;
   let currentFrame = player.getCurrentFrame?.() ?? anchors[0]?.frame ?? 0;
   let currentAnchorIndex = anchorIndexForFrame(
     anchors,
@@ -104,15 +110,15 @@ export function createRuntime(
     }
     const targetStep = stepForAnchor(runtimeTimeline, anchor);
     if (targetStep?.pending) {
-      loadingStartedAtMs ??= clock.now();
-      loadingAnchorIndex = anchorIndex;
-      loadingCursor = {
-        kind: "loading",
-        reason: "computed",
-        slideId: anchor.slideId,
-      };
-      player.pause?.();
-      emitCursorChange();
+      enterLoading(
+        anchorIndex,
+        {
+          kind: "loading",
+          reason: "computed",
+          slideId: anchor.slideId,
+        },
+        undefined,
+      );
       return;
     }
 
@@ -120,18 +126,19 @@ export function createRuntime(
       runtimeTimeline,
       anchor.slideId,
       options.readiness,
+      degradedResourceIds,
     );
 
     if (missingResource) {
-      loadingStartedAtMs ??= clock.now();
-      loadingAnchorIndex = anchorIndex;
-      loadingCursor = {
-        kind: "loading",
-        reason: missingResource.resourceKind,
-        slideId: anchor.slideId,
-      };
-      player.pause?.();
-      emitCursorChange();
+      enterLoading(
+        anchorIndex,
+        {
+          kind: "loading",
+          reason: missingResource.resourceKind,
+          slideId: anchor.slideId,
+        },
+        missingResource,
+      );
       return;
     }
 
@@ -142,10 +149,67 @@ export function createRuntime(
 
     loadingAnchorIndex = undefined;
     loadingCursor = undefined;
+    loadingResource = undefined;
+    clearLoadingTimeout();
     currentAnchorIndex = anchorIndex;
     currentFrame = anchor.frame;
     player.seekTo(anchor.frame);
     emitCursorChange();
+  }
+
+  function enterLoading(
+    anchorIndex: number,
+    cursor: Extract<Cursor, { kind: "loading" }>,
+    resource: TimelineResource | undefined,
+  ): void {
+    loadingStartedAtMs ??= clock.now();
+    loadingAnchorIndex = anchorIndex;
+    loadingCursor = cursor;
+    loadingResource = resource;
+    player.pause?.();
+    scheduleLoadingTimeout(anchorIndex, resource);
+    emitCursorChange();
+  }
+
+  function scheduleLoadingTimeout(
+    anchorIndex: number,
+    resource: TimelineResource | undefined,
+  ): void {
+    clearLoadingTimeout();
+
+    if (!resource) {
+      return;
+    }
+
+    loadingTimeout = setTimeout(() => {
+      if (
+        loadingAnchorIndex !== anchorIndex ||
+        loadingResource?.resourceId !== resource.resourceId ||
+        options.readiness?.isReady(resource.resourceId)
+      ) {
+        return;
+      }
+
+      degradedResourceIds.add(resource.resourceId);
+      diagnostics.push({
+        severity: "warning",
+        code: "RSAF_RESOURCE_TIMEOUT",
+        message: `${resource.resourceKind} resource '${resource.resourceId}' timed out after ${resource.timeoutMs}ms; continuing with degraded preview state.`,
+        requirementId: "VAL-005",
+        source: resource.resourceId,
+      });
+      loadingTimeout = undefined;
+      seekToAnchor(anchorIndex);
+    }, resource.timeoutMs);
+  }
+
+  function clearLoadingTimeout(): void {
+    if (loadingTimeout === undefined) {
+      return;
+    }
+
+    clearTimeout(loadingTimeout);
+    loadingTimeout = undefined;
   }
 
   function emitCursorChange(): void {
@@ -205,6 +269,9 @@ export function createRuntime(
     },
     getCursor() {
       return getCursor();
+    },
+    getDiagnostics() {
+      return [...diagnostics];
     },
     getPresenterMetadata() {
       const cursor = getCursor();
@@ -415,6 +482,7 @@ function firstMissingResource(
   timeline: TimelineMap,
   slideId: string,
   readiness: ResourceReadiness | undefined,
+  degradedResourceIds: ReadonlySet<string>,
 ) {
   if (!readiness) {
     return undefined;
@@ -423,6 +491,8 @@ function firstMissingResource(
   const slide = timeline.slides.find((item) => item.slideId === slideId);
 
   return slide?.resources.find(
-    (resource) => !readiness.isReady(resource.resourceId),
+    (resource) =>
+      !degradedResourceIds.has(resource.resourceId) &&
+      !readiness.isReady(resource.resourceId),
   );
 }

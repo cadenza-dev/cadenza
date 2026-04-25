@@ -1,21 +1,65 @@
 import {
   bindClickRegions,
+  bindKeyboardNavigation,
   type CadenzaDiagnostic,
   type CadenzaRuntime,
   type ClickRegionTarget,
+  compile,
   createFullscreenControls,
+  createResourceReadiness,
+  createRuntime,
+  Deck,
+  type KeyboardNavigationTarget,
+  type MediaFrameMeasurement,
+  SafeFont,
+  SafeVideo,
+  Slide,
+  Step,
   validatePreviewLayout,
 } from "@cadenza-dev/core";
 
 type BrowserFixture = {
   clickCalls(): string[];
+  dispatchControlledVideoMetadata(): ControlledReadinessState;
   fullscreenSupport(): {
     isFullscreen: boolean;
     isSupported: boolean;
   };
   installClickRegions(selector: string): void;
+  installKeyboardNavigation(): void;
+  installReadinessGate(
+    titleSelector: string,
+    videoSelector: string,
+  ): ControlledReadinessState;
+  keyboardCalls(): string[];
+  markControlledFontReady(): ControlledReadinessState;
   unbindClickRegions(): void;
+  unbindKeyboardNavigation(): void;
+  validateMediaFrames(
+    requests: MediaFrameRequest[],
+  ): MediaFrameValidationResult;
   validateTypographyOverflow(source: string): CadenzaDiagnostic[];
+};
+
+type ControlledReadinessState = {
+  cursor: ReturnType<CadenzaRuntime["getCursor"]>;
+  titleVisibility: string;
+  videoReady: boolean;
+};
+
+type MediaFrameRequest = {
+  expectedAspectRatio: number;
+  source: string;
+};
+
+type MediaFrameValidationResult = {
+  diagnostics: CadenzaDiagnostic[];
+  measurements: Array<{
+    clientHeight: number;
+    clientWidth: number;
+    measuredAspectRatio: number;
+    source: string;
+  }>;
 };
 
 declare global {
@@ -25,7 +69,17 @@ declare global {
 }
 
 const clickCalls: string[] = [];
+const keyboardCalls: string[] = [];
 let unbindClickRegions: (() => void) | undefined;
+let unbindKeyboardNavigation: (() => void) | undefined;
+let controlledReadiness:
+  | {
+      readiness: ReturnType<typeof createResourceReadiness>;
+      runtime: CadenzaRuntime;
+      title: HTMLElement;
+      video: HTMLVideoElement;
+    }
+  | undefined;
 
 const runtime = {
   getCursor() {
@@ -34,6 +88,9 @@ const runtime = {
       slideId: "browser-fixture",
       stepIndex: 0,
     };
+  },
+  getDiagnostics() {
+    return [];
   },
   getPresenterMetadata() {
     return {
@@ -58,9 +115,28 @@ const runtime = {
   },
 } satisfies CadenzaRuntime;
 
+const keyboardRuntime = {
+  ...runtime,
+  goto(slideId: string, stepIndex = 0) {
+    keyboardCalls.push(`goto:${slideId}:${stepIndex}`);
+  },
+  next() {
+    keyboardCalls.push("next");
+  },
+  previous() {
+    keyboardCalls.push("previous");
+  },
+} satisfies CadenzaRuntime;
+
 window.CadenzaBrowserFixture = {
   clickCalls() {
     return [...clickCalls];
+  },
+  dispatchControlledVideoMetadata() {
+    const gate = requireReadinessGate();
+    gate.video.dispatchEvent(new Event("loadedmetadata"));
+
+    return controlledReadinessState(gate);
   },
   fullscreenSupport() {
     const controls = createFullscreenControls({
@@ -104,9 +180,111 @@ window.CadenzaBrowserFixture = {
       ],
     );
   },
+  installKeyboardNavigation() {
+    keyboardCalls.length = 0;
+    unbindKeyboardNavigation?.();
+    unbindKeyboardNavigation = bindKeyboardNavigation(
+      keyboardRuntime,
+      document as unknown as KeyboardNavigationTarget,
+    );
+  },
+  installReadinessGate(titleSelector: string, videoSelector: string) {
+    const title = document.querySelector(titleSelector);
+    if (!(title instanceof HTMLElement)) {
+      throw new Error(`Missing font readiness title '${titleSelector}'.`);
+    }
+
+    const video = document.querySelector(videoSelector);
+    if (!(video instanceof HTMLVideoElement)) {
+      throw new Error(`Missing video readiness element '${videoSelector}'.`);
+    }
+
+    const readiness = createResourceReadiness();
+    const runtime = createRuntime(
+      compile(
+        Deck({
+          fps: 10,
+          children: [
+            Slide({
+              id: "intro",
+              children: Step({ duration: "1s", children: "Intro" }),
+            }),
+            Slide({
+              id: "media",
+              children: [
+                SafeFont({ family: "Inter" }),
+                SafeVideo({ src: "/demo.mp4" }),
+                Step({ duration: "1s", children: "Media" }),
+              ],
+            }),
+          ],
+        }),
+      ),
+      { pause() {}, seekTo() {} },
+      { readiness },
+    );
+
+    title.style.visibility = "hidden";
+    video.dataset.ready = "false";
+    video.addEventListener(
+      "loadedmetadata",
+      () => {
+        video.dataset.ready = "true";
+        readiness.markReady("video:/demo.mp4");
+      },
+      { once: true },
+    );
+
+    controlledReadiness = { readiness, runtime, title, video };
+    runtime.next();
+
+    return controlledReadinessState(controlledReadiness);
+  },
+  keyboardCalls() {
+    return [...keyboardCalls];
+  },
+  markControlledFontReady() {
+    const gate = requireReadinessGate();
+    gate.readiness.markReady("font:Inter");
+    gate.title.style.visibility = "visible";
+
+    return controlledReadinessState(gate);
+  },
   unbindClickRegions() {
     unbindClickRegions?.();
     unbindClickRegions = undefined;
+  },
+  unbindKeyboardNavigation() {
+    unbindKeyboardNavigation?.();
+    unbindKeyboardNavigation = undefined;
+  },
+  validateMediaFrames(requests: MediaFrameRequest[]) {
+    const measurements: MediaFrameMeasurement[] = requests.map((request) => {
+      const element = document.querySelector(
+        `[data-cadenza-media-frame="${request.source}"]`,
+      );
+      if (!(element instanceof HTMLElement)) {
+        throw new Error(`Missing MediaFrame fixture '${request.source}'.`);
+      }
+
+      return {
+        kind: "media-frame",
+        source: request.source,
+        expectedAspectRatio: request.expectedAspectRatio,
+        clientWidth: element.clientWidth,
+        clientHeight: element.clientHeight,
+      };
+    });
+
+    return {
+      diagnostics: validatePreviewLayout(measurements),
+      measurements: measurements.map((measurement) => ({
+        clientHeight: measurement.clientHeight,
+        clientWidth: measurement.clientWidth,
+        measuredAspectRatio: measurement.clientWidth / measurement.clientHeight,
+        source: measurement.source,
+      })),
+    };
   },
   validateTypographyOverflow(source: string) {
     const element = document.querySelector(`[data-cadenza-source="${source}"]`);
@@ -126,3 +304,21 @@ window.CadenzaBrowserFixture = {
     ]);
   },
 };
+
+function requireReadinessGate() {
+  if (!controlledReadiness) {
+    throw new Error("Controlled readiness gate is not installed.");
+  }
+
+  return controlledReadiness;
+}
+
+function controlledReadinessState(
+  gate: NonNullable<typeof controlledReadiness>,
+): ControlledReadinessState {
+  return {
+    cursor: gate.runtime.getCursor(),
+    titleVisibility: gate.title.style.visibility,
+    videoReady: gate.video.dataset.ready === "true",
+  };
+}
