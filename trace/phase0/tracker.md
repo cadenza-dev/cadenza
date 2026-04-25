@@ -1,5 +1,18 @@
 # Phase 0 Tracker
 
+## 2026-04-25 19:51 +0800 — Future-support notes split by planning horizon
+
+- Split `wip/future-support/frozen-decision-followups.md` into an index plus separate planning files for Phase 2, Phase 3, and conditional/later candidates.
+- Updated `trace/phase0/status.yaml` so the future-support follow-up exit criterion points at the file set instead of a single content file.
+
+## 2026-04-25 19:43 +0800 — Phase 1 specs frozen and future-support WIP recorded
+
+- Maintainer approved all listed Phase 1 Freeze Candidate leanings, including the test-matrix Stage B review note.
+- Updated all eight `spec/phase1/` files from `CONTRACT_DRAFT` / Stage A to `CONTRACT_FROZEN` / Stage B.
+- Replaced Freeze Candidate sections with frozen decisions and rationales.
+- Added `wip/README.md` and `wip/future-support/frozen-decision-followups.md` to track features intentionally deferred or softened by the frozen decisions.
+- Updated `trace/phase0/status.yaml`: M3 is now `stage_b_frozen`, with future-support follow-ups recorded.
+
 ## 2026-04-25 07:09 +0800 — Phase 1 Stage A specs drafted
 
 - Created `spec/phase1/` with eight Stage A `CONTRACT_DRAFT` specs: typed API, compiler, render-safe layer, player runtime, validation, skills, test matrix, and traceability.

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft turns the frozen compiler design into a formal Phase 1
+This frozen contract turns the frozen compiler design into a formal Phase 1
 contract. The compiler maps typed presentation state onto Remotion frame
 coordinates and exposes deterministic runtime navigation.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Timeline Mutability
 
@@ -20,7 +20,7 @@ coordinates and exposes deterministic runtime navigation.
 2. Runtime-elastic TimelineMap for `wait-for-event` and `computed` steps.
 3. Separate static preview and runtime maps.
 
-**Leaning**: option 2 for interactive preview; offline export is static.
+**Decision**: use a runtime-elastic TimelineMap for interactive preview; offline export always receives a static TimelineMap.
 
 ### Transition Navigation Policy
 
@@ -28,7 +28,7 @@ coordinates and exposes deterministic runtime navigation.
 2. Deck-level configurable policy.
 3. Per-transition configurable policy.
 
-**Leaning**: option 2, matching the frozen design without state explosion.
+**Decision**: navigation policy is deck-level configurable, matching the frozen design without per-transition state explosion.
 
 ## Requirements
 
@@ -92,22 +92,12 @@ coordinates and exposes deterministic runtime navigation.
 - **Statement**: `onCursorChange` SHOULD emit semantic cursor transitions, not frame-level progress events.
 - **Verification**: Runtime event emission test.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-COMP-01
-- **Question**: How should runtime interval mutation be represented internally?
-- **Options considered**:
-  1. Mutate TimelineMap in place.
-  2. Store immutable base map plus runtime deltas.
-  3. Recompile a new map on every extension.
-- **Leaning**: option 2 for debuggability.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-COMP-01
+- **Decision**: represent runtime interval mutation as an immutable base TimelineMap plus runtime deltas.
+- **Rationale**: this preserves the compiled baseline for debugging and export reasoning while still allowing interactive preview intervals to stretch.
 
-- **FC-ID**: FC-COMP-02
-- **Question**: Should `finish-then-advance` discard or defer repeated input?
-- **Options considered**:
-  1. Discard repeated input.
-  2. Keep one pending input.
-  3. Keep a full queue.
-- **Leaning**: keep one pending input.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-COMP-02
+- **Decision**: `finish-then-advance` keeps at most one pending input.
+- **Rationale**: one pending input preserves presenter intent without creating an unbounded queue that can jump unpredictably after a transition.

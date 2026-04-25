@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the public TSX authoring surface for Phase 1. The
+This frozen contract defines the public TSX authoring surface for Phase 1. The
 API is intentionally thin: it encodes presentation semantics, then hands
 timeline behavior to the compiler and resource safety to the render-safe layer.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Primitive Shape
 
@@ -21,7 +21,7 @@ timeline behavior to the compiler and resource safety to the render-safe layer.
 2. Component API plus JSON metadata companion.
 3. Builder-function API that returns a serializable deck object.
 
-**Leaning**: option 1, with JSON metadata deferred until validation needs it.
+**Decision**: component-only API for Phase 1, with JSON metadata deferred until validation needs it.
 
 ### Step Authoring
 
@@ -29,8 +29,7 @@ timeline behavior to the compiler and resource safety to the render-safe layer.
 2. Render-function child receiving step context.
 3. Both forms.
 
-**Leaning**: option 3, because static children are ergonomic and render
-functions give agents a stable way to access step state.
+**Decision**: support both static children and render-function children. Static children preserve authoring ergonomics; render functions give agents and advanced authors a stable way to access step context.
 
 ### Escape Hatch
 
@@ -38,7 +37,7 @@ functions give agents a stable way to access step state.
 2. Raw Remotion import allowed but documented as an escape hatch.
 3. Raw Remotion import requires an explicit `<RawRemotion>` wrapper.
 
-**Leaning**: option 2 for Phase 1; option 3 may become a lint rule later.
+**Decision**: raw Remotion is a documentation-only escape hatch in Phase 1. Tooling-level lint warnings are deferred to Phase 2 AI-authoring strengthening.
 
 ## Requirements
 
@@ -90,22 +89,12 @@ functions give agents a stable way to access step state.
 - **Statement**: The typed API MAY support MDX-generated TSX as long as runtime execution remains TSX-first.
 - **Verification**: Manual compatibility note in Phase 1 docs; no implementation required for MVP.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-TAPI-01
-- **Question**: Should `Step` allow both static children and render-function children in Phase 1?
-- **Options considered**:
-  1. Static only.
-  2. Render function only.
-  3. Both.
-- **Leaning**: option 3.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-TAPI-01
+- **Decision**: `Step` supports both static children and render-function children in Phase 1.
+- **Rationale**: static children keep simple decks concise, while render-function children provide a stable context surface for step-aware authoring.
 
-- **FC-ID**: FC-TAPI-02
-- **Question**: Should raw Remotion usage require an explicit wrapper?
-- **Options considered**:
-  1. Documentation-only escape hatch.
-  2. Explicit wrapper.
-  3. Lint warning only.
-- **Leaning**: documentation-only in Phase 1, lint warning later.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-TAPI-02
+- **Decision**: raw Remotion usage remains a documentation-only escape hatch in Phase 1; non-blocking lint warnings are deferred to Phase 2.
+- **Rationale**: Phase 1 must prove the typed API path without prematurely constraining legitimate escape-hatch cases. Phase 2 is the better home for warning tooling because it focuses on AI authoring repair loops.

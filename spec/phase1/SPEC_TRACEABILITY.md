@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This draft links requirement IDs to acceptance tests and future code locations.
+This frozen contract links requirement IDs to acceptance tests and future code locations.
 Code locations are intentionally placeholders until Builder implementation
 begins.
 
@@ -61,13 +61,8 @@ begins.
 | SKIL-005 | TC-SKIL-004, TC-VAL-006 | `.agents/skills/` |
 | SKIL-006 | TC-SKIL-001 | `scripts/commands-sync.sh` or successor |
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-TAPI-98
-- **Question**: Should future code locations name final package names before workspace bootstrap?
-- **Options considered**:
-  1. Use concrete package names now.
-  2. Use `packages/*` placeholders until Builder bootstrap.
-  3. Omit code locations until implementation.
-- **Leaning**: option 2.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-TAPI-98
+- **Decision**: use `packages/*` placeholders for future code locations until Builder workspace bootstrap fixes package names.
+- **Rationale**: placeholders preserve traceability direction without pretending package boundaries are already final.

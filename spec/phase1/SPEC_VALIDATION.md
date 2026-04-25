@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-Validation gives agents actionable feedback before and during preview/export.
+This frozen contract gives agents actionable feedback before and during preview/export.
 Phase 1 splits validation into exhaustive compile-time checks and limited
 browser-observable runtime checks.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Diagnostic Delivery
 
@@ -20,7 +20,7 @@ browser-observable runtime checks.
 2. Return structured diagnostics only.
 3. Throw for fatal errors and return structured diagnostics for warnings.
 
-**Leaning**: option 3.
+**Decision**: throw for fatal errors and return structured diagnostics for warnings.
 
 ### Runtime Visual QA
 
@@ -28,7 +28,7 @@ browser-observable runtime checks.
 2. Minimal overflow and asset readiness checks.
 3. Screenshot diff suite.
 
-**Leaning**: option 2 for Phase 1.
+**Decision**: Phase 1 ships minimal overflow and asset-readiness browser checks, not screenshot diff CI.
 
 ## Requirements
 
@@ -68,22 +68,12 @@ browser-observable runtime checks.
 - **Statement**: Validation MAY expose a machine-readable report suitable for AI repair loops.
 - **Verification**: Snapshot test of report schema if implemented.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-VAL-01
-- **Question**: Should validation codes use domain prefixes like `VAL_ASSET_001` or requirement-linked prefixes like `VAL-001`?
-- **Options considered**:
-  1. Domain diagnostic prefixes.
-  2. Requirement-linked prefixes.
-  3. Both diagnostic code and requirement reference.
-- **Leaning**: option 3.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-VAL-01
+- **Decision**: validation diagnostics include both a diagnostic code and a requirement reference.
+- **Rationale**: diagnostic codes help authors and agents repair failures, while requirement references preserve spec traceability.
 
-- **FC-ID**: FC-VAL-02
-- **Question**: Should screenshot diffing be excluded entirely from Phase 1 or kept as an experimental manual tool?
-- **Options considered**:
-  1. Exclude.
-  2. Manual experimental command.
-  3. Required CI gate.
-- **Leaning**: option 2 if cheap; never option 3 in Phase 1.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-VAL-02
+- **Decision**: screenshot diffing may exist as an experimental manual command in Phase 1 if cheap, but it is never a required Phase 1 CI gate.
+- **Rationale**: screenshot diffing is useful but flaky and expensive; Phase 1 needs fast, reliable gates.

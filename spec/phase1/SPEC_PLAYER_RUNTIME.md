@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-The player runtime adapts the compiler output to an interactive presentation
+This frozen contract adapts the compiler output to an interactive presentation
 surface backed by Remotion Player. It handles user intent, fullscreen, click
 regions, and presenter metadata.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Navigation Input Scope
 
@@ -20,7 +20,7 @@ regions, and presenter metadata.
 2. Keyboard plus click-to-advance.
 3. Keyboard, click, and programmable controller API.
 
-**Leaning**: option 3, with the controller API limited to compiler runtime calls.
+**Decision**: keyboard, click, and programmable controller API are in scope, with the controller API limited to compiler runtime calls.
 
 ### Presenter Metadata
 
@@ -28,7 +28,7 @@ regions, and presenter metadata.
 2. Current slide/step plus notes and elapsed time.
 3. Full presenter view with next slide preview.
 
-**Leaning**: option 2 for Phase 1; full presenter view is Phase 3.
+**Decision**: Phase 1 exposes current slide, current step, notes, and elapsed time; full presenter view with next-slide preview is deferred to Phase 3.
 
 ## Requirements
 
@@ -68,22 +68,12 @@ regions, and presenter metadata.
 - **Statement**: The runtime SHOULD expose presenter metadata: current slide, current step, notes, and elapsed time.
 - **Verification**: Runtime metadata test.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-PLAY-01
-- **Question**: Which keyboard bindings are Phase 1 defaults?
-- **Options considered**:
-  1. Arrow keys only.
-  2. Arrow keys plus space/backspace.
-  3. Configurable map with conventional defaults.
-- **Leaning**: option 3.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-PLAY-01
+- **Decision**: Phase 1 uses a configurable keyboard map with conventional defaults.
+- **Rationale**: defaults should match presenter expectations, while embedders need a supported way to customize bindings.
 
-- **FC-ID**: FC-PLAY-02
-- **Question**: Should elapsed time count paused loading states?
-- **Options considered**:
-  1. Include loading.
-  2. Exclude loading.
-  3. Track both wall-clock and active-presenting time.
-- **Leaning**: option 3.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-PLAY-02
+- **Decision**: elapsed-time metadata tracks both wall-clock time and active-presenting time.
+- **Rationale**: wall-clock time matches real presentation duration, while active-presenting time excludes paused loading states for cleaner pacing feedback.

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-Phase 1 ships AI-facing guidance before MCP. The initial skill pack constrains
+This frozen contract ships AI-facing guidance before MCP. The initial skill pack constrains
 agent output toward the typed API, render-safe components, and validation repair
 loop.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Initial Skill Count
 
@@ -20,7 +20,7 @@ loop.
 2. Seven skills, matching the full analysis roster.
 3. One monolithic Cadenza authoring skill.
 
-**Leaning**: option 1 for MVP; split carefully rather than ship weak extras.
+**Decision**: ship five skills for MVP; split carefully rather than ship weak extras.
 
 ### Skill Distribution
 
@@ -28,7 +28,7 @@ loop.
 2. Markdown source with generated adapters for multiple agents.
 3. Plain docs only.
 
-**Leaning**: option 2 once infrastructure exists; Phase 1 may start with local skills.
+**Decision**: use Markdown skill sources that can be mirrored into multiple agent formats once infrastructure exists; Phase 1 may start with local skills.
 
 ## Requirements
 
@@ -68,22 +68,12 @@ loop.
 - **Statement**: Skills MAY be mirrored into other agent formats after the canonical source is stable.
 - **Verification**: Adapter generation check if implemented.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-SKIL-01
-- **Question**: Should `data-viz-slides` be in the first five skills or deferred?
-- **Options considered**:
-  1. Include in first five.
-  2. Defer to Phase 2.
-  3. Fold into layout-composition.
-- **Leaning**: defer to Phase 2 unless alpha examples demand it.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-SKIL-01
+- **Decision**: defer `data-viz-slides` to Phase 2 unless alpha examples create a direct MVP need.
+- **Rationale**: Phase 1 skills should protect the core authoring loop first; data visualization deserves dedicated treatment once the core loop works.
 
-- **FC-ID**: FC-SKIL-02
-- **Question**: What is the canonical skill source format?
-- **Options considered**:
-  1. `.agents/skills` source of truth.
-  2. `.claude/skills` source of truth.
-  3. Docs-first source with generated skills.
-- **Leaning**: `.agents/skills` source of truth, mirroring as needed.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-SKIL-02
+- **Decision**: `.agents/skills` is the canonical skill source, mirrored into agent-specific formats as needed.
+- **Rationale**: `.agents/skills` is tool-neutral enough to avoid making Claude-specific paths the cross-agent source of truth.

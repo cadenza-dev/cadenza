@@ -33,8 +33,8 @@ missions:
       - "Captured pending ADRs 0006-0010 as Accepted records."
       - "Updated docs/adr/README.md index."
   M3_phase1_stage_a_specs:
-    status: stage_a_draft_complete
-    updated_at: "2026-04-25 07:09 +0800"
+    status: stage_b_frozen
+    updated_at: "2026-04-25 19:43 +0800"
     artifacts:
       - spec/phase1/SPEC_TYPED_API.md
       - spec/phase1/SPEC_COMPILER.md
@@ -45,10 +45,9 @@ missions:
       - spec/phase1/SPEC_TEST_MATRIX.md
       - spec/phase1/SPEC_TRACEABILITY.md
     summary:
-      - "Created eight Phase 1 Stage A CONTRACT_DRAFT specs."
-      - "Added requirement IDs, acceptance tests, traceability placeholders, and Stage A Freeze Candidates."
-    awaiting:
-      - "Maintainer review before Stage B freeze."
+      - "Created and froze eight Phase 1 specs as CONTRACT_FROZEN."
+      - "Resolved all Freeze Candidates and the test-matrix Stage B review note per maintainer approval."
+      - "Recorded future-support follow-ups under wip/future-support/."
   M4_remotion_notification:
     status: not_started
   M5_agentic_workflow_finalize:
@@ -68,6 +67,15 @@ exit_criteria:
     status: met
   phase1_stage_a_specs_present:
     status: met
+  phase1_stage_b_specs_frozen:
+    status: met
+  future_support_followups_recorded:
+    status: met
+    artifacts:
+      - wip/future-support/frozen-decision-followups.md
+      - wip/future-support/phase-2-candidates.md
+      - wip/future-support/phase-3-candidates.md
+      - wip/future-support/conditional-or-later-candidates.md
   agentic_workflow_finalized:
     status: unmet
   phase1_architect_kick_exists:
@@ -87,5 +95,7 @@ stats:
   phase1_stage_a_spec_count: 8
   phase1_requirement_count: 44
   phase1_acceptance_test_count: 14
-  phase1_freeze_candidate_count: 13
+  phase1_freeze_candidate_count: 0
+  phase1_frozen_decision_count: 13
+  future_support_followup_count: 14
   pending_adr_count: 0

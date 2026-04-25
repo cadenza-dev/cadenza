@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,11 +8,11 @@ Owner: Architect
 
 ## Purpose
 
-The render-safe layer wraps Remotion's common asynchronous and visual failure
+This frozen contract wraps Remotion's common asynchronous and visual failure
 surfaces so agents can generate reliable decks without touching sharp runtime
 primitives by default.
 
-## Stage A Options
+## Resolved Design Options
 
 ### Failure Behavior
 
@@ -20,7 +20,7 @@ primitives by default.
 2. Loud runtime error.
 3. User-visible degraded state plus emitted diagnostic.
 
-**Leaning**: option 3 for assets; option 2 for invalid authoring.
+**Decision**: assets use user-visible degraded states plus emitted diagnostics; invalid authoring uses loud runtime or compile-time errors.
 
 ### Component Roster
 
@@ -28,7 +28,7 @@ primitives by default.
 2. Six-component roster from ADR 0002.
 3. Larger layout-and-template library.
 
-**Leaning**: option 2.
+**Decision**: ship the six-component roster from ADR 0002.
 
 ## Requirements
 
@@ -80,22 +80,12 @@ primitives by default.
 - **Statement**: Render-safe components SHOULD emit structured diagnostics instead of raw Remotion errors where possible.
 - **Verification**: Diagnostic shape tests.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-RSAF-01
-- **Question**: Should asset timeout default to 10 seconds for every asset type?
-- **Options considered**:
-  1. One global 10 second timeout.
-  2. Per-component defaults.
-  3. Author-required timeout values.
-- **Leaning**: per-component defaults, with 10 seconds for image/video.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-RSAF-01
+- **Decision**: asset timeout defaults are per component; image and video default to 10 seconds.
+- **Rationale**: different asset types fail differently, so one global timeout is too coarse, while author-required values add too much MVP friction.
 
-- **FC-ID**: FC-RSAF-02
-- **Question**: Should `TypographyBox` auto-fit text or only report overflow in MVP?
-- **Options considered**:
-  1. Report only.
-  2. Simple auto-fit.
-  3. Full density engine.
-- **Leaning**: report only in Phase 1; auto-fit in Phase 3.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-RSAF-02
+- **Decision**: `TypographyBox` reports overflow in Phase 1; auto-fit and density-engine behavior are deferred to Phase 3.
+- **Rationale**: reporting overflow gives the validation and repair loop a reliable signal without introducing premature visual-quality heuristics.

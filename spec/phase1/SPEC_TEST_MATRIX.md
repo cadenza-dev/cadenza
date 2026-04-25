@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This matrix lists acceptance scenarios that Builder consumes during Phase 1.
+This frozen matrix lists acceptance scenarios that Builder consumes during Phase 1.
 Every test case references one or more requirement IDs from the domain specs.
 
 ## Acceptance Scenarios
@@ -30,10 +30,9 @@ Every test case references one or more requirement IDs from the domain specs.
 | TC-SKIL-001 | P0 | SKIL-001, SKIL-002, SKIL-003 | Initial skill pack exists and instructs typed API plus render-safe usage. |
 | TC-SKIL-004 | P1 | SKIL-004, SKIL-005 | Skills cover common anti-patterns and repair workflow. |
 
-## Stage B Review Note
+## Frozen Decision
 
-Before Stage B freeze, decide whether to add one all-domain fixture that spans
-the P0 requirements across typed API, compiler, render-safe components, player,
-validation, and skills. Current leaning: add one all-domain fixture for MVP,
-but do not require a browser export smoke test until the Builder bootstrap
-confirms the test stack.
+Phase 1 includes one all-domain MVP fixture that spans the P0 requirements
+across typed API, compiler, render-safe components, player, validation, and
+skills. A browser export smoke test is not required until Builder bootstrap
+confirms the test stack and cost.
