@@ -1,5 +1,12 @@
 # Phase 0 Tracker
 
+## 2026-04-25 23:52 +0800 — Phase 0 closed
+
+- Maintainer approved M8 phase close.
+- Advanced the root phase pointer from Phase 0 to Phase 1 in `STATUS.yaml` and updated the root execution index.
+- Marked `phase_pointer_advanced_to_1` met and `M8_phase0_close` complete in `trace/phase0/status.yaml`.
+- Created the initial Phase 1 trace handoff files so the next Builder session can start from `prompt/PHASE1_KICK_BUILDER.md` without missing trace anchors.
+
 ## 2026-04-25 23:28 +0800 — M7 trace maintenance completed
 
 - Verified GitHub Actions run `24934181702` passed the full three-platform CI matrix on `ubuntu-24.04`, `windows-2025`, and `macos-15`.

@@ -4,15 +4,15 @@
 
 ## Active phase
 
-**Phase 0 — Technical Pre-Commitment** *(started 2026-04-17)*
-→ [`trace/phase0/`](./trace/phase0/)
+**Phase 1 — Core Framework and Typed API (MVP)** *(started 2026-04-25)*
+→ [`trace/phase1/`](./trace/phase1/)
 
 ## Phase index
 
 | Phase | Name                                                     | Status       | Archive                               |
 | :---- | :------------------------------------------------------- | :----------- | :------------------------------------ |
-| 0     | Technical Pre-Commitment                                 | in_progress  | [`trace/phase0/`](./trace/phase0/)    |
-| 1     | Core Framework and Typed API (MVP)                       | not_started  | `trace/phase1/`                       |
+| 0     | Technical Pre-Commitment                                 | complete     | [`trace/phase0/`](./trace/phase0/)    |
+| 1     | Core Framework and Typed API (MVP)                       | in_progress  | [`trace/phase1/`](./trace/phase1/)    |
 | 2     | AI Authoring Strengthening                               | not_started  | `trace/phase2/`                       |
 | 3     | Presentation Product Layer (pruned)                      | not_started  | `trace/phase3/`                       |
 | 4     | Export / Collaboration / Protocol Extensions (pruned)    | not_started  | `trace/phase4/`                       |

@@ -1,8 +1,9 @@
 version: 1
 phase: "0"
 phase_name: "Technical Pre-Commitment"
-status: in_progress
+status: complete
 timezone: Asia/Shanghai
+closed_at: "2026-04-25 23:52 +0800"
 
 session:
   active_role: builder
@@ -120,7 +121,12 @@ missions:
       - "Added .gitattributes to keep text checkout line endings LF-only after the first Windows matrix run exposed CRLF-sensitive formatter failures."
       - "Verified GitHub Actions run 24934181702 passed the full ubuntu-24.04/windows-2025/macos-15 CI matrix."
   M8_phase0_close:
-    status: not_started
+    status: complete
+    updated_at: "2026-04-25 23:52 +0800"
+    summary:
+      - "Maintainer approved Phase 0 close and Phase 1 pointer advancement."
+      - "Updated root STATUS.yaml and EXECUTION_TRACKER.md so Phase 1 is the active phase."
+      - "Created the initial trace/phase1/ handoff files for the Phase 1 Builder session."
 
 exit_criteria:
   compiler_design_contract_frozen:
@@ -172,7 +178,9 @@ exit_criteria:
       - .github/workflows/ci.yml
       - .codex/hooks.json
   phase_pointer_advanced_to_1:
-    status: unmet
+    status: met
+    approved_at: "2026-04-25 23:52 +0800"
+    artifact: STATUS.yaml
 
 stats:
   compiler_design_open_questions_resolved: 5

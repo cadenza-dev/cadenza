@@ -1,0 +1,51 @@
+version: 1
+phase: "1"
+phase_name: "Core Framework and Typed API (MVP)"
+status: ready_for_builder
+timezone: Asia/Shanghai
+opened_at: "2026-04-25 23:52 +0800"
+
+handoff:
+  source_phase: "0"
+  source_trace: trace/phase0/
+  kick_file: prompt/PHASE1_KICK_BUILDER.md
+  active_role: builder
+  first_batch:
+    id: B1.1
+    scenario: TC-TAPI-001
+    summary: "Public typed API primitives import and compile with deck-level FPS."
+
+entry_conditions:
+  phase0_closed:
+    status: met
+    artifact: trace/phase0/status.yaml
+  phase1_specs_frozen:
+    status: met
+    artifact: spec/phase1/
+  phase0_infra_bootstrap_runnable:
+    status: met
+    artifact: .github/workflows/ci.yml
+  latest_phase0_ci_green:
+    status: met
+    run_id: 24934243937
+
+batches:
+  B1_1_first_vertical_slice:
+    status: not_started
+    scenario: TC-TAPI-001
+  B1_2_p0_acceptance_path:
+    status: not_started
+  B1_3_p1_p2_completion_path:
+    status: not_started
+
+exit_criteria:
+  all_phase1_scenarios_green:
+    status: unmet
+  all_domain_mvp_fixture_complete:
+    status: unmet
+  verification_stack_green:
+    status: unmet
+  traceability_recorded:
+    status: unmet
+  phase_exit_demo_ready:
+    status: unmet
