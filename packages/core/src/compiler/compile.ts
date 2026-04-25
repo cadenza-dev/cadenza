@@ -1,3 +1,4 @@
+import type { CadenzaDiagnostic } from "../diagnostics/types.js";
 import {
   isRenderSafeResourceNode,
   type ResourceKind,
@@ -18,10 +19,17 @@ import { validateDeck } from "../validation/static.js";
 
 export type FrameSegment = [number, number];
 
+export type CompileMode = "preview" | "offline";
+
+export type CompileOptions = {
+  mode?: CompileMode;
+};
+
 export type TimelineStep = {
   stepIndex: number;
   segment: FrameSegment;
   kind: StepKind;
+  pending?: boolean;
 };
 
 export type TimelineResource = {
@@ -51,11 +59,17 @@ export type TimelineMap = {
   fps: number;
   navigationPolicy: NavigationPolicy;
   totalFrames: number;
+  diagnostics: CadenzaDiagnostic[];
   slides: TimelineSlide[];
 };
 
-export function compile(deck: DeckNode): TimelineMap {
+export function compile(
+  deck: DeckNode,
+  options: CompileOptions = {},
+): TimelineMap {
+  const mode = options.mode ?? "preview";
   const diagnostics = validateDeck(deck);
+  diagnostics.push(...validateCompileMode(deck, mode));
 
   if (diagnostics.some((diagnostic) => diagnostic.severity === "fatal")) {
     throw new CadenzaValidationError(diagnostics);
@@ -91,7 +105,7 @@ export function compile(deck: DeckNode): TimelineMap {
       previousSlide.transitionOut = transition;
     }
 
-    const steps = compileSteps(node, deck.fps, cursor);
+    const steps = compileSteps(node, deck.fps, cursor, mode);
     const slideStart = transition?.segment[0] ?? cursor;
     const slideEnd = steps.at(-1)?.segment[1] ?? cursor;
 
@@ -108,12 +122,77 @@ export function compile(deck: DeckNode): TimelineMap {
     pendingTransition = undefined;
   }
 
+  if (cursor > deck.fps * 60 * 60) {
+    diagnostics.push({
+      severity: "warning",
+      code: "COMP_LONG_DECK",
+      message: `Compiled deck is ${cursor} frames (${(cursor / deck.fps).toFixed(2)} seconds), exceeding the 60 minute Phase 1 warning threshold.`,
+      requirementId: "COMP-009",
+      source: "deck",
+    });
+  }
+
   return {
     fps: deck.fps,
     navigationPolicy: deck.navigationPolicy,
     totalFrames: cursor,
+    diagnostics,
     slides,
   };
+}
+
+function validateCompileMode(
+  deck: DeckNode,
+  mode: CompileMode,
+): CadenzaDiagnostic[] {
+  if (mode !== "offline") {
+    return [];
+  }
+
+  const diagnostics: CadenzaDiagnostic[] = [];
+
+  for (const node of deck.children) {
+    if (node.kind !== "slide") {
+      continue;
+    }
+
+    for (const child of node.children) {
+      if (child.kind !== "step") {
+        continue;
+      }
+
+      if (
+        child.stepKind === "wait-for-event" &&
+        child.exportDuration === undefined
+      ) {
+        diagnostics.push({
+          severity: "fatal",
+          code: "COMP_MISSING_EXPORT_DURATION",
+          message:
+            "wait-for-event steps require exportDuration during offline compilation.",
+          requirementId: "COMP-005",
+          source: node.id,
+        });
+      }
+
+      if (
+        child.stepKind === "computed" &&
+        child.duration === undefined &&
+        child.exportDuration === undefined
+      ) {
+        diagnostics.push({
+          severity: "fatal",
+          code: "COMP_UNRESOLVED_COMPUTED_STEP",
+          message:
+            "computed steps require duration or exportDuration during offline compilation.",
+          requirementId: "COMP-006",
+          source: node.id,
+        });
+      }
+    }
+  }
+
+  return diagnostics;
 }
 
 function collectSlideNotes(slide: SlideNode): string[] {
@@ -180,13 +259,19 @@ function compileSteps(
   slide: SlideNode,
   fps: number,
   startFrame: number,
+  mode: CompileMode,
 ): TimelineStep[] {
   let cursor = startFrame;
 
   return slide.children
     .filter((node): node is StepNode => node.kind === "step")
     .map((step, stepIndex) => {
-      const durationFrames = stepDurationFrames(step, slide.duration, fps);
+      const durationFrames = stepDurationFrames(
+        step,
+        slide.duration,
+        fps,
+        mode,
+      );
       const segment: FrameSegment = [cursor, cursor + durationFrames];
 
       cursor += durationFrames;
@@ -195,6 +280,9 @@ function compileSteps(
         stepIndex,
         segment,
         kind: step.stepKind,
+        ...(step.stepKind === "computed" && durationFrames === 0
+          ? { pending: true }
+          : {}),
       };
     });
 }
@@ -203,7 +291,12 @@ function stepDurationFrames(
   step: StepNode,
   slideDuration: DurationToken | undefined,
   fps: number,
+  mode: CompileMode,
 ): number {
+  if (mode === "offline" && step.exportDuration !== undefined) {
+    return durationToFrames(step.exportDuration, fps);
+  }
+
   if (step.stepKind === "computed") {
     return durationToFrames(step.duration ?? 0, fps);
   }

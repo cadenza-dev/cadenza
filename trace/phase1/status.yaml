@@ -200,9 +200,20 @@ batches:
         artifacts:
           - trace/phase1/requirement-coverage-audit.md
           - prompt/PHASE1_KICK_BUILDER.md
+      - id: B1.4-B1
+        completed_at: "2026-04-26 06:30 +0800"
+        summary: "Compiler/runtime semantic gaps closed before all-domain fixture work."
+        requirements: [COMP-005, COMP-006, COMP-009, COMP-010]
+        tests:
+          - packages/core/src/compiler-runtime.closeout.test.ts
+        implementation:
+          - packages/core/src/typed-api/primitives.ts
+          - packages/core/src/compiler/compile.ts
+          - packages/core/src/compiler/cursor.ts
+          - packages/core/src/runtime/createRuntime.ts
     planned_batches:
       - id: B1.4-B1
-        status: pending
+        status: complete
         summary: "Close compiler/runtime semantic gaps before integration fixture work."
         requirements: [COMP-005, COMP-006, COMP-009, COMP-010]
         expected_focus:
@@ -249,7 +260,7 @@ batches:
           - newest-first tracker closeout
           - full verification stack
           - stop before Phase 2 work
-    next_batch: B1.4-B1
+    next_batch: B1.4-B2
 
 exit_criteria:
   all_phase1_scenarios_green:

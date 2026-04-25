@@ -3,7 +3,11 @@ import type { TimelineMap, TransitionSegment } from "./compile.js";
 export type Cursor =
   | { kind: "at-step"; slideId: string; stepIndex: number }
   | { kind: "in-transition"; from: string; to: string; progress: number }
-  | { kind: "loading"; reason: "asset" | "font" | "video"; slideId: string };
+  | {
+      kind: "loading";
+      reason: "asset" | "font" | "video" | "computed";
+      slideId: string;
+    };
 
 export function cursorAtFrame(timeline: TimelineMap, frame: number): Cursor {
   if (!Number.isInteger(frame) || frame < 0 || frame >= timeline.totalFrames) {

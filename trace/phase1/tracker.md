@@ -1,5 +1,14 @@
 # Phase 1 Tracker
 
+## 2026-04-26 06:30 +0800 — B1.4-B1 compiler/runtime semantics green
+
+- Startup identity: continued as Builder with maintainer approval already granted in this session.
+- Batch scope: `B1.4-B1`; closed compiler/runtime semantic gaps identified by B1.4-A for `COMP-005`, `COMP-006`, `COMP-009`, and `COMP-010` without modifying frozen specs or Accepted ADRs.
+- RED/GREEN: added `packages/core/src/compiler-runtime.closeout.test.ts` and implemented one vertical slice at a time for wait-for-event runtime expansion/offline `exportDuration`, unresolved computed-step loading/offline fatal export diagnostics, 60-minute warning metadata, and semantic-only `onCursorChange`.
+- Implementation links: `packages/core/src/typed-api/primitives.ts`, `packages/core/src/compiler/compile.ts`, `packages/core/src/compiler/cursor.ts`, `packages/core/src/runtime/createRuntime.ts`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Next B1.4 batch: `B1.4-B2`, closing readiness timeout and browser-depth gaps.
+
 ## 2026-04-26 06:11 +0800 — B1.4-A requirement coverage audit complete
 
 - Startup identity: continued as Builder with maintainer approval already granted in this session.

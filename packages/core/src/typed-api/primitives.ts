@@ -45,6 +45,7 @@ export type SlideProps = {
 export type StepProps = {
   kind?: StepKind;
   duration?: DurationToken;
+  exportDuration?: DurationToken;
   children?: unknown;
 };
 
@@ -76,6 +77,7 @@ export type StepNode = {
   kind: "step";
   stepKind: StepKind;
   duration?: DurationToken;
+  exportDuration?: DurationToken;
   children?: unknown;
 };
 
@@ -136,6 +138,7 @@ export function Step(props: StepProps): StepNode {
     kind: "step",
     stepKind: props.kind ?? DEFAULT_STEP_KIND,
     duration: props.duration,
+    exportDuration: props.exportDuration,
     children: props.children,
   };
 }
