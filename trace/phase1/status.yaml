@@ -60,7 +60,15 @@ batches:
           - packages/core/src/compiler/compile.ts
           - packages/core/src/compiler/cursor.ts
           - packages/core/src/index.ts
-    next_scenario: TC-COMP-004
+      - id: TC-COMP-004
+        completed_at: "2026-04-26 01:38 +0800"
+        requirements: [COMP-004, PLAY-003]
+        tests:
+          - packages/core/src/runtime.navigation.test.ts
+        implementation:
+          - packages/core/src/runtime/createRuntime.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-COMP-007
   B1_3_p1_p2_completion_path:
     status: not_started
 

@@ -8,6 +8,8 @@ export type {
 export { compile } from "./compiler/compile.js";
 export type { Cursor } from "./compiler/cursor.js";
 export { cursorAtFrame } from "./compiler/cursor.js";
+export type { CadenzaRuntime, SeekPlayer } from "./runtime/createRuntime.js";
+export { createRuntime } from "./runtime/createRuntime.js";
 export type {
   CadenzaNode,
   DeckNode,
