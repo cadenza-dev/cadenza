@@ -6,32 +6,50 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-2025
+          - macos-15
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v5
         with:
           version: 10.32.1
           run_install: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
 
+      - name: Set up Go for shfmt
+        uses: actions/setup-go@v6
+        with:
+          go-version: stable
+          cache: false
+
       - name: Install shfmt
         run: |
-          sudo apt-get update
-          sudo apt-get install -y shfmt
+          go install mvdan.cc/sh/v3/cmd/shfmt@v3.8.0
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -62,7 +80,7 @@ jobs:
         run: pnpm exec markdownlint-cli2 "**/*.md"
 
       - name: Shell format check
-        run: find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
+        run: pnpm lint:shell
 
       - name: Spec lint
         run: pnpm spec:lint

@@ -69,8 +69,6 @@ function walkFiles(target: string): string[] {
 }
 
 requirePath("STATUS.yaml");
-requirePath("trace/phase0/status.yaml");
-requirePath("trace/phase0/tracker.md");
 requirePath("prompt/PHASE0_KICK_BUILDER.md");
 requirePath("prompt/PHASE1_KICK_BUILDER.md");
 requirePath("package.json");
@@ -83,18 +81,26 @@ requirePath(".githooks/pre-commit");
 requirePath(".githooks/commit-msg");
 requirePath(".github/workflows/ci.yml");
 
+let currentPhase: string | null = null;
 if (exists("STATUS.yaml")) {
   const rootStatus = readText("STATUS.yaml");
-  const currentPhase = yamlScalar(rootStatus, "current_phase");
-  if (currentPhase !== "0") {
+  currentPhase = yamlScalar(rootStatus, "current_phase");
+  if (currentPhase !== "0" && currentPhase !== "1") {
     findings.push({
       level: "error",
-      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0`,
+      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0 or 1`,
     });
   }
 }
 
-if (exists("trace/phase0/status.yaml")) {
+function checkPhase0() {
+  requirePath("trace/phase0/status.yaml");
+  requirePath("trace/phase0/tracker.md");
+
+  if (!exists("trace/phase0/status.yaml")) {
+    return;
+  }
+
   const phaseStatus = readText("trace/phase0/status.yaml");
   const requiredMissions = new Map([
     ["M1_compiler_design_review", "contract_frozen"],
@@ -154,6 +160,39 @@ if (exists("trace/phase0/status.yaml")) {
   }
 }
 
+function checkPhase1Initial() {
+  if (exists("trace/phase1/status.yaml")) {
+    const phaseStatus = readText("trace/phase1/status.yaml");
+    const phase = yamlScalar(phaseStatus, "phase");
+    if (phase !== "1") {
+      findings.push({
+        level: "error",
+        message: `trace/phase1/status.yaml phase is ${phase ?? "(missing)"}, expected 1`,
+      });
+    }
+  } else {
+    findings.push({
+      level: "info",
+      message:
+        "trace/phase1/status.yaml is not present yet; Phase 1 Builder should create it during the first implementation batch",
+    });
+  }
+
+  if (!exists("trace/phase1/tracker.md")) {
+    findings.push({
+      level: "info",
+      message:
+        "trace/phase1/tracker.md is not present yet; Phase 1 Builder should create it during the first implementation batch",
+    });
+  }
+}
+
+if (currentPhase === "0") {
+  checkPhase0();
+} else if (currentPhase === "1") {
+  checkPhase1Initial();
+}
+
 const phase1Specs = walkFiles("spec/phase1").filter((file) =>
   file.endsWith(".md"),
 );
@@ -179,14 +218,16 @@ for (const file of phase1Specs) {
   }
 }
 
-const productionSources = walkFiles("packages").filter((file) =>
-  /(^|\/)src\//.test(file),
-);
-if (productionSources.length > 0) {
-  findings.push({
-    level: "error",
-    message: `Phase 0 must not contain production sources: ${productionSources.join(", ")}`,
-  });
+if (currentPhase === "0") {
+  const productionSources = walkFiles("packages").filter((file) =>
+    /(^|\/)src\//.test(file),
+  );
+  if (productionSources.length > 0) {
+    findings.push({
+      level: "error",
+      message: `Phase 0 must not contain production sources: ${productionSources.join(", ")}`,
+    });
+  }
 }
 
 const packageJson = exists("package.json")

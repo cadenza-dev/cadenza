@@ -1,5 +1,19 @@
 # Phase 0 Tracker
 
+## 2026-04-25 23:16 +0800 — CI matrix expanded for platform coverage
+
+- Updated `.github/workflows/ci.yml` from a single Ubuntu runner to a pinned OS matrix: `ubuntu-24.04`, `windows-2025`, and `macos-15`.
+- Replaced the Ubuntu-only `apt-get` shfmt install with a Go-based `shfmt@v3.8.0` install that works across Linux, Windows, and macOS runners.
+- Upgraded first-party GitHub setup actions to Node 24-compatible majors and moved the shell format step to `pnpm lint:shell` so CI matches the repository script surface.
+- Used `bash` as the workflow run shell to keep existing shell snippets portable across all matrix jobs.
+
+## 2026-04-25 23:07 +0800 — Phase check made transition-aware
+
+- Updated `scripts/phase-check.ts` so it dispatches by `STATUS.yaml current_phase` instead of always expecting Phase 0.
+- Preserved the Phase 0 close/infra gate and added a Phase 1 initial gate that allows `trace/phase1/` to be created by the first Phase 1 Builder batch.
+- Verified current Phase 0 `pnpm phase:check` and a simulated `current_phase: "1"` run both pass.
+- Left `check:role-boundary` unset-role behavior unchanged for now; explicit `CADENZA_AGENT_ROLE=builder|architect` checks already pass and further hardening can happen later.
+
 ## 2026-04-25 22:25 +0800 — Phase 0 infra CI stabilized
 
 - Pushed the Phase 0 Builder bootstrap to `main` through commit `817baa7`.

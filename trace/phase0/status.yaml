@@ -112,6 +112,11 @@ missions:
       - "Published the bootstrap through commit 817baa7; GitHub Actions CI run 24933022951 passed all Phase 0 gates."
   M7_trace_maintenance:
     status: in_progress
+    updated_at: "2026-04-25 23:16 +0800"
+    summary:
+      - "Made scripts/phase-check.ts current-phase aware so Phase 1 can start without failing the Phase 0-only check."
+      - "Verified the existing Phase 0 branch and a simulated Phase 1 initial branch both pass phase:check."
+      - "Expanded CI from a single Ubuntu runner to a pinned ubuntu-24.04/windows-2025/macos-15 matrix with cross-platform shfmt installation."
   M8_phase0_close:
     status: not_started
 
