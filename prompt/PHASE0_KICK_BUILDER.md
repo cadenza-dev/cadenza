@@ -30,7 +30,9 @@ Read in this order before acting:
    first.
 5. [`docs/agentic-workflow.md`](../docs/agentic-workflow.md) — Builder loop and
    verification model.
-6. [`spec/phase1/SPEC_TEST_MATRIX.md`](../spec/phase1/SPEC_TEST_MATRIX.md) and
+6. [`docs/design/cross-agent-hook-architecture.md`](../docs/design/cross-agent-hook-architecture.md)
+   — cross-agent hook scope, priorities, and limitations for infra bootstrap.
+7. [`spec/phase1/SPEC_TEST_MATRIX.md`](../spec/phase1/SPEC_TEST_MATRIX.md) and
    [`spec/phase1/SPEC_TRACEABILITY.md`](../spec/phase1/SPEC_TRACEABILITY.md) —
    understand the future implementation gates, but do not implement them here.
 
@@ -77,7 +79,16 @@ Make the documented gates executable:
 Add only baseline automation:
 
 - GitHub Actions workflow for the runnable verification stack.
-- Optional package-manager or git-hook glue if it is simple and non-invasive.
+- Universal hard gates first: package scripts, pre-commit or equivalent local
+  gate, and CI. These must compensate for incomplete agent hook surfaces.
+- Preserve current Claude Code hook behavior.
+- Add shared policy wrappers or a `scripts/agent-hooks/` skeleton only when it
+  reduces duplication without destabilizing existing hooks.
+- Add Codex support for startup context, Bash safety, permission-request
+  awareness, and stop audit if feasible; document any feature-flag or runtime
+  limitations.
+- Defer full Gemini and OpenCode adapters unless the maintainer explicitly asks
+  for them during Phase 0.
 - No publish, release, npm token, or registry automation.
 
 ### B0.4 Trace
@@ -107,6 +118,11 @@ Phase 0 Builder bootstrap is done when:
   as no-op where Phase 0 has no implementation yet.
 - `pnpm format:check`, `pnpm spec:lint`, and `pnpm phase:check` are green.
 - Markdown, shell formatting, YAML parsing, and `git diff --check` pass.
+- Existing Claude Code hooks still behave as before.
+- File-edit-sensitive rules are enforced by pre-commit or CI even if a Codex
+  hook misses them.
+- Codex hook support is either implemented for startup/Bash/stop guardrails or
+  explicitly documented as deferred with the reason.
 - Trace files record the infra state and remaining Phase 0 blockers.
 - Phase 1 Builder can start with `prompt/PHASE1_KICK_BUILDER.md`.
 
