@@ -1,9 +1,10 @@
 version: 1
 phase: "1"
 phase_name: "Core Framework and Typed API (MVP)"
-status: in_progress
+status: complete
 timezone: Asia/Shanghai
 opened_at: "2026-04-25 23:52 +0800"
+closed_at: "2026-04-26 07:31 +0800"
 
 handoff:
   source_phase: "0"
@@ -192,7 +193,7 @@ batches:
           - .github/workflows/ci.yml
           - .gitignore
   B1_4_phase_closeout:
-    status: in_progress
+    status: complete
     completed_batches:
       - id: B1.4-A
         completed_at: "2026-04-26 06:11 +0800"
@@ -246,6 +247,13 @@ batches:
           - packages/core/src/fixtures/phaseExitDemo.ts
         artifacts:
           - trace/phase1/phase-exit-demo.md
+      - id: B1.4-D
+        completed_at: "2026-04-26 07:31 +0800"
+        summary: "Phase 1 Builder trace closed after B1.4-A through B1.4-C and full verification."
+        artifacts:
+          - trace/phase1/phase-closeout.md
+          - trace/phase1/status.yaml
+          - trace/phase1/tracker.md
     planned_batches:
       - id: B1.4-B1
         status: complete
@@ -288,14 +296,14 @@ batches:
           - browser preview checks where applicable
           - explicit export boundary without overstating unsupported MP4/PDF output
       - id: B1.4-D
-        status: pending
+        status: complete
         summary: "Close the Phase 1 trace after B1.4-B/C are complete or waived."
         expected_focus:
           - exit criteria update
           - newest-first tracker closeout
           - full verification stack
           - stop before Phase 2 work
-    next_batch: B1.4-D
+    next_batch: null
 
 exit_criteria:
   all_phase1_scenarios_green:
@@ -308,3 +316,9 @@ exit_criteria:
     status: met
   phase_exit_demo_ready:
     status: met
+  phase1_builder_trace_closed:
+    status: met
+    artifact: trace/phase1/phase-closeout.md
+  phase_pointer_advanced_after_maintainer_approval:
+    status: pending
+    note: "Root STATUS.yaml and EXECUTION_TRACKER.md remain on Phase 1 until maintainer approves the phase transition."
