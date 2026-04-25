@@ -1,5 +1,16 @@
 # Phase 1 Tracker
 
+## 2026-04-26 06:11 +0800 — B1.4-A requirement coverage audit complete
+
+- Startup identity: continued as Builder with maintainer approval already granted in this session.
+- Batch scope: `B1.4-A`; updated `prompt/PHASE1_KICK_BUILDER.md` with the durable B1.4-A through B1.4-D closeout path, then completed a repo-grounded requirement coverage audit without modifying frozen specs or Accepted ADRs.
+- Audit artifact: `trace/phase1/requirement-coverage-audit.md`.
+- Result: `SPEC_TEST_MATRIX.md` scenarios remain green, but phase closeout still has semantic gaps before the all-domain fixture and phase-exit demo can be honestly marked complete.
+- Highest-priority gaps: `COMP-005` runtime interval expansion / offline `exportDuration`, `COMP-006` computed-step loading / export failure, `COMP-009` 60-minute warnings, `COMP-010` semantic-only `onCursorChange`, and `VAL-005` readiness timeout diagnostics.
+- Additional verification-depth gaps: browser-level keyboard coverage for `PLAY-001`, no-fallback font flash coverage for `RSAF-003`, delayed video metadata / timeout coverage for `RSAF-004`, and shallow DOM/visual depth for `RSAF-006`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Recommended next batch: `B1.4-B1`, closing compiler/runtime semantic gaps before building the all-domain MVP fixture.
+
 ## 2026-04-26 05:47 +0800 — B1.3 TC-VAL-006 green
 
 - Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after maintainer approval in this session.

@@ -98,7 +98,70 @@ explicitly narrows the phase:
   workflow.
 - P2: validation reports for the AI repair loop when available.
 
-### B1.4 Trace and handoff
+### B1.4 Phase closeout path
+
+After all `SPEC_TEST_MATRIX.md` scenarios are green, close Phase 1 through the
+following narrow Builder batches. Do not treat a green scenario matrix as phase
+closure until these exit tasks are handled or explicitly waived by the
+maintainer.
+
+#### B1.4-A Requirement coverage audit
+
+Perform a repo-grounded audit against the frozen Phase 1 specs, current tests,
+implementation files, and `trace/phase1/status.yaml`.
+
+- Confirm which requirements are fully covered by the completed scenarios.
+- Identify any requirements whose scenario is green but whose frozen statement
+  or verification language is only partially implemented.
+- Pay special attention to runtime-elastic `wait-for-event` / `computed`
+  semantics, offline export/static TimelineMap expectations, 60-minute warning
+  behavior, semantic `onCursorChange`, render-safe diagnostic coverage, and
+  any P1/P2 requirement that was intentionally shallow.
+- Record the result under `trace/phase1/` and update the tracker. Do not change
+  frozen specs or Accepted ADRs.
+
+#### B1.4-B All-domain MVP fixture
+
+If B1.4-A finds green-scenario gaps in frozen requirement semantics, close
+those gaps first as narrow B1.4-B sub-batches before creating the fixture. The
+fixture is the final B1.4-B integration batch, not a substitute for missing
+runtime/compiler behavior.
+
+Create one small integration fixture that spans the Phase 1 MVP domains:
+
+- typed API primitives and theme tokens;
+- compiler TimelineMap generation and cursor coverage;
+- render-safe resources and bounded content;
+- player/runtime navigation and presenter metadata;
+- validation diagnostics and `createValidationReport`;
+- skill-pack guidance that an agent can follow.
+
+The fixture should be an agent-authored technical talk, not a synthetic unit
+fixture. Keep it small enough to debug quickly.
+
+#### B1.4-C Phase exit demo / export path
+
+Use the all-domain fixture to prove the Phase 1 exit path:
+
+- compile to a deterministic TimelineMap;
+- run browser preview checks where applicable;
+- produce the Phase 1 export handoff artifact or clearly document the current
+  export boundary if true video rendering remains out of scope.
+
+Do not claim MP4/PDF export support unless the repo actually implements and
+verifies that path.
+
+#### B1.4-D Trace closeout
+
+Close the Phase 1 Builder trace only after B1.4-A through B1.4-C are complete or
+explicitly waived.
+
+- Update `trace/phase1/status.yaml` exit criteria.
+- Insert a newest-first tracker entry below the H1.
+- Run the full verification stack.
+- Stop and report the phase-close state before starting any Phase 2 work.
+
+#### Batch rules during B1.4
 
 For each batch:
 

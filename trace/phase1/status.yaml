@@ -191,6 +191,65 @@ batches:
           - tsconfig.json
           - .github/workflows/ci.yml
           - .gitignore
+  B1_4_phase_closeout:
+    status: in_progress
+    completed_batches:
+      - id: B1.4-A
+        completed_at: "2026-04-26 06:11 +0800"
+        summary: "Requirement coverage audit after green scenario matrix."
+        artifacts:
+          - trace/phase1/requirement-coverage-audit.md
+          - prompt/PHASE1_KICK_BUILDER.md
+    planned_batches:
+      - id: B1.4-B1
+        status: pending
+        summary: "Close compiler/runtime semantic gaps before integration fixture work."
+        requirements: [COMP-005, COMP-006, COMP-009, COMP-010]
+        expected_focus:
+          - runtime-elastic wait-for-event interval behavior
+          - offline/static export duration handling
+          - computed-step unresolved loading and export failure behavior
+          - 60-minute compile warning metadata
+          - semantic-only onCursorChange emissions
+      - id: B1.4-B2
+        status: pending
+        summary: "Close readiness timeout and browser-depth gaps."
+        requirements: [VAL-005, RSAF-003, RSAF-004, PLAY-001, RSAF-006]
+        expected_focus:
+          - asset/font/video readiness timeout diagnostics
+          - browser keyboard navigation coverage
+          - controlled font and video readiness fixtures
+          - MediaFrame DOM or visual measurement depth
+      - id: B1.4-B3
+        status: pending
+        summary: "Create the all-domain MVP fixture after semantic gaps are closed."
+        requirements:
+          - typed API
+          - compiler
+          - render-safe
+          - player runtime
+          - validation
+          - skills
+        expected_focus:
+          - agent-authored technical talk fixture
+          - integrated TimelineMap and cursor coverage
+          - validation report and skill-pack repair loop
+      - id: B1.4-C
+        status: pending
+        summary: "Prove the Phase 1 exit demo and export handoff boundary."
+        expected_focus:
+          - deterministic TimelineMap from the all-domain fixture
+          - browser preview checks where applicable
+          - explicit export boundary without overstating unsupported MP4/PDF output
+      - id: B1.4-D
+        status: pending
+        summary: "Close the Phase 1 trace after B1.4-B/C are complete or waived."
+        expected_focus:
+          - exit criteria update
+          - newest-first tracker closeout
+          - full verification stack
+          - stop before Phase 2 work
+    next_batch: B1.4-B1
 
 exit_criteria:
   all_phase1_scenarios_green:
