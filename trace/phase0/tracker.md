@@ -1,5 +1,12 @@
 # Phase 0 Tracker
 
+## 2026-04-25 22:25 +0800 — Phase 0 infra CI stabilized
+
+- Pushed the Phase 0 Builder bootstrap to `main` through commit `817baa7`.
+- Fixed CI-only runner issues in `.github/workflows/ci.yml`: pnpm is installed before `actions/setup-node` requests pnpm cache, and Markdown lint now resolves through `pnpm exec`.
+- Verified GitHub Actions CI run `24933022951` passed all workflow steps: frozen contract check, typecheck, test, lint, format check, Markdown lint, shell format check, spec lint, phase check, and whitespace check.
+- Note: GitHub Actions emitted a Node.js 20 action deprecation annotation for upstream actions; it did not fail the run and does not block Phase 0 Builder bootstrap.
+
 ## 2026-04-25 21:53 +0800 — Phase 0 infra bootstrap completed
 
 - Added the root pnpm workspace skeleton (`package.json`, `pnpm-workspace.yaml`, `tsconfig.json`, `vitest.config.ts`, `pnpm-lock.yaml`) with runnable `typecheck`, `test`, `lint`, `format:check`, `spec:lint`, and `phase:check` scripts.

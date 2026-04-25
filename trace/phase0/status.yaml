@@ -83,7 +83,7 @@ missions:
       - "Updated the Phase 0 Architect kick file and workflow docs to reflect frozen Phase 1 specs."
   B0_phase0_builder_infra_bootstrap:
     status: complete
-    updated_at: "2026-04-25 21:53 +0800"
+    updated_at: "2026-04-25 22:25 +0800"
     artifacts:
       - package.json
       - pnpm-workspace.yaml
@@ -109,6 +109,7 @@ missions:
       - "Added executable spec lint and phase check scripts for Phase 0/Phase 1 handoff hygiene."
       - "Added repo-local git hooks, CI, and Codex startup/Bash/permission/stop hook support."
       - "Kept Phase 1 runtime, typed API, compiler, player, validation, and packages/**/src/** unimplemented."
+      - "Published the bootstrap through commit 817baa7; GitHub Actions CI run 24933022951 passed all Phase 0 gates."
   M7_trace_maintenance:
     status: in_progress
   M8_phase0_close:
