@@ -1,11 +1,39 @@
 export type ResourceKind = "asset" | "font" | "video";
 
+export type ContentDensity = "compact" | "comfortable" | "spacious";
+export type ContentReadability = "headline" | "body" | "caption";
+
 export type RenderSafeResourceNode = {
   kind: "safe-resource";
   resourceKind: ResourceKind;
   resourceId: string;
   timeoutMs: number;
 };
+
+export type TypographyBoxNode = {
+  kind: "typography-box";
+  id: string;
+  maxWidth: number;
+  maxHeight: number;
+  children?: unknown;
+};
+
+export type ContentSlotMetadata = {
+  density: ContentDensity;
+  readability: ContentReadability;
+};
+
+export type ContentSlotNode = {
+  kind: "content-slot";
+  id: string;
+  metadata: ContentSlotMetadata;
+  children?: unknown;
+};
+
+export type RenderSafeNode =
+  | RenderSafeResourceNode
+  | TypographyBoxNode
+  | ContentSlotNode;
 
 export type SafeImageProps = {
   src: string;
@@ -26,7 +54,23 @@ export type SafeVideoProps = {
   timeoutMs?: number;
 };
 
+export type TypographyBoxProps = {
+  id: string;
+  maxWidth: number;
+  maxHeight: number;
+  children?: unknown;
+};
+
+export type ContentSlotProps = {
+  id: string;
+  density?: ContentDensity;
+  readability?: ContentReadability;
+  children?: unknown;
+};
+
 const DEFAULT_TIMEOUT_MS = 10_000;
+const DEFAULT_CONTENT_DENSITY: ContentDensity = "comfortable";
+const DEFAULT_CONTENT_READABILITY: ContentReadability = "body";
 
 export function SafeImage(props: SafeImageProps): RenderSafeResourceNode {
   return {
@@ -52,6 +96,28 @@ export function SafeVideo(props: SafeVideoProps): RenderSafeResourceNode {
     resourceKind: "video",
     resourceId: props.id ?? `video:${props.src}`,
     timeoutMs: props.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+  };
+}
+
+export function TypographyBox(props: TypographyBoxProps): TypographyBoxNode {
+  return {
+    kind: "typography-box",
+    id: props.id,
+    maxWidth: props.maxWidth,
+    maxHeight: props.maxHeight,
+    children: props.children,
+  };
+}
+
+export function ContentSlot(props: ContentSlotProps): ContentSlotNode {
+  return {
+    kind: "content-slot",
+    id: props.id,
+    metadata: {
+      density: props.density ?? DEFAULT_CONTENT_DENSITY,
+      readability: props.readability ?? DEFAULT_CONTENT_READABILITY,
+    },
+    children: props.children,
   };
 }
 

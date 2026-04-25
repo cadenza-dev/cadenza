@@ -1,4 +1,4 @@
-import type { RenderSafeResourceNode } from "../render-safe/resources.js";
+import type { RenderSafeNode } from "../render-safe/resources.js";
 
 export type DurationToken = number | `${number}ms` | `${number}s`;
 
@@ -96,7 +96,7 @@ export type CadenzaNode =
   | StepNode
   | TransitionNode
   | NotesNode
-  | RenderSafeResourceNode;
+  | RenderSafeNode;
 
 type CadenzaChildren = CadenzaNode | CadenzaNode[];
 

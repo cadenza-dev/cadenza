@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 04:09 +0800 — B1.3 TC-RSAF-005 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-SKIL-001` commit and push.
+- Batch scope: `B1.3` / `TC-RSAF-005`; covered requirement IDs `RSAF-005`, `RSAF-007`, and `VAL-004` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/render-safe.typography.test.ts` failed because the public API did not expose `TypographyBox`, `ContentSlot`, or preview layout validation.
+- GREEN: added render-safe `TypographyBox` and `ContentSlot` nodes, exposed ContentSlot density/readability metadata, and added `validatePreviewLayout` to emit typed overflow diagnostics from browser measurements.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/render-safe.typography.test.ts`, `packages/core/src/render-safe/resources.ts`, `packages/core/src/validation/browser.ts`, `packages/core/src/typed-api/primitives.ts`, `packages/core/src/index.ts`.
+- Next B1.3 scenario: `TC-PLAY-004`.
+
 ## 2026-04-26 03:46 +0800 — B1.2 TC-SKIL-001 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-VAL-001` commit and push.

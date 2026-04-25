@@ -25,13 +25,27 @@ export type {
 } from "./render-safe/readiness.js";
 export { createResourceReadiness } from "./render-safe/readiness.js";
 export type {
+  ContentDensity,
+  ContentReadability,
+  ContentSlotMetadata,
+  ContentSlotNode,
+  ContentSlotProps,
+  RenderSafeNode,
   RenderSafeResourceNode,
   ResourceKind,
   SafeFontProps,
   SafeImageProps,
   SafeVideoProps,
+  TypographyBoxNode,
+  TypographyBoxProps,
 } from "./render-safe/resources.js";
-export { SafeFont, SafeImage, SafeVideo } from "./render-safe/resources.js";
+export {
+  ContentSlot,
+  SafeFont,
+  SafeImage,
+  SafeVideo,
+  TypographyBox,
+} from "./render-safe/resources.js";
 export type {
   CadenzaRuntime,
   CadenzaRuntimeOptions,
@@ -66,5 +80,10 @@ export {
   Theme,
   Transition,
 } from "./typed-api/primitives.js";
+export type {
+  PreviewLayoutMeasurement,
+  TypographyBoxMeasurement,
+} from "./validation/browser.js";
+export { validatePreviewLayout } from "./validation/browser.js";
 export { CadenzaValidationError } from "./validation/errors.js";
 export { validateDeck } from "./validation/static.js";

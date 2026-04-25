@@ -121,8 +121,19 @@ batches:
           - .agents/skills/render-safe-components/SKILL.md
     next_scenario: null
   B1_3_p1_p2_completion_path:
-    status: not_started
-    next_scenario: TC-RSAF-005
+    status: in_progress
+    completed_scenarios:
+      - id: TC-RSAF-005
+        completed_at: "2026-04-26 04:09 +0800"
+        requirements: [RSAF-005, RSAF-007, VAL-004]
+        tests:
+          - packages/core/src/render-safe.typography.test.ts
+        implementation:
+          - packages/core/src/render-safe/resources.ts
+          - packages/core/src/validation/browser.ts
+          - packages/core/src/typed-api/primitives.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-PLAY-004
 
 exit_criteria:
   all_phase1_scenarios_green:
