@@ -33,3 +33,12 @@ spacing, theme usage, or responsive composition in a Cadenza deck.
   single dense frame.
 - Asset-bearing regions use render-safe declarations so readiness and timeout
   diagnostics can protect export.
+
+## Anti-Patterns
+
+- Do not fix text overflow by shrinking type blindly, hiding content, or
+  clipping the frame. Use `TypographyBox` diagnostics to see whether content
+  needs a layout change, shorter copy, or a different reveal structure.
+- Do not place dense body copy into a decorative layout region just because it
+  fits in a screenshot. Agent-generated decks need layouts that survive browser
+  preview, export, and small copy changes.

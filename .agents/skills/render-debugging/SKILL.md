@@ -28,3 +28,20 @@ render-ready state.
   timeout.
 - If an escape hatch is needed, add a `// why:` comment and keep the raw
   Remotion primitive locally contained.
+
+## Validate-And-Repair Loop
+
+Use this validate-and-repair loop before changing code or deck structure:
+
+1. Run compile-time validation and preview validation.
+2. Group structured diagnostics by `requirementId`, `code`, and `source`.
+3. Repair the typed API authoring first: missing IDs, duplicate IDs, invalid
+   Step kinds, nested Decks, and unsupported raw Remotion primitives.
+4. Repair render-safe issues next: unresolved assets, overflow, and readiness
+   timeouts.
+5. Re-run validation after each repair so the next change responds to current
+   diagnostics rather than stale guesses.
+
+Prefer small repairs that preserve author intent. If diagnostics point to a
+missing abstraction, add a focused Cadenza helper instead of scattering raw
+Remotion escape hatches through the deck.

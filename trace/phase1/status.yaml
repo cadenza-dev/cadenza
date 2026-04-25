@@ -151,7 +151,17 @@ batches:
           - packages/core/src/compiler/compile.ts
           - packages/core/src/runtime/createRuntime.ts
           - packages/core/src/index.ts
-    next_scenario: TC-SKIL-004
+      - id: TC-SKIL-004
+        completed_at: "2026-04-26 04:29 +0800"
+        requirements: [SKIL-004, SKIL-005]
+        tests:
+          - packages/core/src/skill-pack.test.ts
+        implementation:
+          - .agents/skills/layout-composition/SKILL.md
+          - .agents/skills/motion-transitions/SKILL.md
+          - .agents/skills/render-debugging/SKILL.md
+          - .agents/skills/render-safe-components/SKILL.md
+    next_scenario: TC-VAL-006
 
 exit_criteria:
   all_phase1_scenarios_green:

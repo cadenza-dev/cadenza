@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 04:29 +0800 — B1.3 TC-SKIL-004 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-006` commit and push.
+- Batch scope: `B1.3` / `TC-SKIL-004`; covered requirement IDs `SKIL-004` and `SKIL-005` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/skill-pack.test.ts` failed because the skill pack did not explicitly cover required anti-patterns or a validate-and-repair loop.
+- GREEN: added skill guidance for overflow, asset loading, timing, direct frame-coordinate manipulation, and a structured diagnostics validate-and-repair workflow.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and artifact links: `packages/core/src/skill-pack.test.ts`, `.agents/skills/layout-composition/SKILL.md`, `.agents/skills/motion-transitions/SKILL.md`, `.agents/skills/render-debugging/SKILL.md`, `.agents/skills/render-safe-components/SKILL.md`.
+- Next B1.3/P2 scenario: `TC-VAL-006`.
+
 ## 2026-04-26 04:24 +0800 — B1.3 TC-PLAY-006 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-004` commit and push.

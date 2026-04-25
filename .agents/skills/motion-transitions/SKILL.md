@@ -29,3 +29,12 @@ to a Cadenza deck.
 - Navigation behavior is explicit when default `cut-to-next` is not desired.
 - Any raw Remotion primitive escape hatch includes a `// why:` comment and stays
   isolated from the public authoring surface.
+
+## Anti-Patterns
+
+- Do not solve timing problems with `useCurrentFrame`, raw frame counters, or
+  direct frame-coordinate manipulation. Move intent into `Step`, `Transition`,
+  and deck-level `navigationPolicy` so the compiler and runtime can preserve
+  cursor metadata.
+- Do not synchronize media readiness by stretching transitions. Keep motion
+  timing separate from render-safe resource readiness.

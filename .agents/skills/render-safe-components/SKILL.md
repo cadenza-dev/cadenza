@@ -29,3 +29,12 @@ affect preview/export reliability.
 - Resource readiness remains independent from slide transition timing.
 - Escape hatches include a `// why:` comment and should be candidates for a
   future render-safe abstraction.
+
+## Anti-Patterns
+
+- Do not treat asset loading as a generic animation delay. Declare images,
+  fonts, and videos with render-safe components so readiness, timeout, and
+  repair diagnostics stay attached to the resource that failed.
+- Do not hide asset failures behind fallback screenshots unless the user
+  explicitly accepts a degraded export path. The agent should surface the
+  structured diagnostic and repair the resource declaration when possible.

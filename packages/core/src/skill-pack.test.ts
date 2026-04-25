@@ -30,3 +30,26 @@ describe("TC-SKIL-001 authoring skill pack", () => {
     }
   });
 });
+
+describe("TC-SKIL-004 skill repair workflow", () => {
+  it("covers core authoring anti-patterns and a validate-and-repair loop", () => {
+    const skillPackContent = REQUIRED_SKILLS.map((skillName) =>
+      readSkill(skillName),
+    ).join("\n");
+
+    expect(skillPackContent).toContain("overflow");
+    expect(skillPackContent).toContain("asset loading");
+    expect(skillPackContent).toContain("timing");
+    expect(skillPackContent).toContain("direct frame-coordinate manipulation");
+    expect(skillPackContent).toContain("validate-and-repair");
+    expect(skillPackContent).toContain("structured diagnostics");
+  });
+});
+
+function readSkill(skillName: string): string {
+  return readFileSync(skillPath(skillName), "utf8");
+}
+
+function skillPath(skillName: string): string {
+  return path.join(process.cwd(), ".agents", "skills", skillName, "SKILL.md");
+}
