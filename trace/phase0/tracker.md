@@ -1,5 +1,22 @@
 # Phase 0 Tracker
 
+## 2026-04-25 21:53 +0800 — Phase 0 infra bootstrap completed
+
+- Added the root pnpm workspace skeleton (`package.json`, `pnpm-workspace.yaml`, `tsconfig.json`, `vitest.config.ts`, `pnpm-lock.yaml`) with runnable `typecheck`, `test`, `lint`, `format:check`, `spec:lint`, and `phase:check` scripts.
+- Added executable Phase 0 gates: `scripts/lint-specs.ts`, `scripts/phase-check.ts`, `scripts/check-contract-frozen.ts`, and `scripts/check-role-boundary.ts`.
+- Added local git hook surface via `.githooks/pre-commit`, `.githooks/commit-msg`, `scripts/pre-commit.sh`, and `scripts/install-git-hooks.sh`; current checkout has `core.hooksPath=.githooks`.
+- Added CI at `.github/workflows/ci.yml` mirroring the verification stack.
+- Added Codex project hook support under `.codex/` for `SessionStart`, Bash `PreToolUse`, Bash `PermissionRequest`, and `Stop`, reusing shared scripts through Codex-specific wrappers.
+- Preserved Phase 0 boundaries: no `packages/**/src/**` production code, no Phase 1 runtime/API/compiler/player/validation implementation, and no frozen spec or Accepted ADR edits.
+- Verification passed: `pnpm typecheck`, `pnpm test` (no tests yet, pass-with-no-tests), `pnpm lint`, `pnpm format:check`, `pnpm spec:lint`, `pnpm phase:check`, `markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `git diff --check`, JSON/YAML parse checks, Codex hook simulations, and `pnpm -s precommit`.
+- Note: `phase:check` reports `phase_pointer_advanced_to_1` as pending human phase close; this is expected and does not block the Builder bootstrap.
+
+## 2026-04-25 21:27 +0800 — Builder identity approved for infra bootstrap
+
+- Launched as Phase 0 Builder via `prompt/PHASE0_KICK_BUILDER.md`.
+- Detected identity: `gpt-5.x/codex`; maintainer confirmed the active model is `gpt-5.5` with extra-high thinking effort and approved proceeding as Builder.
+- Proceeding with Phase 0 infrastructure bootstrap from `PHASE0_KICK_BUILDER.md` after the AGENTS.md Startup Protocol gate.
+
 ## 2026-04-25 21:02 +0800 — M4 Remotion notification sent and recorded
 
 - Maintainer sent the Remotion notification email to `hi@remotion.dev` at approximately 2026-04-25 21:00 +0800.

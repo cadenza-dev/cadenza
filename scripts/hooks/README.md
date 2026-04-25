@@ -15,6 +15,9 @@ Shell scripts invoked by Claude Code hooks (configured in [`.claude/settings.jso
 | `post-md-edit.sh` | PostToolUse `Write\|Edit` | After any `*.md` edit, run `markdownlint-cli2`; when a rule fires ≥ N times in a session, suggest relaxing it in `.markdownlint-cli2.jsonc` project-wide rather than per-file |
 | `session-stop-audit.sh` | Stop | Warn about uncommitted work or missing `trace/<phase>/` updates |
 | `pre-compact-preserve.sh` | PreCompact | Inject `STATUS.yaml` + read-order reminder before context compaction |
+| `codex-session-brief.sh` | Codex SessionStart | Adapt `session-brief.sh` into Codex JSON additional context |
+| `codex-permission-request.sh` | Codex PermissionRequest `Bash` | Adapt dangerous-Bash checks into Codex approval denial JSON |
+| `codex-stop-audit.sh` | Codex Stop | Adapt `session-stop-audit.sh` into Codex JSON system messages |
 
 ## Hook protocol (Claude Code)
 
@@ -26,6 +29,23 @@ All scripts follow the same contract:
 - **exit codes**: `0` = allow / silent success; `2` = block (`PreToolUse` only). Other non-zero = error but non-blocking (tool already ran for PostToolUse).
 
 Scripts use `jq` for JSON parsing. If `jq` is absent, they no-op gracefully rather than blocking.
+
+## Hook protocol (Codex)
+
+Project-local Codex hooks live in [`.codex/hooks.json`](../../.codex/hooks.json)
+with the feature flag enabled in [`.codex/config.toml`](../../.codex/config.toml).
+Codex requires JSON stdout for some events, so the `codex-*` wrappers adapt the
+shared Claude-oriented scripts without duplicating policy logic.
+
+Current Codex coverage is intentionally narrow:
+
+- startup context injection,
+- Bash safety before shell execution,
+- Bash permission-request denial for unsafe commands,
+- stop-time audit notes.
+
+File-edit-sensitive rules remain enforced by `.githooks/` and CI because Codex
+hook interception is not yet a complete enforcement boundary.
 
 ## Role detection
 

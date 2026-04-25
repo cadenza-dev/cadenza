@@ -70,8 +70,13 @@ tmp/
 temp/
 *.tmp
 
-# Codex — prompt bridges are retired; ignore private local state.
-.codex
+# Codex — keep shared project hook config, ignore private local state.
+.codex/*
+!.codex/README.md
+!.codex/config.toml
+!.codex/hooks.json
+.codex/local/
+.codex/tmp/
 
 # Claude Code / AI agent workspaces (keep shared, ignore private)
 .claude/local/

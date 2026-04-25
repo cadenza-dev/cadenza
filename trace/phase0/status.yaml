@@ -5,10 +5,10 @@ status: in_progress
 timezone: Asia/Shanghai
 
 session:
-  active_role: architect
-  approved_identity: gpt-5.x/codex
-  approved_at: "2026-04-25 06:37 +0800"
-  approval_note: "Maintainer clarified the active model is effectively gpt-5.5 and approved this identity for Architect work."
+  active_role: builder
+  approved_identity: gpt-5.5/codex
+  approved_at: "2026-04-25 21:27 +0800"
+  approval_note: "Maintainer confirmed the active model is gpt-5.5 with extra-high thinking effort and approved this identity for Phase 0 Builder infrastructure bootstrap."
 
 missions:
   M1_compiler_design_review:
@@ -81,6 +81,34 @@ missions:
       - "Maintainer approved Phase 0 Builder infrastructure bootstrap as a separate task."
       - "Replaced the obsolete Phase 1 Architect Stage B handoff with Phase 1 Builder implementation handoff."
       - "Updated the Phase 0 Architect kick file and workflow docs to reflect frozen Phase 1 specs."
+  B0_phase0_builder_infra_bootstrap:
+    status: complete
+    updated_at: "2026-04-25 21:53 +0800"
+    artifacts:
+      - package.json
+      - pnpm-workspace.yaml
+      - tsconfig.json
+      - vitest.config.ts
+      - scripts/lint-specs.ts
+      - scripts/phase-check.ts
+      - scripts/check-contract-frozen.ts
+      - scripts/check-role-boundary.ts
+      - scripts/pre-commit.sh
+      - scripts/install-git-hooks.sh
+      - .githooks/pre-commit
+      - .githooks/commit-msg
+      - .github/workflows/ci.yml
+      - .codex/config.toml
+      - .codex/hooks.json
+      - .codex/README.md
+      - scripts/hooks/codex-session-brief.sh
+      - scripts/hooks/codex-permission-request.sh
+      - scripts/hooks/codex-stop-audit.sh
+    summary:
+      - "Created the smallest viable pnpm workspace skeleton and root verification scripts."
+      - "Added executable spec lint and phase check scripts for Phase 0/Phase 1 handoff hygiene."
+      - "Added repo-local git hooks, CI, and Codex startup/Bash/permission/stop hook support."
+      - "Kept Phase 1 runtime, typed API, compiler, player, validation, and packages/**/src/** unimplemented."
   M7_trace_maintenance:
     status: in_progress
   M8_phase0_close:
@@ -126,6 +154,15 @@ exit_criteria:
   remotion_notification_outcome_recorded_if_sent:
     status: met
     artifact: docs/adr/0011-remotion-notification-outcome.md
+  phase0_infra_bootstrap_runnable:
+    status: met
+    artifacts:
+      - package.json
+      - scripts/lint-specs.ts
+      - scripts/phase-check.ts
+      - .githooks/pre-commit
+      - .github/workflows/ci.yml
+      - .codex/hooks.json
   phase_pointer_advanced_to_1:
     status: unmet
 
@@ -141,6 +178,7 @@ stats:
   phase1_frozen_decision_count: 13
   future_support_followup_count: 14
   downstream_kick_file_count: 2
+  phase0_builder_infra_script_count: 9
   pending_adr_count: 0
   remotion_notification_sent_at: "2026-04-25 21:00 +0800"
   remotion_notification_followup_due: "2026-05-23"

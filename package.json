@@ -1,0 +1,37 @@
+{
+  "name": "cadenza",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "type": "module",
+  "scripts": {
+    "prepare": "bash scripts/install-git-hooks.sh",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint:md": "markdownlint-cli2 \"**/*.md\"",
+    "format:md": "markdownlint-cli2 --fix \"**/*.md\"",
+    "lint:shell": "find scripts .agents .githooks .codex -name '*.sh' -print0 | xargs -0 shfmt -d",
+    "format:shell": "find scripts .agents .githooks .codex -name '*.sh' -exec shfmt -w {} +",
+    "spec:lint": "node --experimental-strip-types scripts/lint-specs.ts",
+    "phase:check": "node --experimental-strip-types scripts/phase-check.ts",
+    "check:frozen": "node --experimental-strip-types scripts/check-contract-frozen.ts",
+    "check:role-boundary": "node --experimental-strip-types scripts/check-role-boundary.ts",
+    "precommit": "bash scripts/pre-commit.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
+    "@types/node": "^25.6.0",
+    "markdownlint-cli2": "^0.22.1",
+    "markdownlint-cli2-formatter-pretty": "^0.0.10",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
+  }
+}
