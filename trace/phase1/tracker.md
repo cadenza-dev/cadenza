@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 04:16 +0800 — B1.3 TC-PLAY-004 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-RSAF-005` commit and push.
+- Batch scope: `B1.3` / `TC-PLAY-004`; covered requirement IDs `PLAY-004` and `PLAY-005` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/player.controls.test.ts` failed because the public API did not expose click-region or fullscreen controls.
+- GREEN: added `bindClickRegions` for configurable browser click hit regions and `createFullscreenControls` as a thin adapter over player fullscreen capabilities.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/player.controls.test.ts`, `packages/core/src/player/clickRegions.ts`, `packages/core/src/player/fullscreen.ts`, `packages/core/src/index.ts`.
+- Next B1.3 scenario: `TC-PLAY-006`.
+
 ## 2026-04-26 04:09 +0800 — B1.3 TC-RSAF-005 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-SKIL-001` commit and push.

@@ -14,6 +14,19 @@ export type {
   DiagnosticSeverity,
 } from "./diagnostics/types.js";
 export type {
+  ClickRegion,
+  ClickRegionAction,
+  ClickRegionEvent,
+  ClickRegionRect,
+  ClickRegionTarget,
+} from "./player/clickRegions.js";
+export { bindClickRegions } from "./player/clickRegions.js";
+export type {
+  FullscreenControls,
+  FullscreenPlayer,
+} from "./player/fullscreen.js";
+export { createFullscreenControls } from "./player/fullscreen.js";
+export type {
   KeyboardNavigationEvent,
   KeyboardNavigationMap,
   KeyboardNavigationTarget,

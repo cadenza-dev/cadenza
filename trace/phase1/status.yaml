@@ -133,7 +133,16 @@ batches:
           - packages/core/src/validation/browser.ts
           - packages/core/src/typed-api/primitives.ts
           - packages/core/src/index.ts
-    next_scenario: TC-PLAY-004
+      - id: TC-PLAY-004
+        completed_at: "2026-04-26 04:16 +0800"
+        requirements: [PLAY-004, PLAY-005]
+        tests:
+          - packages/core/src/player.controls.test.ts
+        implementation:
+          - packages/core/src/player/clickRegions.ts
+          - packages/core/src/player/fullscreen.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-PLAY-006
 
 exit_criteria:
   all_phase1_scenarios_green:
