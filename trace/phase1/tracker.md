@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 01:45 +0800 — B1.2 TC-COMP-007 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-COMP-004` commit and push.
+- Batch scope: `B1.2` / `TC-COMP-007`; covered requirement ID `COMP-007` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/runtime.navigation.test.ts` failed because mid-transition `next()` ignored deck-level navigation policy and behaved like ordinary step navigation.
+- GREEN: `TimelineMap` now preserves `navigationPolicy`, and runtime navigation handles `cut-to-next`, `finish-then-advance`, and `queue-next` while the current cursor is `in-transition`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/runtime.navigation.test.ts`, `packages/core/src/compiler/compile.ts`, `packages/core/src/runtime/createRuntime.ts`.
+- Next B1.2 P0 scenario: `TC-RSAF-002`.
+
 ## 2026-04-26 01:38 +0800 — B1.2 TC-COMP-004 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-COMP-001` commit and push.

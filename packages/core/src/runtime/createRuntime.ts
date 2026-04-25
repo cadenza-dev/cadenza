@@ -2,6 +2,8 @@ import type { TimelineMap } from "../compiler/compile.js";
 import { type Cursor, cursorAtFrame } from "../compiler/cursor.js";
 
 export type SeekPlayer = {
+  getCurrentFrame?(): number;
+  onFrameChange?(handler: (frame: number) => void): () => void;
   seekTo(frame: number): void;
 };
 
@@ -25,8 +27,26 @@ export function createRuntime(
 ): CadenzaRuntime {
   const anchors = collectStepAnchors(timeline);
   const listeners = new Set<(cursor: Cursor) => void>();
-  let currentAnchorIndex = 0;
-  let currentFrame = anchors[0]?.frame ?? 0;
+  let currentFrame = player.getCurrentFrame?.() ?? anchors[0]?.frame ?? 0;
+  let currentAnchorIndex = anchorIndexForFrame(anchors, timeline, currentFrame);
+  let queuedAnchorIndex: number | undefined;
+
+  player.onFrameChange?.((frame) => {
+    currentFrame = frame;
+    currentAnchorIndex = anchorIndexForFrame(anchors, timeline, currentFrame);
+
+    if (
+      queuedAnchorIndex !== undefined &&
+      getCursor().kind !== "in-transition"
+    ) {
+      const anchorIndex = queuedAnchorIndex;
+      queuedAnchorIndex = undefined;
+      seekToAnchor(anchorIndex);
+      return;
+    }
+
+    emitCursorChange();
+  });
 
   function seekToAnchor(anchorIndex: number): void {
     const anchor = anchors[anchorIndex];
@@ -64,13 +84,36 @@ export function createRuntime(
       seekToAnchor(anchorIndex);
     },
     next() {
+      const cursor = getCursor();
+
+      if (cursor.kind === "in-transition") {
+        const targetAnchorIndex = findAnchorIndex(anchors, cursor.to, 0);
+
+        if (timeline.navigationPolicy === "finish-then-advance") {
+          return;
+        }
+
+        if (timeline.navigationPolicy === "queue-next") {
+          queuedAnchorIndex = Math.min(
+            targetAnchorIndex + 1,
+            anchors.length - 1,
+          );
+          return;
+        }
+
+        seekToAnchor(targetAnchorIndex);
+        return;
+      }
+
+      currentAnchorIndex = anchorIndexForCursor(anchors, cursor);
       seekToAnchor(Math.min(currentAnchorIndex + 1, anchors.length - 1));
     },
     previous() {
+      currentAnchorIndex = anchorIndexForCursor(anchors, getCursor());
       seekToAnchor(Math.max(currentAnchorIndex - 1, 0));
     },
     getCursor() {
-      return cursorAtFrame(timeline, currentFrame);
+      return getCursor();
     },
     onCursorChange(handler) {
       listeners.add(handler);
@@ -80,6 +123,10 @@ export function createRuntime(
       };
     },
   };
+
+  function getCursor(): Cursor {
+    return cursorAtFrame(timeline, currentFrame);
+  }
 }
 
 function collectStepAnchors(timeline: TimelineMap): StepAnchor[] {
@@ -90,4 +137,36 @@ function collectStepAnchors(timeline: TimelineMap): StepAnchor[] {
       frame: step.segment[0],
     })),
   );
+}
+
+function anchorIndexForFrame(
+  anchors: StepAnchor[],
+  timeline: TimelineMap,
+  frame: number,
+): number {
+  return anchorIndexForCursor(anchors, cursorAtFrame(timeline, frame));
+}
+
+function anchorIndexForCursor(anchors: StepAnchor[], cursor: Cursor): number {
+  if (cursor.kind !== "at-step") {
+    return 0;
+  }
+
+  return findAnchorIndex(anchors, cursor.slideId, cursor.stepIndex);
+}
+
+function findAnchorIndex(
+  anchors: StepAnchor[],
+  slideId: string,
+  stepIndex: number,
+): number {
+  const anchorIndex = anchors.findIndex(
+    (anchor) => anchor.slideId === slideId && anchor.stepIndex === stepIndex,
+  );
+
+  if (anchorIndex === -1) {
+    throw new RangeError(`Unknown step anchor ${slideId}:${stepIndex}.`);
+  }
+
+  return anchorIndex;
 }

@@ -1,6 +1,7 @@
 import type {
   DeckNode,
   DurationToken,
+  NavigationPolicy,
   SlideNode,
   StepKind,
   StepNode,
@@ -33,6 +34,7 @@ export type TimelineSlide = {
 
 export type TimelineMap = {
   fps: number;
+  navigationPolicy: NavigationPolicy;
   totalFrames: number;
   slides: TimelineSlide[];
 };
@@ -85,6 +87,7 @@ export function compile(deck: DeckNode): TimelineMap {
 
   return {
     fps: deck.fps,
+    navigationPolicy: deck.navigationPolicy,
     totalFrames: cursor,
     slides,
   };

@@ -68,7 +68,15 @@ batches:
         implementation:
           - packages/core/src/runtime/createRuntime.ts
           - packages/core/src/index.ts
-    next_scenario: TC-COMP-007
+      - id: TC-COMP-007
+        completed_at: "2026-04-26 01:45 +0800"
+        requirements: [COMP-007]
+        tests:
+          - packages/core/src/runtime.navigation.test.ts
+        implementation:
+          - packages/core/src/compiler/compile.ts
+          - packages/core/src/runtime/createRuntime.ts
+    next_scenario: TC-RSAF-002
   B1_3_p1_p2_completion_path:
     status: not_started
 
