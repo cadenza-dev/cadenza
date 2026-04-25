@@ -94,15 +94,17 @@ Done when: maintainer reviews and accepts.
 
 ### 3.2 Architect Stage A — exploratory
 
-Inputs: `ROADMAP.md`, `docs/analysis/analysis-final.md`, prior phase's frozen specs.
+Inputs: `ROADMAP.md`, `docs/analysis/analysis-final.md`,
+`wip/future-support/` entries targeting the current phase, and prior phase's
+frozen specs.
 Output: `spec/<phase>/SPEC_*.md` files with `CONTRACT_DRAFT` markers and Freeze Candidate entries.
 Done when: every contested domain has ≥ 2 options considered and any unresolved tension is an explicit Freeze Candidate.
 
 ### 3.3 Architect Stage B — freeze
 
 Inputs: Stage A drafts + user review.
-Output: same files updated — every Freeze Candidate resolved, status marker flipped to `CONTRACT_FROZEN`.
-Done when: user approves and no Freeze Candidates remain.
+Output: same files updated — every Freeze Candidate resolved, status marker flipped to `CONTRACT_FROZEN`; deferred enhancements recorded under `wip/future-support/` by target phase.
+Done when: user approves, no Freeze Candidates remain, and follow-up items are either promoted into the phase contract or recorded as WIP planning notes.
 
 ### 3.4 Builder batches
 

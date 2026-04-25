@@ -15,8 +15,9 @@ When your context is cold — fresh session, post `/compact`, or post VM restart
 3. `docs/adr/README.md` — index of accepted architectural decisions
 4. `docs/analysis/analysis-final.md` §0 (Executive Summary only, ~30 lines)
 5. `prompt/PHASE<N>_KICK_<ROLE>.md` — your role-scoped brief for the current phase
-6. `spec/<current-phase>/` — only if your task touches spec or code in this phase
-7. `trace/<current-phase>/tracker.md` — only if continuing mid-phase work
+6. `wip/future-support/` — Architect only: read entries targeting the current phase
+7. `spec/<current-phase>/` — only if your task touches spec or code in this phase
+8. `trace/<current-phase>/tracker.md` — only if continuing mid-phase work
 
 Do **not** read `docs/analysis/analysis-final.zh.md` (Chinese) or its archive unless explicitly asked. They are for human review.
 
@@ -84,10 +85,14 @@ The point is: **when in doubt, stop and ask once**. Do not silently adopt a role
 Scout     → ROADMAP.md (strategic brief)
 Architect → spec/<phase>/ Stage A (2-3 options, Freeze Candidates marked)
           → spec/<phase>/ Stage B (Freeze Candidates resolved, CONTRACT_FROZEN)
+          → wip/future-support/ (deferred enhancements grouped by future phase)
 Builder   → per batch: read SPEC_TEST_MATRIX → write tests (red)
           → implement (green) → refactor → update trace/<phase>/tracker.md
 Human     → review each stage; approve freeze; trigger next batch
 ```
+
+At the start of each Architect phase, read the relevant `wip/future-support/`
+entries and promote only the applicable items into that phase's specs or ADRs.
 
 Full description: [`docs/agentic-workflow.md`](./docs/agentic-workflow.md).
 
@@ -158,6 +163,7 @@ cadenza/
 ├── prompt/                   ← per-phase × per-role kick files
 ├── spec/<phase>/             ← normative contracts, CONTRACT_FROZEN markers
 ├── trace/<phase>/            ← execution archives (status.yaml + tracker.md)
+├── wip/                      ← non-contract future-support planning notes
 ├── packages/                 ← pnpm workspace (Builder territory, from Phase 1)
 └── scripts/                  ← build + lint + hook scripts + skill sync
 ```

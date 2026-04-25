@@ -1,5 +1,11 @@
 # Phase 0 Tracker
 
+## 2026-04-25 19:56 +0800 — Workflow updated for WIP follow-up loop
+
+- Updated `AGENTS.md` so Architects read current-phase `wip/future-support/` entries at phase start.
+- Added the post-freeze rule that Architects record deferred enhancement topics under `wip/future-support/`, grouped by future planning horizon.
+- Synced the long-form workflow in `docs/agentic-workflow.md` and marked M5 as in-progress in `trace/phase0/status.yaml`.
+
 ## 2026-04-25 19:51 +0800 — Future-support notes split by planning horizon
 
 - Split `wip/future-support/frozen-decision-followups.md` into an index plus separate planning files for Phase 2, Phase 3, and conditional/later candidates.

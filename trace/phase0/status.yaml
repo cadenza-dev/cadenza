@@ -51,7 +51,14 @@ missions:
   M4_remotion_notification:
     status: not_started
   M5_agentic_workflow_finalize:
-    status: not_started
+    status: in_progress
+    updated_at: "2026-04-25 19:56 +0800"
+    artifacts:
+      - AGENTS.md
+      - docs/agentic-workflow.md
+    summary:
+      - "Added WIP future-support read/write rules to the Architect workflow."
+      - "Architect reads current-phase WIP follow-ups at phase start and records deferred enhancements after freeze."
   M6_downstream_kick_files:
     status: not_started
   M7_trace_maintenance:
