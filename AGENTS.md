@@ -93,6 +93,8 @@ Human     → review each stage; approve freeze; trigger next batch
 
 At the start of each Architect phase, read the relevant `wip/future-support/`
 entries and promote only the applicable items into that phase's specs or ADRs.
+If a prior phase already froze `spec/<next-phase>/`, launch that phase's Builder
+from the frozen specs instead of opening another Architect freeze pass.
 
 Full description: [`docs/agentic-workflow.md`](./docs/agentic-workflow.md).
 

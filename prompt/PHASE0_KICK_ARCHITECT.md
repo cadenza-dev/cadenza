@@ -47,9 +47,9 @@ Before you begin, verify each of these. If any fails, **stop and surface the fai
 
 - [ ] `AGENTS.md` exists and §4 Startup Protocol is in place.
 - [ ] `STATUS.yaml` exists and reports `current_phase: 0`.
-- [ ] `docs/design/compiler-design.md` exists and is marked `Draft`.
-- [ ] ADRs 0001–0005 are present under `docs/adr/` and listed in `docs/adr/README.md`.
-- [ ] The directory [`prompt/`](.) contains this file. `PHASE0_KICK_BUILDER.md` may be absent; that is valid until M6 decides Phase 0 needs Builder infrastructure work.
+- [ ] `docs/design/compiler-design.md` exists and its status matches `trace/phase0/status.yaml`.
+- [ ] ADRs 0001–0010 are present under `docs/adr/` and listed in `docs/adr/README.md`.
+- [ ] The directory [`prompt/`](.) contains this file. `PHASE0_KICK_BUILDER.md` is expected after M6 if Phase 0 infrastructure work is approved.
 - [ ] The directory `docs/analysis/` contains both `analysis-final.md` (English) and `analysis-final.zh.md` (中文).
 - [ ] `docs/communications/remotion-notification-email.md` exists as a draft.
 
@@ -123,9 +123,9 @@ A first draft exists. Re-read it and verify it accurately reflects the workflow 
 
 Per the workflow, **downstream kick files are authored by the role immediately above**. At the end of Phase 0 you must:
 
-1. **`prompt/PHASE0_KICK_BUILDER.md`** — author this **only if** Phase 0 genuinely needs Builder infrastructure work before Phase 1 can begin (e.g., `pnpm` workspace scaffolding, `biome.json`, `vitest.config.ts`, husky + lint-staged, TypeScript hook/CI scripts, GitHub Actions CI). If you conclude that all infra can defer to Phase 1's first Builder batch, **do not create this file** — defer infra to `PHASE1_KICK_BUILDER.md` as its first batch (`B-M0: bootstrap`).
+1. **`prompt/PHASE0_KICK_BUILDER.md`** — author this when Phase 0 needs Builder-owned infrastructure before Phase 1 implementation begins. Its scope is project skeleton and quality-gate bootstrap only: `pnpm` workspace scaffolding, root scripts, TypeScript/Vitest/Biome config, `spec:lint`, `phase:check`, hooks, and CI. It must not implement Phase 1 runtime or API code.
 
-2. **`prompt/PHASE1_KICK_ARCHITECT_A.md`** — author this as part of Phase 0 close-out so the next Architect session (or this same session if scope allows) can immediately open Phase 1 Stage A. It consumes your Phase 1 Stage A drafts from M3 and briefs the Architect on Stage B freeze work.
+2. **`prompt/PHASE1_KICK_BUILDER.md`** — author this once `spec/phase1/` is `CONTRACT_FROZEN`. Phase 1 then starts with Builder implementation against the frozen specs, not with a Phase 1 Architect Stage B pass. Architect only re-enters if a frozen spec conflict requires user approval and a superseding ADR.
 
 Use the six-section template documented in [`docs/agentic-workflow.md`](../docs/agentic-workflow.md) §6: Identity / Context / Pre-flight / Mission / Hard Constraints / Success Criteria / When-stuck.
 
@@ -146,7 +146,7 @@ When M1–M7 are done:
 
 1. Confirm every exit criterion in `trace/phase0/status.yaml` is `met`.
 2. Flip `STATUS.yaml` `current_phase` to `1` **only after explicit user approval**.
-3. Hand off by pointing the user to `prompt/PHASE1_KICK_ARCHITECT_A.md` (authored in M6) and — if created — `prompt/PHASE0_KICK_BUILDER.md`.
+3. Hand off by pointing the user to `prompt/PHASE0_KICK_BUILDER.md` for infrastructure bootstrap and `prompt/PHASE1_KICK_BUILDER.md` for Phase 1 implementation.
 
 ---
 
@@ -167,9 +167,10 @@ Direct quotes from [`AGENTS.md`](../AGENTS.md) §7, plus Phase-0-specific additi
 
 - `docs/design/compiler-design.md` is `CONTRACT_FROZEN`, user-approved.
 - `docs/adr/` contains 0001–0010 (or 0011 if the Remotion email has been sent).
-- `spec/phase1/` contains eight Stage A documents, all `CONTRACT_DRAFT`, with Freeze Candidates clearly marked.
+- `spec/phase1/` contains eight `CONTRACT_FROZEN` Stage B documents with no remaining Freeze Candidates.
 - `docs/agentic-workflow.md` accurately describes the workflow as practiced.
-- `prompt/PHASE1_KICK_ARCHITECT_A.md` exists (and `prompt/PHASE0_KICK_BUILDER.md` exists **iff** Phase 0 needs Builder work).
+- `prompt/PHASE0_KICK_BUILDER.md` exists for Phase 0 infrastructure bootstrap.
+- `prompt/PHASE1_KICK_BUILDER.md` exists for Phase 1 implementation from frozen specs.
 - `trace/phase0/status.yaml` has every exit criterion marked `met`; `trace/phase0/tracker.md` narrates each mission's completion.
 - `STATUS.yaml` shows `current_phase: 1` (after user approval).
 

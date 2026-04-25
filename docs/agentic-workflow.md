@@ -108,6 +108,10 @@ Done when: user approves, no Freeze Candidates remain, and follow-up items are e
 
 ### 3.4 Builder batches
 
+If a previous phase already produced `spec/<next-phase>/` as `CONTRACT_FROZEN`,
+that next phase starts with Builder implementation from the frozen specs. Do not
+create an extra Architect Stage B handoff unless a frozen-spec conflict appears.
+
 The phase's `SPEC_TEST_MATRIX.md` defines an ordered list of test scenarios. Builder works in **batches** — a batch is typically 5–20 related test cases plus their implementation. Per batch:
 
 1. Read the batch's test-matrix entries.
@@ -261,7 +265,10 @@ Cadenza uses three coordination patterns, chosen per situation:
 
 ### 9.1 Sequential (default for Phase 0 and early Phase 1)
 
-The maintainer runs one session at a time. Architect Stage A completes, the maintainer reviews, then Architect Stage B, then Builder batches. This is the simplest and lowest-error pattern.
+The maintainer runs one session at a time. In the default case, Architect Stage
+A completes, the maintainer reviews, then Architect Stage B, then Builder
+batches. If the prior phase already froze the next phase's specs, skip directly
+to Builder batches.
 
 ### 9.2 Parallel (appropriate when batches are independent)
 
@@ -336,4 +343,5 @@ A: Yes. The workflow is not agent-specific — it is a contract-first workflow t
 
 | Version | Date | Summary |
 | :------ | :--------- | :----------------------------------------------------------------- |
+| v0.2 | 2026-04-25 | Added future-support WIP loop and direct Builder handoff when next-phase specs are already frozen |
 | v0.1 | 2026-04-18 | Initial draft: Phase 0 baseline capturing AGENTS.md + hooks + kick-file + spec/trace conventions |

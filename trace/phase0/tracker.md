@@ -1,5 +1,18 @@
 # Phase 0 Tracker
 
+## 2026-04-25 20:15 +0800 — M6 Builder handoffs authored
+
+- Updated `prompt/PHASE0_KICK_ARCHITECT.md` so M6 hands off to Builder rather than a redundant Phase 1 Architect Stage B pass.
+- Added `prompt/PHASE0_KICK_BUILDER.md` for project infrastructure bootstrap before Phase 1 implementation.
+- Added `prompt/PHASE1_KICK_BUILDER.md` for implementation from the frozen Phase 1 specs.
+- Marked M6 complete and updated `STATUS.yaml` owners so Phase 0 includes Builder infra work and Phase 1 starts with Builder.
+
+## 2026-04-25 20:12 +0800 — M5 workflow close-out accepted
+
+- Maintainer approved closing M5 after the WIP future-support workflow loop was committed and pushed.
+- Marked `M5_agentic_workflow_finalize` complete and `agentic_workflow_finalized` met in `trace/phase0/status.yaml`.
+- Remaining Phase 0 Architect focus is M4 Remotion notification, M6 downstream handoff files, M7 trace closure, and M8 phase close.
+
 ## 2026-04-25 19:56 +0800 — Workflow updated for WIP follow-up loop
 
 - Updated `AGENTS.md` so Architects read current-phase `wip/future-support/` entries at phase start.

@@ -26,13 +26,13 @@ phases:
   "0":
     name: "Technical Pre-Commitment"
     status: in_progress
-    owners: [architect]   # Builder joins only if the Architect authors PHASE0_KICK_BUILDER.md during M6
+    owners: [architect, builder]
     trace: trace/phase0/
     exit_criteria_ref: "docs/analysis/analysis-final.md §7"
   "1":
     name: "Core Framework and Typed API (MVP)"
     status: not_started
-    owners: []
+    owners: [builder]
     trace: trace/phase1/
   "2":
     name: "AI Authoring Strengthening"

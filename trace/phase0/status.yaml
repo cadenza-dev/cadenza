@@ -51,16 +51,25 @@ missions:
   M4_remotion_notification:
     status: not_started
   M5_agentic_workflow_finalize:
-    status: in_progress
-    updated_at: "2026-04-25 19:56 +0800"
+    status: complete
+    updated_at: "2026-04-25 20:12 +0800"
     artifacts:
       - AGENTS.md
       - docs/agentic-workflow.md
     summary:
       - "Added WIP future-support read/write rules to the Architect workflow."
       - "Architect reads current-phase WIP follow-ups at phase start and records deferred enhancements after freeze."
+      - "Maintainer approved M5 close-out after workflow rules were committed and pushed."
   M6_downstream_kick_files:
-    status: not_started
+    status: complete
+    updated_at: "2026-04-25 20:15 +0800"
+    artifacts:
+      - prompt/PHASE0_KICK_BUILDER.md
+      - prompt/PHASE1_KICK_BUILDER.md
+    summary:
+      - "Maintainer approved Phase 0 Builder infrastructure bootstrap as a separate task."
+      - "Replaced the obsolete Phase 1 Architect Stage B handoff with Phase 1 Builder implementation handoff."
+      - "Updated the Phase 0 Architect kick file and workflow docs to reflect frozen Phase 1 specs."
   M7_trace_maintenance:
     status: in_progress
   M8_phase0_close:
@@ -84,11 +93,22 @@ exit_criteria:
       - wip/future-support/phase-3-candidates.md
       - wip/future-support/conditional-or-later-candidates.md
   agentic_workflow_finalized:
-    status: unmet
-  phase1_architect_kick_exists:
-    status: unmet
+    status: met
+    artifacts:
+      - AGENTS.md
+      - docs/agentic-workflow.md
+  phase0_builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE0_KICK_BUILDER.md
+  phase1_builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE1_KICK_BUILDER.md
+  phase1_architect_kick_not_required:
+    status: met
+    reason: "Phase 1 specs were frozen during Phase 0; Phase 1 starts with Builder implementation."
   phase0_builder_kick_decision_recorded:
-    status: unmet
+    status: met
+    artifact: prompt/PHASE0_KICK_BUILDER.md
   remotion_notification_outcome_recorded_if_sent:
     status: unmet
   phase_pointer_advanced_to_1:
@@ -105,4 +125,5 @@ stats:
   phase1_freeze_candidate_count: 0
   phase1_frozen_decision_count: 13
   future_support_followup_count: 14
+  downstream_kick_file_count: 2
   pending_adr_count: 0
