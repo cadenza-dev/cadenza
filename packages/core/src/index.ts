@@ -10,6 +10,10 @@ export { compile } from "./compiler/compile.js";
 export type { Cursor } from "./compiler/cursor.js";
 export { cursorAtFrame } from "./compiler/cursor.js";
 export type {
+  CadenzaDiagnostic,
+  DiagnosticSeverity,
+} from "./diagnostics/types.js";
+export type {
   KeyboardNavigationEvent,
   KeyboardNavigationMap,
   KeyboardNavigationTarget,
@@ -62,3 +66,5 @@ export {
   Theme,
   Transition,
 } from "./typed-api/primitives.js";
+export { CadenzaValidationError } from "./validation/errors.js";
+export { validateDeck } from "./validation/static.js";

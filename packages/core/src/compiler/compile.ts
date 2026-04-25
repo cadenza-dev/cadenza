@@ -12,6 +12,8 @@ import type {
   TransitionKind,
   TransitionNode,
 } from "../typed-api/primitives.js";
+import { CadenzaValidationError } from "../validation/errors.js";
+import { validateDeck } from "../validation/static.js";
 
 export type FrameSegment = [number, number];
 
@@ -51,6 +53,12 @@ export type TimelineMap = {
 };
 
 export function compile(deck: DeckNode): TimelineMap {
+  const diagnostics = validateDeck(deck);
+
+  if (diagnostics.some((diagnostic) => diagnostic.severity === "fatal")) {
+    throw new CadenzaValidationError(diagnostics);
+  }
+
   let cursor = 0;
   const slides: TimelineSlide[] = [];
   let pendingTransition: TransitionNode | undefined;

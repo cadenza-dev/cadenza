@@ -96,7 +96,18 @@ batches:
         implementation:
           - packages/core/src/player/keyboard.ts
           - packages/core/src/index.ts
-    next_scenario: TC-VAL-001
+      - id: TC-VAL-001
+        completed_at: "2026-04-26 02:52 +0800"
+        requirements: [VAL-001, VAL-002, VAL-003, COMP-008]
+        tests:
+          - packages/core/src/compiler.validation.test.ts
+        implementation:
+          - packages/core/src/diagnostics/types.ts
+          - packages/core/src/validation/errors.ts
+          - packages/core/src/validation/static.ts
+          - packages/core/src/compiler/compile.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-SKIL-001
   B1_3_p1_p2_completion_path:
     status: not_started
 

@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 02:52 +0800 — B1.2 TC-VAL-001 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-001` commit and push.
+- Batch scope: `B1.2` / `TC-VAL-001`; covered requirement IDs `VAL-001`, `VAL-002`, `VAL-003`, and `COMP-008` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/compiler.validation.test.ts` failed because `compile` did not throw typed fatal diagnostics for invalid authoring.
+- GREEN: added `CadenzaValidationError`, a structured diagnostic shape, static deck validation for missing or duplicate slide IDs, nested Deck usage, and invalid Step kinds, then wired fatal diagnostics into `compile`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/compiler.validation.test.ts`, `packages/core/src/diagnostics/types.ts`, `packages/core/src/validation/errors.ts`, `packages/core/src/validation/static.ts`, `packages/core/src/compiler/compile.ts`, `packages/core/src/index.ts`.
+- Next B1.2 P0 scenario: `TC-SKIL-001`.
+
 ## 2026-04-26 02:34 +0800 — B1.2 TC-PLAY-001 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-RSAF-002` commit and push.
