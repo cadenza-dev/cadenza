@@ -49,7 +49,18 @@ missions:
       - "Resolved all Freeze Candidates and the test-matrix Stage B review note per maintainer approval."
       - "Recorded future-support follow-ups under wip/future-support/."
   M4_remotion_notification:
-    status: not_started
+    status: complete
+    updated_at: "2026-04-25 21:02 +0800"
+    artifacts:
+      - docs/communications/remotion-notification-email.md
+      - docs/adr/0011-remotion-notification-outcome.md
+    summary:
+      - "Updated the notification draft to v2 after compiler/spec freeze."
+      - "Verified Remotion official contact page and public GitHub email."
+      - "Updated the notification draft to v3 after repository visibility was confirmed."
+      - "Verified the Cadenza repository and compiler-design links return HTTP 200 to unauthenticated requests."
+      - "Maintainer sent the notification email to hi@remotion.dev at approximately 2026-04-25 21:00 +0800."
+      - "Recorded the sent-awaiting-response outcome in ADR 0011."
   M5_agentic_workflow_finalize:
     status: complete
     updated_at: "2026-04-25 20:12 +0800"
@@ -81,6 +92,9 @@ exit_criteria:
     artifact: docs/design/compiler-design.md
   adr_0001_to_0010_present:
     status: met
+  adr_0011_present_if_remotion_email_sent:
+    status: met
+    artifact: docs/adr/0011-remotion-notification-outcome.md
   phase1_stage_a_specs_present:
     status: met
   phase1_stage_b_specs_frozen:
@@ -110,7 +124,8 @@ exit_criteria:
     status: met
     artifact: prompt/PHASE0_KICK_BUILDER.md
   remotion_notification_outcome_recorded_if_sent:
-    status: unmet
+    status: met
+    artifact: docs/adr/0011-remotion-notification-outcome.md
   phase_pointer_advanced_to_1:
     status: unmet
 
@@ -118,7 +133,7 @@ stats:
   compiler_design_open_questions_resolved: 5
   compiler_design_review_checklist_items_verified: 7
   compiler_design_bilingual_review_copy_synced: true
-  adr_count: 10
+  adr_count: 11
   phase1_stage_a_spec_count: 8
   phase1_requirement_count: 44
   phase1_acceptance_test_count: 14
@@ -127,3 +142,5 @@ stats:
   future_support_followup_count: 14
   downstream_kick_file_count: 2
   pending_adr_count: 0
+  remotion_notification_sent_at: "2026-04-25 21:00 +0800"
+  remotion_notification_followup_due: "2026-05-23"

@@ -1,5 +1,24 @@
 # Phase 0 Tracker
 
+## 2026-04-25 21:02 +0800 — M4 Remotion notification sent and recorded
+
+- Maintainer sent the Remotion notification email to `hi@remotion.dev` at approximately 2026-04-25 21:00 +0800.
+- Added `docs/adr/0011-remotion-notification-outcome.md` to record the sent-awaiting-response outcome and follow-up rules.
+- Updated `docs/adr/README.md` and `trace/phase0/status.yaml`; M4 is now complete.
+
+## 2026-04-25 20:50 +0800 — M4 notification draft ready for send approval
+
+- Verified `https://github.com/cadenza-dev/cadenza` and the compiler-design blob URL now return HTTP 200 to unauthenticated requests.
+- Updated ignored local draft `docs/communications/remotion-notification-email.md` to Draft v3 with softened upstream-roadmap language and clearer Remotion licensing intent.
+- Marked M4 as ready for explicit maintainer send approval; no external email has been sent.
+
+## 2026-04-25 20:25 +0800 — M4 notification draft prepared, send blocked
+
+- Updated `docs/communications/remotion-notification-email.md` to Draft v2 after compiler/spec freeze.
+- Verified Remotion's official contact page and public GitHub organization email path.
+- Confirmed `https://github.com/cadenza-dev` is public, but `https://github.com/cadenza-dev/cadenza` and the compiler-design blob URL return HTTP 404 to unauthenticated access.
+- Marked M4 blocked until the repository and linked design document are publicly visible.
+
 ## 2026-04-25 20:15 +0800 — M6 Builder handoffs authored
 
 - Updated `prompt/PHASE0_KICK_ARCHITECT.md` so M6 hands off to Builder rather than a redundant Phase 1 Architect Stage B pass.
