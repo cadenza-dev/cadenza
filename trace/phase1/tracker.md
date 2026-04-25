@@ -1,5 +1,17 @@
 # Phase 1 Tracker
 
+## 2026-04-26 05:47 +0800 — B1.3 TC-VAL-006 green
+
+- Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after maintainer approval in this session.
+- Batch scope: `B1.3` / `TC-VAL-006`; covered requirement IDs `VAL-006` and `SKIL-005` without modifying frozen specs or Accepted ADRs.
+- RED 1: `pnpm test -- packages/core/src/validation.report.test.ts` failed because `createValidationReport` was not exposed as a public API function.
+- GREEN 1: added a machine-readable validation report with `schemaVersion`, `ok`, diagnostic summary, preserved diagnostics, and an ordered `repairQueue` grouped by severity, requirement, code, and source.
+- RED 2: `pnpm test -- packages/core/src/skill-pack.test.ts` failed because `render-debugging` did not point repair workflows at the validation report API.
+- GREEN 2: updated `render-debugging` guidance to use `createValidationReport` and its `repairQueue` before falling back to manual diagnostic grouping.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Test and code links: `packages/core/src/validation.report.test.ts`, `packages/core/src/validation/report.ts`, `packages/core/src/index.ts`, `packages/core/src/skill-pack.test.ts`, `.agents/skills/render-debugging/SKILL.md`, `trace/phase1/status.yaml`.
+- B1.3 P1/P2 completion path is complete; no next scenario remains in the Phase 1 frozen test matrix. Phase-exit demo and all-domain MVP fixture criteria remain separate follow-up work.
+
 ## 2026-04-26 05:20 +0800 — B1.3 browser preview harness green
 
 - Startup identity: continued as Builder with maintainer approval in the same session; maintainer explicitly scoped this turn to review/remediate the advanced B1.3 slices, not to start `TC-VAL-006`.

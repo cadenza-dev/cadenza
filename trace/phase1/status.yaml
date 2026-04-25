@@ -121,7 +121,8 @@ batches:
           - .agents/skills/render-safe-components/SKILL.md
     next_scenario: null
   B1_3_p1_p2_completion_path:
-    status: in_progress
+    status: complete
+    completed_at: "2026-04-26 05:47 +0800"
     completed_scenarios:
       - id: TC-RSAF-005
         completed_at: "2026-04-26 04:09 +0800"
@@ -164,7 +165,17 @@ batches:
           - .agents/skills/motion-transitions/SKILL.md
           - .agents/skills/render-debugging/SKILL.md
           - .agents/skills/render-safe-components/SKILL.md
-    next_scenario: TC-VAL-006
+      - id: TC-VAL-006
+        completed_at: "2026-04-26 05:47 +0800"
+        requirements: [VAL-006, SKIL-005]
+        tests:
+          - packages/core/src/validation.report.test.ts
+          - packages/core/src/skill-pack.test.ts
+        implementation:
+          - packages/core/src/validation/report.ts
+          - packages/core/src/index.ts
+          - .agents/skills/render-debugging/SKILL.md
+    next_scenario: null
     verification_remediations:
       - id: BROWSER_PREVIEW_HARNESS
         completed_at: "2026-04-26 05:20 +0800"
@@ -183,12 +194,12 @@ batches:
 
 exit_criteria:
   all_phase1_scenarios_green:
-    status: unmet
+    status: met
   all_domain_mvp_fixture_complete:
     status: unmet
   verification_stack_green:
-    status: unmet
+    status: met
   traceability_recorded:
-    status: unmet
+    status: met
   phase_exit_demo_ready:
     status: unmet

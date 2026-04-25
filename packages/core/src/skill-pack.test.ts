@@ -46,6 +46,15 @@ describe("TC-SKIL-004 skill repair workflow", () => {
   });
 });
 
+describe("TC-VAL-006 validation report guidance", () => {
+  it("points repair workflows at the machine-readable validation report", () => {
+    const renderDebuggingSkill = readSkill("render-debugging");
+
+    expect(renderDebuggingSkill).toContain("createValidationReport");
+    expect(renderDebuggingSkill).toContain("repairQueue");
+  });
+});
+
 function readSkill(skillName: string): string {
   return readFileSync(skillPath(skillName), "utf8");
 }

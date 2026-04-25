@@ -34,12 +34,15 @@ render-ready state.
 Use this validate-and-repair loop before changing code or deck structure:
 
 1. Run compile-time validation and preview validation.
-2. Group structured diagnostics by `requirementId`, `code`, and `source`.
-3. Repair the typed API authoring first: missing IDs, duplicate IDs, invalid
+2. Pass collected diagnostics to `createValidationReport` when available, then
+   use its `repairQueue` as the ordered repair plan.
+3. If the report helper is unavailable, group structured diagnostics by
+   `requirementId`, `code`, and `source`.
+4. Repair the typed API authoring first: missing IDs, duplicate IDs, invalid
    Step kinds, nested Decks, and unsupported raw Remotion primitives.
-4. Repair render-safe issues next: unresolved assets, overflow, and readiness
+5. Repair render-safe issues next: unresolved assets, overflow, and readiness
    timeouts.
-5. Re-run validation after each repair so the next change responds to current
+6. Re-run validation after each repair so the next change responds to current
    diagnostics rather than stale guesses.
 
 Prefer small repairs that preserve author intent. If diagnostics point to a

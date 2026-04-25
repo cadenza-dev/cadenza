@@ -105,4 +105,10 @@ export type {
 } from "./validation/browser.js";
 export { validatePreviewLayout } from "./validation/browser.js";
 export { CadenzaValidationError } from "./validation/errors.js";
+export type {
+  CadenzaValidationReport,
+  ValidationRepairQueueItem,
+  ValidationReportSummary,
+} from "./validation/report.js";
+export { createValidationReport } from "./validation/report.js";
 export { validateDeck } from "./validation/static.js";
