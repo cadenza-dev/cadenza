@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 04:24 +0800 — B1.3 TC-PLAY-006 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-004` commit and push.
+- Batch scope: `B1.3` / `TC-PLAY-006`; covered requirement IDs `PLAY-006` and `TAPI-006` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/player.presenter-metadata.test.ts` failed because compiled slides did not expose notes metadata and runtime did not expose presenter metadata.
+- GREEN: collected slide `Notes` into `TimelineSlide.notes` without changing timeline duration, added runtime `getPresenterMetadata()`, and exposed wall-clock plus active-presenting elapsed time through an injectable clock.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/player.presenter-metadata.test.ts`, `packages/core/src/compiler/compile.ts`, `packages/core/src/runtime/createRuntime.ts`, `packages/core/src/index.ts`.
+- Next B1.3 scenario: `TC-SKIL-004`.
+
 ## 2026-04-26 04:16 +0800 — B1.3 TC-PLAY-004 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-RSAF-005` commit and push.

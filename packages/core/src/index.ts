@@ -62,6 +62,8 @@ export {
 export type {
   CadenzaRuntime,
   CadenzaRuntimeOptions,
+  PresenterMetadata,
+  RuntimeClock,
   SeekPlayer,
 } from "./runtime/createRuntime.js";
 export { createRuntime } from "./runtime/createRuntime.js";

@@ -9,8 +9,21 @@ export type SeekPlayer = {
   seekTo(frame: number): void;
 };
 
+export type RuntimeClock = {
+  now(): number;
+};
+
 export type CadenzaRuntimeOptions = {
+  clock?: RuntimeClock;
   readiness?: ResourceReadiness;
+};
+
+export type PresenterMetadata = {
+  slideId: string;
+  stepIndex: number;
+  notes: string[];
+  elapsedWallTimeMs: number;
+  elapsedActiveTimeMs: number;
 };
 
 export type CadenzaRuntime = {
@@ -18,6 +31,7 @@ export type CadenzaRuntime = {
   next(): void;
   previous(): void;
   getCursor(): Cursor;
+  getPresenterMetadata(): PresenterMetadata;
   onCursorChange(handler: (cursor: Cursor) => void): () => void;
 };
 
@@ -32,8 +46,12 @@ export function createRuntime(
   player: SeekPlayer,
   options: CadenzaRuntimeOptions = {},
 ): CadenzaRuntime {
+  const clock = options.clock ?? { now: () => Date.now() };
   const anchors = collectStepAnchors(timeline);
   const listeners = new Set<(cursor: Cursor) => void>();
+  const startedAtMs = clock.now();
+  let inactiveElapsedMs = 0;
+  let loadingStartedAtMs: number | undefined;
   let currentFrame = player.getCurrentFrame?.() ?? anchors[0]?.frame ?? 0;
   let currentAnchorIndex = anchorIndexForFrame(anchors, timeline, currentFrame);
   let loadingAnchorIndex: number | undefined;
@@ -79,6 +97,7 @@ export function createRuntime(
     );
 
     if (missingResource) {
+      loadingStartedAtMs ??= clock.now();
       loadingAnchorIndex = anchorIndex;
       loadingCursor = {
         kind: "loading",
@@ -88,6 +107,11 @@ export function createRuntime(
       player.pause?.();
       emitCursorChange();
       return;
+    }
+
+    if (loadingStartedAtMs !== undefined) {
+      inactiveElapsedMs += clock.now() - loadingStartedAtMs;
+      loadingStartedAtMs = undefined;
     }
 
     loadingAnchorIndex = undefined;
@@ -151,6 +175,24 @@ export function createRuntime(
     getCursor() {
       return getCursor();
     },
+    getPresenterMetadata() {
+      const cursor = getCursor();
+      const slideId = presenterSlideId(cursor);
+      const stepIndex = cursor.kind === "at-step" ? cursor.stepIndex : 0;
+      const slide = timeline.slides.find((item) => item.slideId === slideId);
+      const elapsedWallTimeMs = clock.now() - startedAtMs;
+      const currentInactiveMs =
+        loadingStartedAtMs === undefined ? 0 : clock.now() - loadingStartedAtMs;
+
+      return {
+        slideId,
+        stepIndex,
+        notes: slide?.notes ?? [],
+        elapsedWallTimeMs,
+        elapsedActiveTimeMs:
+          elapsedWallTimeMs - inactiveElapsedMs - currentInactiveMs,
+      };
+    },
     onCursorChange(handler) {
       listeners.add(handler);
 
@@ -167,6 +209,14 @@ export function createRuntime(
 
     return cursorAtFrame(timeline, currentFrame);
   }
+}
+
+function presenterSlideId(cursor: Cursor): string {
+  if (cursor.kind === "at-step" || cursor.kind === "loading") {
+    return cursor.slideId;
+  }
+
+  return cursor.to;
 }
 
 function collectStepAnchors(timeline: TimelineMap): StepAnchor[] {

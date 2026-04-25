@@ -6,6 +6,7 @@ import type {
   DeckNode,
   DurationToken,
   NavigationPolicy,
+  NotesNode,
   SlideNode,
   StepKind,
   StepNode,
@@ -39,6 +40,7 @@ export type TransitionSegment = {
 export type TimelineSlide = {
   slideId: string;
   segment: FrameSegment;
+  notes: string[];
   resources: TimelineResource[];
   steps: TimelineStep[];
   transitionIn?: TransitionSegment;
@@ -96,6 +98,7 @@ export function compile(deck: DeckNode): TimelineMap {
     slides.push({
       slideId: node.id,
       segment: [slideStart, slideEnd],
+      notes: collectSlideNotes(node),
       resources: collectSlideResources(node),
       steps,
       ...(transition ? { transitionIn: transition } : {}),
@@ -111,6 +114,12 @@ export function compile(deck: DeckNode): TimelineMap {
     totalFrames: cursor,
     slides,
   };
+}
+
+function collectSlideNotes(slide: SlideNode): string[] {
+  return slide.children
+    .filter((node): node is NotesNode => node.kind === "notes")
+    .map((node) => node.children);
 }
 
 function collectSlideResources(slide: SlideNode): TimelineResource[] {
