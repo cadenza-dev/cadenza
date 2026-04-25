@@ -59,7 +59,7 @@ jobs:
         run: pnpm format:check
 
       - name: Markdown lint
-        run: markdownlint-cli2 "**/*.md"
+        run: pnpm exec markdownlint-cli2 "**/*.md"
 
       - name: Shell format check
         run: find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
