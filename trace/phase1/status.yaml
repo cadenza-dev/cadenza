@@ -31,8 +31,16 @@ entry_conditions:
 
 batches:
   B1_1_first_vertical_slice:
-    status: not_started
+    status: complete
     scenario: TC-TAPI-001
+    completed_at: "2026-04-26 00:59 +0800"
+    requirements: [TAPI-001, TAPI-002]
+    tests:
+      - packages/core/src/public-api.test.ts
+    implementation:
+      - packages/core/src/index.ts
+      - packages/core/src/typed-api/primitives.ts
+      - packages/core/src/compiler/compile.ts
   B1_2_p0_acceptance_path:
     status: not_started
   B1_3_p1_p2_completion_path:
