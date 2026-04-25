@@ -1,5 +1,13 @@
-export type { TimelineMap } from "./compiler/compile.js";
+export type {
+  FrameSegment,
+  TimelineMap,
+  TimelineSlide,
+  TimelineStep,
+  TransitionSegment,
+} from "./compiler/compile.js";
 export { compile } from "./compiler/compile.js";
+export type { Cursor } from "./compiler/cursor.js";
+export { cursorAtFrame } from "./compiler/cursor.js";
 export type {
   CadenzaNode,
   DeckNode,

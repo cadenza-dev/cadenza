@@ -51,7 +51,16 @@ batches:
           - packages/core/src/public-api.test.ts
         implementation:
           - packages/core/src/compiler/compile.ts
-    next_scenario: TC-COMP-001
+      - id: TC-COMP-001
+        completed_at: "2026-04-26 01:32 +0800"
+        requirements: [COMP-001, COMP-002, COMP-003]
+        tests:
+          - packages/core/src/compile.timeline-map.test.ts
+        implementation:
+          - packages/core/src/compiler/compile.ts
+          - packages/core/src/compiler/cursor.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-COMP-004
   B1_3_p1_p2_completion_path:
     status: not_started
 

@@ -4,6 +4,8 @@ import type {
   SlideNode,
   StepKind,
   StepNode,
+  TransitionKind,
+  TransitionNode,
 } from "../typed-api/primitives.js";
 
 export type FrameSegment = [number, number];
@@ -14,10 +16,19 @@ export type TimelineStep = {
   kind: StepKind;
 };
 
+export type TransitionSegment = {
+  kind: TransitionKind;
+  segment: FrameSegment;
+  from: string;
+  to: string;
+};
+
 export type TimelineSlide = {
   slideId: string;
   segment: FrameSegment;
   steps: TimelineStep[];
+  transitionIn?: TransitionSegment;
+  transitionOut?: TransitionSegment;
 };
 
 export type TimelineMap = {
@@ -28,26 +39,72 @@ export type TimelineMap = {
 
 export function compile(deck: DeckNode): TimelineMap {
   let cursor = 0;
-  const slides = deck.children
-    .filter((node): node is SlideNode => node.kind === "slide")
-    .map((slide) => {
-      const steps = compileSteps(slide, deck.fps, cursor);
-      const slideStart = cursor;
-      const slideEnd = steps.at(-1)?.segment[1] ?? cursor;
+  const slides: TimelineSlide[] = [];
+  let pendingTransition: TransitionNode | undefined;
 
-      cursor = slideEnd;
+  for (const node of deck.children) {
+    if (node.kind === "transition") {
+      pendingTransition = node;
+      continue;
+    }
 
-      return {
-        slideId: slide.id,
-        segment: [slideStart, slideEnd] satisfies FrameSegment,
-        steps,
-      };
+    if (node.kind !== "slide") {
+      continue;
+    }
+
+    const previousSlide = slides.at(-1);
+    const transition =
+      previousSlide && pendingTransition
+        ? compileTransition(
+            pendingTransition,
+            previousSlide.slideId,
+            node.id,
+            cursor,
+            deck.fps,
+          )
+        : undefined;
+
+    if (previousSlide && transition) {
+      previousSlide.transitionOut = transition;
+    }
+
+    const steps = compileSteps(node, deck.fps, cursor);
+    const slideStart = transition?.segment[0] ?? cursor;
+    const slideEnd = steps.at(-1)?.segment[1] ?? cursor;
+
+    slides.push({
+      slideId: node.id,
+      segment: [slideStart, slideEnd],
+      steps,
+      ...(transition ? { transitionIn: transition } : {}),
     });
+
+    cursor = slideEnd;
+    pendingTransition = undefined;
+  }
 
   return {
     fps: deck.fps,
     totalFrames: cursor,
     slides,
+  };
+}
+
+function compileTransition(
+  transition: TransitionNode,
+  from: string,
+  to: string,
+  nextSlideStepStart: number,
+  fps: number,
+): TransitionSegment {
+  const durationFrames = durationToFrames(transition.duration, fps);
+  const transitionStart = Math.max(0, nextSlideStepStart - durationFrames);
+
+  return {
+    kind: transition.transitionKind,
+    segment: [transitionStart, nextSlideStepStart],
+    from,
+    to,
   };
 }
 
