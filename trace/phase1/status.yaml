@@ -42,7 +42,8 @@ batches:
       - packages/core/src/typed-api/primitives.ts
       - packages/core/src/compiler/compile.ts
   B1_2_p0_acceptance_path:
-    status: in_progress
+    status: complete
+    completed_at: "2026-04-26 03:46 +0800"
     completed_scenarios:
       - id: TC-TAPI-004
         completed_at: "2026-04-26 01:13 +0800"
@@ -107,9 +108,21 @@ batches:
           - packages/core/src/validation/static.ts
           - packages/core/src/compiler/compile.ts
           - packages/core/src/index.ts
-    next_scenario: TC-SKIL-001
+      - id: TC-SKIL-001
+        completed_at: "2026-04-26 03:46 +0800"
+        requirements: [SKIL-001, SKIL-002, SKIL-003]
+        tests:
+          - packages/core/src/skill-pack.test.ts
+        implementation:
+          - .agents/skills/layout-composition/SKILL.md
+          - .agents/skills/motion-transitions/SKILL.md
+          - .agents/skills/speaker-notes/SKILL.md
+          - .agents/skills/render-debugging/SKILL.md
+          - .agents/skills/render-safe-components/SKILL.md
+    next_scenario: null
   B1_3_p1_p2_completion_path:
     status: not_started
+    next_scenario: TC-RSAF-005
 
 exit_criteria:
   all_phase1_scenarios_green:

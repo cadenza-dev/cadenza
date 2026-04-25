@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 03:46 +0800 — B1.2 TC-SKIL-001 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-VAL-001` commit and push.
+- Batch scope: `B1.2` / `TC-SKIL-001`; covered requirement IDs `SKIL-001`, `SKIL-002`, and `SKIL-003` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/skill-pack.test.ts` failed because the required Phase 1 authoring skill directories did not exist.
+- GREEN: added five `.agents/skills` authoring skills for layout composition, motion transitions, speaker notes, render debugging, and render-safe components, each directing agents toward typed API and render-safe usage over raw Remotion primitives.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and artifact links: `packages/core/src/skill-pack.test.ts`, `.agents/skills/layout-composition/SKILL.md`, `.agents/skills/motion-transitions/SKILL.md`, `.agents/skills/speaker-notes/SKILL.md`, `.agents/skills/render-debugging/SKILL.md`, `.agents/skills/render-safe-components/SKILL.md`.
+- B1.2 P0 acceptance path is complete; next B1.3 scenario: `TC-RSAF-005`.
+
 ## 2026-04-26 02:52 +0800 — B1.2 TC-VAL-001 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-001` commit and push.
