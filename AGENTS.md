@@ -91,6 +91,13 @@ Builder   → per batch: read SPEC_TEST_MATRIX → write tests (red)
 Human     → review each stage; approve freeze; trigger next batch
 ```
 
+Builder global rules:
+
+- Load and follow the local `tdd` skill before implementation work; use
+  one-test-at-a-time vertical slices, not horizontal test batches.
+- Complete at most one Builder batch per session turn, then stop, report the
+  result and verification, and wait for maintainer approval before continuing.
+
 At the start of each Architect phase, read the relevant `wip/future-support/`
 entries and promote only the applicable items into that phase's specs or ADRs.
 If a prior phase already froze `spec/<next-phase>/`, launch that phase's Builder

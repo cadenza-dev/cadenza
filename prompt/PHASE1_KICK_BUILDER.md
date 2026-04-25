@@ -62,6 +62,14 @@ Stop and report if any item fails:
 
 Implement Phase 1 in Builder batches using RED → GREEN → REFACTOR.
 
+Before implementation work, load and follow the local `tdd` skill. Use
+one-test-at-a-time vertical slices through public interfaces. Do not write a
+horizontal batch of tests before implementation.
+
+Complete at most one Builder batch per session turn. After that batch is green,
+stop, report the changes and verification results to the maintainer, and wait
+for explicit approval before starting the next batch.
+
 ### B1.1 First vertical slice
 
 Start with `TC-TAPI-001`: public typed API primitives import and compile with
@@ -96,9 +104,11 @@ For each batch:
 
 - Update tests first and confirm the intended RED state.
 - Implement the smallest code needed to turn the batch GREEN.
+- Refactor only after the batch is GREEN, then re-run verification.
 - Update `SPEC_TRACEABILITY.md` only if allowed by the maintainer; otherwise
   record code locations in `trace/phase1/`.
 - Insert a tracker entry below the H1 in `trace/phase1/tracker.md`.
+- Stop after the tracker update and report the batch outcome before continuing.
 
 ---
 
