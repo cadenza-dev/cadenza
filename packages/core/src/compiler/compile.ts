@@ -1,3 +1,7 @@
+import {
+  isRenderSafeResourceNode,
+  type ResourceKind,
+} from "../render-safe/resources.js";
 import type {
   DeckNode,
   DurationToken,
@@ -17,6 +21,12 @@ export type TimelineStep = {
   kind: StepKind;
 };
 
+export type TimelineResource = {
+  resourceId: string;
+  resourceKind: ResourceKind;
+  timeoutMs: number;
+};
+
 export type TransitionSegment = {
   kind: TransitionKind;
   segment: FrameSegment;
@@ -27,6 +37,7 @@ export type TransitionSegment = {
 export type TimelineSlide = {
   slideId: string;
   segment: FrameSegment;
+  resources: TimelineResource[];
   steps: TimelineStep[];
   transitionIn?: TransitionSegment;
   transitionOut?: TransitionSegment;
@@ -77,6 +88,7 @@ export function compile(deck: DeckNode): TimelineMap {
     slides.push({
       slideId: node.id,
       segment: [slideStart, slideEnd],
+      resources: collectSlideResources(node),
       steps,
       ...(transition ? { transitionIn: transition } : {}),
     });
@@ -91,6 +103,42 @@ export function compile(deck: DeckNode): TimelineMap {
     totalFrames: cursor,
     slides,
   };
+}
+
+function collectSlideResources(slide: SlideNode): TimelineResource[] {
+  const resources: TimelineResource[] = [];
+
+  for (const child of slide.children) {
+    collectResources(child, resources);
+  }
+
+  return resources;
+}
+
+function collectResources(value: unknown, resources: TimelineResource[]): void {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectResources(item, resources);
+    }
+    return;
+  }
+
+  if (isRenderSafeResourceNode(value)) {
+    resources.push({
+      resourceId: value.resourceId,
+      resourceKind: value.resourceKind,
+      timeoutMs: value.timeoutMs,
+    });
+    return;
+  }
+
+  if (typeof value !== "object" || value === null || !("kind" in value)) {
+    return;
+  }
+
+  if (value.kind === "step" && "children" in value) {
+    collectResources(value.children, resources);
+  }
 }
 
 function compileTransition(

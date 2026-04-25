@@ -1,6 +1,7 @@
 export type {
   FrameSegment,
   TimelineMap,
+  TimelineResource,
   TimelineSlide,
   TimelineStep,
   TransitionSegment,
@@ -8,7 +9,24 @@ export type {
 export { compile } from "./compiler/compile.js";
 export type { Cursor } from "./compiler/cursor.js";
 export { cursorAtFrame } from "./compiler/cursor.js";
-export type { CadenzaRuntime, SeekPlayer } from "./runtime/createRuntime.js";
+export type {
+  ResourceReadiness,
+  ResourceReadinessRegistry,
+} from "./render-safe/readiness.js";
+export { createResourceReadiness } from "./render-safe/readiness.js";
+export type {
+  RenderSafeResourceNode,
+  ResourceKind,
+  SafeFontProps,
+  SafeImageProps,
+  SafeVideoProps,
+} from "./render-safe/resources.js";
+export { SafeFont, SafeImage, SafeVideo } from "./render-safe/resources.js";
+export type {
+  CadenzaRuntime,
+  CadenzaRuntimeOptions,
+  SeekPlayer,
+} from "./runtime/createRuntime.js";
 export { createRuntime } from "./runtime/createRuntime.js";
 export type {
   CadenzaNode,

@@ -76,7 +76,19 @@ batches:
         implementation:
           - packages/core/src/compiler/compile.ts
           - packages/core/src/runtime/createRuntime.ts
-    next_scenario: TC-RSAF-002
+      - id: TC-RSAF-002
+        completed_at: "2026-04-26 02:03 +0800"
+        requirements: [RSAF-002, RSAF-003, RSAF-004, VAL-005]
+        tests:
+          - packages/core/src/render-safe.readiness.test.ts
+        implementation:
+          - packages/core/src/render-safe/resources.ts
+          - packages/core/src/render-safe/readiness.ts
+          - packages/core/src/compiler/compile.ts
+          - packages/core/src/runtime/createRuntime.ts
+          - packages/core/src/index.ts
+          - packages/core/src/typed-api/primitives.ts
+    next_scenario: TC-PLAY-001
   B1_3_p1_p2_completion_path:
     status: not_started
 

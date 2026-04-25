@@ -1,10 +1,16 @@
 import type { TimelineMap } from "../compiler/compile.js";
 import { type Cursor, cursorAtFrame } from "../compiler/cursor.js";
+import type { ResourceReadiness } from "../render-safe/readiness.js";
 
 export type SeekPlayer = {
   getCurrentFrame?(): number;
   onFrameChange?(handler: (frame: number) => void): () => void;
+  pause?(): void;
   seekTo(frame: number): void;
+};
+
+export type CadenzaRuntimeOptions = {
+  readiness?: ResourceReadiness;
 };
 
 export type CadenzaRuntime = {
@@ -24,12 +30,23 @@ type StepAnchor = {
 export function createRuntime(
   timeline: TimelineMap,
   player: SeekPlayer,
+  options: CadenzaRuntimeOptions = {},
 ): CadenzaRuntime {
   const anchors = collectStepAnchors(timeline);
   const listeners = new Set<(cursor: Cursor) => void>();
   let currentFrame = player.getCurrentFrame?.() ?? anchors[0]?.frame ?? 0;
   let currentAnchorIndex = anchorIndexForFrame(anchors, timeline, currentFrame);
+  let loadingAnchorIndex: number | undefined;
+  let loadingCursor: Cursor | undefined;
   let queuedAnchorIndex: number | undefined;
+
+  options.readiness?.onChange(() => {
+    if (loadingAnchorIndex === undefined) {
+      return;
+    }
+
+    seekToAnchor(loadingAnchorIndex);
+  });
 
   player.onFrameChange?.((frame) => {
     currentFrame = frame;
@@ -55,7 +72,26 @@ export function createRuntime(
         `Step anchor ${anchorIndex} is outside the timeline.`,
       );
     }
+    const missingResource = firstMissingResource(
+      timeline,
+      anchor.slideId,
+      options.readiness,
+    );
 
+    if (missingResource) {
+      loadingAnchorIndex = anchorIndex;
+      loadingCursor = {
+        kind: "loading",
+        reason: missingResource.resourceKind,
+        slideId: anchor.slideId,
+      };
+      player.pause?.();
+      emitCursorChange();
+      return;
+    }
+
+    loadingAnchorIndex = undefined;
+    loadingCursor = undefined;
     currentAnchorIndex = anchorIndex;
     currentFrame = anchor.frame;
     player.seekTo(anchor.frame);
@@ -63,7 +99,7 @@ export function createRuntime(
   }
 
   function emitCursorChange(): void {
-    const cursor = cursorAtFrame(timeline, currentFrame);
+    const cursor = getCursor();
 
     for (const listener of listeners) {
       listener(cursor);
@@ -125,6 +161,10 @@ export function createRuntime(
   };
 
   function getCursor(): Cursor {
+    if (loadingCursor) {
+      return loadingCursor;
+    }
+
     return cursorAtFrame(timeline, currentFrame);
   }
 }
@@ -169,4 +209,20 @@ function findAnchorIndex(
   }
 
   return anchorIndex;
+}
+
+function firstMissingResource(
+  timeline: TimelineMap,
+  slideId: string,
+  readiness: ResourceReadiness | undefined,
+) {
+  if (!readiness) {
+    return undefined;
+  }
+
+  const slide = timeline.slides.find((item) => item.slideId === slideId);
+
+  return slide?.resources.find(
+    (resource) => !readiness.isReady(resource.resourceId),
+  );
 }

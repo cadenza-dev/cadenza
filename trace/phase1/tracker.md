@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 02:03 +0800 — B1.2 TC-RSAF-002 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-COMP-007` commit and push.
+- Batch scope: `B1.2` / `TC-RSAF-002`; covered requirement IDs `RSAF-002`, `RSAF-003`, `RSAF-004`, and `VAL-005` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/render-safe.readiness.test.ts` failed because the public API did not expose render-safe resource declarations or a readiness registry.
+- GREEN: added `SafeImage`, `SafeFont`, `SafeVideo`, `createResourceReadiness`, compiler resource collection, and runtime readiness gating that moves from `loading` back to the intended step once all target-slide resources report ready.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/render-safe.readiness.test.ts`, `packages/core/src/render-safe/resources.ts`, `packages/core/src/render-safe/readiness.ts`, `packages/core/src/compiler/compile.ts`, `packages/core/src/runtime/createRuntime.ts`, `packages/core/src/index.ts`, `packages/core/src/typed-api/primitives.ts`.
+- Next B1.2 P0 scenario: `TC-PLAY-001`.
+
 ## 2026-04-26 01:45 +0800 — B1.2 TC-COMP-007 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-COMP-004` commit and push.
