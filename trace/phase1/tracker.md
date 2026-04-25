@@ -1,5 +1,16 @@
 # Phase 1 Tracker
 
+## 2026-04-26 05:20 +0800 — B1.3 browser preview harness green
+
+- Startup identity: continued as Builder with maintainer approval in the same session; maintainer explicitly scoped this turn to review/remediate the advanced B1.3 slices, not to start `TC-VAL-006`.
+- Review gate: prior read-only review marked `TC-RSAF-005` and `TC-PLAY-004` browser/preview coverage as too narrow because they only used synthetic/unit fixtures.
+- Batch scope: B1.3 verification remediation for `TC-RSAF-005` and `TC-PLAY-004`; covered `RSAF-005`, `VAL-004`, `PLAY-004`, and `PLAY-005` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm exec playwright test tests/browser/render-safe-preview.spec.ts` failed because no Chromium browser binary was installed, proving the repo did not yet have a runnable browser harness.
+- GREEN: added `@playwright/test`, a Chromium Playwright config, an esbuild-bundled browser fixture entry, three-platform CI coverage, and browser tests that run the core API inside a real DOM for `TypographyBox` overflow, click-region coordinate routing, and fullscreen capability smoke.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm test:browser`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed.
+- Test and infrastructure links: `tests/browser/render-safe-preview.spec.ts`, `tests/browser/cadenza-browser-entry.ts`, `playwright.config.ts`, `.github/workflows/ci.yml`, `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `.gitignore`, `trace/phase1/status.yaml`.
+- Next B1.3/P2 scenario remains `TC-VAL-006`, pending maintainer approval for the next Builder batch.
+
 ## 2026-04-26 04:51 +0800 — B1.3 TC-RSAF-005 remediation green
 
 - Startup identity: proceeded as Builder with `gpt-5.5-family` / `codex` after maintainer approval; a read-only sub-agent verification review ran before any `TC-VAL-006` implementation.

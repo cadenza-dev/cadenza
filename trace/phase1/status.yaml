@@ -129,6 +129,7 @@ batches:
         requirements: [RSAF-005, RSAF-006, RSAF-007, VAL-004]
         tests:
           - packages/core/src/render-safe.typography.test.ts
+          - tests/browser/render-safe-preview.spec.ts
         implementation:
           - packages/core/src/render-safe/resources.ts
           - packages/core/src/validation/browser.ts
@@ -139,6 +140,7 @@ batches:
         requirements: [PLAY-004, PLAY-005]
         tests:
           - packages/core/src/player.controls.test.ts
+          - tests/browser/render-safe-preview.spec.ts
         implementation:
           - packages/core/src/player/clickRegions.ts
           - packages/core/src/player/fullscreen.ts
@@ -163,6 +165,21 @@ batches:
           - .agents/skills/render-debugging/SKILL.md
           - .agents/skills/render-safe-components/SKILL.md
     next_scenario: TC-VAL-006
+    verification_remediations:
+      - id: BROWSER_PREVIEW_HARNESS
+        completed_at: "2026-04-26 05:20 +0800"
+        scenarios: [TC-RSAF-005, TC-PLAY-004]
+        requirements: [RSAF-005, VAL-004, PLAY-004, PLAY-005]
+        tests:
+          - tests/browser/render-safe-preview.spec.ts
+        infrastructure:
+          - playwright.config.ts
+          - tests/browser/cadenza-browser-entry.ts
+          - package.json
+          - pnpm-lock.yaml
+          - tsconfig.json
+          - .github/workflows/ci.yml
+          - .gitignore
 
 exit_criteria:
   all_phase1_scenarios_green:

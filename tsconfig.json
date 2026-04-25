@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": ["ES2022", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "paths": {
+      "@cadenza-dev/core": ["./packages/core/src/index.ts"]
+    },
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -11,5 +14,11 @@
     "skipLibCheck": true,
     "types": ["node", "vitest/globals"]
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts", "vitest.config.ts"]
+  "include": [
+    "packages/**/*.ts",
+    "playwright.config.ts",
+    "scripts/**/*.ts",
+    "tests/**/*.ts",
+    "vitest.config.ts"
+  ]
 }

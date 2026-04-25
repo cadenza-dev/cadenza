@@ -70,6 +70,17 @@ jobs:
       - name: Test
         run: pnpm test
 
+      - name: Install Playwright Chromium with system dependencies
+        if: runner.os == 'Linux'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright Chromium
+        if: runner.os != 'Linux'
+        run: pnpm exec playwright install chromium
+
+      - name: Browser preview tests
+        run: pnpm test:browser
+
       - name: Lint
         run: pnpm lint
 
