@@ -41,3 +41,35 @@ describe("TC-TAPI-001 public typed API primitives", () => {
     expect(compile(deck).fps).toBe(24);
   });
 });
+
+describe("TC-TAPI-004 Step kind compilation", () => {
+  it("compiles fixed, wait-for-event, and computed steps into timeline step kinds", () => {
+    const deck = Deck({
+      fps: 12,
+      children: Slide({
+        id: "step-kinds",
+        children: [
+          Step({ kind: "fixed", duration: "1s", children: "Fixed" }),
+          Step({ kind: "wait-for-event", children: "Waiting" }),
+          Step({
+            kind: "computed",
+            children: () => "Computed when ready",
+          }),
+        ],
+      }),
+    });
+
+    const [slide] = compile(deck).slides;
+
+    expect(slide?.steps.map((step) => step.kind)).toEqual([
+      "fixed",
+      "wait-for-event",
+      "computed",
+    ]);
+    expect(slide?.steps.map((step) => step.segment)).toEqual([
+      [0, 12],
+      [12, 36],
+      [36, 36],
+    ]);
+  });
+});
