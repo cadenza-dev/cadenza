@@ -1,7 +1,7 @@
 version: 1
 phase: "1"
 phase_name: "Core Framework and Typed API (MVP)"
-status: ready_for_builder
+status: in_progress
 timezone: Asia/Shanghai
 opened_at: "2026-04-25 23:52 +0800"
 
@@ -125,7 +125,8 @@ batches:
     completed_scenarios:
       - id: TC-RSAF-005
         completed_at: "2026-04-26 04:09 +0800"
-        requirements: [RSAF-005, RSAF-007, VAL-004]
+        remediated_at: "2026-04-26 04:51 +0800"
+        requirements: [RSAF-005, RSAF-006, RSAF-007, VAL-004]
         tests:
           - packages/core/src/render-safe.typography.test.ts
         implementation:

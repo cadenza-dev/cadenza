@@ -43,6 +43,9 @@ export type {
   ContentSlotMetadata,
   ContentSlotNode,
   ContentSlotProps,
+  MediaFrameNode,
+  MediaFrameProps,
+  MediaFrameSnapshot,
   RenderSafeNode,
   RenderSafeResourceNode,
   ResourceKind,
@@ -54,6 +57,7 @@ export type {
 } from "./render-safe/resources.js";
 export {
   ContentSlot,
+  MediaFrame,
   SafeFont,
   SafeImage,
   SafeVideo,

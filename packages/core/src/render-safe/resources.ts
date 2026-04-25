@@ -30,10 +30,29 @@ export type ContentSlotNode = {
   children?: unknown;
 };
 
+export type MediaFrameSnapshot =
+  | {
+      kind: "poster";
+      src: string;
+    }
+  | {
+      kind: "first-frame";
+    };
+
+export type MediaFrameNode = {
+  kind: "media-frame";
+  id: string;
+  aspectRatio: number;
+  poster?: string;
+  exportSnapshot: MediaFrameSnapshot;
+  children?: unknown;
+};
+
 export type RenderSafeNode =
   | RenderSafeResourceNode
   | TypographyBoxNode
-  | ContentSlotNode;
+  | ContentSlotNode
+  | MediaFrameNode;
 
 export type SafeImageProps = {
   src: string;
@@ -65,6 +84,13 @@ export type ContentSlotProps = {
   id: string;
   density?: ContentDensity;
   readability?: ContentReadability;
+  children?: unknown;
+};
+
+export type MediaFrameProps = {
+  id: string;
+  aspectRatio: number;
+  poster?: string;
   children?: unknown;
 };
 
@@ -117,6 +143,20 @@ export function ContentSlot(props: ContentSlotProps): ContentSlotNode {
       density: props.density ?? DEFAULT_CONTENT_DENSITY,
       readability: props.readability ?? DEFAULT_CONTENT_READABILITY,
     },
+    children: props.children,
+  };
+}
+
+export function MediaFrame(props: MediaFrameProps): MediaFrameNode {
+  return {
+    kind: "media-frame",
+    id: props.id,
+    aspectRatio: props.aspectRatio,
+    poster: props.poster,
+    exportSnapshot:
+      props.poster === undefined
+        ? { kind: "first-frame" }
+        : { kind: "poster", src: props.poster },
     children: props.children,
   };
 }

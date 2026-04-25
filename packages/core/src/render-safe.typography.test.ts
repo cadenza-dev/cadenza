@@ -1,5 +1,6 @@
 import {
   ContentSlot,
+  MediaFrame,
   TypographyBox,
   validatePreviewLayout,
 } from "@cadenza-dev/core";
@@ -46,5 +47,26 @@ describe("TC-RSAF-005 TypographyBox preview validation", () => {
         source: "hero-title",
       }),
     ]);
+  });
+
+  it("exposes MediaFrame aspect ratio and poster snapshot metadata", () => {
+    expect(
+      MediaFrame({
+        id: "demo-video-frame",
+        aspectRatio: 16 / 9,
+        poster: "/assets/demo-poster.png",
+        children: "Demo video",
+      }),
+    ).toEqual({
+      kind: "media-frame",
+      id: "demo-video-frame",
+      aspectRatio: 16 / 9,
+      poster: "/assets/demo-poster.png",
+      exportSnapshot: {
+        kind: "poster",
+        src: "/assets/demo-poster.png",
+      },
+      children: "Demo video",
+    });
   });
 });

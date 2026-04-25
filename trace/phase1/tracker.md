@@ -1,5 +1,16 @@
 # Phase 1 Tracker
 
+## 2026-04-26 04:51 +0800 — B1.3 TC-RSAF-005 remediation green
+
+- Startup identity: proceeded as Builder with `gpt-5.5-family` / `codex` after maintainer approval; a read-only sub-agent verification review ran before any `TC-VAL-006` implementation.
+- Review gate: the sub-agent found a blocking `TC-RSAF-005` traceability gap: `RSAF-006` / `MediaFrame` was mapped to `TC-RSAF-005` in the frozen traceability matrix but was absent from tests, public exports, implementation, and phase status.
+- Batch scope: `B1.3` remediation for `TC-RSAF-005`; covered requirement ID `RSAF-006` without modifying frozen specs or Accepted ADRs. The browser/Playwright-depth concerns for `TC-RSAF-005` and `TC-PLAY-004` remain non-blocking residual risk unless the maintainer asks to expand the test stack.
+- RED: `pnpm test -- packages/core/src/render-safe.typography.test.ts` failed because `MediaFrame` was not exposed as a public API function.
+- GREEN: added render-safe `MediaFrame` node support with aspect-ratio metadata and deterministic poster/first-frame export snapshot metadata, then exported its public types and constructor.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/render-safe.typography.test.ts`, `packages/core/src/render-safe/resources.ts`, `packages/core/src/index.ts`, `trace/phase1/status.yaml`.
+- Next B1.3/P2 scenario: `TC-VAL-006`, pending maintainer approval for the next Builder batch.
+
 ## 2026-04-26 04:29 +0800 — B1.3 TC-SKIL-004 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-PLAY-006` commit and push.
@@ -33,7 +44,7 @@
 ## 2026-04-26 04:09 +0800 — B1.3 TC-RSAF-005 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-SKIL-001` commit and push.
-- Batch scope: `B1.3` / `TC-RSAF-005`; covered requirement IDs `RSAF-005`, `RSAF-007`, and `VAL-004` without modifying frozen specs or Accepted ADRs.
+- Batch scope: `B1.3` / `TC-RSAF-005`; initially covered requirement IDs `RSAF-005`, `RSAF-007`, and `VAL-004` without modifying frozen specs or Accepted ADRs. `RSAF-006` was remediated in the 2026-04-26 04:51 +0800 entry.
 - RED: `pnpm test -- packages/core/src/render-safe.typography.test.ts` failed because the public API did not expose `TypographyBox`, `ContentSlot`, or preview layout validation.
 - GREEN: added render-safe `TypographyBox` and `ContentSlot` nodes, exposed ContentSlot density/readability metadata, and added `validatePreviewLayout` to emit typed overflow diagnostics from browser measurements.
 - Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
