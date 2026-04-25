@@ -1,5 +1,16 @@
 # Phase 1 Tracker
 
+## 2026-04-26 07:15 +0800 — B1.4-B3 all-domain MVP fixture green
+
+- Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after maintainer approval in this session.
+- Batch scope: `B1.4-B3` only; created the all-domain MVP fixture after B1.4-B1/B2 semantic and browser-depth gaps were closed, without modifying frozen specs or Accepted ADRs.
+- RED: added `packages/core/src/all-domain-mvp.fixture.test.ts`; `pnpm test -- packages/core/src/all-domain-mvp.fixture.test.ts` failed because `./fixtures/allDomainMvp.js` did not exist.
+- GREEN: added `packages/core/src/fixtures/allDomainMvp.ts`, an agent-authored technical talk fixture using typed API primitives, theme tokens, compiler preview/offline timelines, render-safe resources, runtime readiness/navigation/presenter metadata, validation diagnostics plus `createValidationReport`, and required skill-pack cues.
+- REFACTOR: aligned the keyboard target test double with the public `KeyboardNavigationTarget` contract and applied Biome formatting/import ordering to the new files.
+- Implementation links: `packages/core/src/all-domain-mvp.fixture.test.ts`, `packages/core/src/fixtures/allDomainMvp.ts`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, escalated `pnpm test:browser`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, `pnpm phase:check`, and `git diff --check` all passed. The first sandboxed `pnpm test:browser` run failed on Chromium `sandbox_host_linux` permissions and passed when rerun with approved escalation.
+- Next B1.4 batch: `B1.4-C`, proving the Phase 1 exit demo and export handoff boundary from the all-domain fixture.
+
 ## 2026-04-26 06:55 +0800 — B1.4-B2 readiness and browser-depth gaps green
 
 - Startup identity: continued as Builder with maintainer approval already granted in this session.

@@ -223,6 +223,20 @@ batches:
           - packages/core/src/validation/browser.ts
           - packages/core/src/index.ts
           - tests/browser/cadenza-browser-entry.ts
+      - id: B1.4-B3
+        completed_at: "2026-04-26 07:15 +0800"
+        summary: "All-domain MVP fixture created for an agent-authored technical talk."
+        requirements:
+          - typed API
+          - compiler
+          - render-safe
+          - player runtime
+          - validation
+          - skills
+        tests:
+          - packages/core/src/all-domain-mvp.fixture.test.ts
+        implementation:
+          - packages/core/src/fixtures/allDomainMvp.ts
     planned_batches:
       - id: B1.4-B1
         status: complete
@@ -244,7 +258,7 @@ batches:
           - controlled font and video readiness fixtures
           - MediaFrame DOM or visual measurement depth
       - id: B1.4-B3
-        status: pending
+        status: complete
         summary: "Create the all-domain MVP fixture after semantic gaps are closed."
         requirements:
           - typed API
@@ -272,13 +286,13 @@ batches:
           - newest-first tracker closeout
           - full verification stack
           - stop before Phase 2 work
-    next_batch: B1.4-B2
+    next_batch: B1.4-C
 
 exit_criteria:
   all_phase1_scenarios_green:
     status: met
   all_domain_mvp_fixture_complete:
-    status: unmet
+    status: met
   verification_stack_green:
     status: met
   traceability_recorded:
