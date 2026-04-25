@@ -10,6 +10,12 @@ export { compile } from "./compiler/compile.js";
 export type { Cursor } from "./compiler/cursor.js";
 export { cursorAtFrame } from "./compiler/cursor.js";
 export type {
+  KeyboardNavigationEvent,
+  KeyboardNavigationMap,
+  KeyboardNavigationTarget,
+} from "./player/keyboard.js";
+export { bindKeyboardNavigation } from "./player/keyboard.js";
+export type {
   ResourceReadiness,
   ResourceReadinessRegistry,
 } from "./render-safe/readiness.js";

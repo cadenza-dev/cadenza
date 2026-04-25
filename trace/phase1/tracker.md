@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-26 02:34 +0800 — B1.2 TC-PLAY-001 green
+
+- Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-RSAF-002` commit and push.
+- Batch scope: `B1.2` / `TC-PLAY-001`; covered requirement IDs `PLAY-001` and `PLAY-002` without modifying frozen specs or Accepted ADRs.
+- RED: `pnpm test -- packages/core/src/player.keyboard.test.ts` failed because the public API did not expose keyboard navigation binding.
+- GREEN: added `bindKeyboardNavigation` with conventional default next/previous key sets and support for configurable maps, routing keydown events through runtime `next()` / `previous()`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`, `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`, `pnpm spec:lint`, and `pnpm phase:check` all passed.
+- Test and code links: `packages/core/src/player.keyboard.test.ts`, `packages/core/src/player/keyboard.ts`, `packages/core/src/index.ts`.
+- Next B1.2 P0 scenario: `TC-VAL-001`.
+
 ## 2026-04-26 02:03 +0800 — B1.2 TC-RSAF-002 green
 
 - Startup identity: continued as Builder with `gpt-5.5` / `codex`; maintainer explicitly requested the next vertical slice after the `TC-COMP-007` commit and push.

@@ -88,7 +88,15 @@ batches:
           - packages/core/src/runtime/createRuntime.ts
           - packages/core/src/index.ts
           - packages/core/src/typed-api/primitives.ts
-    next_scenario: TC-PLAY-001
+      - id: TC-PLAY-001
+        completed_at: "2026-04-26 02:34 +0800"
+        requirements: [PLAY-001, PLAY-002]
+        tests:
+          - packages/core/src/player.keyboard.test.ts
+        implementation:
+          - packages/core/src/player/keyboard.ts
+          - packages/core/src/index.ts
+    next_scenario: TC-VAL-001
   B1_3_p1_p2_completion_path:
     status: not_started
 
