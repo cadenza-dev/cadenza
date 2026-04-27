@@ -32,7 +32,7 @@ phases:
   "1":
     name: "Core Framework and Typed API (MVP)"
     status: in_progress
-    owners: [builder]
+    owners: [builder, reviewer, wizard]
     trace: trace/phase1/
   "2":
     name: "AI Authoring Strengthening"
@@ -64,6 +64,12 @@ ownership:
   builder:
     writes: [packages/, tests, trace/, infra configs]
     must_not_touch: [spec/ (when CONTRACT_FROZEN), docs/adr/ (when Accepted)]
+  reviewer:
+    writes: [trace/<phase>/review*.md (with maintainer approval)]
+    must_not_touch: [packages/, spec/, docs/adr/, prompt/, scripts/]
+  wizard:
+    writes: [prompt/, trace/<phase>/, memory/ (with maintainer approval)]
+    must_not_touch: [packages/, spec/ (when CONTRACT_FROZEN), STATUS.yaml.current_phase]
 
 # ------------------------------------------------------------------
 # Where to find things (agents cross-reference during context recovery)
@@ -76,6 +82,7 @@ index:
   design: docs/design/
   spec_format: spec/README.md
   trace_format: trace/README.md
+  memory: memory/
   kick_files: prompt/
   workflow: docs/agentic-workflow.md
 

@@ -19,6 +19,8 @@
     "format:shell": "find scripts .agents .githooks .codex -name '*.sh' -exec shfmt -w {} +",
     "spec:lint": "node --experimental-strip-types scripts/lint-specs.ts",
     "phase:check": "node --experimental-strip-types scripts/phase-check.ts",
+    "check:harness": "node --experimental-strip-types scripts/check-harness.ts",
+    "check:memory": "node --experimental-strip-types scripts/check-memory.ts",
     "check:frozen": "node --experimental-strip-types scripts/check-contract-frozen.ts",
     "check:role-boundary": "node --experimental-strip-types scripts/check-role-boundary.ts",
     "precommit": "bash scripts/pre-commit.sh"

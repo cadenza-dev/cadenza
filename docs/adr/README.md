@@ -37,3 +37,4 @@ See [`template.md`](./template.md).
 | [0009](./0009-advisory-role-binding.md) | Advisory role binding with Startup Protocol | Accepted | 2026-04-25 |
 | [0010](./0010-project-name-cadenza-github-org.md) | Project name Cadenza and GitHub org cadenza-dev | Accepted | 2026-04-25 |
 | [0011](./0011-remotion-notification-outcome.md) | Remotion notification sent | Accepted | 2026-04-25 |
+| [0012](./0012-reviewer-wizard-memory-workflow.md) | Reviewer, Wizard, and Project Memory Workflow | Proposed | 2026-04-28 |

@@ -1,5 +1,25 @@
 # Phase 1 Tracker
 
+## 2026-04-28 04:05 +0800 — Reviewer, Wizard, and memory infra branch started
+
+- Startup identity: proceeded as Architect with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Branch: created local `exp/rev-wiz-mem` for the reviewer/wizard/memory
+  workflow and harness upgrade, leaving `main` untouched.
+- Workflow decision draft: added ADR 0012 for Reviewer, Wizard, Builder
+  remediation handoff, and project-local memory.
+- Design sync: updated the English and Chinese cross-agent hook architecture
+  design notes for the new harness and memory gates.
+- Reviewer skill: added `cadenza-reviewer` as the stable review method; Reviewer
+  reports findings, does not remediate, and emits the generic Builder
+  remediation launch phrase after maintainer selection.
+- Memory: added `memory/` as an advisory, maintainer-approved lesson layer below
+  specs, ADRs, status, trace, design docs, and roadmap.
+- Harness: added `check:harness` and `check:memory` package gates and wired them
+  into pre-commit/CI.
+- Boundary: Phase 2 has not started; `PHASE2_KICK_ARCHITECT.md` remains a
+  downstream TODO after Reviewer acceptance.
+
 ## 2026-04-26 07:31 +0800 — B1.4-D Phase 1 Builder trace closed
 
 - Startup identity: continued as Builder with maintainer approval in this session.

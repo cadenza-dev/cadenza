@@ -36,6 +36,8 @@ Cadenza 的目标不是绑定在 Claude Code 上完成，而是允许多个 agen
 3. 在正确时机暴露 role boundary、危险命令拦截、spec hygiene、trace 更新和验证流水线。
 4. 明确每个工具的弱点，尤其是 Codex 当前对非 shell 工具拦截仍有限。
 5. 保留 git pre-commit 和 CI 作为硬兜底。
+6. 支持 Reviewer、Wizard 和 project-memory 工作流，同时不把 agent hooks
+   作为唯一 enforcement 层。
 
 ### **1.2 非目标**
 
@@ -163,6 +165,8 @@ Policy scripts 返回一个小型内部结果：
 | `post-md-edit.sh` | `markdown-post-edit` | 支持时在 Markdown 编辑后 | `pnpm lint` / markdown lint |
 | `session-stop-audit.sh` | `stop-audit` | stop / session end | pre-commit + CI |
 | `pre-compact-preserve.sh` | `pre-compact-preserve` | PreCompact / PreCompress / compaction plugin | trace files 和 read order |
+| `scripts/check-harness.ts` | `harness-consistency` | package script / pre-commit / CI | CI |
+| `scripts/check-memory.ts` | `memory-consistency` | package script / pre-commit / CI | CI |
 
 Codex 特别注意：在 Codex 能可靠拦截文件写入和非 shell 工具之前，`role-boundary`、`spec-post-edit`、Markdown/ADR post-edit 检查在 Codex session 中只能算提前提醒；真正 enforcement 必须落到 git hooks 或显式验证命令。
 

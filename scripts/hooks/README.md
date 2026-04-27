@@ -19,6 +19,13 @@ Shell scripts invoked by Claude Code hooks (configured in [`.claude/settings.jso
 | `codex-permission-request.sh` | Codex PermissionRequest `Bash` | Adapt dangerous-Bash checks into Codex approval denial JSON |
 | `codex-stop-audit.sh` | Codex Stop | Adapt `session-stop-audit.sh` into Codex JSON system messages |
 
+Related package/CI gates live one directory higher:
+
+- `scripts/check-harness.ts` verifies hook script references and Cadenza skill
+  mirror consistency.
+- `scripts/check-memory.ts` verifies the project memory directory shape and
+  lesson frontmatter.
+
 ## Hook protocol (Claude Code)
 
 All scripts follow the same contract:
@@ -61,7 +68,7 @@ Boundary-enforcing hooks read `CADENZA_AGENT_ROLE` (values: `scout`, `architect`
 
 ## Tunables (env vars)
 
-- `CADENZA_AGENT_ROLE` — `scout` / `architect` / `builder`. Defaults to `architect` in unset sessions. Controls boundary enforcement.
+- `CADENZA_AGENT_ROLE` — `scout` / `architect` / `builder` / `reviewer` / `wizard`. Defaults to `architect` in unset sessions. Controls boundary enforcement.
 - `CADENZA_MD_LINT_THRESHOLD` — integer ≥ 1. Defaults to `3`. Number of times a markdown-lint rule must fire within one session before `post-md-edit.sh` suggests a project-level config relaxation.
 - `CADENZA_ALLOW_RESET` / `CADENZA_ALLOW_PUBLISH` — set to `1` (only with user approval) to bypass specific patterns in `block-dangerous-bash.sh`.
 

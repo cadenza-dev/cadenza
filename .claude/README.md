@@ -29,6 +29,10 @@ The `enforce-architect-boundary.sh` hook reads the `CADENZA_AGENT_ROLE` environm
 - `architect` → enforces the "no writes to `packages/**/src/**`" boundary.
 - `builder` → boundary check is skipped (useful if you are intentionally running Builder work in Claude Code — e.g., Codex is unavailable).
 - `scout` → boundary check is skipped; separate `spec/` and `packages/` write blocks apply instead (Phase 2+).
+- `reviewer` → local commit boundary only permits `trace/<phase>/review*.md`
+  artifacts.
+- `wizard` → local commit boundary blocks production code, frozen contracts,
+  Accepted ADRs, and root phase-pointer edits.
 
 Set it at session launch:
 
@@ -54,16 +58,11 @@ Current operational skills:
 - `cadenza-onboard` — cold-start read order + Startup Protocol gate.
 - `cadenza-phase-status` — summarize `STATUS.yaml` and current phase trace.
 - `cadenza-spec-lint` — run `pnpm spec:lint` or the bundled Phase 0 fallback.
+- `cadenza-reviewer` — independent Builder/closeout review plus generic Builder
+  remediation handoff phrase.
 
-Phase 1 product-authoring skills are still planned (see
-[analysis-final §5.4](../docs/analysis/analysis-final.md)). Expected roster:
-
-- `cadenza-typed-api` — how to use `<Deck>` / `<Slide>` / `<Step>` / `<Transition>`
-- `cadenza-render-safe` — correct usage of `<SafeImage>` / `<SafeFont>` / `<TypographyBox>`, and the anti-patterns they forbid
-- `cadenza-compiler-edges` — pointer to [`docs/design/compiler-design.md`](../docs/design/compiler-design.md) edge cases with quick-reference summaries
-- `cadenza-tdd-loop` — red → green → refactor, anchored on `SPEC_TEST_MATRIX`
-- `cadenza-spec-format` — how to read/write normative specs (requirement IDs, CONTRACT_FROZEN markers, traceability)
-- `cadenza-remotion-debug` — common `flickering` / `delayRender` failure modes and fixes
+Phase 1 product-authoring skills now live under `.agents/skills/` and are
+mirrored here by symlink.
 
 ## Do not put here
 

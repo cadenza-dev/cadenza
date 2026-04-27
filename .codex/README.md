@@ -24,3 +24,8 @@ Protocol or the git/CI hard gates.
 Codex hooks are guardrails, not the source of truth. File-edit interception and
 some shell paths are still incomplete in Codex, so frozen-contract and role
 boundary enforcement live in `.githooks/` and CI as the authoritative fallback.
+
+Reviewer, Wizard, and memory workflows follow the same rule: Codex hooks may
+remind the agent at startup or stop time, but `check:role-boundary`,
+`check:harness`, `check:memory`, pre-commit, and CI are the durable enforcement
+layers.

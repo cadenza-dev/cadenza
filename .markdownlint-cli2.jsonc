@@ -4,7 +4,7 @@
     "line-length": false
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules"],
+  "ignores": ["node_modules", ".claude/skills"],
   "fix": true,
   "outputFormatters": [["markdownlint-cli2-formatter-pretty"]]
 }

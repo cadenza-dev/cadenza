@@ -36,6 +36,8 @@ The purpose of this document is to define a portable hook architecture before th
 3. Keep role boundaries, destructive-command blocks, spec hygiene, trace updates, and verification gates visible at the right moment.
 4. Make the weakest hook surface explicit, especially Codex's current limited non-shell interception.
 5. Preserve a hard fallback through git pre-commit and CI.
+6. Support Reviewer, Wizard, and project-memory workflows without relying on
+   agent hooks as the only enforcement layer.
 
 ### **1.2 Non-Goals**
 
@@ -163,6 +165,8 @@ or:
 | `post-md-edit.sh` | `markdown-post-edit` | After Markdown edit where supported | `pnpm lint` / markdown lint |
 | `session-stop-audit.sh` | `stop-audit` | Stop / session end | pre-commit + CI |
 | `pre-compact-preserve.sh` | `pre-compact-preserve` | PreCompact / PreCompress / compaction plugin | trace files and read order |
+| `scripts/check-harness.ts` | `harness-consistency` | package script / pre-commit / CI | CI |
+| `scripts/check-memory.ts` | `memory-consistency` | package script / pre-commit / CI | CI |
 
 Codex-specific caution: until Codex can reliably intercept file writes and non-shell tools, `role-boundary`, `spec-post-edit`, and Markdown/ADR post-edit checks are advisory in Codex sessions unless they are also enforced by git hooks or explicit verification commands.
 

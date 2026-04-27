@@ -18,6 +18,7 @@ When your context is cold — fresh session, post `/compact`, or post VM restart
 6. `wip/future-support/` — Architect only: read entries targeting the current phase
 7. `spec/<current-phase>/` — only if your task touches spec or code in this phase
 8. `trace/<current-phase>/tracker.md` — only if continuing mid-phase work
+9. `memory/index.md` — only if the task asks for lessons or prior pitfalls
 
 Do **not** read `docs/analysis/analysis-final.zh.md` (Chinese) or its archive unless explicitly asked. They are for human review.
 
@@ -36,6 +37,7 @@ spec/**/*.md (CONTRACT_FROZEN)
   > docs/design/**
   > ROADMAP.md
   > README.md
+  > memory/**
   > chat history
 ```
 
@@ -50,6 +52,8 @@ If a `CONTRACT_FROZEN` spec contradicts what a user tells you in chat, **stop an
 | scout | `gemini-3-1-pro` | `gemini-cli` | `ROADMAP.md`, `docs/research/` | `spec/`, `packages/`, `docs/adr/` |
 | architect | `claude-opus-4-7` / `gpt-5-5` | `claude-code` / `codex` | `spec/`, `docs/adr/`, `docs/design/`, `prompt/` | `packages/**/src/`, production code |
 | builder | `gpt-5-5` | `codex` | `packages/`, tests, `trace/<phase>/`, infra configs | `spec/` (frozen), `docs/adr/` (accepted) |
+| reviewer | `gpt-5-5` | `codex` | `trace/<phase>/review*.md` only with approval | fixes, `packages/`, `spec/`, `docs/adr/`, `prompt/` |
+| wizard | `gpt-5-5` | `codex` | `prompt/`, `trace/<phase>/`, `memory/` with approval | production code, frozen specs, phase pointer flips |
 
 These are **suggestions**, not hard constraints. Reality breaks the suggestion in three places:
 
@@ -88,6 +92,9 @@ Architect → spec/<phase>/ Stage A (2-3 options, Freeze Candidates marked)
           → wip/future-support/ (deferred enhancements grouped by future phase)
 Builder   → per batch: read SPEC_TEST_MATRIX → write tests (red)
           → implement (green) → refactor → update trace/<phase>/tracker.md
+Reviewer  → after Builder closeout: produce severity-ranked findings
+Builder   → maintainer-selected remediation findings only, via TDD
+Wizard    → after Reviewer acceptance: draft next Architect kick/handoff
 Human     → review each stage; approve freeze; trigger next batch
 ```
 
@@ -102,6 +109,11 @@ At the start of each Architect phase, read the relevant `wip/future-support/`
 entries and promote only the applicable items into that phase's specs or ADRs.
 If a prior phase already froze `spec/<next-phase>/`, launch that phase's Builder
 from the frozen specs instead of opening another Architect freeze pass.
+
+Reviewer uses `cadenza-reviewer` and does not fix findings. When the maintainer
+selects findings, Reviewer emits one generic Builder remediation launch phrase.
+Wizard prepares the next Architect kick file after Builder + Reviewer closeout,
+but never flips `STATUS.yaml.current_phase`.
 
 Full description: [`docs/agentic-workflow.md`](./docs/agentic-workflow.md).
 
@@ -120,6 +132,8 @@ markdownlint-cli2 "**/*.md"  # Markdown lint/format rules
 find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d  # shell format check; options come from .editorconfig
 pnpm spec:lint       # scripts/lint-specs.ts — spec structure + traceability
 pnpm phase:check     # scripts/phase-check.ts — current-phase exit criteria
+pnpm check:harness   # harness config and Cadenza skill mirror consistency
+pnpm check:memory    # project memory directory shape
 ```
 
 If any command fails, **do not claim done**. Fix or report.
@@ -145,6 +159,8 @@ Phase 0 exception: until `packages/` exists, `typecheck` and `test` may be no-op
 8. **Load relevant local skills on demand.** Agents may use any locally configured skill that is relevant to the task assigned in the current session.
 9. **Use internet research tools when useful.** Agents may use web search, and when justified, higher-fidelity tools such as agent-browser or Playwright, to verify external facts, current behavior, official docs, or browser-observable workflows.
 10. **Use sub-agents for parallel work when appropriate.** Agents are encouraged to delegate bounded, independent subtasks to sub-agents when parallel execution is feasible, useful, and safe to integrate.
+11. **Reviewer does not remediate.** Reviewer reports findings and, after maintainer selection, emits a Builder remediation launch phrase.
+12. **Memory is advisory.** `memory/` stores maintainer-approved lessons only; it never overrides specs, ADRs, status, trace, or design docs.
 
 ---
 
@@ -172,6 +188,7 @@ cadenza/
 ├── prompt/                   ← per-phase × per-role kick files
 ├── spec/<phase>/             ← normative contracts, CONTRACT_FROZEN markers
 ├── trace/<phase>/            ← execution archives (status.yaml + tracker.md)
+├── memory/                   ← maintainer-approved project lessons
 ├── wip/                      ← non-contract future-support planning notes
 ├── packages/                 ← pnpm workspace (Builder territory, from Phase 1)
 └── scripts/                  ← build + lint + hook scripts + skill sync
@@ -187,6 +204,7 @@ Current operational skills:
 
 - `cadenza-onboard` — cold-start read order + Startup Protocol gate.
 - `cadenza-phase-status` — current phase, blockers, exit criteria, next batch.
+- `cadenza-reviewer` — independent Builder/closeout review and remediation handoff.
 - `cadenza-spec-lint` — `pnpm spec:lint` or Phase 0 bundled fallback hygiene.
 
 Run `scripts/commands-sync.sh` after adding or deleting a `cadenza-*` skill. It

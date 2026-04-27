@@ -20,6 +20,9 @@ trace/phase<N>/
 
 - **Builder** updates `tracker.md` after **every** batch. Insert entries directly below the H1, newest-first, with heading format `YYYY-MM-DD HH:MM +ZZZZ — Title`. Missing tracker updates make recovery fail — this is enforced advisorily by [`scripts/hooks/session-stop-audit.sh`](../scripts/hooks/session-stop-audit.sh).
 - **Architect** updates `status.yaml` at stage boundaries (Stage A complete, Stage B frozen).
+- **Reviewer** may write `review*.md` reports only with maintainer approval.
+- **Wizard** may write phase handoff notes and next-kick preparation artifacts,
+  but does not flip the root phase pointer.
 - Neither file is `CONTRACT_FROZEN`. They are execution logs, not contracts.
 
 ## Naming convention

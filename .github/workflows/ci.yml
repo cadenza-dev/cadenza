@@ -99,5 +99,11 @@ jobs:
       - name: Phase check
         run: pnpm phase:check
 
+      - name: Harness check
+        run: pnpm check:harness
+
+      - name: Memory check
+        run: pnpm check:memory
+
       - name: Whitespace check
         run: git diff --check
