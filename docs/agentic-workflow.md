@@ -99,16 +99,16 @@ satisfy the frozen requirements, even when the test suite is green.
 Each phase runs through the same staged loop. Only phases 0 and 1 are defined in detail today; phases 2–4 reserve the same structure.
 
 ```text
-┌──────────────┐    ┌───────────────────┐    ┌──────────────────┐
+┌──────────────┐    ┌────────────────────┐    ┌──────────────────┐
 │  Scout brief ├───▶│ Architect Stage A ├───▶│Architect Stage B │
-│  ROADMAP.md  │    │ spec CONTRACT_DRAFT│   │ CONTRACT_FROZEN  │
-└──────────────┘    └───────────────────┘    └────────┬─────────┘
+│  ROADMAP.md  │    │ spec CONTRACT_DRAFT│    │ CONTRACT_FROZEN  │
+└──────────────┘    └────────────────────┘    └────────┬─────────┘
                                                       │
-                          ┌───────────────────────────▼─────────┐
+                          ┌───────────────────────────▼──────────┐
                           │   Builder batches (TDD per batch)    │
                           │   red → green → refactor             │
                           │   tracker.md updated each batch      │
-                          └───────────────────────────┬─────────┘
+                          └───────────────────────────┬──────────┘
                                                       ▼
                                       ┌───────────────────────────┐
                                       │ Reviewer findings + human │
