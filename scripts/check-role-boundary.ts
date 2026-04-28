@@ -73,6 +73,22 @@ for (const file of files) {
       `${file} (scout must not write spec/, packages/, or docs/adr/)`,
     );
   }
+  if (role === "reviewer" && !/^trace\/[^/]+\/review.*\.md$/.test(file)) {
+    violations.push(
+      `${file} (reviewer may only commit trace/<phase>/review*.md artifacts)`,
+    );
+  }
+  if (
+    role === "wizard" &&
+    (/^packages\//.test(file) ||
+      isFrozenSpec(file) ||
+      isAcceptedAdr(file) ||
+      file === "STATUS.yaml")
+  ) {
+    violations.push(
+      `${file} (wizard must not write production code, frozen contracts, Accepted ADRs, or phase pointer state)`,
+    );
+  }
 }
 
 if (violations.length > 0) {

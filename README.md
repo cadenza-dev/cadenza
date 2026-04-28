@@ -10,17 +10,24 @@ It is not a Gamma replacement. It is not a WYSIWYG slide editor. It is a develop
 
 ## Status
 
-**Phase 0 (Pre-alpha)** — design and groundwork.
+**Pre-alpha. Current routing phase: Phase 1 closeout-ready.**
 
-No runtime code has been written yet. We are currently:
+Phase 1 has produced the semantic core: the typed TSX API surface, state-to-timeline
+compiler, runtime intent/navigation layer, render-safe metadata and DOM helper,
+validation reports, first authoring skills, and an all-domain MVP fixture.
+Builder work and the selected closeout remediations are trace-complete in
+[`trace/phase1/`](./trace/phase1/).
 
-1. Finalizing the [state-to-timeline compiler design](./docs/design/compiler-design.md)
-2. Locking in architectural decisions in [`docs/adr/`](./docs/adr/)
-3. Establishing positioning and non-goals in [`goals-non-goals.md`](./goals-non-goals.md)
+The root project pointer still intentionally remains on Phase 1 until the
+maintainer approves the phase transition. The prepared next step is Phase 2
+Architect Stage A for the React + Remotion Preview Adapter, starting from
+[`prompt/PHASE2_KICK_ARCHITECT.md`](./prompt/PHASE2_KICK_ARCHITECT.md).
 
-The full strategic analysis that led to this project lives in [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) (English) and [`docs/analysis/analysis-final.zh.md`](./docs/analysis/analysis-final.zh.md) (中文).
-
-Phase 1 (MVP) does not begin until the compiler design passes review.
+The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis
+that led to the project lives in
+[`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md)
+(English) and [`docs/analysis/analysis-final.zh.md`](./docs/analysis/analysis-final.zh.md)
+(中文).
 
 ---
 
@@ -66,7 +73,7 @@ Four ideas carry the architecture:
 
 1. **Typed API first, DSL last.** Agents and authors target a stable TypeScript surface. DSL (if ever needed) is a Phase 3+ concern.
 2. **Render-safe layer as default path.** Asset-loading traps, font timing, export determinism are absorbed by controlled components. Raw Remotion remains available as an escape hatch.
-3. **Skills before MCP.** Phase 1 AI investment goes into `AI-ready docs + system prompts + skill pack`. MCP is layered later, once structured lookup becomes a real bottleneck.
+3. **Skills before MCP.** Early AI investment goes into `AI-ready docs + system prompts + skill pack`. MCP is layered later, once structured lookup becomes a real bottleneck.
 4. **TSX-first authoring.** Modern LLMs write usable TSX today. We constrain them through the typed API, not through a new language.
 
 See [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) §4 for the full argument.
@@ -112,7 +119,7 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 ## Project Governance
 
 - **Maintainer**: [@DrEden33773](https://github.com/DrEden33773) (Eden Wang)
-- **Co-maintainers**: None yet. Interested? See [`CONTRIBUTING.md`](./CONTRIBUTING.md) (coming in Phase 1).
+- **Co-maintainers**: None yet. Interested? `CONTRIBUTING.md` will land after the Phase 2 contracts are frozen.
 - **Decision record**: All significant architectural decisions live in [`docs/adr/`](./docs/adr/).
 
 ---
@@ -121,25 +128,28 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 
 | Phase | Focus | Exit Criteria |
 | :---- | :---- | :---- |
-| **0** (current) | Compiler design, licensing groundwork, positioning | `compiler-design.md` passes review; initial ADRs in place |
-| **1** | MVP: typed API, compiler, render-safe layer, runtime player, minimal validation loop, first 5 skills | Agent-generated 30-slide technical talk runs and exports to MP4; 5 alpha users complete feedback cycles; public API stable for 1 month |
-| **2** | Strengthen AI authoring: compile → error → repair loop, thin IR, optional read-only MCP | Alpha users' average prompt-to-deck iteration count ≤ 3 |
-| **3** | Presentation product layer: presenter mode, chapters, intelligent typography, data-viz templates | 10+ developers use Cadenza for real-world talks |
-| **4** | Export, multi-device, tool-based MCP, Lambda integration | Determined by PMF state and commercialization decision |
+| **0** | Technical pre-commitment | See [`trace/phase0/status.yaml`](./trace/phase0/status.yaml) |
+| **1** | Core Semantics & Typed API | Frozen Phase 1 scenarios are green; the all-domain fixture compiles to deterministic preview/offline `TimelineMap` signatures; real React/Remotion rendering and export are not claimed |
+| **2** | React + Remotion Preview Adapter | The all-domain fixture renders in a real React + Remotion browser preview with player navigation and render-safe readiness behavior; MP4/PDF export remains out of scope |
+| **3** | AI Authoring Strengthening | Agent-authored decks can be generated, previewed, diagnosed, and repaired through the local validation loop |
+| **4** | Presentation Product Layer *(pruned)* | Maintainer dogfoods a production-adjacent technical talk through preview and presenter workflows |
+| **5** | Export + 0.1 Alpha Readiness | A longer agent-authored technical talk exports through the supported pipeline; the public API has remained stable for 1 month |
 
-Full roadmap and rationale: [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md) §7.
+Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 
 ---
 
 ## Contributing
 
-Phase 0 contributions are currently limited to:
+Pre-alpha contributions are currently limited to:
 
-- Review feedback on [`docs/design/compiler-design.md`](./docs/design/compiler-design.md)
+- Review feedback on [`ROADMAP.md`](./ROADMAP.md), frozen Phase 1 trace, and
+  Phase 2 preview-adapter planning
 - Discussion of architectural decisions in [`docs/adr/`](./docs/adr/)
-- Positioning and scope feedback via Issues
+- Focused issues that respect [`goals-non-goals.md`](./goals-non-goals.md)
 
-Phase 1 will open up to code contributions once MVP scope is frozen. `CONTRIBUTING.md` will land at that time.
+Broader code contributions should wait until Phase 2 contracts are frozen and
+`CONTRIBUTING.md` lands.
 
 ---
 

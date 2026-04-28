@@ -8,7 +8,7 @@
 
 ## 0. One-paragraph summary
 
-Cadenza is developed by a team of specialized AI agents and one human maintainer, coordinated through file-based contracts rather than ad-hoc messaging. **Specs are the highest authority**; code follows specs; agents work in role-scoped sessions; enforcement is layered (AGENTS.md text → Claude Code hooks → git pre-commit → CI). Every phase proceeds in three stages (Stage A exploratory → Stage B freeze → Builder implementation) with per-stage exit criteria. Context loss is routine, so everything important lives in files that are read in a canonical order — no session owns knowledge.
+Cadenza is developed by a team of specialized AI agents and one human maintainer, coordinated through file-based contracts rather than ad-hoc messaging. **Specs are the highest authority**; code follows specs; agents work in role-scoped sessions; enforcement is layered (AGENTS.md text → Claude Code hooks → git pre-commit → CI). Every phase proceeds through contract design, Builder implementation, independent review, and maintainer-controlled transition. Context loss is routine, so everything important lives in files that are read in a canonical order — no session owns knowledge.
 
 If you remember nothing else: **read `AGENTS.md` first, run the Startup Protocol, pick up an open batch from `trace/<phase>/tracker.md`.**
 
@@ -28,7 +28,8 @@ The reference inspiration is two prior projects by the same maintainer: [vhs-ana
 
 ## 2. Roles
 
-Three roles, each with a kick file per phase. Suggested model/tool bindings are advisory (see §5 Startup Protocol).
+Five roles, each with a role-scoped brief or skill. Suggested model/tool
+bindings are advisory (see §5 Startup Protocol).
 
 ### Scout
 
@@ -57,33 +58,67 @@ Consumes frozen specs; writes tests first (red); implements (green); refactors. 
 **Must not touch**: `spec/` (when `CONTRACT_FROZEN`), `docs/adr/` (when `Accepted`).
 **Suggested model/tool**: `gpt-5-5` via `codex`.
 
-### Why we don't have a Tester role
+### Reviewer
+
+Reviews Builder output after phase closeout or maintainer-selected high-risk
+batches. Reviewer compares trace, tests, implementation, frozen specs, ADRs,
+and design docs, then reports severity-ranked findings. Reviewer is read-only
+by default and does not remediate findings.
+
+**Writes**: `trace/<phase>/review*.md` only with maintainer approval.
+**Must not touch**: `packages/`, `spec/`, `docs/adr/`, `prompt/`, production
+code.
+**Suggested model/tool**: `gpt-5-5` via `codex`.
+**Skill**: `cadenza-reviewer`.
+
+### Wizard
+
+Runs at phase boundaries after Builder closeout, Reviewer review, and maintainer
+acceptance. Wizard reads the completed phase state, roadmap, WIP notes, memory
+lessons, and review findings, then prepares the next Architect kick file and
+optional handoff note. Wizard does not flip the root phase pointer, freeze
+specs, or implement production code.
+
+**Writes**: `prompt/`, `trace/<phase>/`, `memory/` with maintainer approval.
+**Must not touch**: `packages/`, frozen specs, Accepted ADRs, or
+`STATUS.yaml.current_phase`.
+**Suggested model/tool**: `gpt-5-5` via `codex`.
+
+### Why Reviewer is not a Tester role
 
 In the reference projects, tests are Builder's responsibility, co-authored with the spec's test matrix. A separate Tester agent would add a handoff without adding a signal — Architect already defines what to test via `SPEC_TEST_MATRIX.md`, and Builder's TDD discipline ensures tests come before implementation. The human maintainer occasionally spot-checks coverage, but there is no standing Tester role.
+
+Reviewer exists for a different reason: independent contract review after
+implementation. It asks whether the implementation, tests, and trace honestly
+satisfy the frozen requirements, even when the test suite is green.
 
 ---
 
 ## 3. Phase lifecycle
 
-Each phase runs through five sub-stages. Only phases 0 and 1 are defined in detail today; phases 2–4 reserve the same structure.
+Each phase runs through the same staged loop. Only phases 0 and 1 are defined in detail today; phases 2–4 reserve the same structure.
 
 ```text
-┌──────────────┐    ┌───────────────────┐    ┌──────────────────┐
+┌──────────────┐    ┌────────────────────┐    ┌──────────────────┐
 │  Scout brief ├───▶│ Architect Stage A ├───▶│Architect Stage B │
-│  ROADMAP.md  │    │ spec CONTRACT_DRAFT│   │ CONTRACT_FROZEN  │
-└──────────────┘    └───────────────────┘    └────────┬─────────┘
+│  ROADMAP.md  │    │ spec CONTRACT_DRAFT│    │ CONTRACT_FROZEN  │
+└──────────────┘    └────────────────────┘    └────────┬─────────┘
                                                       │
-                          ┌───────────────────────────▼─────────┐
+                          ┌───────────────────────────▼──────────┐
                           │   Builder batches (TDD per batch)    │
                           │   red → green → refactor             │
                           │   tracker.md updated each batch      │
-                          └───────────────────────────┬─────────┘
+                          └───────────────────────────┬──────────┘
                                                       ▼
-                                             ┌────────────────┐
-                                             │  Phase close   │
-                                             │  (exit gates + │
-                                             │   archive)     │
-                                             └────────────────┘
+                                      ┌───────────────────────────┐
+                                      │ Reviewer findings + human │
+                                      │ selected remediation      │
+                                      └──────────────┬────────────┘
+                                                     ▼
+                                      ┌───────────────────────────┐
+                                      │ Wizard next kick/handoff  │
+                                      │ then maintainer phase flip│
+                                      └───────────────────────────┘
 ```
 
 ### 3.1 Scout brief
@@ -122,9 +157,30 @@ The phase's `SPEC_TEST_MATRIX.md` defines an ordered list of test scenarios. Bui
 
 Between batches, the maintainer reviews and triggers the next. Builder does not "just keep going" — it is a pace-controlled loop.
 
-### 3.5 Phase close
+### 3.5 Reviewer gate
 
-Every phase has **exit criteria** in `trace/<phase>/status.yaml`. When all are `met`, the maintainer (not the agent) flips `STATUS.yaml.current_phase` to the next phase and archives the closing state in `trace/<phase>/` as the final tracker entry.
+Reviewer runs after Builder closeout by default, and may also run after
+maintainer-selected high-risk batches. Reviewer uses `cadenza-reviewer` and
+leads with severity-ranked findings. Each finding has a stable ID, evidence,
+impact, recommended remediation, verification path, and recommended owner.
+
+When the maintainer selects findings, Reviewer does not fix them. It emits one
+generic Builder remediation launch phrase:
+
+```text
+请作为 Cadenza Builder remediation，读取 <reviewer-report-path>，只处理 maintainer-selected findings: <REV-ID...>；不得扩大 scope，不修改 CONTRACT_FROZEN specs 或 Accepted ADRs；用 TDD 修复并更新 trace 后停止。
+```
+
+Builder remediation then fixes only the selected findings through TDD, full
+gates, and trace updates.
+
+### 3.6 Wizard handoff and phase close
+
+Every phase has **exit criteria** in `trace/<phase>/status.yaml`. When Builder
+and Reviewer closeout are accepted, Wizard may prepare the next Architect kick
+file and optional phase handoff note. The maintainer (not the agent) flips
+`STATUS.yaml.current_phase` to the next phase and archives the closing state in
+`trace/<phase>/` as the final tracker entry.
 
 ---
 
@@ -220,6 +276,9 @@ Claude Code's `/compact`, context-window exhaustion, or just closing and reopeni
 2. **PreCompact hook** ([`scripts/hooks/pre-compact-preserve.sh`](../scripts/hooks/pre-compact-preserve.sh)) pre-injects `STATUS.yaml` and the Read Order reminder before Claude Code compacts, so the post-compact context starts with the right pointers.
 3. **Trace files** are intentionally information-dense. `trace/<phase>/tracker.md` is newest-first and should contain enough narrative that a fresh agent can pick up mid-batch without re-reading the whole session.
 4. **Tracker updates are mandatory**, not polite. The `session-stop-audit.sh` hook warns on session exit if spec/ or packages/ was touched without a tracker update.
+5. **Project memory is targeted**. Read `memory/index.md` only when the task
+   needs prior lessons; then load the specific lesson files that match the
+   current risk.
 
 If you are an agent reading this after a compaction: you should already have the preservation block injected above this in your context. If you do not, that is a hook failure — flag it to the user.
 
@@ -309,6 +368,9 @@ Changes to this document, to `AGENTS.md`, or to the kick file templates go throu
 | **Requirement ID**      | `<PREFIX>-<DIGITS>`, globally unique within the repo                         |
 | **Test Case ID**        | `TC-<DOMAIN>-<NN>` tied back to one or more requirement IDs                  |
 | **Batch**               | A Builder work unit of ~5–20 related test cases + implementation             |
+| **Reviewer**            | Independent critic role that reports findings but does not remediate         |
+| **Wizard**              | Phase-boundary role that prepares the next Architect kick/handoff            |
+| **Memory**              | Project-local, maintainer-approved lessons under `memory/`                   |
 | **Kick file**           | `prompt/PHASE<N>_KICK_<ROLE>.md`; role brief for a phase                     |
 | **Trace**               | Under `trace/<phase>/`; phase execution archive                              |
 | **Read Order**          | Canonical file sequence in AGENTS.md §1 for cold-start and recovery          |

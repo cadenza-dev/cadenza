@@ -1,5 +1,123 @@
 # Phase 1 Tracker
 
+## 2026-04-28 19:12 +0800 — Root routing and README synced to roadmap
+
+- Trigger: maintainer spotted drift between `ROADMAP.md`, `STATUS.yaml`,
+  `EXECUTION_TRACKER.md`, and the README status section.
+- Scope: root routing/status metadata and README wording only. The root phase
+  pointer remains `current_phase: "1"`; no production code, frozen specs, or
+  ADRs were modified.
+- Fixes: aligned the root phase index with the current roadmap sequence
+  (Phase 2 React + Remotion Preview Adapter, Phase 3 AI Authoring
+  Strengthening, Phase 4 Presentation Product Layer, Phase 5 Export + 0.1 Alpha
+  Readiness), marked Phase 1 as closeout-ready/pending phase transition, and
+  updated README Status/Roadmap/Contributing text to remove stale Phase 0 and
+  premature export/alpha claims.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
+## 2026-04-28 18:52 +0800 — Phase 2 Architect handoff prepared
+
+- Startup identity: proceeded as Wizard with `gpt-5` / `codex` after
+  maintainer approval in this session.
+- Scope: prepared only the Phase 2 Architect kick/handoff. No `packages/`,
+  frozen specs, Accepted ADRs, or root phase pointer were modified.
+- Evidence read: `trace/phase1/status.yaml`,
+  `trace/phase1/review-phase1-closeout.md`, `ROADMAP.md`, `wip/architect/`,
+  `wip/future-support/phase-2-candidates.md`, and
+  `docs/agentic-workflow.md` §3.6.
+- Drift surfaced: `ROADMAP.md` defines Phase 2 as React + Remotion Preview
+  Adapter, while root routing files and old WIP still name Phase 2 as AI
+  Authoring Strengthening. The next Architect kick now treats this as a
+  pre-flight reconciliation item.
+- Handoff artifacts: `prompt/PHASE2_KICK_ARCHITECT.md` and
+  `trace/phase1/phase2-architect-handoff.md`.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
+## 2026-04-28 18:23 +0800 — Windows CI harness symlink check fixed
+
+- Trigger: PR `#1` ran GitHub Actions CI for `exp/rev-wiz-mem`; macOS and
+  Ubuntu passed, while Windows failed at `pnpm check:harness`.
+- Diagnosis: test and implementation gates passed before the failure; the
+  failing log showed `readlinkSync()` returning Windows-style symlink targets
+  such as `..\..\.agents\skills\cadenza-onboard`, while
+  `scripts/check-harness.ts` compared against POSIX-style
+  `../../.agents/skills/cadenza-onboard`.
+- Classification: harness script logic only; no core implementation or product
+  test logic change was required.
+- Fixes: normalize backslashes to forward slashes before comparing Cadenza
+  skill mirror symlink targets in `scripts/check-harness.ts`; after the next
+  Windows run reached `pnpm check:memory`, keep recursive memory paths
+  repo-relative/POSIX-style in `scripts/check-memory.ts` so README files are
+  excluded consistently on Windows.
+- Verification: local `pnpm check:harness` and `pnpm check:memory` passed;
+  follow-up CI rerun pending on the pushed fix commit.
+
+## 2026-04-28 18:11 +0800 — Builder remediation for selected closeout findings green
+
+- Startup identity: proceeded as Builder remediation with `GPT-5-family` /
+  `codex` after maintainer approval in this session.
+- Scope: maintainer-selected findings from
+  `trace/phase1/review-phase1-closeout.md` only: `REV-P1-001`,
+  `REV-P1-002`, and `REV-P1-003`.
+- Boundary: `REV-P1-004` remains deferred to Architect follow-up; no
+  `CONTRACT_FROZEN` specs or Accepted ADRs were modified.
+- RED/GREEN 1 (`REV-P1-001`): added
+  `packages/core/src/public-tsx-api.fixture.tsx`; `pnpm typecheck` first
+  failed because TSX was not covered/configured and `StepContext` was missing,
+  then passed after adding the public TSX runtime path, TSX coverage, and
+  render-function step context types.
+- RED/GREEN 2 (`REV-P1-002`): added a computed-first runtime test in
+  `packages/core/src/compiler-runtime.closeout.test.ts`; it first failed
+  because `resolveComputedStep` did not exist, then passed after runtime
+  resolution moved the cursor from `loading` to `at-step` and shifted later
+  anchors.
+- RED/GREEN 3 (`REV-P1-003`): rewired
+  `tests/browser/cadenza-browser-entry.ts` to call the public
+  `createRenderSafeDomAdapter`; `pnpm build:browser-fixture` first failed
+  because the helper was not exported, then escalated `pnpm test:browser`
+  passed with font visibility and video metadata readiness driven by the core
+  helper instead of manual fixture DOM toggles.
+- Implementation links: `packages/core/src/jsx-runtime.ts`,
+  `packages/core/src/typed-api/primitives.ts`,
+  `packages/core/src/runtime/createRuntime.ts`,
+  `packages/core/src/render-safe/domAdapter.ts`,
+  `packages/core/src/index.ts`, `packages/core/package.json`,
+  `tsconfig.json`, and `tests/browser/cadenza-browser-entry.ts`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, escalated `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
+## 2026-04-28 04:05 +0800 — Reviewer, Wizard, and memory infra branch started
+
+- Startup identity: proceeded as Architect with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Branch: created local `exp/rev-wiz-mem` for the reviewer/wizard/memory
+  workflow and harness upgrade, leaving `main` untouched.
+- Workflow decision draft: added ADR 0012 for Reviewer, Wizard, Builder
+  remediation handoff, and project-local memory.
+- Design sync: updated the English and Chinese cross-agent hook architecture
+  design notes for the new harness and memory gates.
+- Reviewer skill: added `cadenza-reviewer` as the stable review method; Reviewer
+  reports findings, does not remediate, and emits the generic Builder
+  remediation launch phrase after maintainer selection.
+- Memory: added `memory/` as an advisory, maintainer-approved lesson layer below
+  specs, ADRs, status, trace, design docs, and roadmap.
+- Harness: added `check:harness` and `check:memory` package gates and wired them
+  into pre-commit/CI.
+- Boundary: Phase 2 has not started; `PHASE2_KICK_ARCHITECT.md` remains a
+  downstream TODO after Reviewer acceptance.
+
 ## 2026-04-26 07:31 +0800 — B1.4-D Phase 1 Builder trace closed
 
 - Startup identity: continued as Builder with maintainer approval in this session.

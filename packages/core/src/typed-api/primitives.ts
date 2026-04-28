@@ -11,6 +11,25 @@ export type StepKind = "fixed" | "wait-for-event" | "computed";
 
 export type TransitionKind = "cut" | "fade" | "slide" | (string & {});
 
+export type StepContext = {
+  fps: number;
+  slideId: string;
+  stepIndex: number;
+};
+
+export type StepStaticChild =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | CadenzaNode
+  | StepStaticChild[];
+
+export type StepRenderFunction = (context: StepContext) => StepStaticChild;
+
+export type StepChildren = StepStaticChild | StepRenderFunction;
+
 export type ThemeTokens = {
   color?: Record<string, string>;
   typography?: Record<string, string>;
@@ -46,7 +65,7 @@ export type StepProps = {
   kind?: StepKind;
   duration?: DurationToken;
   exportDuration?: DurationToken;
-  children?: unknown;
+  children?: StepChildren;
 };
 
 export type TransitionProps = {
@@ -55,7 +74,7 @@ export type TransitionProps = {
 };
 
 export type NotesProps = {
-  children: string;
+  children?: string | string[];
 };
 
 export type DeckNode = {
@@ -78,7 +97,7 @@ export type StepNode = {
   stepKind: StepKind;
   duration?: DurationToken;
   exportDuration?: DurationToken;
-  children?: unknown;
+  children?: StepChildren;
 };
 
 export type TransitionNode = {
@@ -98,6 +117,7 @@ export type CadenzaNode =
   | StepNode
   | TransitionNode
   | NotesNode
+  | ThemeDefinition
   | RenderSafeNode;
 
 type CadenzaChildren = CadenzaNode | CadenzaNode[];
@@ -154,7 +174,7 @@ export function Transition(props: TransitionProps): TransitionNode {
 export function Notes(props: NotesProps): NotesNode {
   return {
     kind: "notes",
-    children: props.children,
+    children: normalizeTextChildren(props.children),
   };
 }
 
@@ -166,4 +186,12 @@ function normalizeChildren(
   }
 
   return Array.isArray(children) ? children : [children];
+}
+
+function normalizeTextChildren(children: NotesProps["children"]): string {
+  if (children === undefined) {
+    return "";
+  }
+
+  return Array.isArray(children) ? children.join("") : children;
 }

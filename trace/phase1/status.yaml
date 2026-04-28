@@ -305,6 +305,42 @@ batches:
           - stop before Phase 2 work
     next_batch: null
 
+post_closeout_remediations:
+  REV_P1_selected_builder_remediation:
+    status: complete
+    completed_at: "2026-04-28 18:11 +0800"
+    source_review: trace/phase1/review-phase1-closeout.md
+    scope:
+      selected_findings: [REV-P1-001, REV-P1-002, REV-P1-003]
+      deferred_findings: [REV-P1-004]
+      boundary: "No CONTRACT_FROZEN specs or Accepted ADRs modified."
+    remediations:
+      - id: REV-P1-001
+        summary: "TSX component authoring surface covered by typecheck."
+        tests:
+          - packages/core/src/public-tsx-api.fixture.tsx
+        implementation:
+          - packages/core/src/jsx-runtime.ts
+          - packages/core/src/typed-api/primitives.ts
+          - packages/core/src/index.ts
+          - packages/core/package.json
+          - tsconfig.json
+      - id: REV-P1-002
+        summary: "Computed step resolution exits loading and shifts later anchors."
+        tests:
+          - packages/core/src/compiler-runtime.closeout.test.ts
+        implementation:
+          - packages/core/src/runtime/createRuntime.ts
+          - packages/core/src/index.ts
+      - id: REV-P1-003
+        summary: "Browser readiness fixture now uses a public render-safe DOM helper."
+        tests:
+          - tests/browser/render-safe-preview.spec.ts
+        implementation:
+          - packages/core/src/render-safe/domAdapter.ts
+          - packages/core/src/index.ts
+          - tests/browser/cadenza-browser-entry.ts
+
 exit_criteria:
   all_phase1_scenarios_green:
     status: met

@@ -32,6 +32,8 @@ echo "  scout      →  gemini-3-1-pro    via  gemini-cli"
 echo "  architect  →  claude-opus-4-7   via  claude-code"
 echo "       (or)  →  gpt-5-5           via  codex"
 echo "  builder    →  gpt-5-5           via  codex"
+echo "  reviewer   →  gpt-5-5           via  codex"
+echo "  wizard     →  gpt-5-5           via  codex"
 
 echo ""
 if [ -n "${CADENZA_AGENT_ROLE:-}" ]; then
@@ -50,6 +52,7 @@ echo ""
 echo "Read order (AGENTS.md §1):"
 echo "  AGENTS.md → STATUS.yaml → docs/adr/README.md → analysis-final.md §0"
 echo "  → prompt/PHASE<N>_KICK_<ROLE>.md → spec/<phase>/ → trace/<phase>/tracker.md"
+echo "  → memory/index.md only when prior lessons are relevant"
 echo "==============================="
 echo ""
 

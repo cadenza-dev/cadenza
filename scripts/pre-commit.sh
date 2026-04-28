@@ -13,6 +13,8 @@ pnpm -s lint
 pnpm -s format:check
 pnpm -s spec:lint
 pnpm -s phase:check
+pnpm -s check:harness
+pnpm -s check:memory
 markdownlint-cli2 "**/*.md"
 find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
 git diff --check --cached

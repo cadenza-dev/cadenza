@@ -2,6 +2,7 @@ import type { TimelineMap, TimelineResource } from "../compiler/compile.js";
 import { type Cursor, cursorAtFrame } from "../compiler/cursor.js";
 import type { CadenzaDiagnostic } from "../diagnostics/types.js";
 import type { ResourceReadiness } from "../render-safe/readiness.js";
+import type { DurationToken } from "../typed-api/primitives.js";
 
 export type SeekPlayer = {
   getCurrentFrame?(): number;
@@ -31,6 +32,11 @@ export type CadenzaRuntime = {
   goto(slideId: string, stepIndex?: number): void;
   next(): void;
   previous(): void;
+  resolveComputedStep(
+    slideId: string,
+    stepIndex: number,
+    duration: DurationToken,
+  ): void;
   getCursor(): Cursor;
   getDiagnostics(): CadenzaDiagnostic[];
   getPresenterMetadata(): PresenterMetadata;
@@ -267,6 +273,38 @@ export function createRuntime(
       currentAnchorIndex = anchorIndexForCursor(anchors, getCursor());
       seekToAnchor(Math.max(currentAnchorIndex - 1, 0));
     },
+    resolveComputedStep(slideId, stepIndex, duration) {
+      const anchorIndex = findAnchorIndex(anchors, slideId, stepIndex);
+      const anchor = anchors[anchorIndex];
+      const step = stepForAnchor(runtimeTimeline, anchor);
+
+      if (!step || step.kind !== "computed" || !step.pending) {
+        throw new RangeError(
+          `Computed step ${slideId}:${stepIndex} is not pending.`,
+        );
+      }
+
+      const durationFrames = durationToFrames(duration, runtimeTimeline.fps);
+      if (durationFrames <= 0) {
+        throw new RangeError("Computed step resolution duration must be > 0.");
+      }
+
+      const oldEnd = step.segment[1];
+      step.segment[1] = step.segment[0] + durationFrames;
+      step.pending = undefined;
+      shiftTimelineAfterResolvedStep(
+        runtimeTimeline,
+        slideId,
+        stepIndex,
+        oldEnd,
+        durationFrames,
+      );
+      anchors = collectStepAnchors(runtimeTimeline);
+
+      if (loadingAnchorIndex === anchorIndex) {
+        seekToAnchor(anchorIndex);
+      }
+    },
     getCursor() {
       return getCursor();
     },
@@ -430,6 +468,43 @@ function shiftTimelineAfter(
   timeline.totalFrames += delta;
 }
 
+function shiftTimelineAfterResolvedStep(
+  timeline: TimelineMap,
+  slideId: string,
+  stepIndex: number,
+  frame: number,
+  delta: number,
+): void {
+  for (const slide of timeline.slides) {
+    if (slide.slideId === slideId) {
+      slide.segment[1] += delta;
+
+      for (const step of slide.steps) {
+        if (step.stepIndex !== stepIndex) {
+          shiftSegment(step.segment, frame, delta);
+        }
+      }
+      if (slide.transitionOut) {
+        shiftSegment(slide.transitionOut.segment, frame, delta);
+      }
+      continue;
+    }
+
+    shiftSegment(slide.segment, frame, delta);
+    for (const step of slide.steps) {
+      shiftSegment(step.segment, frame, delta);
+    }
+    if (slide.transitionIn) {
+      shiftSegment(slide.transitionIn.segment, frame, delta);
+    }
+    if (slide.transitionOut) {
+      shiftSegment(slide.transitionOut.segment, frame, delta);
+    }
+  }
+
+  timeline.totalFrames += delta;
+}
+
 function shiftSegment(
   segment: [number, number],
   frame: number,
@@ -495,4 +570,16 @@ function firstMissingResource(
       !degradedResourceIds.has(resource.resourceId) &&
       !readiness.isReady(resource.resourceId),
   );
+}
+
+function durationToFrames(duration: DurationToken, fps: number): number {
+  if (typeof duration === "number") {
+    return duration;
+  }
+
+  if (duration.endsWith("ms")) {
+    return Math.round((Number.parseFloat(duration) / 1000) * fps);
+  }
+
+  return Math.round(Number.parseFloat(duration) * fps);
 }
