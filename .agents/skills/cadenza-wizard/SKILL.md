@@ -76,6 +76,13 @@ The handoff should state the completed phase evidence, accepted Reviewer
 findings/remediations, deferred governance work, current roadmap scope, and
 the next Architect's pre-flight checks.
 
+If the maintainer also opens the next phase and asks for an initial
+`trace/phase<N+1>/status.yaml`, keep it as a minimal recovery scaffold: phase
+identity, handoff routing, and verified entry conditions only. Do not pre-fill
+future spec file names, exit criteria, Builder batches, or implementation
+evidence before Architect Stage A/B has produced accepted artifacts. Put
+prospective guidance in the kick file or handoff note instead.
+
 ## Handoff Checklist
 
 - Name the Wizard mode and the approved identity.

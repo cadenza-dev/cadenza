@@ -1,5 +1,18 @@
 # Phase 2 Tracker
 
+## 2026-04-29 02:47 +0800 — Phase status scaffold corrected
+
+- Trigger: maintainer noticed that the initial `trace/phase2/status.yaml`
+  pre-filled future Architect-stage details before Stage A/B artifacts existed.
+- Scope: shrank `trace/phase2/status.yaml` back to a minimal recovery scaffold:
+  phase identity, handoff routing, verified entry conditions, and an explicit
+  note that detailed stage status waits for accepted Architect artifacts.
+- Workflow rule: updated `trace/README.md`, `docs/agentic-workflow.md`, and the
+  `cadenza-wizard` skill so future phase-open status files do not pre-commit
+  to spec names, exit criteria, Builder batches, or implementation evidence.
+- Memory: recorded maintainer-approved lesson
+  `MEM-20260429-minimal-phase-status-scaffold` under `memory/lessons/human/`.
+
 ## 2026-04-29 02:22 +0800 — Phase 2 opened for Architect
 
 - Startup identity: proceeded as Architect with `GPT-5-family` / `codex` after

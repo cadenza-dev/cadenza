@@ -195,6 +195,14 @@ file and optional phase handoff note. The maintainer (not the agent) flips
 `STATUS.yaml.current_phase` to the next phase and archives the closing state in
 `trace/<phase>/` as the final tracker entry.
 
+When a new phase is opened, its initial `trace/<next-phase>/status.yaml` stays
+minimal: phase identity, handoff routing, and verified entry conditions only.
+Prospective Stage A files, Stage B freeze criteria, Builder batches, and
+implementation evidence belong in the Architect kick file or handoff note until
+the Architect has actually produced Stage A/B artifacts and the maintainer has
+accepted them. Architect then expands `status.yaml` at the Stage A and Stage B
+boundaries with the real contract set and exit criteria.
+
 Bootstrap Wizard is the same role in an initial-start mode: it runs before Phase
 0 Architect when the maintainer has accepted a Scout brief but no Architect kick
 exists yet. It may create `prompt/PHASE0_KICK_ARCHITECT.md` and a matching

@@ -25,6 +25,14 @@ trace/phase<N>/
   but does not flip the root phase pointer.
 - Neither file is `CONTRACT_FROZEN`. They are execution logs, not contracts.
 
+At phase open, the new phase's `status.yaml` should be a minimal recovery
+scaffold only: phase identity, routing handoff, and verified entry conditions.
+Do not pre-fill future spec file names, exit criteria, Builder batches, or
+implementation evidence before the Architect has completed Stage A/B and the
+maintainer has accepted the resulting contracts. Put prospective guidance in
+the kick file or handoff note instead; record it in `status.yaml` only after
+the corresponding artifact exists.
+
 ## Naming convention
 
 - `phase0`, `phase1`, `phase2`, … — primary phases.
