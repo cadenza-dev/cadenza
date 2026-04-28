@@ -54,19 +54,19 @@ The current roadmap defines Phase 2 as **React + Remotion Preview Adapter**:
 Phase 1's all-domain MVP fixture should be the inherited integration input for
 Phase 2 contracts.
 
-## Drift to Resolve Before Contract Work
+## Resolved Scope Drift and WIP Boundary
 
-There is phase-name drift:
+The root phase index has been reconciled with the roadmap:
 
 - `ROADMAP.md` says Phase 2 is "React + Remotion Preview Adapter".
-- `STATUS.yaml` and `EXECUTION_TRACKER.md` still list Phase 2 as "AI Authoring
-  Strengthening".
-- `wip/future-support/phase-2-candidates.md` also reflects the older
-  AI-authoring interpretation.
+- `STATUS.yaml` and `EXECUTION_TRACKER.md` now list Phase 2 as "React +
+  Remotion Preview Adapter".
+- `wip/future-support/phase-2-candidates.md` still reflects the older
+  AI-authoring interpretation and must be treated as re-routing material.
 
-The next Architect should not silently promote the old Phase 2 WIP. Reconcile
-the phase name and route old AI-authoring candidates to Phase 3+ unless a Stage
-A decision proves they are required for the preview adapter.
+The next Architect should not silently promote the old Phase 2 WIP. Route old
+AI-authoring candidates to Phase 3+ unless a Stage A decision proves they are
+required for the preview adapter.
 
 ## Architect Follow-up Queue
 
@@ -74,7 +74,7 @@ Recommended first actions for Phase 2 Architect:
 
 1. Confirm maintainer approval to open Phase 2 or explicitly authorize pre-open
    Architect planning.
-2. Resolve root phase-name drift before writing Phase 2 contracts.
+2. Confirm root phase scope remains aligned before writing Phase 2 contracts.
 3. Draft Stage A `spec/phase2/` contracts for package boundary, Remotion
    preview adapter, render-safe Remotion behavior, browser validation, test
    matrix, and traceability.
@@ -87,7 +87,7 @@ Recommended first actions for Phase 2 Architect:
 The next Architect entrypoint is:
 
 ```text
-Follow prompt/PHASE2_KICK_ARCHITECT.md as Cadenza Phase 2 Architect. Start Stage A by reconciling Phase 2 scope/name drift, then draft the React + Remotion Preview Adapter contracts.
+Follow prompt/PHASE2_KICK_ARCHITECT.md as Cadenza Phase 2 Architect. Start Stage A by confirming maintainer authorization, then draft the React + Remotion Preview Adapter contracts.
 ```
 
 Use the longer identity-approval wording only if the Startup Protocol pauses on

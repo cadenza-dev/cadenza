@@ -1,6 +1,6 @@
 # ADR 0012: Reviewer, Wizard, and Project Memory Workflow
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-04-28
 - **Deciders**: @DrEden33773
 - **References**: [agentic-workflow §2](../agentic-workflow.md), [cross-agent-hook-architecture](../design/cross-agent-hook-architecture.md)
@@ -26,7 +26,7 @@ ADRs, status files, and trace records.
 
 ## Decision
 
-Introduce three workflow additions on the experimental branch:
+Adopt the Reviewer, Wizard, remediation handoff, and project memory workflow:
 
 1. **Reviewer**: a review role backed by the `cadenza-reviewer` skill.
    Reviewer defaults to read-only analysis, compares Builder output against
