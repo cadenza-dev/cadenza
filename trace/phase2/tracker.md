@@ -1,5 +1,39 @@
 # Phase 2 Tracker
 
+## 2026-04-29 07:34 +0800 — B2.7 Phase 2 trace closeout complete
+
+- Startup identity: proceeded as Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED: `pnpm test -- scripts/traceability-coverage.test.ts` failed because
+  the remaining closeout requirements from
+  `trace/phase2/traceability-coverage.md` had no trace-status evidence.
+- GREEN: updated `trace/phase2/status.yaml` with a B2.7 closeout batch that
+  records explicit dispositions for `PKG-004`, `PKG-006`, `PRAD-007`,
+  `PRAD-008`, `RSRM-009`, `BROW-007`, and `BROW-009`.
+- Closeout disposition: `PKG-004`, `BROW-007`, `RSRM-009`, and `BROW-009` are
+  satisfied by existing Phase 2 trace evidence or non-goal evidence;
+  `PKG-006`, `PRAD-008`, and `PRAD-007` are explicitly waived for Builder
+  closeout as optional/deferred depth.
+- Regenerated `trace/phase2/traceability-coverage.md`; the report now records
+  all 38 Phase 2 requirements in specs, test matrix, and traceability matrix,
+  with no promoted blocking coverage findings.
+- Updated `trace/phase2/status.yaml` exit criteria so Builder batches are
+  `met` and the next route is Phase 2 Reviewer closeout; root
+  `STATUS.yaml.current_phase` was not changed.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no custom-control hook implementation, Remotion Player error
+  aggregation, export claim, hosted-rendering claim, Phase 3 AI repair-loop
+  work, frozen spec edit, Accepted ADR edit, or root phase pointer flip.
+- Next step: Phase 2 Reviewer review from the B2.7 trace closeout artifacts.
+
 ## 2026-04-29 06:59 +0800 — B2.6 TC-TRAC-001/TC-TRAC-005 traceability coverage complete
 
 - Startup identity: proceeded as Builder with `GPT-5` / `codex` after

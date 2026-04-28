@@ -52,10 +52,24 @@ describe("TC-TRAC-001 traceability coverage report", () => {
     expect(readFileSync("spec/phase1/SPEC_TEST_MATRIX.md", "utf8")).toBe(
       phase1MatrixBefore,
     );
-    const uncoveredBrowserNonGoal = ["BROW", "009"].join("-");
-    expect(report.findings).toContain(
-      `${uncoveredBrowserNonGoal} lacks current trace, test, or implementation evidence.`,
-    );
+    const closeoutRequirementIds = [
+      ["BROW", "007"].join("-"),
+      ["BROW", "009"].join("-"),
+      ["PKG", "004"].join("-"),
+      ["PKG", "006"].join("-"),
+      ["PRAD", "007"].join("-"),
+      ["PRAD", "008"].join("-"),
+      ["RSRM", "009"].join("-"),
+    ];
+
+    for (const requirementId of closeoutRequirementIds) {
+      const coverage = report.requirements.find(
+        (requirement) => requirement.id === requirementId,
+      );
+
+      expect(coverage?.traceStatusEvidenceFiles.length).toBeGreaterThan(0);
+    }
+    expect(report.findings).toEqual([]);
   });
 });
 
