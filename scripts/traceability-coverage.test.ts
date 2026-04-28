@@ -32,6 +32,9 @@ describe("TC-TRAC-001 traceability coverage report", () => {
     expect(report.sources.specFiles).toContain(
       "spec/phase2/SPEC_TRACEABILITY_COVERAGE.md",
     );
+    expect(report.sources.testFiles).not.toContainEqual(
+      expect.stringContaining("\\"),
+    );
     expect(report.nonGoals).toEqual([
       {
         acceptanceScenarioPresent: false,

@@ -301,7 +301,6 @@ export function formatTraceabilityCoverageMarkdown(
     "## Findings",
     "",
     findings,
-    "",
   ].join("\n")}\n`;
 }
 
@@ -324,7 +323,7 @@ function walkFiles(repoRoot: string, target: string): string[] {
 
   const stats = statSync(absolute);
   if (stats.isFile()) {
-    return [path.relative(repoRoot, absolute)];
+    return [toRepoPath(path.relative(repoRoot, absolute))];
   }
 
   const files: string[] = [];
@@ -346,9 +345,9 @@ function walkFiles(repoRoot: string, target: string): string[] {
     const childRelative = path.relative(repoRoot, child);
     const childStats = statSync(child);
     if (childStats.isDirectory()) {
-      files.push(...walkFiles(repoRoot, childRelative));
+      files.push(...walkFiles(repoRoot, toRepoPath(childRelative)));
     } else {
-      files.push(childRelative);
+      files.push(toRepoPath(childRelative));
     }
   }
   return files;
@@ -586,6 +585,10 @@ function markdownTable(headers: string[], rows: string[][]): string {
     `| ${headers.map(() => ":---").join(" | ")} |`,
     ...rows.map((row) => `| ${row.join(" | ")} |`),
   ].join("\n");
+}
+
+function toRepoPath(file: string): string {
+  return file.split(path.sep).join("/");
 }
 
 function argValue(args: string[], name: string): string | null {

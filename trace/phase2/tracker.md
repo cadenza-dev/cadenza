@@ -37,6 +37,10 @@
 - Browser verification used elevated permissions after the default sandbox
   blocked Chromium launch with `sandbox_host_linux.cc` /
   `Operation not permitted`.
+- Push CI repair: the first rerun showed Windows `pnpm test` evidence paths
+  using platform separators from `path.relative()`; normalized scanner output
+  to repo-relative POSIX paths so `scripts/traceability-coverage.test.ts`
+  matches on Windows.
 - Scope preserved: no active-phase-only hard gate, frozen Phase 1 spec edit,
   export claim, hosted-rendering claim, Phase 3 AI repair-loop work, frozen
   spec edit, or Accepted ADR edit.
