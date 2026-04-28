@@ -11,10 +11,13 @@
   `../../.agents/skills/cadenza-onboard`.
 - Classification: harness script logic only; no core implementation or product
   test logic change was required.
-- Fix: normalize backslashes to forward slashes before comparing Cadenza skill
-  mirror symlink targets in `scripts/check-harness.ts`.
-- Verification: local `pnpm check:harness` passed; follow-up CI rerun pending
-  on the pushed fix commit.
+- Fixes: normalize backslashes to forward slashes before comparing Cadenza
+  skill mirror symlink targets in `scripts/check-harness.ts`; after the next
+  Windows run reached `pnpm check:memory`, keep recursive memory paths
+  repo-relative/POSIX-style in `scripts/check-memory.ts` so README files are
+  excluded consistently on Windows.
+- Verification: local `pnpm check:harness` and `pnpm check:memory` passed;
+  follow-up CI rerun pending on the pushed fix commit.
 
 ## 2026-04-28 18:11 +0800 — Builder remediation for selected closeout findings green
 

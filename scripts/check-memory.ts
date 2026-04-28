@@ -31,7 +31,7 @@ function walkMarkdown(dir: string): string[] {
 
   const files: string[] = [];
   for (const entry of readdirSync(absolute)) {
-    const child = path.join(dir, entry);
+    const child = path.posix.join(dir, entry);
     const stats = statSync(repoPath(child));
     if (stats.isDirectory()) {
       files.push(...walkMarkdown(child));
