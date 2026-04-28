@@ -18,6 +18,13 @@ import {
   Step,
   validatePreviewLayout,
 } from "@cadenza-dev/core";
+import { createAllDomainMvpFixture } from "@cadenza-dev/core/fixtures/allDomainMvp";
+import {
+  CadenzaPlayer,
+  createCadenzaPreviewMount,
+} from "@cadenza-dev/preview-remotion";
+import React from "react";
+import { createRoot, type Root } from "react-dom/client";
 
 type BrowserFixture = {
   clickCalls(): string[];
@@ -40,6 +47,24 @@ type BrowserFixture = {
     requests: MediaFrameRequest[],
   ): MediaFrameValidationResult;
   validateTypographyOverflow(source: string): CadenzaDiagnostic[];
+};
+
+type RemotionPreviewFixture = {
+  mountAllDomainMvpPreview(
+    selector: string,
+    config: { compositionHeight: number; compositionWidth: number },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
 };
 
 type ControlledReadinessState = {
@@ -66,6 +91,7 @@ type MediaFrameValidationResult = {
 declare global {
   interface Window {
     CadenzaBrowserFixture: BrowserFixture;
+    CadenzaRemotionPreview: RemotionPreviewFixture;
   }
 }
 
@@ -82,6 +108,7 @@ let controlledReadiness:
       unbind: () => void;
     }
   | undefined;
+let remotionPreviewRoot: Root | undefined;
 
 const runtime = {
   getCursor() {
@@ -312,6 +339,46 @@ window.CadenzaBrowserFixture = {
         source,
       },
     ]);
+  },
+};
+
+window.CadenzaRemotionPreview = {
+  mountAllDomainMvpPreview(selector, config) {
+    const host = document.querySelector(selector);
+    if (!(host instanceof HTMLElement)) {
+      throw new Error(`Missing Remotion preview host '${selector}'.`);
+    }
+
+    const fixture = createAllDomainMvpFixture();
+    const playerProps = createCadenzaPreviewMount({
+      compositionHeight: config.compositionHeight,
+      compositionWidth: config.compositionWidth,
+      timeline: fixture.previewTimeline,
+    });
+
+    remotionPreviewRoot?.unmount();
+    remotionPreviewRoot = createRoot(host);
+    remotionPreviewRoot.render(
+      React.createElement(CadenzaPlayer, {
+        compositionHeight: config.compositionHeight,
+        compositionWidth: config.compositionWidth,
+        deck: fixture.deck,
+        timeline: fixture.previewTimeline,
+      }),
+    );
+
+    return {
+      playerProps: {
+        compositionHeight: playerProps.compositionHeight,
+        compositionWidth: playerProps.compositionWidth,
+        durationInFrames: playerProps.durationInFrames,
+        fps: playerProps.fps,
+      },
+      timeline: {
+        fps: fixture.previewTimeline.fps,
+        totalFrames: fixture.previewTimeline.totalFrames,
+      },
+    };
   },
 };
 

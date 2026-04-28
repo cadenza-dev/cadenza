@@ -118,10 +118,41 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.2
+      scenario: TC-PRAD-001
+      status: complete
+      completed_at: "2026-04-29 05:05 +0800"
+      requirements: [PKG-003, PKG-005, PRAD-001, PRAD-002, BROW-001, BROW-002]
+      evidence:
+        tests:
+          - tests/browser/remotion-preview.spec.ts
+          - packages/preview-remotion/src/package-boundary.test.ts
+        code:
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - packages/preview-remotion/src/playerProps.ts
+          - packages/preview-remotion/src/index.ts
+          - tests/browser/cadenza-browser-entry.ts
+          - package.json
+        lockfile:
+          - pnpm-lock.yaml
+      boundary: "Minimal real Player mount and timeline-derived Player props only; navigation, frame synchronization, readiness buffering, and visual sanity remain deferred."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (passed with elevated permissions after sandbox Chromium launch was blocked)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
-    id: B2.2
-    scenario: TC-PRAD-001
-    summary: "Minimal real Player mount for the all-domain fixture."
+    id: B2.3
+    scenario: TC-PRAD-003 / TC-PRAD-004
+    summary: "Navigation and frame/cursor synchronization through runtime anchors and Player frame events."
 
 exit_criteria:
   phase2_specs_frozen:

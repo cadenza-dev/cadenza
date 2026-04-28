@@ -78,10 +78,13 @@ function readSourceFiles(relativeDir: string): string[] {
     if (entry.isDirectory()) {
       return readSourceFiles(path.relative(process.cwd(), child));
     }
-    if (!entry.isFile() || !entry.name.endsWith(".ts")) {
+    if (
+      !entry.isFile() ||
+      !(entry.name.endsWith(".ts") || entry.name.endsWith(".tsx"))
+    ) {
       return [];
     }
-    if (entry.name.endsWith(".test.ts")) {
+    if (entry.name.endsWith(".test.ts") || entry.name.endsWith(".test.tsx")) {
       return [];
     }
 

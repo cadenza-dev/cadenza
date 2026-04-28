@@ -1,5 +1,41 @@
 # Phase 2 Tracker
 
+## 2026-04-29 05:05 +0800 — B2.2 TC-PRAD-001 minimal real Player mount complete
+
+- Startup identity: proceeded as Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED: `pnpm test:browser -- tests/browser/remotion-preview.spec.ts` first hit
+  the known sandbox Chromium launch failure, then failed under elevated
+  Chromium because `window.CadenzaRemotionPreview.mountAllDomainMvpPreview` did
+  not exist.
+- GREEN: added a real `CadenzaPlayer` preview surface backed by
+  `@remotion/player`, rendering the Phase 1 all-domain fixture through a React
+  tree and exposing observable typed API content, render-safe resource
+  declarations, and presenter notes.
+- Player props now flow through `createCadenzaPreviewMount` /
+  `playerProps.ts`: `durationInFrames` and `fps` come from the compiled
+  `TimelineMap`, while `compositionWidth` and `compositionHeight` come from
+  preview configuration.
+- Browser harness: extended `tests/browser/cadenza-browser-entry.ts` with
+  `CadenzaRemotionPreview.mountAllDomainMvpPreview()` and added
+  `tests/browser/remotion-preview.spec.ts` for `PRAD-001`, `PRAD-002`,
+  `BROW-001`, and `BROW-002`.
+- Added root React type packages required by the new typed React/Remotion
+  surface; preview runtime dependencies remain on the preview package peer
+  boundary.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no navigation/frame-sync behavior, render-safe buffering,
+  visual sanity screenshot gate, export claim, hosted-rendering claim, Phase 3
+  AI repair-loop work, frozen spec edit, or Accepted ADR edit.
+
 ## 2026-04-29 04:41 +0800 — B2.1 CI markdownlint repair
 
 - Trigger: pushed B2.1 commit `e7e7e85` failed the GitHub Actions `Markdown
