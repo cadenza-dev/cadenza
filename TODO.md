@@ -1,15 +1,6 @@
 # TODO
 
-- Experimental branch `exp/rev-wiz-mem` short-term closure checklist:
-  - Verify the `cadenza-reviewer` skill on one completed Builder closeout.
-  - Run the full local gate stack after the reviewer/wizard/memory harness
-    upgrade lands.
-  - Use Reviewer findings plus maintainer selection to produce the generic
-    Builder remediation launch phrase.
-  - After Reviewer acceptance, use Wizard to prepare `PHASE2_KICK_ARCHITECT.md`
-    and, if useful, a phase handoff note.
-  - Merge back to local `main` only after the minimum loop is exercised and the
-    maintainer accepts the branch.
+- Merge PR #2 back to `main` only after maintainer approval.
 - Medium-term follow-ups for the reviewer/wizard/memory workflow:
   - Add a reusable `prompt/PHASE<N>_KICK_REVIEWER.md` template if review starts
     happening at more than phase closeout.
