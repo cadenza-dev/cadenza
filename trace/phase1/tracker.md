@@ -1,5 +1,15 @@
 # Phase 1 Tracker
 
+## 2026-04-29 02:06 +0800 — CI branch coverage and concurrency
+
+- Scope: changed the CI workflow so direct pushes to any branch trigger CI,
+  while keeping branch protection/ruleset enforcement limited to protected
+  branches.
+- Concurrency: added a workflow-level concurrency group keyed by workflow name,
+  pull-request head repository, and branch/ref name so newer runs cancel older
+  runs for the same branch without colliding across forks.
+- Verification: repository gates passed after the workflow update.
+
 ## 2026-04-29 01:14 +0800 — CI cross-platform routing refined
 
 - Scope: refined the change-domain CI split so `governance` and `format` now
