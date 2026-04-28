@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,15 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines the browser-observable evidence Phase 2 must
+This frozen contract defines the browser-observable evidence Phase 2 must
 produce before the React + Remotion Preview Adapter can close. Validation must
 prove real preview behavior, not only unit-level runtime behavior or a
 controlled DOM harness.
 
-## Stage A Design Options
+## Approved Design Decisions
+
+The maintainer approved the Stage A recommendation and authorized freeze on
+2026-04-29.
 
 ### Browser Evidence Depth
 
@@ -21,19 +24,9 @@ controlled DOM harness.
 2. DOM/state assertions plus targeted screenshots or pixel sanity checks.
 3. Full screenshot-diff suite.
 
-**Leaning**: option 2. Phase 2 needs enough visual evidence to prove the Player
+**Decision**: option 2. Phase 2 needs enough visual evidence to prove the Player
 is nonblank and correctly framed, but full screenshot diffing remains too noisy
 for a required MVP gate.
-
-- **FC-ID**: FC-BROW-01
-- **Question**: How much visual evidence is required for Phase 2 browser
-  validation?
-- **Options considered**:
-  1. DOM and state assertions only.
-  2. DOM/state assertions plus targeted screenshot or pixel sanity checks.
-  3. Full screenshot-diff suite.
-- **Leaning**: option 2.
-- **Must resolve before**: Stage B freeze.
 
 ### Fixture Media Strategy
 
@@ -41,7 +34,7 @@ for a required MVP gate.
 2. Use generated data URLs and synthetic media in tests.
 3. Depend on external network assets.
 
-**Leaning**: option 1 or 2, but never option 3. Browser validation must be
+**Decision**: option 1 or 2, but never option 3. Browser validation must be
 hermetic in CI.
 
 ## Requirements

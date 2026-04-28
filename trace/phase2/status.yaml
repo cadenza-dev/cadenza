@@ -1,7 +1,7 @@
 version: 1
 phase: "2"
 phase_name: "React + Remotion Preview Adapter"
-status: architect_stage_a_open
+status: builder_ready
 timezone: Asia/Shanghai
 opened_at: "2026-04-29 02:22 +0800"
 
@@ -16,7 +16,7 @@ handoff:
   source_trace: trace/phase1/
   kick_file: prompt/PHASE2_KICK_ARCHITECT.md
   active_role: architect
-  summary: "Start Phase 2 Architect Stage A for the React + Remotion Preview Adapter."
+  summary: "Phase 2 contracts are frozen; Builder should start from prompt/PHASE2_KICK_BUILDER.md."
 
 entry_conditions:
   phase1_closed:
@@ -33,5 +33,65 @@ entry_conditions:
     artifact: STATUS.yaml
 
 phase_scaffold:
-  status: minimal
-  note: "Detailed Architect stage status and exit criteria are intentionally omitted until Stage A/B artifacts exist and are accepted."
+  status: superseded_by_architect_artifacts
+  note: "The initial minimal scaffold has been expanded only after Stage A/B artifacts existed and were accepted."
+
+architect_stage_a:
+  status: complete
+  accepted_at: "2026-04-29 03:41 +0800"
+  contracts:
+    - spec/phase2/SPEC_PACKAGE_BOUNDARY.md
+    - spec/phase2/SPEC_PREVIEW_ADAPTER.md
+    - spec/phase2/SPEC_RENDER_SAFE_REMOTION.md
+    - spec/phase2/SPEC_BROWSER_VALIDATION.md
+    - spec/phase2/SPEC_TRACEABILITY_COVERAGE.md
+    - spec/phase2/SPEC_TEST_MATRIX.md
+    - spec/phase2/SPEC_TRACEABILITY.md
+  accepted_decisions:
+    package_shape: "Use a dedicated @cadenza-dev/preview-remotion package."
+    transition_playback_policy: "Animate transition segments, then pause at semantic anchors."
+    player_frame_event_source: "Use frameupdate for internal cursor synchronization."
+    readiness_bridge: "Use Cadenza readiness registry plus Remotion buffering bridge."
+    font_readiness_source: "Use browser font readiness with explicit test fallback."
+    browser_visual_evidence_depth: "Require targeted visual sanity checks, not full screenshot diff."
+    traceability_coverage_level: "Use a non-mutating coverage report in Phase 2."
+  freeze:
+    status: authorized
+    authorized_at: "2026-04-29 03:49 +0800"
+
+architect_stage_b:
+  status: complete
+  frozen_at: "2026-04-29 03:49 +0800"
+  frozen_contracts:
+    - spec/phase2/SPEC_PACKAGE_BOUNDARY.md
+    - spec/phase2/SPEC_PREVIEW_ADAPTER.md
+    - spec/phase2/SPEC_RENDER_SAFE_REMOTION.md
+    - spec/phase2/SPEC_BROWSER_VALIDATION.md
+    - spec/phase2/SPEC_TRACEABILITY_COVERAGE.md
+    - spec/phase2/SPEC_TEST_MATRIX.md
+    - spec/phase2/SPEC_TRACEABILITY.md
+  builder_kick_file: prompt/PHASE2_KICK_BUILDER.md
+
+builder_handoff:
+  status: ready
+  active_role: builder
+  kick_file: prompt/PHASE2_KICK_BUILDER.md
+  next_batch:
+    id: B2.1
+    scenario: TC-PKG-001
+    summary: "Public preview package boundary and import/dependency contract."
+  boundary: "No MP4/PDF export, hosted rendering, external alpha usage, or public API stability claims in Phase 2."
+
+exit_criteria:
+  phase2_specs_frozen:
+    status: met
+    artifact: spec/phase2/
+  builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE2_KICK_BUILDER.md
+  builder_batches_complete:
+    status: pending
+    artifact: trace/phase2/tracker.md
+  reviewer_closeout_accepted:
+    status: pending
+    artifact: trace/phase2/

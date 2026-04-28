@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,14 +8,17 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines the package and public import boundary for the
+This frozen contract defines the package and public import boundary for the
 React + Remotion Preview Adapter. Phase 2 must keep the Phase 1 semantic core
 stable while adding a real browser preview layer backed by `@remotion/player`.
 
 Phase 2 does not claim MP4 export, PDF export, hosted rendering, external alpha
 usage, or public API stability.
 
-## Stage A Design Options
+## Approved Design Decisions
+
+The maintainer approved the Stage A recommendation and authorized freeze on
+2026-04-29.
 
 ### Preview Package Shape
 
@@ -23,21 +26,9 @@ usage, or public API stability.
 2. Add a `@cadenza-dev/core/remotion` subpath export.
 3. Keep the adapter as test-only infrastructure.
 
-**Leaning**: option 1. A dedicated package keeps React/Remotion peer
+**Decision**: option 1. A dedicated package keeps React/Remotion peer
 dependencies out of `@cadenza-dev/core` while making the preview adapter a
 real public surface instead of a browser-test artifact.
-
-- **FC-ID**: FC-PKG-01
-- **Question**: Should Phase 2 introduce a dedicated
-  `@cadenza-dev/preview-remotion` package, or keep the adapter under
-  `@cadenza-dev/core` as a subpath?
-- **Options considered**:
-  1. Dedicated `@cadenza-dev/preview-remotion` package.
-  2. `@cadenza-dev/core/remotion` subpath export.
-  3. Test-only adapter with no public package.
-- **Leaning**: option 1, because it preserves the semantic-core boundary and
-  makes Remotion dependencies explicit.
-- **Must resolve before**: Stage B freeze.
 
 ### Fixture Ownership
 
@@ -46,7 +37,7 @@ real public surface instead of a browser-test artifact.
 2. Move the all-domain fixture into the preview package.
 3. Duplicate a preview-specific fixture.
 
-**Leaning**: option 1. The all-domain fixture proves the inherited semantic
+**Decision**: option 1. The all-domain fixture proves the inherited semantic
 core; Phase 2 should render that fixture rather than redefine it.
 
 ## Requirements

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,14 +8,17 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines how Cadenza maps the Phase 1 compiler/runtime to a
+This frozen contract defines how Cadenza maps the Phase 1 compiler/runtime to a
 real React + Remotion browser preview backed by `@remotion/player`.
 
 The adapter owns the last mile between semantic presentation intent and
 Remotion Player frame control. It does not own authoring semantics, compiler
 semantics, export, or hosted rendering.
 
-## Stage A Design Options
+## Approved Design Decisions
+
+The maintainer approved the Stage A recommendations and authorized freeze on
+2026-04-29.
 
 ### Navigation Playback Policy
 
@@ -24,19 +27,9 @@ semantics, export, or hosted rendering.
    anchor, then pause.
 3. Let native Player controls decide transition playback.
 
-**Leaning**: option 2. Phase 2 should prove that Remotion preview is real, which
+**Decision**: option 2. Phase 2 should prove that Remotion preview is real, which
 includes transition playback, while preserving deterministic pauses at semantic
 step anchors.
-
-- **FC-ID**: FC-PRAD-01
-- **Question**: Should Cadenza preview animate transition segments or use
-  seek-only navigation for Phase 2?
-- **Options considered**:
-  1. Seek-only semantic navigation.
-  2. Seek-and-play transition segments, then pause at the target anchor.
-  3. Delegate transition behavior to native Player controls.
-- **Leaning**: option 2 for honest preview behavior.
-- **Must resolve before**: Stage B freeze.
 
 ### Frame Event Source
 
@@ -44,19 +37,9 @@ step anchors.
 2. Subscribe to throttled `timeupdate`.
 3. Subscribe only to `seeked`.
 
-**Leaning**: option 1 for internal cursor synchronization, with throttling only
+**Decision**: option 1 for internal cursor synchronization, with throttling only
 for optional UI displays. Remotion's Player docs identify `frameupdate` as the
 event that fires during both playback and seeking whenever the frame changes.
-
-- **FC-ID**: FC-PRAD-02
-- **Question**: Which Remotion Player event should drive Cadenza cursor sync?
-- **Options considered**:
-  1. `frameupdate`.
-  2. `timeupdate`.
-  3. `seeked`.
-- **Leaning**: option 1 for deterministic sync; UI display components may use a
-  throttled derived state.
-- **Must resolve before**: Stage B freeze.
 
 ### Native Player Controls
 
@@ -64,9 +47,9 @@ event that fires during both playback and seeking whenever the frame changes.
 2. Enable native Player controls by default and listen to seeks.
 3. Support both equally from the start.
 
-**Leaning**: option 1 for the default path. Cadenza owns presentation navigation
-semantics; native controls can exist as a debug/developer option if seek events
-still update the Cadenza cursor.
+**Decision**: option 1 for the default path. Cadenza owns presentation
+navigation semantics; native controls can exist as a debug/developer option if
+seek events still update the Cadenza cursor.
 
 ## Requirements
 

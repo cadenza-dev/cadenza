@@ -11,3 +11,10 @@
     [`skill-creator`](/home/eden/.agents/skills/skill-creator/SKILL.md)
     workflow.
   - Promote only maintainer-approved reusable lessons into `memory/`.
+
+- Phase 2 traceability governance follow-up:
+  - After `Phase 2 Builder` completes, review the
+    `REV-P1-004` coverage-report evidence and decide whether to promote an
+    active-phase-only hard gate. Keep this separate from the Phase 2 freeze, do
+    not mutate frozen Phase 1 specs, and prefer a scoped gate that fails only
+    active-phase coverage holes over a global historical blocker.

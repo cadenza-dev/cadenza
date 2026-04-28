@@ -1,9 +1,10 @@
 # Phase 1 Traceability Coverage Follow-up
 
-> Status: WIP planning note, not a contract.
+> Status: Promoted into Phase 2 draft contract.
 > Source date: 2026-04-28.
 > Source finding: `REV-P1-004` in
 > `trace/phase1/review-phase1-closeout.md`.
+> Promoted by: `spec/phase2/SPEC_TRACEABILITY_COVERAGE.md`.
 
 ## Finding Summary
 
@@ -25,8 +26,8 @@ It should not be bundled into the selected Phase 1 Builder remediation for
 
 ## Future Support
 
-During the next Architect governance pass, consider adding a non-mutating
-coverage report or stricter gate that compares requirement IDs across:
+Phase 2 now requires a non-mutating coverage report that compares requirement
+IDs across:
 
 - domain specs under `spec/<phase>/`;
 - `SPEC_TEST_MATRIX.md`;
@@ -36,3 +37,7 @@ coverage report or stricter gate that compares requirement IDs across:
 
 If the frozen Phase 1 test matrix itself must be changed, get explicit
 maintainer approval before editing the frozen spec.
+
+A separate `TODO.md` item tracks the later governance decision: after the first
+Phase 2 Builder slice completes, review whether the report should become an
+active-phase-only hard gate.

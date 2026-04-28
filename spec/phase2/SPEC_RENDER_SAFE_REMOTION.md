@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,15 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines how Phase 1 render-safe semantics become real
+This frozen contract defines how Phase 1 render-safe semantics become real
 browser preview behavior inside Remotion Player. Phase 2 must prove image,
 font, video, typography, media, and content-slot behavior in the preview
 adapter without claiming export support.
 
-## Stage A Design Options
+## Approved Design Decisions
+
+The maintainer approved the Stage A recommendations and authorized freeze on
+2026-04-29.
 
 ### Preview Readiness Mechanism
 
@@ -23,18 +26,8 @@ adapter without claiming export support.
 3. Combined provider/adapter: Cadenza readiness registry plus Remotion preview
    buffering hooks.
 
-**Leaning**: option 3. Phase 1 added a public DOM adapter, but real Remotion
+**Decision**: option 3. Phase 1 added a public DOM adapter, but real Remotion
 preview must also participate in Player buffering behavior.
-
-- **FC-ID**: FC-RSRM-01
-- **Question**: Should Phase 2 implement readiness as DOM bindings only or as a
-  Remotion-aware provider/adapter pair?
-- **Options considered**:
-  1. DOM bindings only.
-  2. Remotion hook bridge only.
-  3. Combined Cadenza readiness registry and Remotion buffering bridge.
-- **Leaning**: option 3.
-- **Must resolve before**: Stage B freeze.
 
 ### Font Readiness Source
 
@@ -42,18 +35,8 @@ preview must also participate in Player buffering behavior.
 2. Explicit `markReady()` only.
 3. Author-provided font loader callback.
 
-**Leaning**: option 1 with explicit fallback. This keeps browser preview honest
+**Decision**: option 1 with explicit fallback. This keeps browser preview honest
 while preserving deterministic tests.
-
-- **FC-ID**: FC-RSRM-02
-- **Question**: Which source marks `SafeFont` ready in browser preview?
-- **Options considered**:
-  1. Browser `FontFaceSet` / `document.fonts`.
-  2. Explicit readiness registry calls only.
-  3. Author-provided loader callback only.
-- **Leaning**: option 1 with option 2 available for tests and unsupported
-  browsers.
-- **Must resolve before**: Stage B freeze.
 
 ## Requirements
 

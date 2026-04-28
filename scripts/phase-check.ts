@@ -234,11 +234,46 @@ function checkPhase2Initial() {
         message: `trace/phase2/status.yaml phase is ${phase2 ?? "(missing)"}, expected 2`,
       });
     }
-    if (phase2Lifecycle !== "architect_stage_a_open") {
+    const allowedPhase2Statuses = new Set([
+      "architect_stage_a_open",
+      "builder_ready",
+    ]);
+    if (
+      phase2Lifecycle === null ||
+      !allowedPhase2Statuses.has(phase2Lifecycle)
+    ) {
       findings.push({
         level: "error",
-        message: `trace/phase2/status.yaml status is ${phase2Lifecycle ?? "(missing)"}, expected architect_stage_a_open`,
+        message: `trace/phase2/status.yaml status is ${phase2Lifecycle ?? "(missing)"}, expected one of ${Array.from(allowedPhase2Statuses).join(", ")}`,
       });
+    }
+
+    if (phase2Lifecycle === "builder_ready") {
+      requirePath("prompt/PHASE2_KICK_BUILDER.md");
+      const phase2Specs = walkFiles("spec/phase2").filter((file) =>
+        file.endsWith(".md"),
+      );
+      if (phase2Specs.length === 0) {
+        findings.push({
+          level: "error",
+          message: "spec/phase2 has no Markdown specs",
+        });
+      }
+      for (const file of phase2Specs) {
+        const text = readText(file);
+        if (!/^Status:\s*CONTRACT_FROZEN$/m.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} is not CONTRACT_FROZEN`,
+          });
+        }
+        if (/Freeze Candidate/i.test(text) || /\*\*FC-ID\*\*:/i.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} contains unresolved Freeze Candidate marker`,
+          });
+        }
+      }
     }
   }
 }

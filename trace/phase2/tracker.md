@@ -1,5 +1,46 @@
 # Phase 2 Tracker
 
+## 2026-04-29 03:49 +0800 — Phase 2 contracts frozen for Builder
+
+- Maintainer explicitly authorized freezing the Phase 2 contracts.
+- Updated all `spec/phase2/SPEC_*.md` files from `CONTRACT_DRAFT` / Stage A to
+  `CONTRACT_FROZEN` / Stage B.
+- Added `prompt/PHASE2_KICK_BUILDER.md` routing Builder from the frozen
+  `SPEC_TEST_MATRIX.md`, starting with `B2.1 / TC-PKG-001`.
+- Updated `STATUS.yaml` and `trace/phase2/status.yaml` to record
+  `builder_ready` without changing `STATUS.yaml.current_phase`.
+- Updated `scripts/phase-check.ts` so the Phase 2 checker accepts the
+  `builder_ready` milestone and verifies frozen Phase 2 specs plus the Builder
+  kick file.
+- Scope boundary preserved: no production code, Accepted ADRs, frozen Phase 1
+  specs, export claims, hosted-rendering claims, or phase pointer changes.
+- Verification after freeze: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
+## 2026-04-29 03:41 +0800 — Stage A decisions accepted, freeze pending
+
+- Maintainer accepted all Phase 2 Stage A recommendation choices.
+- Updated Stage A specs to record approved decisions for package shape,
+  transition playback, Player frame sync, render-safe readiness bridge, font
+  readiness, browser visual evidence depth, and traceability coverage level.
+- Preserved `CONTRACT_DRAFT` status because the maintainer has approved the
+  decisions but has not yet explicitly authorized flipping the Phase 2 specs to
+  `CONTRACT_FROZEN`.
+- Added a `TODO.md` governance follow-up: after the first Phase 2 Builder slice,
+  review whether the `REV-P1-004` non-mutating coverage report should become an
+  active-phase-only hard gate.
+- Marked `wip/architect/phase1-traceability-coverage.md` as promoted into the
+  Phase 2 draft contract.
+- Verification after decision update: `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
 ## 2026-04-29 03:02 +0800 — Stage A preview adapter drafts opened
 
 - Startup identity: proceeded as Architect with `GPT-5-family` / `codex` after

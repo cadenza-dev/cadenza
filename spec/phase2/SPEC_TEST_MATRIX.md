@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This draft matrix defines the acceptance scenarios Builder will consume after
+This frozen matrix defines the acceptance scenarios Builder will consume after
 Phase 2 specs are frozen. Every scenario references requirement IDs from the
 Phase 2 domain specs.
 
@@ -40,15 +40,15 @@ The initial Builder ordering should keep one vertical slice at a time:
 | TC-TRAC-001 | P0 | TRAC-001, TRAC-002, TRAC-003, TRAC-004 | Phase 2 traceability coverage report compares specs, test matrix, traceability matrix, tests, and implementation evidence without mutating frozen Phase 1 specs. |
 | TC-TRAC-005 | P1 | TRAC-005, TRAC-006 | Phase 2 tracker/status evidence records Stage A/B decisions and separates deferred WIP from Phase 2 acceptance scope. |
 
-## Stage A Freeze Candidates
+## Approved Decision Summary
 
-- `FC-PKG-01`: preview package shape.
-- `FC-PRAD-01`: transition playback policy.
-- `FC-PRAD-02`: Player frame event source.
-- `FC-RSRM-01`: readiness bridge mechanism.
-- `FC-RSRM-02`: font readiness source.
-- `FC-BROW-01`: browser visual evidence depth.
-- `FC-TRAC-01`: coverage report versus hard gate.
+- `FC-PKG-01`: use a dedicated `@cadenza-dev/preview-remotion` package.
+- `FC-PRAD-01`: animate transition segments, then pause at semantic anchors.
+- `FC-PRAD-02`: use `frameupdate` for internal cursor synchronization.
+- `FC-RSRM-01`: use Cadenza readiness registry plus Remotion buffering bridge.
+- `FC-RSRM-02`: use browser font readiness with explicit test fallback.
+- `FC-BROW-01`: require targeted visual sanity checks, not full screenshot diff.
+- `FC-TRAC-01`: use a non-mutating coverage report in Phase 2.
 
 ## Explicit Non-Scenarios
 

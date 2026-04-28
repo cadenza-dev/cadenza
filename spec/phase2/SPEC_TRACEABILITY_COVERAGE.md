@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,15 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract promotes the deferred `REV-P1-004` traceability governance
+This frozen contract promotes the deferred `REV-P1-004` traceability governance
 finding into Phase 2 as a non-mutating coverage design. It is separate from
 `SPEC_TRACEABILITY.md` because the latter is the requirement-to-test mapping
 file consumed by repository tooling.
 
-## Stage A Design Options
+## Approved Design Decisions
+
+The maintainer approved the Stage A recommendation and authorized freeze on
+2026-04-29.
 
 ### Coverage Enforcement Level
 
@@ -22,20 +25,10 @@ file consumed by repository tooling.
    test matrix and traceability matrix.
 3. Add a phase-scoped hard gate for the active phase only.
 
-**Leaning**: option 1 for Stage A. A report closes the governance visibility gap
+**Decision**: option 1 for Phase 2. A report closes the governance visibility gap
 without modifying frozen Phase 1 specs or turning historical gaps into an
-unrelated blocker. Stage B may promote a stricter gate if the maintainer wants
-coverage enforcement to become mandatory.
-
-- **FC-ID**: FC-TRAC-01
-- **Question**: Should Phase 2 close `REV-P1-004` with a non-mutating coverage
-  report or a hard gate?
-- **Options considered**:
-  1. Non-mutating report.
-  2. Hard global `spec:lint` rule.
-  3. Active-phase-only hard gate.
-- **Leaning**: option 1 for Stage A; revisit before freeze.
-- **Must resolve before**: Stage B freeze.
+unrelated blocker. Promotion to an active-phase-only hard gate is tracked as a
+post-first-Builder-slice governance follow-up in `TODO.md`.
 
 ## Requirements
 
@@ -43,9 +36,9 @@ coverage enforcement to become mandatory.
 - **Priority**: P0
 - **Owner**: Architect -> Builder
 - **Statement**: Phase 2 MUST include a non-mutating traceability coverage
-  report or accepted stricter gate that compares requirement IDs across domain
-  specs, `SPEC_TEST_MATRIX.md`, `SPEC_TRACEABILITY.md`, trace status, tests,
-  and implementation evidence.
+  report that compares requirement IDs across domain specs,
+  `SPEC_TEST_MATRIX.md`, `SPEC_TRACEABILITY.md`, trace status, tests, and
+  implementation evidence.
 - **Verification**: Coverage command or report fixture flags missing links
   without editing frozen Phase 1 specs.
 
@@ -79,7 +72,7 @@ coverage enforcement to become mandatory.
 - **Priority**: P1
 - **Owner**: Architect -> Builder
 - **Statement**: Phase 2 tracker and status evidence SHOULD record Stage A
-  Freeze Candidates, Stage B resolutions, and Builder batch completion without
+  decisions, Stage B resolutions, and Builder batch completion without
   pre-filling future implementation evidence before it exists.
 - **Verification**: Trace review confirms status/tracker entries match actual
   accepted artifacts.

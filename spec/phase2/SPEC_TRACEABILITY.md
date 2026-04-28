@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This draft matrix maps Phase 2 requirements to test scenarios and future
+This frozen matrix maps Phase 2 requirements to test scenarios and future
 implementation evidence. The governance requirements for the deferred
 `REV-P1-004` finding live in `SPEC_TRACEABILITY_COVERAGE.md`; this file stays
 as the repository-tooling-friendly mapping surface.
