@@ -10,7 +10,7 @@ It is not a Gamma replacement. It is not a WYSIWYG slide editor. It is a develop
 
 ## Status
 
-**Pre-alpha. Current routing phase: Phase 1 closeout-ready.**
+**Pre-alpha. Current routing phase: Phase 2 Architect Stage A.**
 
 Phase 1 has produced the semantic core: the typed TSX API surface, state-to-timeline
 compiler, runtime intent/navigation layer, render-safe metadata and DOM helper,
@@ -18,9 +18,8 @@ validation reports, first authoring skills, and an all-domain MVP fixture.
 Builder work and the selected closeout remediations are trace-complete in
 [`trace/phase1/`](./trace/phase1/).
 
-The root project pointer still intentionally remains on Phase 1 until the
-maintainer approves the phase transition. The prepared next step is Phase 2
-Architect Stage A for the React + Remotion Preview Adapter, starting from
+The maintainer has opened Phase 2 for Architect Stage A. The current task is to
+draft the React + Remotion Preview Adapter contracts, starting from
 [`prompt/PHASE2_KICK_ARCHITECT.md`](./prompt/PHASE2_KICK_ARCHITECT.md).
 
 The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis

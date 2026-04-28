@@ -1,0 +1,69 @@
+version: 1
+phase: "2"
+phase_name: "React + Remotion Preview Adapter"
+status: architect_stage_a_open
+timezone: Asia/Shanghai
+opened_at: "2026-04-29 02:22 +0800"
+
+session:
+  active_role: architect
+  approved_identity: GPT-5-family/codex
+  approved_at: "2026-04-29 02:22 +0800"
+  approval_note: "Maintainer approved proceeding with this identity for the Phase 1 closeout pointer transition and Phase 2 Architect startup routing."
+
+handoff:
+  source_phase: "1"
+  source_trace: trace/phase1/
+  kick_file: prompt/PHASE2_KICK_ARCHITECT.md
+  active_role: architect
+  summary: "Start Phase 2 Architect Stage A for the React + Remotion Preview Adapter."
+
+entry_conditions:
+  phase1_closed:
+    status: met
+    artifact: trace/phase1/status.yaml
+  selected_phase1_reviewer_remediation_accepted:
+    status: met
+    artifact: trace/phase1/review-phase1-closeout.md
+  phase2_architect_kick_exists:
+    status: met
+    artifact: prompt/PHASE2_KICK_ARCHITECT.md
+  root_phase_pointer_opened:
+    status: met
+    artifact: STATUS.yaml
+
+architect_stages:
+  stage_a_specs:
+    status: not_started
+    expected_artifacts:
+      - spec/phase2/SPEC_PACKAGE_BOUNDARY.md
+      - spec/phase2/SPEC_PREVIEW_ADAPTER.md
+      - spec/phase2/SPEC_RENDER_SAFE_REMOTION.md
+      - spec/phase2/SPEC_BROWSER_VALIDATION.md
+      - spec/phase2/SPEC_TEST_MATRIX.md
+      - spec/phase2/SPEC_TRACEABILITY.md
+  stage_b_freeze:
+    status: not_started
+  builder_kick:
+    status: not_started
+    expected_artifact: prompt/PHASE2_KICK_BUILDER.md
+
+open_followups:
+  REV_P1_004_traceability_governance:
+    status: pending_architect_stage_a_decision
+    source: wip/architect/phase1-traceability-coverage.md
+    note: "Promote into Phase 2 governance requirements or defer with rationale during Stage A."
+
+exit_criteria:
+  root_phase_scope_confirmed:
+    status: met
+  stage_a_specs_drafted:
+    status: pending
+  freeze_candidates_reviewed:
+    status: pending
+  stage_b_specs_frozen:
+    status: pending
+  phase2_builder_kick_exists:
+    status: pending
+  phase2_architect_trace_closed:
+    status: pending

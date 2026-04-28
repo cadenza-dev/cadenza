@@ -71,6 +71,7 @@ function walkFiles(target: string): string[] {
 requirePath("STATUS.yaml");
 requirePath("prompt/PHASE0_KICK_BUILDER.md");
 requirePath("prompt/PHASE1_KICK_BUILDER.md");
+requirePath("prompt/PHASE2_KICK_ARCHITECT.md");
 requirePath("package.json");
 requirePath("pnpm-workspace.yaml");
 requirePath("biome.jsonc");
@@ -85,10 +86,10 @@ let currentPhase: string | null = null;
 if (exists("STATUS.yaml")) {
   const rootStatus = readText("STATUS.yaml");
   currentPhase = yamlScalar(rootStatus, "current_phase");
-  if (currentPhase !== "0" && currentPhase !== "1") {
+  if (currentPhase !== "0" && currentPhase !== "1" && currentPhase !== "2") {
     findings.push({
       level: "error",
-      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0 or 1`,
+      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0, 1, or 2`,
     });
   }
 }
@@ -187,10 +188,67 @@ function checkPhase1Initial() {
   }
 }
 
+function checkPhase2Initial() {
+  requirePath("trace/phase1/status.yaml");
+  requirePath("trace/phase1/review-phase1-closeout.md");
+  requirePath("trace/phase2/status.yaml");
+  requirePath("trace/phase2/tracker.md");
+
+  if (exists("trace/phase1/status.yaml")) {
+    const phase1Status = readText("trace/phase1/status.yaml");
+    const phase1 = yamlScalar(phase1Status, "phase");
+    const phase1Lifecycle = yamlScalar(phase1Status, "status");
+    const pointerStatus = exitCriterionStatus(
+      phase1Status,
+      "phase_pointer_advanced_after_maintainer_approval",
+    );
+
+    if (phase1 !== "1") {
+      findings.push({
+        level: "error",
+        message: `trace/phase1/status.yaml phase is ${phase1 ?? "(missing)"}, expected 1`,
+      });
+    }
+    if (phase1Lifecycle !== "complete") {
+      findings.push({
+        level: "error",
+        message: `trace/phase1/status.yaml status is ${phase1Lifecycle ?? "(missing)"}, expected complete`,
+      });
+    }
+    if (pointerStatus !== "met") {
+      findings.push({
+        level: "error",
+        message: `phase_pointer_advanced_after_maintainer_approval status is ${pointerStatus ?? "(missing)"}, expected met`,
+      });
+    }
+  }
+
+  if (exists("trace/phase2/status.yaml")) {
+    const phase2Status = readText("trace/phase2/status.yaml");
+    const phase2 = yamlScalar(phase2Status, "phase");
+    const phase2Lifecycle = yamlScalar(phase2Status, "status");
+
+    if (phase2 !== "2") {
+      findings.push({
+        level: "error",
+        message: `trace/phase2/status.yaml phase is ${phase2 ?? "(missing)"}, expected 2`,
+      });
+    }
+    if (phase2Lifecycle !== "architect_stage_a_open") {
+      findings.push({
+        level: "error",
+        message: `trace/phase2/status.yaml status is ${phase2Lifecycle ?? "(missing)"}, expected architect_stage_a_open`,
+      });
+    }
+  }
+}
+
 if (currentPhase === "0") {
   checkPhase0();
 } else if (currentPhase === "1") {
   checkPhase1Initial();
+} else if (currentPhase === "2") {
+  checkPhase2Initial();
 }
 
 const phase1Specs = walkFiles("spec/phase1").filter((file) =>
