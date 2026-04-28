@@ -179,7 +179,8 @@ cadenza/
 ├── EXECUTION_TRACKER.md      ← phase index (thin pointer to trace/<phase>/)
 ├── ROADMAP.md                ← strategic brief (Scout output)
 ├── goals-non-goals.md        ← what we do and don't build
-├── .agents/                  ← cross-agent skill source (`.agents/skills/cadenza-*`)
+├── skills/cadenza/           ← public Cadenza authoring mono-skill source
+├── .agents/                  ← operational skill source + generated skill mirrors
 ├── .claude/                  ← Claude Code hooks + skill symlink mirror
 ├── .github/                  ← CI workflows, issue templates
 ├── docs/
@@ -200,21 +201,26 @@ cadenza/
 ### 8.1 Agent skills (cross-tool)
 
 The source of truth for command-like Cadenza workflows is
-`.agents/skills/cadenza-*/SKILL.md`. These are project-level agent skills, not
-legacy prompt bridges.
+`.agents/skills/cadenza-*/SKILL.md`. The source of truth for Cadenza authoring
+guidance is `skills/cadenza/SKILL.md`, mirrored as
+`cadenza-best-practices`. These are project-level agent skills, not legacy
+prompt bridges.
 
-Current operational skills:
+Current project skills:
 
 - `cadenza-onboard` — cold-start read order + Startup Protocol gate.
 - `cadenza-phase-status` — current phase, blockers, exit criteria, next batch.
 - `cadenza-reviewer` — independent Builder/closeout review and remediation handoff.
 - `cadenza-spec-lint` — `pnpm spec:lint` or Phase 0 bundled fallback hygiene.
 - `cadenza-wizard` — bootstrap and phase-boundary Architect handoff drafting.
+- `cadenza-best-practices` — generated mirror of `skills/cadenza` for authoring.
 
-Run `scripts/commands-sync.sh` after adding or deleting a `cadenza-*` skill. It
-mirrors `.agents/skills/cadenza-*` into `.claude/skills/cadenza-*` as relative
-symlinks for Claude Code. Other agents should read `.agents/skills/` directly
-when they support the common skill layout.
+Run `scripts/commands-sync.sh` after adding or deleting a `cadenza-*` skill or
+editing the public mono-skill bridge. It mirrors `skills/cadenza` into
+`.agents/skills/cadenza-best-practices`, then mirrors `.agents/skills/cadenza-*`
+into `.claude/skills/cadenza-*` as relative symlinks for Claude Code. Other
+agents should read `.agents/skills/` directly when they support the common
+skill layout.
 
 ---
 

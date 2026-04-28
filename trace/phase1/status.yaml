@@ -340,6 +340,37 @@ post_closeout_remediations:
           - packages/core/src/render-safe/domAdapter.ts
           - packages/core/src/index.ts
           - tests/browser/cadenza-browser-entry.ts
+  ADR_0014_mono_skill_migration:
+    status: complete
+    completed_at: "2026-04-28 23:10 +0800"
+    source_decision: docs/adr/0014-cadenza-best-practices-mono-skill.md
+    boundary: "CONTRACT_FROZEN skill specs updated with maintainer approval through ADR 0014; no production runtime code or phase pointer changed."
+    summary: "Replaced the five Phase 1 authoring skills with the cadenza-best-practices mono-skill."
+    tests:
+      - packages/core/src/skill-pack.test.ts
+      - packages/core/src/all-domain-mvp.fixture.test.ts
+    verification:
+      - pnpm format:md
+      - pnpm typecheck
+      - pnpm test
+      - pnpm lint
+      - pnpm format:check
+      - pnpm exec markdownlint-cli2 "**/*.md"
+      - find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
+      - pnpm spec:lint
+      - pnpm phase:check
+      - pnpm check:harness
+      - pnpm check:memory
+      - git diff --check
+    implementation:
+      - skills/cadenza/SKILL.md
+      - skills/cadenza/rules/
+      - skills/cadenza/evals/evals.json
+      - scripts/commands-sync.sh
+      - scripts/check-harness.ts
+      - .claude/README.md
+      - .agents/skills/cadenza-best-practices
+      - .claude/skills/cadenza-best-practices
 
 exit_criteria:
   all_phase1_scenarios_green:

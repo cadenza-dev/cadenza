@@ -1,0 +1,38 @@
+{
+  "skill_name": "cadenza-best-practices",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a small Cadenza TSX deck for a 5-minute technical talk about a compiler pipeline. It needs a title slide, one diagram slide using an image asset, a live pause for questions, and concise speaker notes.",
+      "expected_output": "A Cadenza deck using typed TSX primitives, Theme tokens, render-safe image declaration, wait-for-event with exportDuration, and Notes without raw Remotion primitives.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/typed-authoring.md",
+        "skills/cadenza/rules/render-safe-components.md",
+        "skills/cadenza/rules/speaker-notes.md"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this Cadenza deck: it uses useCurrentFrame for step reveals, hides a font flash with CSS opacity, and has a long title clipped inside a fixed box. Give me the repair plan before editing code.",
+      "expected_output": "A risk-ranked repair plan that routes timing through Step/Transition/navigationPolicy, font readiness through SafeFont/render-safe behavior, and overflow through TypographyBox/ContentSlot diagnostics before style tweaks.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/motion-timing.md",
+        "skills/cadenza/rules/layout-composition.md",
+        "skills/cadenza/rules/validation-repair.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The browser preview says a MediaFrame aspect ratio is wrong and createValidationReport produced a repairQueue. Explain how the agent should debug this without claiming MP4/PDF export works.",
+      "expected_output": "A validation-first debug path using browser measurements, stable source IDs, createValidationReport repairQueue, render-safe MediaFrame guidance, and an explicit preview-versus-export boundary.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/browser-preview.md",
+        "skills/cadenza/rules/render-safe-components.md",
+        "skills/cadenza/rules/validation-repair.md"
+      ]
+    }
+  ]
+}

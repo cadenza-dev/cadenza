@@ -40,12 +40,10 @@
 ### **G5. AI agent ergonomics**
 
 - AI-ready documentation written in a format optimized for context injection into coding agents.
-- A curated skill pack (initial 5 skills in Phase 1, expanding to 10+ in Phase 2):
-  - `layout-composition`
-  - `motion-transitions`
-  - `speaker-notes`
-  - `render-debugging`
-  - `render-safe-components`
+- A curated `cadenza-best-practices` mono-skill in Phase 1, with
+  progressive-disclosure rules for layout composition, motion timing, speaker
+  notes, render debugging, render-safe components, browser preview, and
+  validation repair.
 - A system prompt that captures the project's authorial voice.
 - A validate-and-repair loop structured enough for agents to iterate without human intervention.
 

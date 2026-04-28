@@ -1,5 +1,33 @@
 # Phase 1 Tracker
 
+## 2026-04-28 23:10 +0800 — Cadenza authoring mono-skill migration
+
+- Startup identity: continued as Wizard/Architect workflow maintenance with
+  `gpt-5` / `codex` after maintainer approval in this session.
+- Scope: replaced the five Phase 1 authoring skills with the
+  `cadenza-best-practices` mono-skill. No production runtime code or root phase
+  pointer was modified.
+- Governance decision: added ADR 0014 to supersede the original five-skill
+  Phase 1 distribution, then updated the frozen Phase 1 skill specs/test matrix
+  with maintainer approval so the contract matches the new authoring surface.
+- Skill source: added `skills/cadenza/SKILL.md`, progressive-disclosure rule
+  files, and initial `skill-creator` eval prompts under `skills/cadenza/evals/`.
+- Sync/harness: updated `scripts/commands-sync.sh` and
+  `scripts/check-harness.ts` so `skills/cadenza` mirrors to
+  `.agents/skills/cadenza-best-practices` and
+  `.claude/skills/cadenza-best-practices`.
+- Tooling docs: updated `.claude/README.md` so Claude Code's skill mirror notes
+  distinguish operational skills from the generated authoring mono-skill.
+- Legacy cleanup: removed `.agents/skills/layout-composition`,
+  `.agents/skills/motion-transitions`, `.agents/skills/speaker-notes`,
+  `.agents/skills/render-debugging`, and
+  `.agents/skills/render-safe-components`.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
 ## 2026-04-28 22:41 +0800 — Bootstrap Wizard workflow and skill added
 
 - Startup identity: proceeded as Wizard/Architect workflow maintenance with

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   bindKeyboardNavigation,
@@ -125,10 +125,7 @@ describe("B1.4-B3 all-domain MVP fixture", () => {
     ]);
 
     for (const skillName of REQUIRED_ALL_DOMAIN_MVP_SKILLS) {
-      const skillContent = readFileSync(
-        path.join(process.cwd(), ".agents", "skills", skillName, "SKILL.md"),
-        "utf8",
-      );
+      const skillContent = readSkillMarkdown(skillName);
 
       for (const cue of fixture.skillGuidanceCues[skillName]) {
         expect(skillContent).toContain(cue);
@@ -136,3 +133,22 @@ describe("B1.4-B3 all-domain MVP fixture", () => {
     }
   });
 });
+
+function readSkillMarkdown(skillName: string): string {
+  const skillDir =
+    skillName === "cadenza-best-practices"
+      ? path.join(process.cwd(), "skills", "cadenza")
+      : path.join(process.cwd(), ".agents", "skills", skillName);
+
+  return readMarkdownFiles(skillDir).join("\n");
+}
+
+function readMarkdownFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const child = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      return readMarkdownFiles(child);
+    }
+    return child.endsWith(".md") ? [readFileSync(child, "utf8")] : [];
+  });
+}

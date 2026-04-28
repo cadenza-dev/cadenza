@@ -19,11 +19,7 @@ import {
 } from "../index.js";
 
 export const REQUIRED_ALL_DOMAIN_MVP_SKILLS = [
-  "layout-composition",
-  "motion-transitions",
-  "render-safe-components",
-  "render-debugging",
-  "speaker-notes",
+  "cadenza-best-practices",
 ] as const;
 
 type RequiredAllDomainMvpSkill =
@@ -197,11 +193,20 @@ export function createAllDomainMvpFixture(): AllDomainMvpFixture {
       },
     ]),
     skillGuidanceCues: {
-      "layout-composition": ["Theme", "TypographyBox"],
-      "motion-transitions": ["wait-for-event", "computed", "navigationPolicy"],
-      "render-safe-components": ["SafeImage", "SafeFont", "SafeVideo"],
-      "render-debugging": ["createValidationReport", "repairQueue"],
-      "speaker-notes": ["Notes", "presenter metadata"],
+      "cadenza-best-practices": [
+        "Theme",
+        "TypographyBox",
+        "wait-for-event",
+        "computed",
+        "navigationPolicy",
+        "SafeImage",
+        "SafeFont",
+        "SafeVideo",
+        "createValidationReport",
+        "repairQueue",
+        "Notes",
+        "presenter metadata",
+      ],
     },
   };
 }

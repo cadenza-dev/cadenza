@@ -76,6 +76,34 @@ function cadenzaSkillNames(): string[] {
     .sort();
 }
 
+function checkPublicMonoSkill() {
+  requirePath("skills/cadenza/SKILL.md");
+
+  const agentMirror = ".agents/skills/cadenza-best-practices";
+  const agentMirrorPath = repoPath(agentMirror);
+  if (!existsSync(agentMirrorPath)) {
+    findings.push({ level: "error", message: `missing ${agentMirror}` });
+    return;
+  }
+
+  const stats = lstatSync(agentMirrorPath);
+  if (!stats.isSymbolicLink()) {
+    findings.push({
+      level: "error",
+      message: `${agentMirror} is not a symlink`,
+    });
+    return;
+  }
+
+  const target = readlinkSync(agentMirrorPath).replaceAll("\\", "/");
+  if (target !== "../../skills/cadenza") {
+    findings.push({
+      level: "error",
+      message: `${agentMirror} points to ${target}, expected ../../skills/cadenza`,
+    });
+  }
+}
+
 function checkSkillMirror() {
   const names = cadenzaSkillNames();
   if (names.length === 0) {
@@ -135,6 +163,7 @@ for (const script of [
 
 requireScriptReference(".claude/settings.json");
 requireScriptReference(".codex/hooks.json");
+checkPublicMonoSkill();
 checkSkillMirror();
 
 const errorCount = findings.filter(

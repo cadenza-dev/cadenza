@@ -54,11 +54,11 @@ begins.
 | VAL-004 | TC-RSAF-005 | `packages/*/src/validation/browser.ts` |
 | VAL-005 | TC-RSAF-002 | `packages/*/src/validation/assets.ts` |
 | VAL-006 | TC-VAL-006 | `packages/*/src/validation/report.ts` |
-| SKIL-001 | TC-SKIL-001 | `.agents/skills/` |
-| SKIL-002 | TC-SKIL-001 | `.agents/skills/` |
-| SKIL-003 | TC-SKIL-001 | `.agents/skills/` |
-| SKIL-004 | TC-SKIL-004 | `.agents/skills/` |
-| SKIL-005 | TC-SKIL-004, TC-VAL-006 | `.agents/skills/` |
+| SKIL-001 | TC-SKIL-001 | `skills/cadenza/` |
+| SKIL-002 | TC-SKIL-001 | `skills/cadenza/` |
+| SKIL-003 | TC-SKIL-001 | `skills/cadenza/` |
+| SKIL-004 | TC-SKIL-004 | `skills/cadenza/` |
+| SKIL-005 | TC-SKIL-004, TC-VAL-006 | `skills/cadenza/` |
 | SKIL-006 | TC-SKIL-001 | `scripts/commands-sync.sh` or successor |
 
 ## Frozen Decisions

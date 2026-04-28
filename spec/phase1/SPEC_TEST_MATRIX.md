@@ -27,8 +27,8 @@ Every test case references one or more requirement IDs from the domain specs.
 | TC-PLAY-006 | P1 | PLAY-006, TAPI-006 | Presenter metadata exposes current slide, step, notes, and elapsed time. |
 | TC-VAL-001 | P0 | VAL-001, VAL-002, VAL-003 | Invalid authoring surfaces typed fatal diagnostics. |
 | TC-VAL-006 | P2 | VAL-006, SKIL-005 | Validation report can drive an AI repair loop when available. |
-| TC-SKIL-001 | P0 | SKIL-001, SKIL-002, SKIL-003 | Initial skill pack exists and instructs typed API plus render-safe usage. |
-| TC-SKIL-004 | P1 | SKIL-004, SKIL-005 | Skills cover common anti-patterns and repair workflow. |
+| TC-SKIL-001 | P0 | SKIL-001, SKIL-002, SKIL-003 | `cadenza-best-practices` exists and instructs typed API plus render-safe usage. |
+| TC-SKIL-004 | P1 | SKIL-004, SKIL-005 | `cadenza-best-practices` covers common anti-patterns and repair workflow. |
 
 ## Frozen Decision
 
