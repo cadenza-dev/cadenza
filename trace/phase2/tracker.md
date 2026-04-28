@@ -1,5 +1,20 @@
 # Phase 2 Tracker
 
+## 2026-04-29 04:41 +0800 — B2.1 CI markdownlint repair
+
+- Trigger: pushed B2.1 commit `e7e7e85` failed the GitHub Actions `Markdown
+  lint` job in run `25076322032`.
+- CI evidence: `gh run view 25076322032 --job 73469834246 --log` showed
+  markdownlint scanning `packages/preview-remotion/node_modules/react-dom` and
+  `packages/preview-remotion/node_modules/remotion` README files after
+  `pnpm install --frozen-lockfile` created nested workspace dependency links.
+- Local reproduction: `pnpm install --frozen-lockfile` followed by
+  `pnpm exec markdownlint-cli2 "**/*.md"` reproduced the same 27 errors.
+- Fix: updated `.markdownlint-cli2.jsonc` to ignore `**/node_modules/**`, so
+  markdownlint excludes dependency markdown at any workspace package depth.
+- Scope preserved: no package boundary, production code, frozen spec, or
+  Accepted ADR change.
+
 ## 2026-04-29 04:10 +0800 — B2.1 TC-PKG-001 package boundary complete
 
 - Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after
