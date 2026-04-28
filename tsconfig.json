@@ -8,7 +8,13 @@
     "jsxImportSource": "@cadenza-dev/core",
     "paths": {
       "@cadenza-dev/core": ["./packages/core/src/index.ts"],
-      "@cadenza-dev/core/jsx-runtime": ["./packages/core/src/jsx-runtime.ts"]
+      "@cadenza-dev/core/fixtures/allDomainMvp": [
+        "./packages/core/src/fixtures/allDomainMvp.ts"
+      ],
+      "@cadenza-dev/core/jsx-runtime": ["./packages/core/src/jsx-runtime.ts"],
+      "@cadenza-dev/preview-remotion": [
+        "./packages/preview-remotion/src/index.ts"
+      ]
     },
     "strict": true,
     "noEmit": true,

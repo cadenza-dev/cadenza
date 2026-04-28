@@ -1,0 +1,21 @@
+{
+  "name": "@cadenza-dev/preview-remotion",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@cadenza-dev/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "@remotion/player": ">=4.0.0",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "remotion": ">=4.0.0"
+  }
+}

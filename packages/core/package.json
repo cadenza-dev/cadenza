@@ -11,6 +11,10 @@
     "./jsx-runtime": {
       "types": "./src/jsx-runtime.ts",
       "import": "./src/jsx-runtime.ts"
+    },
+    "./fixtures/allDomainMvp": {
+      "types": "./src/fixtures/allDomainMvp.ts",
+      "import": "./src/fixtures/allDomainMvp.ts"
     }
   }
 }

@@ -82,6 +82,47 @@ builder_handoff:
     summary: "Public preview package boundary and import/dependency contract."
   boundary: "No MP4/PDF export, hosted rendering, external alpha usage, or public API stability claims in Phase 2."
 
+builder_progress:
+  status: in_progress
+  active_role: builder
+  approved_identity: GPT-5-family/codex
+  approved_at: "2026-04-29 04:10 +0800"
+  completed_batches:
+    - id: B2.1
+      scenario: TC-PKG-001
+      status: complete
+      completed_at: "2026-04-29 04:10 +0800"
+      requirements: [PKG-001, PKG-002, PKG-003, PKG-005]
+      evidence:
+        tests:
+          - packages/preview-remotion/src/package-boundary.test.ts
+        code:
+          - packages/preview-remotion/package.json
+          - packages/preview-remotion/src/index.ts
+          - packages/core/package.json
+          - tsconfig.json
+          - vitest.config.ts
+        lockfile:
+          - pnpm-lock.yaml
+      boundary: "Public package/import/dependency surface only; no real Player behavior."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (passed with elevated permissions after sandbox Chromium launch was blocked)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
+  next_batch:
+    id: B2.2
+    scenario: TC-PRAD-001
+    summary: "Minimal real Player mount for the all-domain fixture."
+
 exit_criteria:
   phase2_specs_frozen:
     status: met

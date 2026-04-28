@@ -1,5 +1,36 @@
 # Phase 2 Tracker
 
+## 2026-04-29 04:10 +0800 — B2.1 TC-PKG-001 package boundary complete
+
+- Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after
+  maintainer approval in this session.
+- RED: `pnpm test -- packages/preview-remotion/src/package-boundary.test.ts`
+  failed because a separate preview workspace package could not resolve public
+  Cadenza package imports yet.
+- GREEN: added the dedicated `@cadenza-dev/preview-remotion` workspace package
+  with a small typed `createCadenzaPreviewMount` public API and a workspace
+  dependency on `@cadenza-dev/core`.
+- Placed `react`, `react-dom`, `remotion`, and `@remotion/player` on the
+  preview package peer boundary while keeping `@cadenza-dev/core` free of a
+  hard `@remotion/player` dependency.
+- Added the test-supported public core fixture subpath
+  `@cadenza-dev/core/fixtures/allDomainMvp` so Phase 2 tests consume the
+  inherited all-domain fixture without duplicating it.
+- Added TypeScript/Vitest local package aliases so tests exercise package entry
+  points, not private source imports.
+- Verification after batch: `pnpm install --lockfile-only`, `pnpm typecheck`,
+  `pnpm test`, `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification: `pnpm test:browser` passed with elevated permissions
+  after the default sandbox blocked Chromium launch with
+  `sandbox_host_linux.cc` / `Operation not permitted`.
+- Scope preserved: no real Remotion Player mount, MP4/PDF export, hosted
+  rendering, external alpha claim, public API stability claim, Phase 3 AI
+  repair-loop work, or frozen spec/Accepted ADR edit.
+
 ## 2026-04-29 03:49 +0800 — Phase 2 contracts frozen for Builder
 
 - Maintainer explicitly authorized freezing the Phase 2 contracts.
