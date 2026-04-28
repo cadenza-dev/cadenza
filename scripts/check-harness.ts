@@ -102,7 +102,7 @@ function checkSkillMirror() {
       continue;
     }
 
-    const target = readlinkSync(mirrorPath);
+    const target = readlinkSync(mirrorPath).replaceAll("\\", "/");
     const expected = `../../.agents/skills/${name}`;
     if (target !== expected) {
       findings.push({

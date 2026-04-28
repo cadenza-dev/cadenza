@@ -1,5 +1,21 @@
 # Phase 1 Tracker
 
+## 2026-04-28 18:23 +0800 — Windows CI harness symlink check fixed
+
+- Trigger: PR `#1` ran GitHub Actions CI for `exp/rev-wiz-mem`; macOS and
+  Ubuntu passed, while Windows failed at `pnpm check:harness`.
+- Diagnosis: test and implementation gates passed before the failure; the
+  failing log showed `readlinkSync()` returning Windows-style symlink targets
+  such as `..\..\.agents\skills\cadenza-onboard`, while
+  `scripts/check-harness.ts` compared against POSIX-style
+  `../../.agents/skills/cadenza-onboard`.
+- Classification: harness script logic only; no core implementation or product
+  test logic change was required.
+- Fix: normalize backslashes to forward slashes before comparing Cadenza skill
+  mirror symlink targets in `scripts/check-harness.ts`.
+- Verification: local `pnpm check:harness` passed; follow-up CI rerun pending
+  on the pushed fix commit.
+
 ## 2026-04-28 18:11 +0800 — Builder remediation for selected closeout findings green
 
 - Startup identity: proceeded as Builder remediation with `GPT-5-family` /
