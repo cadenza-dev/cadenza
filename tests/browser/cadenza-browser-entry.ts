@@ -21,6 +21,7 @@ import {
 import { createAllDomainMvpFixture } from "@cadenza-dev/core/fixtures/allDomainMvp";
 import {
   CadenzaPlayer,
+  type CadenzaPlayerHandle,
   createCadenzaPreviewMount,
 } from "@cadenza-dev/preview-remotion";
 import React from "react";
@@ -50,6 +51,7 @@ type BrowserFixture = {
 };
 
 type RemotionPreviewFixture = {
+  goto(slideId: string, stepIndex?: number): void;
   mountAllDomainMvpPreview(
     selector: string,
     config: { compositionHeight: number; compositionWidth: number },
@@ -65,6 +67,10 @@ type RemotionPreviewFixture = {
       totalFrames: number;
     };
   };
+  nativeSeekToFrame(frame: number): void;
+  navigateNext(): void;
+  navigatePrevious(): void;
+  snapshot(): ReturnType<CadenzaPlayerHandle["getSnapshot"]>;
 };
 
 type ControlledReadinessState = {
@@ -109,6 +115,7 @@ let controlledReadiness:
     }
   | undefined;
 let remotionPreviewRoot: Root | undefined;
+let remotionPreviewHandle: CadenzaPlayerHandle | undefined;
 
 const runtime = {
   getCursor() {
@@ -343,6 +350,9 @@ window.CadenzaBrowserFixture = {
 };
 
 window.CadenzaRemotionPreview = {
+  goto(slideId, stepIndex) {
+    requireRemotionPreviewHandle().goto(slideId, stepIndex);
+  },
   mountAllDomainMvpPreview(selector, config) {
     const host = document.querySelector(selector);
     if (!(host instanceof HTMLElement)) {
@@ -363,6 +373,15 @@ window.CadenzaRemotionPreview = {
         compositionHeight: config.compositionHeight,
         compositionWidth: config.compositionWidth,
         deck: fixture.deck,
+        onPreviewReady(handle) {
+          remotionPreviewHandle = handle;
+
+          return () => {
+            if (remotionPreviewHandle === handle) {
+              remotionPreviewHandle = undefined;
+            }
+          };
+        },
         timeline: fixture.previewTimeline,
       }),
     );
@@ -380,7 +399,27 @@ window.CadenzaRemotionPreview = {
       },
     };
   },
+  navigateNext() {
+    requireRemotionPreviewHandle().next();
+  },
+  navigatePrevious() {
+    requireRemotionPreviewHandle().previous();
+  },
+  nativeSeekToFrame(frame) {
+    requireRemotionPreviewHandle().nativeSeekToFrame(frame);
+  },
+  snapshot() {
+    return requireRemotionPreviewHandle().getSnapshot();
+  },
 };
+
+function requireRemotionPreviewHandle(): CadenzaPlayerHandle {
+  if (!remotionPreviewHandle) {
+    throw new Error("Remotion preview handle is not ready.");
+  }
+
+  return remotionPreviewHandle;
+}
 
 function requireReadinessGate() {
   if (!controlledReadiness) {

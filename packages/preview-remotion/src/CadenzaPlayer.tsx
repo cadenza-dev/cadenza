@@ -2,15 +2,27 @@
 
 import type {
   CadenzaNode,
+  Cursor,
   DeckNode,
+  PresenterMetadata,
   RenderSafeNode,
   SlideNode,
   StepContext,
   StepNode,
   TimelineMap,
 } from "@cadenza-dev/core";
-import { Player } from "@remotion/player";
-import type { CSSProperties, ReactNode } from "react";
+import { Player, type PlayerRef } from "@remotion/player";
+import {
+  type CSSProperties,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  type CadenzaPreviewController,
+  createCadenzaPreviewController,
+} from "./navigation.js";
 import { createCadenzaPreviewMount } from "./playerProps.js";
 
 export type CadenzaPlayerProps = {
@@ -19,8 +31,23 @@ export type CadenzaPlayerProps = {
   compositionWidth: number;
   controls?: boolean;
   deck: DeckNode;
+  onPreviewReady?: (handle: CadenzaPlayerHandle) => (() => void) | undefined;
   playerStyle?: CSSProperties;
   timeline: TimelineMap;
+};
+
+export type CadenzaPlayerHandle = {
+  getSnapshot(): CadenzaPlayerSnapshot;
+  goto(slideId: string, stepIndex?: number): void;
+  nativeSeekToFrame(frame: number): void;
+  next(): void;
+  previous(): void;
+};
+
+export type CadenzaPlayerSnapshot = {
+  cursor: Cursor;
+  playerFrame: number;
+  presenterMetadata: PresenterMetadata;
 };
 
 type CadenzaTimelineCompositionProps = {
@@ -34,6 +61,7 @@ export function CadenzaPlayer({
   compositionWidth,
   controls = false,
   deck,
+  onPreviewReady,
   playerStyle,
   timeline,
 }: CadenzaPlayerProps): ReactNode {
@@ -42,17 +70,90 @@ export function CadenzaPlayer({
     compositionWidth,
     timeline,
   });
+  const playerRef = useRef<PlayerRef>(null);
+  const controllerRef = useRef<CadenzaPreviewController | undefined>(undefined);
+  const [snapshot, setSnapshot] = useState<CadenzaPlayerSnapshot>(() =>
+    createInitialSnapshot(timeline),
+  );
+
+  useEffect(() => {
+    const player = playerRef.current;
+    if (!player) {
+      return;
+    }
+
+    const controller = createCadenzaPreviewController({
+      player,
+      timeline,
+    });
+    controllerRef.current = controller;
+
+    const updateSnapshot = () => {
+      setSnapshot(createSnapshot(controller, player));
+    };
+    const unbindCursor = controller.onCursorChange(updateSnapshot);
+    const handle: CadenzaPlayerHandle = {
+      getSnapshot: () => createSnapshot(controller, player),
+      goto(slideId, stepIndex) {
+        controller.goto(slideId, stepIndex);
+        updateSnapshot();
+      },
+      nativeSeekToFrame(frame) {
+        player.seekTo(frame);
+      },
+      next() {
+        controller.next();
+        updateSnapshot();
+      },
+      previous() {
+        controller.previous();
+        updateSnapshot();
+      },
+    };
+    const unbindReady = onPreviewReady?.(handle);
+
+    updateSnapshot();
+
+    return () => {
+      unbindReady?.();
+      unbindCursor();
+      controller.dispose();
+      if (controllerRef.current === controller) {
+        controllerRef.current = undefined;
+      }
+    };
+  }, [onPreviewReady, timeline]);
 
   return (
     <section
       className={className}
+      data-cadenza-cursor-kind={snapshot.cursor.kind}
+      data-cadenza-cursor-slide-id={cursorSlideId(snapshot.cursor)}
+      data-cadenza-cursor-step-index={cursorStepIndex(snapshot.cursor)}
       data-cadenza-duration-in-frames={mount.durationInFrames}
       data-cadenza-fps={mount.fps}
       data-cadenza-height={mount.compositionHeight}
+      data-cadenza-player-frame={snapshot.playerFrame}
+      data-cadenza-presenter-slide-id={snapshot.presenterMetadata.slideId}
+      data-cadenza-presenter-step-index={snapshot.presenterMetadata.stepIndex}
       data-cadenza-remotion-preview=""
-      data-cadenza-requirements="PRAD-001 PRAD-002 BROW-001 BROW-002"
+      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 BROW-001 BROW-002 BROW-003 BROW-004"
       data-cadenza-width={mount.compositionWidth}
     >
+      <div data-cadenza-preview-controls="">
+        <button onClick={() => controllerRef.current?.previous()} type="button">
+          Previous
+        </button>
+        <button onClick={() => controllerRef.current?.next()} type="button">
+          Next
+        </button>
+        <button
+          onClick={() => controllerRef.current?.goto("render-safe-demo", 0)}
+          type="button"
+        >
+          Goto render-safe-demo
+        </button>
+      </div>
       <Player
         acknowledgeRemotionLicense
         className="cadenza-remotion-player"
@@ -66,6 +167,7 @@ export function CadenzaPlayer({
         inputProps={{ deck, timeline }}
         loop={false}
         noSuspense
+        ref={playerRef}
         style={{
           aspectRatio: `${mount.compositionWidth} / ${mount.compositionHeight}`,
           maxWidth: mount.compositionWidth,
@@ -75,6 +177,57 @@ export function CadenzaPlayer({
       />
     </section>
   );
+}
+
+function createInitialSnapshot(timeline: TimelineMap): CadenzaPlayerSnapshot {
+  const slide = timeline.slides[0];
+
+  if (!slide) {
+    throw new Error("Cadenza preview requires at least one slide.");
+  }
+
+  return {
+    cursor: {
+      kind: "at-step",
+      slideId: slide.slideId,
+      stepIndex: slide.steps[0]?.stepIndex ?? 0,
+    },
+    playerFrame: slide.steps[0]?.segment[0] ?? 0,
+    presenterMetadata: {
+      elapsedActiveTimeMs: 0,
+      elapsedWallTimeMs: 0,
+      notes: slide.notes,
+      slideId: slide.slideId,
+      stepIndex: slide.steps[0]?.stepIndex ?? 0,
+    },
+  };
+}
+
+function createSnapshot(
+  controller: CadenzaPreviewController,
+  player: PlayerRef,
+): CadenzaPlayerSnapshot {
+  return {
+    cursor: controller.getCursor(),
+    playerFrame: player.getCurrentFrame(),
+    presenterMetadata: controller.getPresenterMetadata(),
+  };
+}
+
+function cursorSlideId(cursor: Cursor): string {
+  if (cursor.kind === "in-transition") {
+    return cursor.to;
+  }
+
+  return cursor.slideId;
+}
+
+function cursorStepIndex(cursor: Cursor): number | undefined {
+  if (cursor.kind !== "at-step") {
+    return undefined;
+  }
+
+  return cursor.stepIndex;
 }
 
 function CadenzaTimelineComposition({

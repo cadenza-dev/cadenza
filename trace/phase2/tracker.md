@@ -1,5 +1,46 @@
 # Phase 2 Tracker
 
+## 2026-04-29 05:35 +0800 — B2.3 TC-PRAD-003/004 navigation and frame sync complete
+
+- Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after
+  maintainer approval in this session.
+- RED 1: `pnpm test -- packages/preview-remotion/src/navigation.test.ts`
+  failed because `createCadenzaPreviewController` did not exist.
+- GREEN 1: added `navigation.ts` and `frameSync.ts`, adapting Remotion
+  `frameupdate` events into the Cadenza runtime and routing `next`,
+  `previous`, and `goto` through runtime anchor resolution before touching
+  Player frame operations.
+- Transition behavior: cross-slide navigation seeks to the frozen
+  `TimelineMap` transition segment, calls Player `play()`, then pauses and
+  settles at the semantic step anchor when `frameupdate` reaches the target
+  frame.
+- RED 2: `pnpm test:browser -- tests/browser/remotion-preview.spec.ts`
+  first hit the known sandbox Chromium launch failure, then failed under
+  elevated Chromium because
+  `window.CadenzaRemotionPreview.navigateNext()` did not exist.
+- GREEN 2: connected `CadenzaPlayer` to the preview controller, exposed
+  controller navigation through the browser harness, and added observable
+  cursor, presenter metadata, and Player frame attributes on the mounted
+  preview.
+- RED 3: the browser test for `TC-PRAD-004` failed because native Player seek
+  was not exposed through the harness.
+- GREEN 3: added `nativeSeekToFrame()` and `snapshot()` harness paths that call
+  the real PlayerRef `seekTo()` while cursor and presenter metadata remain
+  synchronized through the `frameupdate` listener.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no render-safe readiness buffering, visual sanity screenshot
+  gate, diagnostics channel, traceability coverage report, export claim,
+  hosted-rendering claim, Phase 3 AI repair-loop work, frozen spec edit, or
+  Accepted ADR edit.
+
 ## 2026-04-29 05:05 +0800 — B2.2 TC-PRAD-001 minimal real Player mount complete
 
 - Startup identity: proceeded as Builder with `GPT-5` / `codex` after
