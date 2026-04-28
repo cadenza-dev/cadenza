@@ -130,7 +130,7 @@ Any claim of completion must be preceded by **all of**:
 pnpm typecheck       # tsc --noEmit across all packages
 pnpm test            # vitest workspace, all tests green
 pnpm lint            # biome check, zero warnings
-pnpm format:check    # biome format --check .
+pnpm format:check    # biome format . (check-only; no writes)
 markdownlint-cli2 "**/*.md"  # Markdown lint/format rules
 find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d  # shell format check; options come from .editorconfig
 pnpm spec:lint       # scripts/lint-specs.ts — spec structure + traceability
