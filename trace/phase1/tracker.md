@@ -1,5 +1,27 @@
 # Phase 1 Tracker
 
+## 2026-04-28 22:41 +0800 — Bootstrap Wizard workflow and skill added
+
+- Startup identity: proceeded as Wizard/Architect workflow maintenance with
+  `gpt-5` / `codex` after maintainer approval in this session.
+- Scope: documented the Scout-to-Phase-0-Architect bootstrap handoff and added
+  the reusable `cadenza-wizard` skill. No `packages/`, frozen specs,
+  production code, or root phase pointer were modified.
+- Workflow decision: added ADR 0013 to extend Wizard with a Bootstrap Wizard
+  mode that prepares the initial Architect kick/handoff from an accepted Scout
+  brief without editing Scout output or opening a phase pointer.
+- Documentation sync: updated `docs/agentic-workflow.md`, `AGENTS.md`,
+  `docs/adr/README.md`, and `TODO.md` so the workflow map, long-form
+  explainer, ADR index, and follow-up list agree.
+- Skill work: created `.agents/skills/cadenza-wizard/SKILL.md` plus initial
+  `skill-creator` eval prompts under `.agents/skills/cadenza-wizard/evals/`,
+  then ran `scripts/commands-sync.sh` to mirror it into `.claude/skills/`.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
 ## 2026-04-28 19:12 +0800 — Root routing and README synced to roadmap
 
 - Trigger: maintainer spotted drift between `ROADMAP.md`, `STATUS.yaml`,

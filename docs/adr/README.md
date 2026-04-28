@@ -38,3 +38,4 @@ See [`template.md`](./template.md).
 | [0010](./0010-project-name-cadenza-github-org.md) | Project name Cadenza and GitHub org cadenza-dev | Accepted | 2026-04-25 |
 | [0011](./0011-remotion-notification-outcome.md) | Remotion notification sent | Accepted | 2026-04-25 |
 | [0012](./0012-reviewer-wizard-memory-workflow.md) | Reviewer, Wizard, and Project Memory Workflow | Accepted | 2026-04-28 |
+| [0013](./0013-bootstrap-wizard-scout-architect-handoff.md) | Bootstrap Wizard for Scout-to-Architect Handoff | Accepted | 2026-04-28 |

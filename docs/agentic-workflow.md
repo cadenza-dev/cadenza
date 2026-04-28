@@ -33,7 +33,7 @@ bindings are advisory (see §5 Startup Protocol).
 
 ### Scout
 
-Produces strategic briefs. Writes [`ROADMAP.md`](../ROADMAP.md) and, over time, research notes under `docs/research/`. Scout is usually *not* an agent session — it is often the maintainer consolidating thinking, or a Gemini-run research pass — so it has no kick file in Phase 0. Scout sessions will formalize in Phase 1+.
+Produces strategic briefs. Writes [`ROADMAP.md`](../ROADMAP.md) and, over time, research notes under `docs/research/`. Scout is often *not* an agent session — it may be the maintainer consolidating thinking, or a Gemini-run research pass. When a Scout brief is accepted and the first Architect session has not yet been launched, Bootstrap Wizard prepares the Phase 0 Architect entrypoint from that accepted brief.
 
 **Writes**: `ROADMAP.md`, `docs/research/`.
 **Must not touch**: `spec/`, `packages/`, `docs/adr/`.
@@ -73,11 +73,13 @@ code.
 
 ### Wizard
 
-Runs at phase boundaries after Builder closeout, Reviewer review, and maintainer
-acceptance. Wizard reads the completed phase state, roadmap, WIP notes, memory
-lessons, and review findings, then prepares the next Architect kick file and
-optional handoff note. Wizard does not flip the root phase pointer, freeze
-specs, or implement production code.
+Runs at workflow boundaries. Bootstrap Wizard may prepare the initial
+Scout-to-Phase-0-Architect kick/handoff after the maintainer accepts a Scout
+brief. Phase-boundary Wizard runs after Builder closeout, Reviewer review, and
+maintainer acceptance. Wizard reads accepted inputs, completed phase state,
+roadmap, WIP notes, memory lessons, and review findings, then prepares the next
+Architect kick file and optional handoff note. Wizard does not flip the root
+phase pointer, freeze specs, or implement production code.
 
 **Writes**: `prompt/`, `trace/<phase>/`, `memory/` with maintainer approval.
 **Must not touch**: `packages/`, frozen specs, Accepted ADRs, or
@@ -100,9 +102,14 @@ Each phase runs through the same staged loop. Only phases 0 and 1 are defined in
 
 ```text
 ┌──────────────┐    ┌────────────────────┐    ┌──────────────────┐
-│  Scout brief ├───▶│ Architect Stage A ├───▶│Architect Stage B │
-│  ROADMAP.md  │    │ spec CONTRACT_DRAFT│    │ CONTRACT_FROZEN  │
-└──────────────┘    └────────────────────┘    └────────┬─────────┘
+│  Scout brief ├───▶│ Bootstrap Wizard  ├───▶│ Architect Stage A │
+│  ROADMAP.md  │    │ initial kick file  │    │ CONTRACT_DRAFT   │
+└──────────────┘    └───────────────────┘     └────────┬─────────┘
+                                                       ▼
+                                      ┌──────────────────────────┐
+                                      │ Architect Stage B        │
+                                      │ CONTRACT_FROZEN          │
+                                      └───────────────┬──────────┘
                                                       │
                           ┌───────────────────────────▼──────────┐
                           │   Builder batches (TDD per batch)    │
@@ -121,11 +128,17 @@ Each phase runs through the same staged loop. Only phases 0 and 1 are defined in
                                       └───────────────────────────┘
 ```
 
-### 3.1 Scout brief
+### 3.1 Scout brief and bootstrap handoff
 
 Inputs: user interviews, market observation, prior phase retrospectives.
 Output: `ROADMAP.md` updated (and any research notes in `docs/research/`).
 Done when: maintainer reviews and accepts.
+
+After the maintainer accepts the initial Scout brief, Bootstrap Wizard may
+prepare the first Architect entrypoint. Its output is a Phase 0 Architect kick
+file and optional trace handoff note, not specs or roadmap edits. Bootstrap
+Wizard must preserve the boundary that `ROADMAP.md` is strategic, while
+Architect Stage A turns accepted strategy into contested contract options.
 
 ### 3.2 Architect Stage A — exploratory
 
@@ -181,6 +194,12 @@ and Reviewer closeout are accepted, Wizard may prepare the next Architect kick
 file and optional phase handoff note. The maintainer (not the agent) flips
 `STATUS.yaml.current_phase` to the next phase and archives the closing state in
 `trace/<phase>/` as the final tracker entry.
+
+Bootstrap Wizard is the same role in an initial-start mode: it runs before Phase
+0 Architect when the maintainer has accepted a Scout brief but no Architect kick
+exists yet. It may create `prompt/PHASE0_KICK_ARCHITECT.md` and a matching
+`trace/phase0/scout-architect-handoff.md`, but it does not edit Scout outputs,
+open a phase pointer, or write `spec/`.
 
 ---
 
@@ -369,7 +388,8 @@ Changes to this document, to `AGENTS.md`, or to the kick file templates go throu
 | **Test Case ID**        | `TC-<DOMAIN>-<NN>` tied back to one or more requirement IDs                  |
 | **Batch**               | A Builder work unit of ~5–20 related test cases + implementation             |
 | **Reviewer**            | Independent critic role that reports findings but does not remediate         |
-| **Wizard**              | Phase-boundary role that prepares the next Architect kick/handoff            |
+| **Wizard**              | Workflow-boundary role that prepares Architect kick/handoff artifacts        |
+| **Bootstrap Wizard**    | Wizard mode that prepares the first Scout-to-Architect kick/handoff          |
 | **Memory**              | Project-local, maintainer-approved lessons under `memory/`                   |
 | **Kick file**           | `prompt/PHASE<N>_KICK_<ROLE>.md`; role brief for a phase                     |
 | **Trace**               | Under `trace/<phase>/`; phase execution archive                              |
@@ -405,5 +425,6 @@ A: Yes. The workflow is not agent-specific — it is a contract-first workflow t
 
 | Version | Date | Summary |
 | :------ | :--------- | :----------------------------------------------------------------- |
+| v0.3 | 2026-04-28 | Added Bootstrap Wizard handoff from accepted Scout brief to Phase 0 Architect |
 | v0.2 | 2026-04-25 | Added future-support WIP loop and direct Builder handoff when next-phase specs are already frozen |
 | v0.1 | 2026-04-18 | Initial draft: Phase 0 baseline capturing AGENTS.md + hooks + kick-file + spec/trace conventions |

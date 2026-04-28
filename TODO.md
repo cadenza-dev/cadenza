@@ -5,8 +5,8 @@
     happening at more than phase closeout.
   - Extend `phase:check` so phase close requires either an accepted Reviewer
     report or an explicit maintainer waiver.
-  - Add a Wizard skill or kick-template generator once
-    `PHASE2_KICK_ARCHITECT.md` has been produced manually at least once.
+  - Run a full `skill-creator` eval loop for `cadenza-wizard`; the first
+    eval prompts now live under `.agents/skills/cadenza-wizard/evals/`.
   - Add trigger/eval coverage for `cadenza-reviewer` using the
     [`skill-creator`](/home/eden/.agents/skills/skill-creator/SKILL.md)
     workflow.

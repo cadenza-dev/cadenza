@@ -87,6 +87,8 @@ The point is: **when in doubt, stop and ask once**. Do not silently adopt a role
 
 ```text
 Scout     → ROADMAP.md (strategic brief)
+Wizard    → accepted Scout brief: draft Phase 0 Architect kick/handoff
+
 Architect → spec/<phase>/ Stage A (2-3 options, Freeze Candidates marked)
           → spec/<phase>/ Stage B (Freeze Candidates resolved, CONTRACT_FROZEN)
           → wip/future-support/ (deferred enhancements grouped by future phase)
@@ -113,7 +115,8 @@ from the frozen specs instead of opening another Architect freeze pass.
 Reviewer uses `cadenza-reviewer` and does not fix findings. When the maintainer
 selects findings, Reviewer emits one generic Builder remediation launch phrase.
 Wizard prepares the next Architect kick file after Builder + Reviewer closeout,
-but never flips `STATUS.yaml.current_phase`.
+or the initial Phase 0 Architect kick after an accepted Scout brief, but never
+flips `STATUS.yaml.current_phase`.
 
 Full description: [`docs/agentic-workflow.md`](./docs/agentic-workflow.md).
 
@@ -206,6 +209,7 @@ Current operational skills:
 - `cadenza-phase-status` — current phase, blockers, exit criteria, next batch.
 - `cadenza-reviewer` — independent Builder/closeout review and remediation handoff.
 - `cadenza-spec-lint` — `pnpm spec:lint` or Phase 0 bundled fallback hygiene.
+- `cadenza-wizard` — bootstrap and phase-boundary Architect handoff drafting.
 
 Run `scripts/commands-sync.sh` after adding or deleting a `cadenza-*` skill. It
 mirrors `.agents/skills/cadenza-*` into `.claude/skills/cadenza-*` as relative

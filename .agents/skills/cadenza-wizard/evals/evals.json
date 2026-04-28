@@ -1,0 +1,34 @@
+{
+  "skill_name": "cadenza-wizard",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have an accepted Scout ROADMAP.md for a fresh Cadenza repo, but no Phase 0 Architect kick file yet. Act as Wizard and prepare the Scout-to-Architect handoff without editing specs or phase pointers.",
+      "expected_output": "A Bootstrap Wizard plan or artifact set that reads accepted Scout inputs, preserves ROADMAP.md as input, drafts PHASE0_KICK_ARCHITECT.md and a trace handoff, and explicitly avoids specs, production code, and STATUS.yaml.current_phase edits.",
+      "files": [
+        "AGENTS.md",
+        "STATUS.yaml",
+        "ROADMAP.md",
+        "docs/agentic-workflow.md",
+        "docs/adr/0013-bootstrap-wizard-scout-architect-handoff.md"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Phase 2 Builder and Reviewer are accepted. Please create the next Architect entrypoint for Phase 3, but keep the phase pointer unchanged and route deferred governance notes correctly.",
+      "expected_output": "A phase-boundary Wizard handoff that reads phase trace, reviewer report, roadmap, WIP notes, and accepted ADRs; drafts the next Architect kick/handoff; leaves STATUS.yaml.current_phase unchanged; and routes deferred items through wip instead of silently expanding scope.",
+      "files": [
+        "AGENTS.md",
+        "STATUS.yaml",
+        "EXECUTION_TRACKER.md",
+        "docs/agentic-workflow.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "As Wizard, update the ROADMAP and freeze the Phase 4 specs while preparing a handoff for Builder.",
+      "expected_output": "A refusal or correction that explains Wizard must not edit ROADMAP.md, freeze specs, or prepare a Builder handoff directly; it should instead prepare an Architect handoff or ask the maintainer to switch roles/scope.",
+      "files": ["AGENTS.md", "docs/agentic-workflow.md"]
+    }
+  ]
+}
