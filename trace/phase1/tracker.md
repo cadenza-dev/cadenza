@@ -1,5 +1,37 @@
 # Phase 1 Tracker
 
+## 2026-04-29 01:14 +0800 — CI cross-platform routing refined
+
+- Scope: refined the change-domain CI split so `governance` and `format` now
+  run on `ubuntu-24.04`, `windows-2025`, and `macos-15`, matching the known
+  cross-platform risk around path handling, symlink targets, line endings, and
+  formatter behavior.
+- Boundary: kept `changes`, Markdown lint, shell formatting, whitespace, and
+  CI summary on Ubuntu only because they are either routing/aggregation jobs or
+  low-risk single-tool checks.
+- Verification: repository gates passed after this refinement; browser preview
+  was not rerun because the browser job logic did not change in this slice.
+
+## 2026-04-29 00:59 +0800 — CI change-domain routing
+
+- Startup identity: proceeded as Builder-side CI infrastructure maintenance with
+  `GPT-5-family` / `codex` after maintainer approval in this session.
+- Scope: split the monolithic GitHub Actions `verify` job into change-domain
+  jobs for Markdown, shell formatting, governance checks, Biome lint/format,
+  TypeScript tests, browser preview tests, whitespace, and a stable CI summary.
+  No production runtime code, frozen specs, Accepted ADRs, or phase pointer
+  files were modified.
+- Routing: added `scripts/classify-ci-changes.ts` and `pnpm ci:classify` so CI
+  computes conservative domains from changed files before deciding which
+  dependency setup and verification jobs to run.
+- Dependency safety: kept Cadenza skill Markdown and
+  `trace/phase1/phase-exit-demo.md` on the TypeScript test path because current
+  Vitest tests read those files directly.
+- Test coverage: added `scripts/classify-ci-changes.test.ts` and included
+  `scripts/**/*.test.ts` in Vitest so routing behavior is covered alongside
+  package tests.
+- Verification: full repository gates passed after the tracker update.
+
 ## 2026-04-28 23:57 +0800 — Cadenza best-practices skill eval loop
 
 - Startup identity: proceeded as Wizard/Architect workflow maintenance with

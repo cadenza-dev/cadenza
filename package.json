@@ -23,6 +23,7 @@
     "check:memory": "node --experimental-strip-types scripts/check-memory.ts",
     "check:frozen": "node --experimental-strip-types scripts/check-contract-frozen.ts",
     "check:role-boundary": "node --experimental-strip-types scripts/check-role-boundary.ts",
+    "ci:classify": "node --experimental-strip-types scripts/classify-ci-changes.ts",
     "precommit": "bash scripts/pre-commit.sh"
   },
   "devDependencies": {
