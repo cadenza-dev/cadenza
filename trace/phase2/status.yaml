@@ -239,10 +239,36 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.6
+      scenario: TC-TRAC-001 / TC-TRAC-005
+      status: complete
+      completed_at: "2026-04-29 06:59 +0800"
+      requirements: [TRAC-001, TRAC-002, TRAC-003, TRAC-004, TRAC-005, TRAC-006]
+      evidence:
+        tests:
+          - scripts/traceability-coverage.test.ts
+        code:
+          - scripts/traceability-coverage.ts
+        report:
+          - trace/phase2/traceability-coverage.md
+      boundary: "Non-mutating coverage report and trace scope evidence only; no active-phase-only hard gate, frozen Phase 1 spec edit, export claim, hosted-rendering claim, Phase 3 AI repair-loop work, or Accepted ADR edit."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (passed with elevated permissions after sandbox Chromium launch was blocked)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
-    id: B2.6
-    scenario: TC-TRAC-001 / TC-TRAC-005
-    summary: "Non-mutating traceability coverage report and phase evidence separation."
+    id: B2.7
+    scenario: phase closeout
+    summary: "Review coverage report output, resolve or explicitly waive remaining optional trace gaps, update exit criteria, and prepare Reviewer handoff."
 
 exit_criteria:
   phase2_specs_frozen:

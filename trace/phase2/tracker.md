@@ -1,5 +1,47 @@
 # Phase 2 Tracker
 
+## 2026-04-29 06:59 +0800 — B2.6 TC-TRAC-001/TC-TRAC-005 traceability coverage complete
+
+- Startup identity: proceeded as Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED 1: `pnpm test -- scripts/traceability-coverage.test.ts` failed because
+  `scripts/traceability-coverage.ts` did not exist.
+- GREEN 1: added a non-mutating traceability coverage report API and CLI that
+  compares Phase 2 requirement IDs across domain specs, `SPEC_TEST_MATRIX.md`,
+  `SPEC_TRACEABILITY.md`, `trace/phase2/status.yaml`, tests, and
+  implementation evidence.
+- RED 1 follow-up: the same target test then failed because the test-matrix
+  parser missed `TC-TRAC-001`; fixed the parser to use exact non-stateful ID
+  matching for table row detection.
+- RED 2: the TC-TRAC-005 slice failed because the report did not expose
+  deferred WIP markers for the active-phase-only hard gate and promoted
+  `REV-P1-004` note.
+- GREEN 2: extended the report with Stage A/B status evidence, status evidence
+  path existence checks, deferred WIP files, and deferred marker excerpts from
+  `TODO.md`, `wip/architect/phase1-traceability-coverage.md`, and
+  `wip/future-support/`.
+- Report artifact: generated
+  `trace/phase2/traceability-coverage.md`, which records all 38 Phase 2
+  requirements in specs, test matrix, and traceability matrix, identifies
+  MP4/PDF/hosted-rendering scenarios as absent by design, and remains
+  non-mutating toward frozen Phase 1 specs.
+- The report also flags current evidence gaps as non-blocking findings for
+  requirements that are mapped in frozen specs but do not yet have
+  trace/test/code evidence.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no active-phase-only hard gate, frozen Phase 1 spec edit,
+  export claim, hosted-rendering claim, Phase 3 AI repair-loop work, frozen
+  spec edit, or Accepted ADR edit.
+- Next batch: `B2.7 / phase closeout`.
+
 ## 2026-04-29 06:38 +0800 — B2.5 TC-RSRM-006/TC-BROW-006 browser validation complete
 
 - Startup identity: proceeded as Builder with `GPT-5` / `codex` after
