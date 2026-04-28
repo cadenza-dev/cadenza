@@ -33,6 +33,13 @@ export type {
 } from "./player/keyboard.js";
 export { bindKeyboardNavigation } from "./player/keyboard.js";
 export type {
+  FontVisibilityBinding,
+  RenderSafeDomAdapter,
+  RenderSafeDomAdapterOptions,
+  VideoMetadataReadinessBinding,
+} from "./render-safe/domAdapter.js";
+export { createRenderSafeDomAdapter } from "./render-safe/domAdapter.js";
+export type {
   ResourceReadiness,
   ResourceReadinessRegistry,
 } from "./render-safe/readiness.js";
@@ -81,9 +88,13 @@ export type {
   NotesProps,
   SlideNode,
   SlideProps,
+  StepChildren,
+  StepContext,
   StepKind,
   StepNode,
   StepProps,
+  StepRenderFunction,
+  StepStaticChild,
   ThemeDefinition,
   ThemeProps,
   ThemeTokens,

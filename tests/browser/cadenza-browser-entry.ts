@@ -6,6 +6,7 @@ import {
   type ClickRegionTarget,
   compile,
   createFullscreenControls,
+  createRenderSafeDomAdapter,
   createResourceReadiness,
   createRuntime,
   Deck,
@@ -78,6 +79,7 @@ let controlledReadiness:
       runtime: CadenzaRuntime;
       title: HTMLElement;
       video: HTMLVideoElement;
+      unbind: () => void;
     }
   | undefined;
 
@@ -113,6 +115,7 @@ const runtime = {
   previous() {
     clickCalls.push("previous");
   },
+  resolveComputedStep() {},
 } satisfies CadenzaRuntime;
 
 const keyboardRuntime = {
@@ -200,6 +203,8 @@ window.CadenzaBrowserFixture = {
     }
 
     const readiness = createResourceReadiness();
+    const domAdapter = createRenderSafeDomAdapter({ readiness });
+    controlledReadiness?.unbind();
     const runtime = createRuntime(
       compile(
         Deck({
@@ -223,19 +228,25 @@ window.CadenzaBrowserFixture = {
       { pause() {}, seekTo() {} },
       { readiness },
     );
+    const unbindFont = domAdapter.bindFontVisibility({
+      element: title,
+      resourceId: "font:Inter",
+    });
+    const unbindVideo = domAdapter.bindVideoMetadataReadiness({
+      element: video,
+      resourceId: "video:/demo.mp4",
+    });
 
-    title.style.visibility = "hidden";
-    video.dataset.ready = "false";
-    video.addEventListener(
-      "loadedmetadata",
-      () => {
-        video.dataset.ready = "true";
-        readiness.markReady("video:/demo.mp4");
+    controlledReadiness = {
+      readiness,
+      runtime,
+      title,
+      unbind: () => {
+        unbindFont();
+        unbindVideo();
       },
-      { once: true },
-    );
-
-    controlledReadiness = { readiness, runtime, title, video };
+      video,
+    };
     runtime.next();
 
     return controlledReadinessState(controlledReadiness);
@@ -246,7 +257,6 @@ window.CadenzaBrowserFixture = {
   markControlledFontReady() {
     const gate = requireReadinessGate();
     gate.readiness.markReady("font:Inter");
-    gate.title.style.visibility = "visible";
 
     return controlledReadinessState(gate);
   },

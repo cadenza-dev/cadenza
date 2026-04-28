@@ -7,6 +7,10 @@
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
+    },
+    "./jsx-runtime": {
+      "types": "./src/jsx-runtime.ts",
+      "import": "./src/jsx-runtime.ts"
     }
   }
 }

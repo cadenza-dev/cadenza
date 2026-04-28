@@ -1,5 +1,43 @@
 # Phase 1 Tracker
 
+## 2026-04-28 18:11 +0800 — Builder remediation for selected closeout findings green
+
+- Startup identity: proceeded as Builder remediation with `GPT-5-family` /
+  `codex` after maintainer approval in this session.
+- Scope: maintainer-selected findings from
+  `trace/phase1/review-phase1-closeout.md` only: `REV-P1-001`,
+  `REV-P1-002`, and `REV-P1-003`.
+- Boundary: `REV-P1-004` remains deferred to Architect follow-up; no
+  `CONTRACT_FROZEN` specs or Accepted ADRs were modified.
+- RED/GREEN 1 (`REV-P1-001`): added
+  `packages/core/src/public-tsx-api.fixture.tsx`; `pnpm typecheck` first
+  failed because TSX was not covered/configured and `StepContext` was missing,
+  then passed after adding the public TSX runtime path, TSX coverage, and
+  render-function step context types.
+- RED/GREEN 2 (`REV-P1-002`): added a computed-first runtime test in
+  `packages/core/src/compiler-runtime.closeout.test.ts`; it first failed
+  because `resolveComputedStep` did not exist, then passed after runtime
+  resolution moved the cursor from `loading` to `at-step` and shifted later
+  anchors.
+- RED/GREEN 3 (`REV-P1-003`): rewired
+  `tests/browser/cadenza-browser-entry.ts` to call the public
+  `createRenderSafeDomAdapter`; `pnpm build:browser-fixture` first failed
+  because the helper was not exported, then escalated `pnpm test:browser`
+  passed with font visibility and video metadata readiness driven by the core
+  helper instead of manual fixture DOM toggles.
+- Implementation links: `packages/core/src/jsx-runtime.ts`,
+  `packages/core/src/typed-api/primitives.ts`,
+  `packages/core/src/runtime/createRuntime.ts`,
+  `packages/core/src/render-safe/domAdapter.ts`,
+  `packages/core/src/index.ts`, `packages/core/package.json`,
+  `tsconfig.json`, and `tests/browser/cadenza-browser-entry.ts`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, escalated `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
 ## 2026-04-28 04:05 +0800 — Reviewer, Wizard, and memory infra branch started
 
 - Startup identity: proceeded as Architect with `GPT-5` / `codex` after

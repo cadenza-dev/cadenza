@@ -175,6 +175,49 @@ describe("B1.4-B1 compiler/runtime semantic closeout", () => {
     );
   });
 
+  it("resolves a first computed step and shifts subsequent anchors", () => {
+    const player = { pause: vi.fn(), seekTo: vi.fn() };
+    const runtime = createRuntime(
+      compile(
+        Deck({
+          fps: 10,
+          children: Slide({
+            id: "computed-first",
+            children: [
+              Step({
+                kind: "computed",
+                children: () => "Computed result",
+              }),
+              Step({ duration: "1s", children: "After computed" }),
+            ],
+          }),
+        }),
+      ),
+      player,
+    );
+
+    runtime.goto("computed-first", 0);
+
+    expect(runtime.getCursor()).toEqual({
+      kind: "loading",
+      reason: "computed",
+      slideId: "computed-first",
+    });
+
+    runtime.resolveComputedStep("computed-first", 0, "3s");
+
+    expect(runtime.getCursor()).toEqual({
+      kind: "at-step",
+      slideId: "computed-first",
+      stepIndex: 0,
+    });
+    expect(player.seekTo).toHaveBeenLastCalledWith(0);
+
+    runtime.next();
+
+    expect(player.seekTo).toHaveBeenLastCalledWith(30);
+  });
+
   it("emits warning metadata for decks longer than 60 minutes", () => {
     const timeline = compile(
       Deck({

@@ -4,8 +4,11 @@
     "lib": ["ES2022", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "jsx": "react-jsx",
+    "jsxImportSource": "@cadenza-dev/core",
     "paths": {
-      "@cadenza-dev/core": ["./packages/core/src/index.ts"]
+      "@cadenza-dev/core": ["./packages/core/src/index.ts"],
+      "@cadenza-dev/core/jsx-runtime": ["./packages/core/src/jsx-runtime.ts"]
     },
     "strict": true,
     "noEmit": true,
@@ -16,6 +19,7 @@
   },
   "include": [
     "packages/**/*.ts",
+    "packages/**/*.tsx",
     "playwright.config.ts",
     "scripts/**/*.ts",
     "tests/**/*.ts",
