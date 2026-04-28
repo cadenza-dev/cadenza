@@ -1,5 +1,48 @@
 # Phase 2 Tracker
 
+## 2026-04-29 06:19 +0800 — B2.4 TC-RSRM-001 render-safe readiness complete
+
+- Startup identity: proceeded as Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED 1: `pnpm test:browser -- tests/browser/remotion-preview.spec.ts`
+  first hit the known sandbox Chromium launch failure, then failed under
+  elevated Chromium because
+  `window.CadenzaRemotionPreview.mountControlledReadinessPreview()` did not
+  exist.
+- GREEN 1: added registry-backed preview readiness, connected the Cadenza
+  runtime to that registry, and exposed browser-observable loading state,
+  pending/ready resources, diagnostics, and Remotion preview buffering status
+  on `CadenzaPlayer`.
+- Render-safe resources: added preview components for `SafeImage`, `SafeFont`,
+  and `SafeVideo`. Image readiness follows the browser `load` / `error` path,
+  font readiness uses `document.fonts` by default with an explicit manual
+  fallback for deterministic tests, and video readiness follows
+  `loadedmetadata` / timeout degradation.
+- RED 2: the browser image-diagnostic test failed because duplicate image
+  errors could record repeated diagnostics and the preview section did not
+  observe diagnostic pushes.
+- GREEN 2: made the preview readiness registry the single notification source
+  for readiness and diagnostics, deduping structured diagnostics by
+  code/requirement/source.
+- RED 3: the video timeout browser slice stayed in `loading` because the
+  controlled harness still used the default long resource timeout.
+- GREEN 3: threaded a controlled `resourceTimeoutMs` through the browser
+  readiness fixture, proving metadata timeout degradation emits
+  `RSAF_RESOURCE_TIMEOUT` and releases preview buffering.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no typography/media/content-slot measurement work, nonblank
+  visual sanity gate, traceability coverage report, export claim,
+  hosted-rendering claim, Phase 3 AI repair-loop work, frozen spec edit, or
+  Accepted ADR edit.
+
 ## 2026-04-29 05:35 +0800 — B2.3 TC-PRAD-003/004 navigation and frame sync complete
 
 - Startup identity: proceeded as Builder with `GPT-5-family` / `codex` after

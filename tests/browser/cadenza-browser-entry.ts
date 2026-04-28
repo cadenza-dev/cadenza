@@ -13,6 +13,7 @@ import {
   type KeyboardNavigationTarget,
   type MediaFrameMeasurement,
   SafeFont,
+  SafeImage,
   SafeVideo,
   Slide,
   Step,
@@ -51,6 +52,9 @@ type BrowserFixture = {
 };
 
 type RemotionPreviewFixture = {
+  dispatchPreviewImageError(resourceId: string): void;
+  dispatchPreviewImageLoad(resourceId: string): void;
+  dispatchPreviewVideoMetadata(resourceId: string): void;
   goto(slideId: string, stepIndex?: number): void;
   mountAllDomainMvpPreview(
     selector: string,
@@ -67,6 +71,26 @@ type RemotionPreviewFixture = {
       totalFrames: number;
     };
   };
+  mountControlledReadinessPreview(
+    selector: string,
+    config: {
+      compositionHeight: number;
+      compositionWidth: number;
+      resourceTimeoutMs?: number;
+    },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
+  markPreviewResourceReady(resourceId: string): void;
   nativeSeekToFrame(frame: number): void;
   navigateNext(): void;
   navigatePrevious(): void;
@@ -350,6 +374,21 @@ window.CadenzaBrowserFixture = {
 };
 
 window.CadenzaRemotionPreview = {
+  dispatchPreviewImageError(resourceId) {
+    requirePreviewResource<HTMLImageElement>(resourceId).dispatchEvent(
+      new Event("error"),
+    );
+  },
+  dispatchPreviewImageLoad(resourceId) {
+    requirePreviewResource<HTMLImageElement>(resourceId).dispatchEvent(
+      new Event("load"),
+    );
+  },
+  dispatchPreviewVideoMetadata(resourceId) {
+    requirePreviewResource<HTMLVideoElement>(resourceId).dispatchEvent(
+      new Event("loadedmetadata"),
+    );
+  },
   goto(slideId, stepIndex) {
     requireRemotionPreviewHandle().goto(slideId, stepIndex);
   },
@@ -399,6 +438,91 @@ window.CadenzaRemotionPreview = {
       },
     };
   },
+  markPreviewResourceReady(resourceId) {
+    requireRemotionPreviewHandle().markResourceReady(resourceId);
+  },
+  mountControlledReadinessPreview(selector, config) {
+    const host = document.querySelector(selector);
+    if (!(host instanceof HTMLElement)) {
+      throw new Error(`Missing Remotion preview host '${selector}'.`);
+    }
+
+    const deck = Deck({
+      fps: 12,
+      navigationPolicy: "queue-next",
+      children: [
+        Slide({
+          id: "intro",
+          children: Step({ duration: "1s", children: "Intro" }),
+        }),
+        Slide({
+          id: "readiness",
+          children: [
+            SafeImage({
+              alt: "Controlled preview image",
+              id: "controlled-image",
+              src: "",
+              timeoutMs: config.resourceTimeoutMs ?? 10_000,
+            }),
+            SafeFont({
+              family: "Cadenza Controlled",
+              id: "controlled-font",
+              timeoutMs: config.resourceTimeoutMs ?? 10_000,
+            }),
+            SafeVideo({
+              id: "controlled-video",
+              src: "",
+              timeoutMs: config.resourceTimeoutMs ?? 10_000,
+            }),
+            Step({
+              duration: "1s",
+              children: "Readiness target",
+            }),
+          ],
+        }),
+      ],
+    });
+    const timeline = compile(deck);
+    const playerProps = createCadenzaPreviewMount({
+      compositionHeight: config.compositionHeight,
+      compositionWidth: config.compositionWidth,
+      timeline,
+    });
+
+    remotionPreviewRoot?.unmount();
+    remotionPreviewRoot = createRoot(host);
+    remotionPreviewRoot.render(
+      React.createElement(CadenzaPlayer, {
+        compositionHeight: config.compositionHeight,
+        compositionWidth: config.compositionWidth,
+        deck,
+        fontReadiness: "manual",
+        onPreviewReady(handle) {
+          remotionPreviewHandle = handle;
+
+          return () => {
+            if (remotionPreviewHandle === handle) {
+              remotionPreviewHandle = undefined;
+            }
+          };
+        },
+        timeline,
+      }),
+    );
+
+    return {
+      playerProps: {
+        compositionHeight: playerProps.compositionHeight,
+        compositionWidth: playerProps.compositionWidth,
+        durationInFrames: playerProps.durationInFrames,
+        fps: playerProps.fps,
+      },
+      timeline: {
+        fps: timeline.fps,
+        totalFrames: timeline.totalFrames,
+      },
+    };
+  },
   navigateNext() {
     requireRemotionPreviewHandle().next();
   },
@@ -419,6 +543,19 @@ function requireRemotionPreviewHandle(): CadenzaPlayerHandle {
   }
 
   return remotionPreviewHandle;
+}
+
+function requirePreviewResource<TElement extends Element>(
+  resourceId: string,
+): TElement {
+  const element = document.querySelector(
+    `[data-cadenza-resource-id="${resourceId}"]`,
+  );
+  if (!element) {
+    throw new Error(`Missing preview resource '${resourceId}'.`);
+  }
+
+  return element as TElement;
 }
 
 function requireReadinessGate() {

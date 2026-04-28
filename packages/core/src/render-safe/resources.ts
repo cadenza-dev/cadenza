@@ -8,6 +8,9 @@ export type RenderSafeResourceNode = {
   resourceKind: ResourceKind;
   resourceId: string;
   timeoutMs: number;
+  alt?: string;
+  family?: string;
+  src?: string;
 };
 
 export type TypographyBoxNode = {
@@ -100,15 +103,18 @@ const DEFAULT_CONTENT_READABILITY: ContentReadability = "body";
 
 export function SafeImage(props: SafeImageProps): RenderSafeResourceNode {
   return {
+    alt: props.alt,
     kind: "safe-resource",
     resourceKind: "asset",
     resourceId: props.id ?? `image:${props.src}`,
+    src: props.src,
     timeoutMs: props.timeoutMs ?? DEFAULT_TIMEOUT_MS,
   };
 }
 
 export function SafeFont(props: SafeFontProps): RenderSafeResourceNode {
   return {
+    family: props.family,
     kind: "safe-resource",
     resourceKind: "font",
     resourceId: props.id ?? `font:${props.family}`,
@@ -121,6 +127,7 @@ export function SafeVideo(props: SafeVideoProps): RenderSafeResourceNode {
     kind: "safe-resource",
     resourceKind: "video",
     resourceId: props.id ?? `video:${props.src}`,
+    src: props.src,
     timeoutMs: props.timeoutMs ?? DEFAULT_TIMEOUT_MS,
   };
 }

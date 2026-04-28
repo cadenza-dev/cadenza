@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 
 import type {
+  CadenzaDiagnostic,
   CadenzaNode,
   Cursor,
   DeckNode,
@@ -16,6 +17,7 @@ import {
   type CSSProperties,
   type ReactNode,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -24,6 +26,19 @@ import {
   createCadenzaPreviewController,
 } from "./navigation.js";
 import { createCadenzaPreviewMount } from "./playerProps.js";
+import {
+  createPreviewReadinessRegistry,
+  loadingResourceIdForCursor,
+  type PreviewReadinessRegistry,
+  type PreviewResourceStatus,
+} from "./readiness/registry.js";
+import { usePreviewBuffering } from "./readiness/usePreviewBuffering.js";
+import {
+  type PreviewFontReadinessMode,
+  SafeFontPreview,
+} from "./render-safe/SafeFontPreview.js";
+import { SafeImagePreview } from "./render-safe/SafeImagePreview.js";
+import { SafeVideoPreview } from "./render-safe/SafeVideoPreview.js";
 
 export type CadenzaPlayerProps = {
   className?: string;
@@ -31,6 +46,7 @@ export type CadenzaPlayerProps = {
   compositionWidth: number;
   controls?: boolean;
   deck: DeckNode;
+  fontReadiness?: PreviewFontReadinessMode;
   onPreviewReady?: (handle: CadenzaPlayerHandle) => (() => void) | undefined;
   playerStyle?: CSSProperties;
   timeline: TimelineMap;
@@ -39,19 +55,29 @@ export type CadenzaPlayerProps = {
 export type CadenzaPlayerHandle = {
   getSnapshot(): CadenzaPlayerSnapshot;
   goto(slideId: string, stepIndex?: number): void;
+  markResourceReady(resourceId: string): void;
   nativeSeekToFrame(frame: number): void;
   next(): void;
   previous(): void;
 };
 
 export type CadenzaPlayerSnapshot = {
+  bufferingResourceId?: string | undefined;
   cursor: Cursor;
+  diagnostics: CadenzaDiagnostic[];
   playerFrame: number;
   presenterMetadata: PresenterMetadata;
+  readiness: {
+    pendingResourceIds: string[];
+    resources: PreviewResourceStatus[];
+  };
 };
 
 type CadenzaTimelineCompositionProps = {
+  bufferingResourceId?: string | undefined;
   deck: DeckNode;
+  fontReadiness: PreviewFontReadinessMode;
+  readiness: PreviewReadinessRegistry;
   timeline: TimelineMap;
 };
 
@@ -61,6 +87,7 @@ export function CadenzaPlayer({
   compositionWidth,
   controls = false,
   deck,
+  fontReadiness = "browser",
   onPreviewReady,
   playerStyle,
   timeline,
@@ -70,10 +97,14 @@ export function CadenzaPlayer({
     compositionWidth,
     timeline,
   });
+  const readiness = useMemo(
+    () => createPreviewReadinessRegistry(timeline),
+    [timeline],
+  );
   const playerRef = useRef<PlayerRef>(null);
   const controllerRef = useRef<CadenzaPreviewController | undefined>(undefined);
   const [snapshot, setSnapshot] = useState<CadenzaPlayerSnapshot>(() =>
-    createInitialSnapshot(timeline),
+    createInitialSnapshot(timeline, readiness),
   );
 
   useEffect(() => {
@@ -84,18 +115,25 @@ export function CadenzaPlayer({
 
     const controller = createCadenzaPreviewController({
       player,
+      readiness,
       timeline,
     });
     controllerRef.current = controller;
 
     const updateSnapshot = () => {
-      setSnapshot(createSnapshot(controller, player));
+      setSnapshot(createSnapshot(controller, player, timeline, readiness));
     };
     const unbindCursor = controller.onCursorChange(updateSnapshot);
+    const unbindReadiness = readiness.onChange(updateSnapshot);
     const handle: CadenzaPlayerHandle = {
-      getSnapshot: () => createSnapshot(controller, player),
+      getSnapshot: () =>
+        createSnapshot(controller, player, timeline, readiness),
       goto(slideId, stepIndex) {
         controller.goto(slideId, stepIndex);
+        updateSnapshot();
+      },
+      markResourceReady(resourceId) {
+        readiness.markReady(resourceId);
         updateSnapshot();
       },
       nativeSeekToFrame(frame) {
@@ -117,12 +155,13 @@ export function CadenzaPlayer({
     return () => {
       unbindReady?.();
       unbindCursor();
+      unbindReadiness();
       controller.dispose();
       if (controllerRef.current === controller) {
         controllerRef.current = undefined;
       }
     };
-  }, [onPreviewReady, timeline]);
+  }, [onPreviewReady, readiness, timeline]);
 
   return (
     <section
@@ -130,14 +169,27 @@ export function CadenzaPlayer({
       data-cadenza-cursor-kind={snapshot.cursor.kind}
       data-cadenza-cursor-slide-id={cursorSlideId(snapshot.cursor)}
       data-cadenza-cursor-step-index={cursorStepIndex(snapshot.cursor)}
+      data-cadenza-diagnostic-count={snapshot.diagnostics.length}
       data-cadenza-duration-in-frames={mount.durationInFrames}
       data-cadenza-fps={mount.fps}
       data-cadenza-height={mount.compositionHeight}
+      data-cadenza-loading-reason={loadingReason(snapshot.cursor)}
+      data-cadenza-pending-resource-ids={snapshot.readiness.pendingResourceIds.join(
+        " ",
+      )}
       data-cadenza-player-frame={snapshot.playerFrame}
+      data-cadenza-preview-buffering={String(
+        snapshot.bufferingResourceId !== undefined,
+      )}
+      data-cadenza-preview-buffering-resource-id={snapshot.bufferingResourceId}
       data-cadenza-presenter-slide-id={snapshot.presenterMetadata.slideId}
       data-cadenza-presenter-step-index={snapshot.presenterMetadata.stepIndex}
+      data-cadenza-ready-resource-ids={snapshot.readiness.resources
+        .filter((resource) => resource.ready)
+        .map((resource) => resource.resourceId)
+        .join(" ")}
       data-cadenza-remotion-preview=""
-      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 BROW-001 BROW-002 BROW-003 BROW-004"
+      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 RSRM-001 RSRM-002 RSRM-003 RSRM-004 RSRM-005 BROW-001 BROW-002 BROW-003 BROW-004"
       data-cadenza-width={mount.compositionWidth}
     >
       <div data-cadenza-preview-controls="">
@@ -164,7 +216,13 @@ export function CadenzaPlayer({
         controls={controls}
         durationInFrames={mount.durationInFrames}
         fps={mount.fps}
-        inputProps={{ deck, timeline }}
+        inputProps={{
+          bufferingResourceId: snapshot.bufferingResourceId,
+          deck,
+          fontReadiness,
+          readiness,
+          timeline,
+        }}
         loop={false}
         noSuspense
         ref={playerRef}
@@ -179,7 +237,10 @@ export function CadenzaPlayer({
   );
 }
 
-function createInitialSnapshot(timeline: TimelineMap): CadenzaPlayerSnapshot {
+function createInitialSnapshot(
+  timeline: TimelineMap,
+  readiness: PreviewReadinessRegistry,
+): CadenzaPlayerSnapshot {
   const slide = timeline.slides[0];
 
   if (!slide) {
@@ -192,6 +253,7 @@ function createInitialSnapshot(timeline: TimelineMap): CadenzaPlayerSnapshot {
       slideId: slide.slideId,
       stepIndex: slide.steps[0]?.stepIndex ?? 0,
     },
+    diagnostics: readiness.getDiagnostics(),
     playerFrame: slide.steps[0]?.segment[0] ?? 0,
     presenterMetadata: {
       elapsedActiveTimeMs: 0,
@@ -200,17 +262,38 @@ function createInitialSnapshot(timeline: TimelineMap): CadenzaPlayerSnapshot {
       slideId: slide.slideId,
       stepIndex: slide.steps[0]?.stepIndex ?? 0,
     },
+    readiness: {
+      pendingResourceIds: readiness.getPendingResourceIds(),
+      resources: readiness.getResourceStatuses(),
+    },
   };
 }
 
 function createSnapshot(
   controller: CadenzaPreviewController,
   player: PlayerRef,
+  timeline: TimelineMap,
+  readiness: PreviewReadinessRegistry,
 ): CadenzaPlayerSnapshot {
+  const cursor = controller.getCursor();
+
   return {
-    cursor: controller.getCursor(),
+    bufferingResourceId: loadingResourceIdForCursor(
+      cursor,
+      timeline,
+      readiness,
+    ),
+    cursor,
+    diagnostics: [
+      ...controller.getDiagnostics(),
+      ...readiness.getDiagnostics(),
+    ],
     playerFrame: player.getCurrentFrame(),
     presenterMetadata: controller.getPresenterMetadata(),
+    readiness: {
+      pendingResourceIds: readiness.getPendingResourceIds(),
+      resources: readiness.getResourceStatuses(),
+    },
   };
 }
 
@@ -230,8 +313,19 @@ function cursorStepIndex(cursor: Cursor): number | undefined {
   return cursor.stepIndex;
 }
 
+function loadingReason(cursor: Cursor): string | undefined {
+  if (cursor.kind !== "loading") {
+    return undefined;
+  }
+
+  return cursor.reason;
+}
+
 function CadenzaTimelineComposition({
+  bufferingResourceId,
   deck,
+  fontReadiness,
+  readiness,
   timeline,
 }: CadenzaTimelineCompositionProps): ReactNode {
   const colors = deck.theme?.tokens.color ?? {};
@@ -251,9 +345,15 @@ function CadenzaTimelineComposition({
         padding: 32,
       }}
     >
+      <PreviewBufferingBridge
+        readiness={readiness}
+        resourceId={bufferingResourceId}
+      />
       {deck.children.map((node, index) =>
         renderCadenzaNode(node, {
+          fontReadiness,
           key: `deck:${index}`,
+          readiness,
           slideId: undefined,
           stepIndex: undefined,
           timeline,
@@ -263,10 +363,24 @@ function CadenzaTimelineComposition({
   );
 }
 
+function PreviewBufferingBridge({
+  readiness,
+  resourceId,
+}: {
+  readiness: PreviewReadinessRegistry;
+  resourceId?: string | undefined;
+}): ReactNode {
+  usePreviewBuffering({ readiness, resourceId });
+
+  return null;
+}
+
 function renderCadenzaNode(
   node: CadenzaNode,
   context: {
+    fontReadiness: PreviewFontReadinessMode;
     key: string;
+    readiness: PreviewReadinessRegistry;
     slideId: string | undefined;
     stepIndex: number | undefined;
     timeline: TimelineMap;
@@ -276,7 +390,9 @@ function renderCadenzaNode(
     case "deck":
       return node.children.map((child, index) =>
         renderCadenzaNode(child, {
+          fontReadiness: context.fontReadiness,
           key: `${context.key}:deck:${index}`,
+          readiness: context.readiness,
           slideId: undefined,
           stepIndex: undefined,
           timeline: context.timeline,
@@ -304,7 +420,9 @@ function renderCadenzaNode(
 function renderSlide(
   slide: SlideNode,
   context: {
+    fontReadiness: PreviewFontReadinessMode;
     key: string;
+    readiness: PreviewReadinessRegistry;
     timeline: TimelineMap;
   },
 ): ReactNode {
@@ -317,7 +435,9 @@ function renderSlide(
 
         if (child.kind === "step") {
           const rendered = renderStep(child, {
+            fontReadiness: context.fontReadiness,
             key,
+            readiness: context.readiness,
             slideId: slide.id,
             stepIndex,
             timeline: context.timeline,
@@ -328,7 +448,9 @@ function renderSlide(
         }
 
         return renderCadenzaNode(child, {
+          fontReadiness: context.fontReadiness,
           key,
+          readiness: context.readiness,
           slideId: slide.id,
           stepIndex: undefined,
           timeline: context.timeline,
@@ -341,7 +463,9 @@ function renderSlide(
 function renderStep(
   step: StepNode,
   context: {
+    fontReadiness: PreviewFontReadinessMode;
     key: string;
+    readiness: PreviewReadinessRegistry;
     slideId: string | undefined;
     stepIndex: number | undefined;
     timeline: TimelineMap;
@@ -374,7 +498,9 @@ function renderStep(
 function renderSafeNode(
   node: RenderSafeNode,
   context: {
+    fontReadiness: PreviewFontReadinessMode;
     key: string;
+    readiness: PreviewReadinessRegistry;
     slideId?: string | undefined;
     stepIndex?: number | undefined;
     timeline?: TimelineMap | undefined;
@@ -382,15 +508,33 @@ function renderSafeNode(
 ): ReactNode {
   switch (node.kind) {
     case "safe-resource":
+      if (node.resourceKind === "asset") {
+        return (
+          <SafeImagePreview
+            key={context.key}
+            readiness={context.readiness}
+            resource={node}
+          />
+        );
+      }
+
+      if (node.resourceKind === "font") {
+        return (
+          <SafeFontPreview
+            fontReadiness={context.fontReadiness}
+            key={context.key}
+            readiness={context.readiness}
+            resource={node}
+          />
+        );
+      }
+
       return (
-        <span
-          data-cadenza-resource-id={node.resourceId}
-          data-cadenza-resource-kind={node.resourceKind}
-          data-cadenza-resource-timeout-ms={node.timeoutMs}
+        <SafeVideoPreview
           key={context.key}
-        >
-          {node.resourceKind}: {node.resourceId}
-        </span>
+          readiness={context.readiness}
+          resource={node}
+        />
       );
     case "typography-box":
       return (
@@ -438,6 +582,8 @@ function renderUnknown(
   value: unknown,
   key: string,
   context: {
+    fontReadiness: PreviewFontReadinessMode;
+    readiness: PreviewReadinessRegistry;
     slideId?: string | undefined;
     stepIndex?: number | undefined;
     timeline?: TimelineMap | undefined;
@@ -459,7 +605,9 @@ function renderUnknown(
 
   if (typeof value === "object" && "kind" in value) {
     return renderCadenzaNode(value as CadenzaNode, {
+      fontReadiness: context.fontReadiness,
       key,
+      readiness: context.readiness,
       slideId: context.slideId,
       stepIndex: context.stepIndex,
       timeline: requireTimeline(context.timeline),

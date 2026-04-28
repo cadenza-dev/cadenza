@@ -27,6 +27,12 @@ type RemotionPreviewSnapshot = {
     slideId?: string;
     stepIndex?: number;
   };
+  diagnostics: Array<{
+    code: string;
+    requirementId: string;
+    severity: string;
+    source?: string | undefined;
+  }>;
   playerFrame: number;
   presenterMetadata: {
     notes: string[];
@@ -37,11 +43,23 @@ type RemotionPreviewSnapshot = {
 
 type RemotionPreviewWindow = Window & {
   CadenzaRemotionPreview: {
+    dispatchPreviewImageError(resourceId: string): void;
+    dispatchPreviewImageLoad(resourceId: string): void;
+    dispatchPreviewVideoMetadata(resourceId: string): void;
     goto(slideId: string, stepIndex?: number): void;
     mountAllDomainMvpPreview(
       selector: string,
       config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
+    mountControlledReadinessPreview(
+      selector: string,
+      config: {
+        compositionHeight: number;
+        compositionWidth: number;
+        resourceTimeoutMs?: number;
+      },
+    ): RemotionPreviewMountResult;
+    markPreviewResourceReady(resourceId: string): void;
     nativeSeekToFrame(frame: number): void;
     navigateNext(): void;
     navigatePrevious(): void;
@@ -219,6 +237,215 @@ test.describe("B2.3 Remotion preview navigation", () => {
           stepIndex: 2,
         },
       });
+  });
+});
+
+test.describe("B2.4 render-safe readiness in Remotion preview", () => {
+  test("TC-RSRM-001 reports structured image diagnostics from the browser load path", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountControlledReadinessPreview(
+        "#preview-root",
+        {
+          compositionHeight: 540,
+          compositionWidth: 960,
+        },
+      ),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.dispatchPreviewImageError("controlled-image"),
+    );
+
+    await expect
+      .poll(() => windowSnapshot(page))
+      .toMatchObject({
+        diagnostics: [
+          {
+            code: "RSRM_IMAGE_LOAD_FAILED",
+            requirementId: "RSRM-002",
+            severity: "warning",
+            source: "controlled-image",
+          },
+        ],
+      });
+    await expect(preview).toHaveAttribute("data-cadenza-diagnostic-count", "1");
+  });
+
+  test("TC-RSRM-001 gates slide entry and preview buffering until image, font, and video readiness are observable", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountControlledReadinessPreview(
+        "#preview-root",
+        {
+          compositionHeight: 540,
+          compositionWidth: 960,
+        },
+      ),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.navigateNext(),
+    );
+
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-kind",
+      "loading",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-slide-id",
+      "readiness",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-loading-reason",
+      "asset",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-preview-buffering",
+      "true",
+    );
+    await expect(
+      page.locator('[data-cadenza-resource-id="controlled-image"]'),
+    ).toHaveAttribute("data-cadenza-resource-ready", "false");
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.dispatchPreviewImageLoad("controlled-image"),
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-loading-reason",
+      "font",
+    );
+    await expect(
+      page.locator('[data-cadenza-resource-id="controlled-font"]'),
+    ).toHaveCSS("visibility", "hidden");
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.markPreviewResourceReady("controlled-font"),
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-loading-reason",
+      "video",
+    );
+    await expect(
+      page.locator('[data-cadenza-resource-id="controlled-font"]'),
+    ).toHaveCSS("visibility", "visible");
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.dispatchPreviewVideoMetadata("controlled-video"),
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-kind",
+      "at-step",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-slide-id",
+      "readiness",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-step-index",
+      "0",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-preview-buffering",
+      "false",
+    );
+    await expect(
+      page.locator('[data-cadenza-resource-id="controlled-video"]'),
+    ).toHaveAttribute("data-cadenza-resource-ready", "true");
+  });
+
+  test("TC-RSRM-001 degrades video readiness after metadata timeout with diagnostics", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountControlledReadinessPreview(
+        "#preview-root",
+        {
+          compositionHeight: 540,
+          compositionWidth: 960,
+          resourceTimeoutMs: 30,
+        },
+      ),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.navigateNext(),
+    );
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.dispatchPreviewImageLoad("controlled-image"),
+    );
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.markPreviewResourceReady("controlled-font"),
+    );
+
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-loading-reason",
+      "video",
+    );
+    await expect
+      .poll(() => windowSnapshot(page))
+      .toMatchObject({
+        cursor: {
+          kind: "at-step",
+          slideId: "readiness",
+          stepIndex: 0,
+        },
+        diagnostics: [
+          {
+            code: "RSAF_RESOURCE_TIMEOUT",
+            requirementId: "VAL-005",
+            severity: "warning",
+            source: "controlled-video",
+          },
+        ],
+      });
+    await expect(preview).toHaveAttribute("data-cadenza-diagnostic-count", "1");
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-preview-buffering",
+      "false",
+    );
   });
 });
 

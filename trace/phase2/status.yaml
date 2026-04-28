@@ -178,10 +178,43 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.4
+      scenario: TC-RSRM-001
+      status: complete
+      completed_at: "2026-04-29 06:19 +0800"
+      requirements: [RSRM-001, RSRM-002, RSRM-003, RSRM-004, RSRM-005]
+      evidence:
+        tests:
+          - tests/browser/remotion-preview.spec.ts
+        code:
+          - packages/core/src/render-safe/resources.ts
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - packages/preview-remotion/src/navigation.ts
+          - packages/preview-remotion/src/readiness/registry.ts
+          - packages/preview-remotion/src/readiness/usePreviewBuffering.ts
+          - packages/preview-remotion/src/readiness/useResourceReady.ts
+          - packages/preview-remotion/src/render-safe/SafeImagePreview.tsx
+          - packages/preview-remotion/src/render-safe/SafeFontPreview.tsx
+          - packages/preview-remotion/src/render-safe/SafeVideoPreview.tsx
+          - tests/browser/cadenza-browser-entry.ts
+      boundary: "Render-safe readiness registry, browser image/font/video readiness, preview buffering bridge, and structured readiness diagnostics only; visual measurement, nonblank visual sanity, traceability coverage report, export claims, hosted-rendering claims, Phase 3 AI repair-loop work, frozen spec edits, and Accepted ADR edits remain deferred."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (passed with elevated permissions after sandbox Chromium launch was blocked)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
-    id: B2.4
-    scenario: TC-RSRM-001
-    summary: "Render-safe readiness inside Remotion preview through registry-backed buffering."
+    id: B2.5
+    scenario: TC-RSRM-006 / TC-BROW-006
+    summary: "Browser validation and targeted visual sanity for render-safe preview surfaces."
 
 exit_criteria:
   phase2_specs_frozen:

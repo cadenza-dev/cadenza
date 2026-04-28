@@ -1,7 +1,9 @@
 import {
+  type CadenzaDiagnostic,
   type Cursor,
   createRuntime,
   type PresenterMetadata,
+  type ResourceReadiness,
   type TimelineMap,
   type TransitionSegment,
 } from "@cadenza-dev/core";
@@ -16,12 +18,14 @@ export type CadenzaPreviewNavigationPlayer = CadenzaPreviewFramePlayer & {
 
 export type CadenzaPreviewControllerInput = {
   player: CadenzaPreviewNavigationPlayer;
+  readiness?: ResourceReadiness | undefined;
   timeline: TimelineMap;
 };
 
 export type CadenzaPreviewController = {
   dispose(): void;
   getCursor(): Cursor;
+  getDiagnostics(): CadenzaDiagnostic[];
   getPresenterMetadata(): PresenterMetadata;
   goto(slideId: string, stepIndex?: number): void;
   next(): void;
@@ -35,6 +39,7 @@ type PendingTransition = {
 
 export function createCadenzaPreviewController({
   player,
+  readiness,
   timeline,
 }: CadenzaPreviewControllerInput): CadenzaPreviewController {
   let pendingTransition: PendingTransition | undefined;
@@ -43,33 +48,37 @@ export function createCadenzaPreviewController({
     player,
     completePendingTransition,
   );
-  const runtime = createRuntime(timeline, {
-    getCurrentFrame: framePlayer.getCurrentFrame,
-    onFrameChange(handler) {
-      unbindFrameSync?.();
-      unbindFrameSync = framePlayer.onFrameChange?.(handler);
-
-      return () => {
+  const runtime = createRuntime(
+    timeline,
+    {
+      getCurrentFrame: framePlayer.getCurrentFrame,
+      onFrameChange(handler) {
         unbindFrameSync?.();
-        unbindFrameSync = undefined;
-      };
-    },
-    pause: framePlayer.pause,
-    seekTo(frame) {
-      const transition = transitionEndingAtFrame(timeline, frame);
+        unbindFrameSync = framePlayer.onFrameChange?.(handler);
 
-      if (transition) {
-        pendingTransition = { targetFrame: frame };
-        player.seekTo(transition.segment[0]);
-        player.play();
-        return;
-      }
+        return () => {
+          unbindFrameSync?.();
+          unbindFrameSync = undefined;
+        };
+      },
+      pause: framePlayer.pause,
+      seekTo(frame) {
+        const transition = transitionEndingAtFrame(timeline, frame);
 
-      pendingTransition = undefined;
-      player.seekTo(frame);
-      player.pause();
+        if (transition) {
+          pendingTransition = { targetFrame: frame };
+          player.seekTo(transition.segment[0]);
+          player.play();
+          return;
+        }
+
+        pendingTransition = undefined;
+        player.seekTo(frame);
+        player.pause();
+      },
     },
-  });
+    { readiness },
+  );
 
   return {
     dispose() {
@@ -77,6 +86,7 @@ export function createCadenzaPreviewController({
       unbindFrameSync = undefined;
     },
     getCursor: () => runtime.getCursor(),
+    getDiagnostics: () => runtime.getDiagnostics(),
     getPresenterMetadata: () => runtime.getPresenterMetadata(),
     goto: (slideId, stepIndex) => runtime.goto(slideId, stepIndex),
     next: () => runtime.next(),
