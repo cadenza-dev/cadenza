@@ -160,3 +160,57 @@ Suggested Builder remediation launch phrase:
 ```text
 请作为 Cadenza Builder remediation，读取 trace/phase1/review-phase1-closeout.md，只处理 maintainer-selected findings: REV-P1-001, REV-P1-002, REV-P1-003；不得扩大 scope，不修改 CONTRACT_FROZEN specs 或 Accepted ADRs；用 TDD 修复并更新 trace 后停止。
 ```
+
+## Reviewer Closeout After Builder Remediation
+
+> Date: 2026-04-28 18:40 +0800
+> Reviewed commits: `fabd2ee`, `8e9de57`, `03f98f2`
+
+Reviewer conclusion: accepted. The maintainer-selected Builder remediation
+scope for `REV-P1-001`, `REV-P1-002`, and `REV-P1-003` is closed from the
+reviewer side.
+
+Closure evidence:
+
+- `REV-P1-001`: `packages/core/src/public-tsx-api.fixture.tsx`,
+  `packages/core/src/jsx-runtime.ts`, `packages/core/src/typed-api/primitives.ts`,
+  `packages/core/package.json`, and `tsconfig.json` now cover the Phase 1 TSX
+  component authoring surface, JSX runtime entry, and render-function
+  `StepContext` typing.
+- `REV-P1-002`: `packages/core/src/compiler-runtime.closeout.test.ts` now
+  covers a computed-first runtime case, and
+  `packages/core/src/runtime/createRuntime.ts` exposes `resolveComputedStep`
+  so a pending computed step can leave `loading` and shift later anchors.
+- `REV-P1-003`: `packages/core/src/render-safe/domAdapter.ts` adds the public
+  render-safe DOM helper, and `tests/browser/cadenza-browser-entry.ts` uses
+  `createRenderSafeDomAdapter` so the browser readiness fixture is driven by
+  core API behavior rather than direct manual DOM toggles.
+- Trace closeout is recorded in `trace/phase1/status.yaml` under
+  `post_closeout_remediations.REV_P1_selected_builder_remediation` and in
+  `trace/phase1/tracker.md`.
+
+Verification performed by reviewer:
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm lint
+pnpm format:check
+pnpm test:browser
+pnpm exec markdownlint-cli2 "**/*.md"
+find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
+pnpm spec:lint
+pnpm phase:check
+pnpm check:harness
+pnpm check:memory
+git diff --check
+```
+
+Notes:
+
+- The first sandboxed `pnpm test:browser` run failed with the known Chromium
+  `sandbox_host_linux.cc:41` environment issue. The same command passed when
+  rerun with sandbox escalation.
+- `REV-P1-004` remains deferred to Architect follow-up in
+  `wip/architect/phase1-traceability-coverage.md`; this reviewer closeout does
+  not mark that governance finding complete.
