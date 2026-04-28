@@ -1,5 +1,46 @@
 # Phase 1 Tracker
 
+## 2026-04-28 19:12 +0800 — Root routing and README synced to roadmap
+
+- Trigger: maintainer spotted drift between `ROADMAP.md`, `STATUS.yaml`,
+  `EXECUTION_TRACKER.md`, and the README status section.
+- Scope: root routing/status metadata and README wording only. The root phase
+  pointer remains `current_phase: "1"`; no production code, frozen specs, or
+  ADRs were modified.
+- Fixes: aligned the root phase index with the current roadmap sequence
+  (Phase 2 React + Remotion Preview Adapter, Phase 3 AI Authoring
+  Strengthening, Phase 4 Presentation Product Layer, Phase 5 Export + 0.1 Alpha
+  Readiness), marked Phase 1 as closeout-ready/pending phase transition, and
+  updated README Status/Roadmap/Contributing text to remove stale Phase 0 and
+  premature export/alpha claims.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
+## 2026-04-28 18:52 +0800 — Phase 2 Architect handoff prepared
+
+- Startup identity: proceeded as Wizard with `gpt-5` / `codex` after
+  maintainer approval in this session.
+- Scope: prepared only the Phase 2 Architect kick/handoff. No `packages/`,
+  frozen specs, Accepted ADRs, or root phase pointer were modified.
+- Evidence read: `trace/phase1/status.yaml`,
+  `trace/phase1/review-phase1-closeout.md`, `ROADMAP.md`, `wip/architect/`,
+  `wip/future-support/phase-2-candidates.md`, and
+  `docs/agentic-workflow.md` §3.6.
+- Drift surfaced: `ROADMAP.md` defines Phase 2 as React + Remotion Preview
+  Adapter, while root routing files and old WIP still name Phase 2 as AI
+  Authoring Strengthening. The next Architect kick now treats this as a
+  pre-flight reconciliation item.
+- Handoff artifacts: `prompt/PHASE2_KICK_ARCHITECT.md` and
+  `trace/phase1/phase2-architect-handoff.md`.
+- Verification: `pnpm format:md`, `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+
 ## 2026-04-28 18:23 +0800 — Windows CI harness symlink check fixed
 
 - Trigger: PR `#1` ran GitHub Actions CI for `exp/rev-wiz-mem`; macOS and

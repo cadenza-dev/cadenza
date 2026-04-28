@@ -4,18 +4,19 @@
 
 ## Active phase
 
-**Phase 1 — Core Framework and Typed API (MVP)** *(started 2026-04-25)*
+**Phase 1 — Core Semantics & Typed API** *(closeout ready; started 2026-04-25)*
 → [`trace/phase1/`](./trace/phase1/)
 
 ## Phase index
 
-| Phase | Name                                                     | Status       | Archive                               |
-| :---- | :------------------------------------------------------- | :----------- | :------------------------------------ |
-| 0     | Technical Pre-Commitment                                 | complete     | [`trace/phase0/`](./trace/phase0/)    |
-| 1     | Core Framework and Typed API (MVP)                       | in_progress  | [`trace/phase1/`](./trace/phase1/)    |
-| 2     | AI Authoring Strengthening                               | not_started  | `trace/phase2/`                       |
-| 3     | Presentation Product Layer (pruned)                      | not_started  | `trace/phase3/`                       |
-| 4     | Export / Collaboration / Protocol Extensions (pruned)    | not_started  | `trace/phase4/`                       |
+| Phase | Name                                  | Status                             | Archive                            |
+| :---- | :------------------------------------ | :--------------------------------- | :--------------------------------- |
+| 0     | Technical Pre-Commitment              | complete                           | [`trace/phase0/`](./trace/phase0/) |
+| 1     | Core Semantics & Typed API            | complete, pending phase transition | [`trace/phase1/`](./trace/phase1/) |
+| 2     | React + Remotion Preview Adapter      | not_started                        | `trace/phase2/`                    |
+| 3     | AI Authoring Strengthening            | not_started                        | `trace/phase3/`                    |
+| 4     | Presentation Product Layer (pruned)   | not_started                        | `trace/phase4/`                    |
+| 5     | Export + 0.1 Alpha Readiness          | not_started                        | `trace/phase5/`                    |
 
 ## How to read this after a context reset
 

@@ -11,13 +11,13 @@ repository: https://github.com/cadenza-dev/cadenza
 # Current phase pointer (agents read this first)
 # ------------------------------------------------------------------
 current_phase: "1"
-current_phase_name: "Core Framework and Typed API (MVP)"
-current_phase_status: in_progress
+current_phase_name: "Core Semantics & Typed API"
+current_phase_status: closeout_ready
 current_phase_started: "2026-04-25"
 current_phase_trace: trace/phase1/
 
 # Dominant role for this phase. See phases.<n>.owners for the full list.
-current_phase_dominant_owner: builder
+current_phase_dominant_owner: wizard
 
 # ------------------------------------------------------------------
 # Phase index (per-phase status snapshots)
@@ -30,25 +30,30 @@ phases:
     trace: trace/phase0/
     exit_criteria_ref: "docs/analysis/analysis-final.md §7"
   "1":
-    name: "Core Framework and Typed API (MVP)"
-    status: in_progress
+    name: "Core Semantics & Typed API"
+    status: complete_pending_phase_transition
     owners: [builder, reviewer, wizard]
     trace: trace/phase1/
   "2":
-    name: "AI Authoring Strengthening"
+    name: "React + Remotion Preview Adapter"
     status: not_started
-    owners: []
+    owners: [architect, builder, reviewer, wizard]
     trace: trace/phase2/
   "3":
-    name: "Presentation Product Layer (pruned)"
+    name: "AI Authoring Strengthening"
     status: not_started
-    owners: []
+    owners: [architect, builder, reviewer, wizard]
     trace: trace/phase3/
   "4":
-    name: "Export / Collaboration / Protocol Extensions (further pruned)"
+    name: "Presentation Product Layer (pruned)"
     status: not_started
-    owners: []
+    owners: [architect, builder, reviewer, wizard]
     trace: trace/phase4/
+  "5":
+    name: "Export + 0.1 Alpha Readiness"
+    status: not_started
+    owners: [architect, builder, reviewer, wizard]
+    trace: trace/phase5/
 
 # ------------------------------------------------------------------
 # Role → ownership boundaries. Canonical definitions live in
