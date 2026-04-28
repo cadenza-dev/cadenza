@@ -10,6 +10,15 @@
         "skills/cadenza/rules/typed-authoring.md",
         "skills/cadenza/rules/render-safe-components.md",
         "skills/cadenza/rules/speaker-notes.md"
+      ],
+      "expectations": [
+        "The output provides a complete Cadenza TSX deck slice that imports public Cadenza primitives from @cadenza-dev/core.",
+        "The deck uses one top-level Deck with Theme tokens instead of scattered one-off visual constants.",
+        "The deck includes stable human-readable Slide ids for a title slide and a diagram slide.",
+        "The diagram slide uses a render-safe image declaration with a stable id, src, and alt text.",
+        "The live questions pause is expressed as a wait-for-event Step with exportDuration.",
+        "Speaker guidance is expressed with concise Notes placed near the relevant slide or reveal.",
+        "The output avoids raw Remotion primitives such as useCurrentFrame, delayRender, continueRender, and direct TransitionSeries usage."
       ]
     },
     {
@@ -21,6 +30,14 @@
         "skills/cadenza/rules/motion-timing.md",
         "skills/cadenza/rules/layout-composition.md",
         "skills/cadenza/rules/validation-repair.md"
+      ],
+      "expectations": [
+        "The output leads with a risk-ranked repair plan before proposing code edits.",
+        "The useCurrentFrame reveal problem is routed to Step, Transition, or deck-level navigationPolicy semantics.",
+        "The font flash hidden by CSS opacity is routed to SafeFont or render-safe readiness diagnostics.",
+        "The clipped long title is routed to TypographyBox or ContentSlot overflow diagnostics rather than blind font shrinking.",
+        "The plan uses a validation-repair loop with compile or browser validation, createValidationReport or repairQueue, one focused repair, and re-validation.",
+        "The output avoids claiming green unit tests alone prove browser-observable behavior."
       ]
     },
     {
@@ -32,6 +49,14 @@
         "skills/cadenza/rules/browser-preview.md",
         "skills/cadenza/rules/render-safe-components.md",
         "skills/cadenza/rules/validation-repair.md"
+      ],
+      "expectations": [
+        "The debug path starts from browser preview measurements tied to stable source IDs.",
+        "The MediaFrame aspect-ratio issue is treated as a render-safe diagnostic with a concrete source-level repair path.",
+        "The createValidationReport repairQueue is used to order fatal issues before warnings.",
+        "The plan applies one focused repair and re-runs browser or preview validation before moving on.",
+        "The output explicitly distinguishes browser preview from MP4/PDF export and avoids claiming export support.",
+        "The output avoids bypassing diagnostics with raw Remotion primitives, screenshots, or opaque visual patches."
       ]
     }
   ]

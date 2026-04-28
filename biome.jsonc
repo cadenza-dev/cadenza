@@ -2,7 +2,19 @@
   "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!.codex", "!playwright-report", "!test-results", "!tmp"]
+    "includes": [
+      "**",
+      "!.codex",
+      "!playwright-report",
+      "!test-results",
+      "!tmp",
+      "!skills/*-workspace/**/outputs",
+      "!skills/*-workspace/**/with_skill",
+      "!skills/*-workspace/**/without_skill",
+      "!skills/*-workspace/**/benchmark.json",
+      "!skills/*-workspace/**/analysis.json",
+      "!skills/*-workspace/**/review.html"
+    ]
   },
   "formatter": {
     "enabled": true,

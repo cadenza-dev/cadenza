@@ -11,8 +11,3 @@
     [`skill-creator`](/home/eden/.agents/skills/skill-creator/SKILL.md)
     workflow.
   - Promote only maintainer-approved reusable lessons into `memory/`.
-- After Phase 1 ends, use the
-  [`skill-creator`](/home/eden/.agents/skills/skill-creator/SKILL.md) skill to
-  run a full qualitative and quantitative eval loop for
-  `cadenza-best-practices`; the first eval prompts live under
-  `skills/cadenza/evals/`.

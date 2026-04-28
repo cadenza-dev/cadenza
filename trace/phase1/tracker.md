@@ -1,5 +1,25 @@
 # Phase 1 Tracker
 
+## 2026-04-28 23:57 +0800 — Cadenza best-practices skill eval loop
+
+- Startup identity: proceeded as Wizard/Architect workflow maintenance with
+  `GPT-5-family` / `codex` after maintainer approval in this session.
+- Scope: ran the first qualitative and quantitative `skill-creator` eval loop
+  for the `cadenza-best-practices` mono-skill. No production code, frozen
+  specs, Accepted ADRs, or root phase pointer were modified.
+- Eval source: extended `skills/cadenza/evals/evals.json` with verifiable
+  expectations for the three starter prompts, then synced the generated
+  `.agents/skills/cadenza-best-practices` and `.claude/skills/` mirrors through
+  `scripts/commands-sync.sh`.
+- Run artifacts: saved with-skill and without-skill outputs, transcripts,
+  grading, benchmark, analyzer notes, and static review UI under
+  `skills/cadenza-best-practices-workspace/iteration-1/`.
+- Result: `with_skill` averaged 88.9% pass rate versus 38.1% for
+  `without_skill`; the loop surfaced a follow-up to consider stronger
+  `createValidationReport` / `repairQueue` wording before iteration 2.
+- Review page:
+  `skills/cadenza-best-practices-workspace/iteration-1/review.html`.
+
 ## 2026-04-28 23:10 +0800 — Cadenza authoring mono-skill migration
 
 - Startup identity: continued as Wizard/Architect workflow maintenance with

@@ -4,7 +4,12 @@
     "line-length": false
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules", ".claude/skills"],
+  "ignores": [
+    "node_modules",
+    ".claude/skills",
+    "skills/*-workspace/**/outputs/**",
+    "skills/*-workspace/**/transcript.md"
+  ],
   "fix": true,
   "outputFormatters": [["markdownlint-cli2-formatter-pretty"]]
 }

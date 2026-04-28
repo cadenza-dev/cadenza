@@ -1,0 +1,7 @@
+# Generated benchmark workspace details are useful locally but noisy in git.
+*
+
+# Keep the curated iteration evidence reviewable and commit-friendly.
+!.gitignore
+!benchmark.md
+!conclusions.md
