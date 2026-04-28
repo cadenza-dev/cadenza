@@ -1,6 +1,5 @@
 # TODO
 
-- Merge PR #2 back to `main` only after maintainer approval.
 - Medium-term follow-ups for the reviewer/wizard/memory workflow:
   - Add a reusable `prompt/PHASE<N>_KICK_REVIEWER.md` template if review starts
     happening at more than phase closeout.
