@@ -17,6 +17,7 @@ import {
   type CSSProperties,
   type ReactNode,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -39,6 +40,17 @@ import {
 } from "./render-safe/SafeFontPreview.js";
 import { SafeImagePreview } from "./render-safe/SafeImagePreview.js";
 import { SafeVideoPreview } from "./render-safe/SafeVideoPreview.js";
+import { createContentSlotPreviewMetadata } from "./validation/contentSlot.js";
+import {
+  type MediaFramePreviewMeasurement,
+  measureMediaFrame,
+  validateMediaFrameMeasurement,
+} from "./validation/mediaFrame.js";
+import {
+  measureTypographyBox,
+  type TypographyPreviewMeasurement,
+  validateTypographyBoxMeasurement,
+} from "./validation/typography.js";
 
 export type CadenzaPlayerProps = {
   className?: string;
@@ -189,7 +201,7 @@ export function CadenzaPlayer({
         .map((resource) => resource.resourceId)
         .join(" ")}
       data-cadenza-remotion-preview=""
-      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 RSRM-001 RSRM-002 RSRM-003 RSRM-004 RSRM-005 BROW-001 BROW-002 BROW-003 BROW-004"
+      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 RSRM-001 RSRM-002 RSRM-003 RSRM-004 RSRM-005 RSRM-006 RSRM-007 RSRM-008 BROW-001 BROW-002 BROW-003 BROW-004 BROW-005 BROW-006 BROW-008"
       data-cadenza-width={mount.compositionWidth}
     >
       <div data-cadenza-preview-controls="">
@@ -538,44 +550,155 @@ function renderSafeNode(
       );
     case "typography-box":
       return (
-        <div
-          data-cadenza-typography-box={node.id}
+        <TypographyBoxPreview
           key={context.key}
-          style={{
-            maxHeight: node.maxHeight,
-            maxWidth: node.maxWidth,
-            overflow: "hidden",
-          }}
+          maxHeight={node.maxHeight}
+          maxWidth={node.maxWidth}
+          readiness={context.readiness}
+          source={node.id}
         >
           {renderUnknown(node.children, `${context.key}:children`, context)}
-        </div>
+        </TypographyBoxPreview>
       );
-    case "content-slot":
+    case "content-slot": {
+      const metadata = createContentSlotPreviewMetadata({
+        density: node.metadata.density,
+        readability: node.metadata.readability,
+        source: node.id,
+      });
+
       return (
         <div
           data-cadenza-content-slot={node.id}
-          data-cadenza-density={node.metadata.density}
-          data-cadenza-readability={node.metadata.readability}
+          data-cadenza-density={metadata.density}
+          data-cadenza-readability={metadata.readability}
+          data-cadenza-requirements="RSRM-008 BROW-005"
           key={context.key}
         >
           {renderUnknown(node.children, `${context.key}:children`, context)}
         </div>
       );
+    }
     case "media-frame":
       return (
-        <figure
-          data-cadenza-media-frame={node.id}
-          data-cadenza-media-frame-aspect-ratio={node.aspectRatio}
+        <MediaFramePreview
+          expectedAspectRatio={node.aspectRatio}
           key={context.key}
-          style={{
-            aspectRatio: String(node.aspectRatio),
-            margin: 0,
-          }}
+          readiness={context.readiness}
+          source={node.id}
         >
           {renderUnknown(node.children, `${context.key}:children`, context)}
-        </figure>
+        </MediaFramePreview>
       );
   }
+}
+
+function TypographyBoxPreview({
+  children,
+  maxHeight,
+  maxWidth,
+  readiness,
+  source,
+}: {
+  children: ReactNode;
+  maxHeight: number;
+  maxWidth: number;
+  readiness: PreviewReadinessRegistry;
+  source: string;
+}): ReactNode {
+  const ref = useRef<HTMLDivElement>(null);
+  const [measurement, setMeasurement] = useState<
+    TypographyPreviewMeasurement | undefined
+  >(undefined);
+
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    const nextMeasurement = measureTypographyBox(element, source);
+    setMeasurement(nextMeasurement);
+
+    for (const diagnostic of validateTypographyBoxMeasurement(
+      nextMeasurement,
+    )) {
+      readiness.pushDiagnostic(diagnostic);
+    }
+  }, [readiness, source]);
+
+  return (
+    <div
+      data-cadenza-requirements="RSRM-006 BROW-005"
+      data-cadenza-typography-box={source}
+      data-cadenza-typography-client-height={measurement?.clientHeight}
+      data-cadenza-typography-client-width={measurement?.clientWidth}
+      data-cadenza-typography-scroll-height={measurement?.scrollHeight}
+      data-cadenza-typography-scroll-width={measurement?.scrollWidth}
+      ref={ref}
+      style={{
+        maxHeight,
+        maxWidth,
+        overflow: "hidden",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function MediaFramePreview({
+  children,
+  expectedAspectRatio,
+  readiness,
+  source,
+}: {
+  children: ReactNode;
+  expectedAspectRatio: number;
+  readiness: PreviewReadinessRegistry;
+  source: string;
+}): ReactNode {
+  const ref = useRef<HTMLElement>(null);
+  const [measurement, setMeasurement] = useState<
+    MediaFramePreviewMeasurement | undefined
+  >(undefined);
+
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
+
+    const nextMeasurement = measureMediaFrame(element, {
+      expectedAspectRatio,
+      source,
+    });
+    setMeasurement(nextMeasurement);
+
+    for (const diagnostic of validateMediaFrameMeasurement(nextMeasurement)) {
+      readiness.pushDiagnostic(diagnostic);
+    }
+  }, [expectedAspectRatio, readiness, source]);
+
+  return (
+    <figure
+      data-cadenza-media-frame={source}
+      data-cadenza-media-frame-aspect-ratio={expectedAspectRatio}
+      data-cadenza-media-frame-client-height={measurement?.clientHeight}
+      data-cadenza-media-frame-client-width={measurement?.clientWidth}
+      data-cadenza-media-frame-measured-aspect-ratio={
+        measurement?.measuredAspectRatio
+      }
+      data-cadenza-requirements="RSRM-007 BROW-005"
+      ref={ref}
+      style={{
+        aspectRatio: String(expectedAspectRatio),
+        margin: 0,
+      }}
+    >
+      {children}
+    </figure>
+  );
 }
 
 function renderUnknown(

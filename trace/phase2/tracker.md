@@ -1,5 +1,42 @@
 # Phase 2 Tracker
 
+## 2026-04-29 06:38 +0800 — B2.5 TC-RSRM-006/TC-BROW-006 browser validation complete
+
+- Startup identity: proceeded as Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED 1: `pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g
+  "TC-RSRM-006"` failed under elevated Chromium because
+  `window.CadenzaRemotionPreview.mountControlledValidationPreview()` did not
+  exist.
+- GREEN 1: added preview-side validation helpers for `TypographyBox`,
+  `MediaFrame`, and `ContentSlot`; `CadenzaPlayer` now measures browser layout
+  through real DOM nodes, exposes measurement attributes, and pushes structured
+  `RSRM-006` / `RSRM-007` diagnostics through the preview diagnostics channel.
+- RED 2: `pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g
+  "TC-BROW-006"` failed because the preview root did not record `BROW-006`
+  coverage evidence.
+- GREEN 2: extended the preview root requirement evidence and added a targeted
+  Playwright visual sanity check that samples the Remotion Player screenshot
+  pixels for nonblank contrast while also checking the 16:9 Player frame. This
+  remains a pixel sanity gate, not a broad screenshot-diff oracle.
+- Browser fixture: added `mountControlledValidationPreview()` with a compact
+  `ContentSlot`, intentionally overflowing `TypographyBox`, and intentionally
+  squashed `MediaFrame` so browser-observable measurements and diagnostics are
+  deterministic.
+- Verification after batch: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification used elevated permissions after the default sandbox
+  blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Scope preserved: no screenshot-diff required gate, traceability coverage
+  report, export claim, hosted-rendering claim, Phase 3 AI repair-loop work,
+  frozen spec edit, or Accepted ADR edit.
+- Next batch: `B2.6 / TC-TRAC-001 + TC-TRAC-005`.
+
 ## 2026-04-29 06:19 +0800 — B2.4 TC-RSRM-001 render-safe readiness complete
 
 - Startup identity: proceeded as Builder with `GPT-5` / `codex` after

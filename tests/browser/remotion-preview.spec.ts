@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { inflateSync } from "node:zlib";
 import { expect, type Page, test } from "@playwright/test";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
@@ -58,6 +59,10 @@ type RemotionPreviewWindow = Window & {
         compositionWidth: number;
         resourceTimeoutMs?: number;
       },
+    ): RemotionPreviewMountResult;
+    mountControlledValidationPreview(
+      selector: string,
+      config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
     markPreviewResourceReady(resourceId: string): void;
     nativeSeekToFrame(frame: number): void;
@@ -449,10 +454,328 @@ test.describe("B2.4 render-safe readiness in Remotion preview", () => {
   });
 });
 
+test.describe("B2.5 render-safe browser validation", () => {
+  test("TC-RSRM-006 exposes browser measurements and metadata for render-safe preview surfaces", async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <main>
+        <style>
+          [data-cadenza-typography-box="validation-title"] span {
+            white-space: nowrap;
+          }
+
+          [data-cadenza-media-frame="validation-frame"] {
+            aspect-ratio: auto !important;
+            display: block;
+            height: 240px !important;
+            width: 240px !important;
+          }
+        </style>
+        <div id="preview-root"></div>
+      </main>
+    `);
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountControlledValidationPreview(
+        "#preview-root",
+        {
+          compositionHeight: 540,
+          compositionWidth: 960,
+        },
+      ),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+
+    const typography = page.locator(
+      '[data-cadenza-typography-box="validation-title"]',
+    );
+    await expect(typography).toHaveAttribute(
+      "data-cadenza-requirements",
+      /RSRM-006/,
+    );
+    await expect(typography).toHaveAttribute(
+      "data-cadenza-typography-client-width",
+      /[1-9]\d*/,
+    );
+    const typographyMeasurement = await typography.evaluate((element) => ({
+      clientWidth: Number(
+        element.getAttribute("data-cadenza-typography-client-width"),
+      ),
+      scrollWidth: Number(
+        element.getAttribute("data-cadenza-typography-scroll-width"),
+      ),
+    }));
+    expect(typographyMeasurement.scrollWidth).toBeGreaterThan(
+      typographyMeasurement.clientWidth,
+    );
+
+    const mediaFrame = page.locator(
+      '[data-cadenza-media-frame="validation-frame"]',
+    );
+    await expect(mediaFrame).toHaveAttribute(
+      "data-cadenza-requirements",
+      /RSRM-007/,
+    );
+    await expect(mediaFrame).toHaveAttribute(
+      "data-cadenza-media-frame-client-width",
+      "240",
+    );
+    await expect(mediaFrame).toHaveAttribute(
+      "data-cadenza-media-frame-client-height",
+      "240",
+    );
+
+    const contentSlot = page.locator(
+      '[data-cadenza-content-slot="validation-slot"]',
+    );
+    await expect(contentSlot).toHaveAttribute(
+      "data-cadenza-requirements",
+      /RSRM-008/,
+    );
+    await expect(contentSlot).toHaveAttribute(
+      "data-cadenza-density",
+      "compact",
+    );
+    await expect(contentSlot).toHaveAttribute(
+      "data-cadenza-readability",
+      "headline",
+    );
+
+    await expect
+      .poll(() => windowSnapshot(page))
+      .toMatchObject({
+        diagnostics: expect.arrayContaining([
+          expect.objectContaining({
+            code: "RSRM_TYPOGRAPHY_OVERFLOW",
+            requirementId: "RSRM-006",
+            severity: "warning",
+            source: "validation-title",
+          }),
+          expect.objectContaining({
+            code: "RSRM_MEDIAFRAME_ASPECT_RATIO",
+            requirementId: "RSRM-007",
+            severity: "warning",
+            source: "validation-frame",
+          }),
+        ]),
+      });
+  });
+
+  test("TC-BROW-006 samples preview pixels for nonblank and correctly framed Player output", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountAllDomainMvpPreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+      }),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-requirements",
+      /BROW-006/,
+    );
+
+    const player = preview.locator(".cadenza-remotion-player");
+    await expect(player).toBeVisible();
+
+    const playerBox = await player.boundingBox();
+    expect(playerBox).not.toBeNull();
+    if (playerBox === null) {
+      throw new Error("Missing Remotion Player bounds.");
+    }
+    expect(playerBox.width).toBeGreaterThan(300);
+    expect(playerBox.height).toBeGreaterThan(160);
+    expect(playerBox.width / playerBox.height).toBeCloseTo(16 / 9, 1);
+
+    const screenshot = await player.screenshot();
+    expect(inspectPngVisualSanity(screenshot)).toMatchObject({
+      hasNonBackgroundContrast: true,
+      height: expect.any(Number),
+      sampledOpaquePixels: expect.any(Number),
+      uniqueRgbColors: expect.any(Number),
+      width: expect.any(Number),
+    });
+  });
+});
+
 async function windowSnapshot(page: Page): Promise<RemotionPreviewSnapshot> {
   return page.evaluate(() =>
     (
       window as unknown as RemotionPreviewWindow
     ).CadenzaRemotionPreview.snapshot(),
   );
+}
+
+type PngVisualSanity = {
+  hasNonBackgroundContrast: boolean;
+  height: number;
+  sampledOpaquePixels: number;
+  uniqueRgbColors: number;
+  width: number;
+};
+
+function inspectPngVisualSanity(buffer: Buffer): PngVisualSanity {
+  const png = decodePng(buffer);
+  const colors = new Set<string>();
+  let sampledOpaquePixels = 0;
+  let hasLightPixel = false;
+  let hasDarkPixel = false;
+  const stride = Math.max(1, Math.floor((png.width * png.height) / 1_000));
+
+  for (let pixel = 0; pixel < png.width * png.height; pixel += stride) {
+    const offset = pixel * 4;
+    const red = png.pixels[offset] ?? 0;
+    const green = png.pixels[offset + 1] ?? 0;
+    const blue = png.pixels[offset + 2] ?? 0;
+    const alpha = png.pixels[offset + 3] ?? 255;
+
+    if (alpha < 16) {
+      continue;
+    }
+
+    sampledOpaquePixels += 1;
+    colors.add(`${red}:${green}:${blue}`);
+
+    const luminance = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+    hasLightPixel ||= luminance > 180;
+    hasDarkPixel ||= luminance < 80;
+  }
+
+  return {
+    hasNonBackgroundContrast:
+      sampledOpaquePixels > 100 &&
+      colors.size > 4 &&
+      hasLightPixel &&
+      hasDarkPixel,
+    height: png.height,
+    sampledOpaquePixels,
+    uniqueRgbColors: colors.size,
+    width: png.width,
+  };
+}
+
+function decodePng(buffer: Buffer): {
+  height: number;
+  pixels: Uint8Array;
+  width: number;
+} {
+  if (buffer.toString("ascii", 1, 4) !== "PNG") {
+    throw new Error("Expected a PNG screenshot.");
+  }
+
+  let offset = 8;
+  let width = 0;
+  let height = 0;
+  let colorType = 0;
+  const idatChunks: Buffer[] = [];
+
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString("ascii", offset + 4, offset + 8);
+    const dataStart = offset + 8;
+    const dataEnd = dataStart + length;
+
+    if (type === "IHDR") {
+      width = buffer.readUInt32BE(dataStart);
+      height = buffer.readUInt32BE(dataStart + 4);
+      const bitDepth = buffer[dataStart + 8];
+      colorType = buffer[dataStart + 9] ?? 0;
+      if (bitDepth !== 8 || (colorType !== 2 && colorType !== 6)) {
+        throw new Error(
+          `Unsupported PNG format bitDepth=${bitDepth} colorType=${colorType}.`,
+        );
+      }
+    } else if (type === "IDAT") {
+      idatChunks.push(buffer.subarray(dataStart, dataEnd));
+    } else if (type === "IEND") {
+      break;
+    }
+
+    offset = dataEnd + 4;
+  }
+
+  const bytesPerPixel = colorType === 6 ? 4 : 3;
+  const inflated = inflateSync(Buffer.concat(idatChunks));
+  const rawStride = width * bytesPerPixel;
+  const previous = new Uint8Array(rawStride);
+  const current = new Uint8Array(rawStride);
+  const pixels = new Uint8Array(width * height * 4);
+  let readOffset = 0;
+
+  for (let y = 0; y < height; y += 1) {
+    const filter = inflated[readOffset] ?? 0;
+    readOffset += 1;
+    current.set(inflated.subarray(readOffset, readOffset + rawStride));
+    readOffset += rawStride;
+    unfilterPngScanline(current, previous, bytesPerPixel, filter);
+
+    for (let x = 0; x < width; x += 1) {
+      const inputOffset = x * bytesPerPixel;
+      const outputOffset = (y * width + x) * 4;
+      pixels[outputOffset] = current[inputOffset] ?? 0;
+      pixels[outputOffset + 1] = current[inputOffset + 1] ?? 0;
+      pixels[outputOffset + 2] = current[inputOffset + 2] ?? 0;
+      pixels[outputOffset + 3] =
+        colorType === 6 ? (current[inputOffset + 3] ?? 255) : 255;
+    }
+
+    previous.set(current);
+  }
+
+  return { height, pixels, width };
+}
+
+function unfilterPngScanline(
+  current: Uint8Array,
+  previous: Uint8Array,
+  bytesPerPixel: number,
+  filter: number,
+): void {
+  for (let index = 0; index < current.length; index += 1) {
+    const left =
+      index >= bytesPerPixel ? (current[index - bytesPerPixel] ?? 0) : 0;
+    const up = previous[index] ?? 0;
+    const upLeft =
+      index >= bytesPerPixel ? (previous[index - bytesPerPixel] ?? 0) : 0;
+
+    if (filter === 1) {
+      current[index] = ((current[index] ?? 0) + left) & 255;
+    } else if (filter === 2) {
+      current[index] = ((current[index] ?? 0) + up) & 255;
+    } else if (filter === 3) {
+      current[index] =
+        ((current[index] ?? 0) + Math.floor((left + up) / 2)) & 255;
+    } else if (filter === 4) {
+      current[index] =
+        ((current[index] ?? 0) + paethPredictor(left, up, upLeft)) & 255;
+    } else if (filter !== 0) {
+      throw new Error(`Unsupported PNG filter ${filter}.`);
+    }
+  }
+}
+
+function paethPredictor(left: number, up: number, upLeft: number): number {
+  const estimate = left + up - upLeft;
+  const leftDistance = Math.abs(estimate - left);
+  const upDistance = Math.abs(estimate - up);
+  const upLeftDistance = Math.abs(estimate - upLeft);
+
+  if (leftDistance <= upDistance && leftDistance <= upLeftDistance) {
+    return left;
+  }
+
+  return upDistance <= upLeftDistance ? up : upLeft;
 }

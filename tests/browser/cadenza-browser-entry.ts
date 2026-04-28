@@ -4,6 +4,7 @@ import {
   type CadenzaDiagnostic,
   type CadenzaRuntime,
   type ClickRegionTarget,
+  ContentSlot,
   compile,
   createFullscreenControls,
   createRenderSafeDomAdapter,
@@ -11,12 +12,14 @@ import {
   createRuntime,
   Deck,
   type KeyboardNavigationTarget,
+  MediaFrame,
   type MediaFrameMeasurement,
   SafeFont,
   SafeImage,
   SafeVideo,
   Slide,
   Step,
+  TypographyBox,
   validatePreviewLayout,
 } from "@cadenza-dev/core";
 import { createAllDomainMvpFixture } from "@cadenza-dev/core/fixtures/allDomainMvp";
@@ -78,6 +81,21 @@ type RemotionPreviewFixture = {
       compositionWidth: number;
       resourceTimeoutMs?: number;
     },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
+  mountControlledValidationPreview(
+    selector: string,
+    config: { compositionHeight: number; compositionWidth: number },
   ): {
     playerProps: {
       compositionHeight: number;
@@ -440,6 +458,82 @@ window.CadenzaRemotionPreview = {
   },
   markPreviewResourceReady(resourceId) {
     requireRemotionPreviewHandle().markResourceReady(resourceId);
+  },
+  mountControlledValidationPreview(selector, config) {
+    const host = document.querySelector(selector);
+    if (!(host instanceof HTMLElement)) {
+      throw new Error(`Missing Remotion preview host '${selector}'.`);
+    }
+
+    const deck = Deck({
+      fps: 12,
+      navigationPolicy: "queue-next",
+      children: [
+        Slide({
+          id: "validation",
+          children: Step({
+            duration: "1s",
+            children: ContentSlot({
+              id: "validation-slot",
+              density: "compact",
+              readability: "headline",
+              children: [
+                TypographyBox({
+                  id: "validation-title",
+                  maxHeight: 24,
+                  maxWidth: 120,
+                  children: "ThisTitleIsIntentionallyTooWideForThePreviewBox",
+                }),
+                MediaFrame({
+                  id: "validation-frame",
+                  aspectRatio: 16 / 9,
+                  children: "Preview validation frame",
+                }),
+              ],
+            }),
+          }),
+        }),
+      ],
+    });
+    const timeline = compile(deck);
+    const playerProps = createCadenzaPreviewMount({
+      compositionHeight: config.compositionHeight,
+      compositionWidth: config.compositionWidth,
+      timeline,
+    });
+
+    remotionPreviewRoot?.unmount();
+    remotionPreviewRoot = createRoot(host);
+    remotionPreviewRoot.render(
+      React.createElement(CadenzaPlayer, {
+        compositionHeight: config.compositionHeight,
+        compositionWidth: config.compositionWidth,
+        deck,
+        onPreviewReady(handle) {
+          remotionPreviewHandle = handle;
+
+          return () => {
+            if (remotionPreviewHandle === handle) {
+              remotionPreviewHandle = undefined;
+            }
+          };
+        },
+        timeline,
+      }),
+    );
+
+    return {
+      playerProps: {
+        compositionHeight: playerProps.compositionHeight,
+        compositionWidth: playerProps.compositionWidth,
+        durationInFrames: playerProps.durationInFrames,
+        fps: playerProps.fps,
+      },
+      timeline: {
+        fps: timeline.fps,
+        totalFrames: timeline.totalFrames,
+      },
+    };
   },
   mountControlledReadinessPreview(selector, config) {
     const host = document.querySelector(selector);

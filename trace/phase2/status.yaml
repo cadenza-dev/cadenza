@@ -211,10 +211,38 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.5
+      scenario: TC-RSRM-006 / TC-BROW-006
+      status: complete
+      completed_at: "2026-04-29 06:38 +0800"
+      requirements: [RSRM-006, RSRM-007, RSRM-008, BROW-005, BROW-006, BROW-008]
+      evidence:
+        tests:
+          - tests/browser/remotion-preview.spec.ts
+        code:
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - packages/preview-remotion/src/validation/typography.ts
+          - packages/preview-remotion/src/validation/mediaFrame.ts
+          - packages/preview-remotion/src/validation/contentSlot.ts
+          - tests/browser/cadenza-browser-entry.ts
+      boundary: "Browser layout measurement, structured render-safe validation diagnostics, ContentSlot metadata exposure, and targeted nonblank/framing pixel sanity only; no screenshot-diff required gate, traceability coverage report, export claim, hosted-rendering claim, Phase 3 AI repair-loop work, frozen spec edit, or Accepted ADR edit."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (passed with elevated permissions after sandbox Chromium launch was blocked)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
-    id: B2.5
-    scenario: TC-RSRM-006 / TC-BROW-006
-    summary: "Browser validation and targeted visual sanity for render-safe preview surfaces."
+    id: B2.6
+    scenario: TC-TRAC-001 / TC-TRAC-005
+    summary: "Non-mutating traceability coverage report and phase evidence separation."
 
 exit_criteria:
   phase2_specs_frozen:
