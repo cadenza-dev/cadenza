@@ -141,6 +141,10 @@ pnpm check:memory    # project memory directory shape
 
 If any command fails, **do not claim done**. Fix or report.
 
+Testing placement and scope are defined in
+[`docs/design/testing-taxonomy.md`](./docs/design/testing-taxonomy.md). Do not
+move all tests under `tests/` unless that taxonomy is deliberately updated.
+
 For Markdown or shell-script edits, apply formatters before the final check:
 `markdownlint-cli2 --fix "**/*.md"` and
 `find scripts .agents -name '*.sh' -exec shfmt -w {} +`.

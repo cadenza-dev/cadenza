@@ -168,5 +168,6 @@ Cadenza stands on the shoulders of several projects:
 - Strategic analysis (English): [`docs/analysis/analysis-final.md`](./docs/analysis/analysis-final.md)
 - Strategic analysis (中文): [`docs/analysis/analysis-final.zh.md`](./docs/analysis/analysis-final.zh.md)
 - Compiler design: [`docs/design/compiler-design.md`](./docs/design/compiler-design.md)
+- Testing taxonomy: [`docs/design/testing-taxonomy.md`](./docs/design/testing-taxonomy.md)
 - Architectural decisions: [`docs/adr/`](./docs/adr/)
 - Goals and non-goals: [`goals-non-goals.md`](./goals-non-goals.md)
