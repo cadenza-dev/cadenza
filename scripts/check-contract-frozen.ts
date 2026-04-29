@@ -43,6 +43,10 @@ function changedSince(base: string): string[] {
   return output ? output.split(/\r?\n/).filter(Boolean) : [];
 }
 
+function commitMessagesSince(base: string): string {
+  return git(["log", "--format=%B", `${base}..HEAD`]);
+}
+
 function workingTreeFiles(): string[] {
   const output = git(["diff", "--name-only", "--diff-filter=ACMRT", "HEAD"]);
   return output ? output.split(/\r?\n/).filter(Boolean) : [];
@@ -91,6 +95,11 @@ const commitMessage =
     : "";
 if (commitMsgPath && commitMessage.includes("[FREEZE-OVERRIDE]")) {
   console.log("check:frozen OK ([FREEZE-OVERRIDE] present)");
+  process.exit(0);
+}
+
+if (base && commitMessagesSince(base).includes("[FREEZE-OVERRIDE]")) {
+  console.log("check:frozen OK ([FREEZE-OVERRIDE] present in commit range)");
   process.exit(0);
 }
 
