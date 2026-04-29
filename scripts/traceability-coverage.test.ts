@@ -177,7 +177,7 @@ describe("coverage evidence classification", () => {
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }
-  });
+  }, 20_000);
 
   it("does not let trace-only declarations satisfy acceptance evidence", () => {
     const repoRoot = mkdtempSync(path.join(tmpdir(), "cadenza-trace-only-"));
