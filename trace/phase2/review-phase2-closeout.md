@@ -145,3 +145,64 @@ Recommended owner: builder-remediation.
   preview adapter audit.
 - No Builder remediation launch phrase is emitted yet because the maintainer
   has not selected finding IDs for remediation.
+
+## Reviewer Acceptance
+
+- Reviewed at: 2026-04-29 18:19 +0800
+- Reviewer role: Phase 2 Reviewer
+- Approved identity: GPT-5 / Codex, approved by maintainer in session
+- Scope:
+  - `REV-P2-001`
+  - `REV-P2-002`
+  - `REV-P2-003`
+  - `trace/phase2/status.yaml`
+  - `trace/phase2/tracker.md`
+  - `trace/phase2/traceability-coverage.md`
+  - `scripts/traceability-coverage.ts`
+  - `scripts/traceability-coverage.test.ts`
+  - targeted preview evidence for `TC-PKG-004` and `TC-PRAD-007`
+- Mode: read-only remediation review; no code remediation performed
+
+### Acceptance Decision
+
+Accepted. The Builder remediation resolves the three selected findings well
+enough for Phase 2 closeout review.
+
+### Accepted Remediation Evidence
+
+- `REV-P2-001`: accepted. `PKG-004` now has unit evidence for the public
+  controller surface, `PRAD-007` now has browser evidence for one preview
+  diagnostics channel shared by Remotion Player errors and Cadenza diagnostics,
+  and `PKG-006` / `PRAD-008` are recorded as maintainer-approved P2/MAY
+  waivers rather than silently satisfied.
+- `REV-P2-002`: accepted. `scripts/traceability-coverage.ts` now separates
+  `Trace status evidence` from `Acceptance evidence`, and emits findings when a
+  requirement has only trace declarations and no acceptance evidence or
+  maintainer-approved waiver. Regression tests cover both trace-only evidence
+  and existing future paths that do not name the requirement or scenario.
+- `REV-P2-003`: accepted. `trace/phase2/traceability-coverage.md` now includes
+  an explicit `REV-P1-004 Disposition` section with the source finding, Phase 2
+  non-mutating report mitigation, deferred active-phase-only hard gate, follow-up
+  paths, and the boundary that frozen Phase 1 specs were not edited.
+
+### Verification
+
+- `pnpm test -- scripts/traceability-coverage.test.ts packages/preview-remotion/src/navigation.test.ts`
+  passed.
+- `pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g TC-PRAD-007`
+  failed in the default sandbox only at Chromium launch with
+  `sandbox_host_linux.cc` / `Operation not permitted`; the same targeted browser
+  test passed with elevated permissions.
+- Required closeout gates passed: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check`.
+
+### Acceptance Scope
+
+- This acceptance is scoped to the maintainer-selected remediation findings
+  `REV-P2-001`, `REV-P2-002`, and `REV-P2-003`. It does not reopen a full
+  Phase 2 preview adapter architecture or UX review.
+- Root `STATUS.yaml.current_phase` and `trace/phase2/status.yaml` closeout
+  pointers were intentionally left unchanged by Reviewer.
