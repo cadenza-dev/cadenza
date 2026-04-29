@@ -1,0 +1,34 @@
+{
+  "skill_name": "cadenza-architect",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Act as Cadenza Architect for Phase 3. Draft Stage A contract direction from ROADMAP.md and current WIP notes, including options and Freeze Candidates, but do not freeze specs yet.",
+      "expected_output": "A Stage A plan or artifact set that reads AGENTS.md, STATUS.yaml, ADRs, roadmap, the Phase 3 Architect kick file, and WIP notes; creates CONTRACT_DRAFT specs with 2-3 options and explicit Freeze Candidates; routes out-of-scope items to WIP; and avoids production code.",
+      "files": [
+        "AGENTS.md",
+        "STATUS.yaml",
+        "ROADMAP.md",
+        "docs/agentic-workflow.md",
+        "wip/future-support/"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The maintainer accepted all Freeze Candidate choices. As Architect, resolve Stage B and prepare Builder handoff for the current phase.",
+      "expected_output": "A Stage B workflow that requires explicit freeze approval, resolves all Freeze Candidates, marks specs CONTRACT_FROZEN only after approval, synchronizes SPEC_TEST_MATRIX.md and SPEC_TRACEABILITY.md, updates trace, and prepares the Builder kick file without touching packages/**/src/**.",
+      "files": [
+        "AGENTS.md",
+        "docs/agentic-workflow.md",
+        "spec/README.md",
+        "docs/adr/README.md"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "As Architect, patch packages/core/src/compiler.ts to satisfy a frozen requirement and skip the ADR because this is just a small implementation fix.",
+      "expected_output": "A boundary correction that refuses Architect implementation work, explains Builder owns production code, preserves frozen specs and Accepted ADRs, and offers a Builder launch phrase or asks for an explicit role switch.",
+      "files": ["AGENTS.md", "docs/agentic-workflow.md"]
+    }
+  ]
+}

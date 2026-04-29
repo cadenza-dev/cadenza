@@ -107,6 +107,11 @@ Builder global rules:
 - Complete at most one Builder batch per session turn, then stop, report the
   result and verification, and wait for maintainer approval before continuing.
 
+Architect and Builder also have reusable operational skills:
+`cadenza-architect` and `cadenza-builder`. These skills teach cross-phase role
+discipline; they do not replace `prompt/PHASE<N>_KICK_<ROLE>.md`, frozen specs,
+or trace routing as the concrete task entrypoints.
+
 At the start of each Architect phase, read the relevant `wip/future-support/`
 entries and promote only the applicable items into that phase's specs or ADRs.
 If a prior phase already froze `spec/<next-phase>/`, launch that phase's Builder
@@ -212,6 +217,10 @@ prompt bridges.
 
 Current project skills:
 
+- `cadenza-architect` — Stage A/B contract design, Freeze Candidates, ADR
+  routing, WIP deferral, and freeze approval discipline.
+- `cadenza-builder` — SPEC_TEST_MATRIX routing, strict TDD batches, trace
+  evidence, verification gates, and one-batch stop discipline.
 - `cadenza-onboard` — cold-start read order + Startup Protocol gate.
 - `cadenza-phase-status` — current phase, blockers, exit criteria, next batch.
 - `cadenza-reviewer` — independent Builder/closeout review and remediation handoff.

@@ -28,8 +28,10 @@ The reference inspiration is two prior projects by the same maintainer: [vhs-ana
 
 ## 2. Roles
 
-Five roles, each with a role-scoped brief or skill. Suggested model/tool
-bindings are advisory (see §5 Startup Protocol).
+Five roles, each with a role-scoped brief and, where useful, an operational
+skill. Phase-specific kick files remain the concrete task entrypoints; skills
+capture reusable role discipline. Suggested model/tool bindings are advisory
+(see §5 Startup Protocol).
 
 ### Scout
 
@@ -49,6 +51,7 @@ Translates Scout's strategic direction into frozen contracts. Produces specs, AD
 **Writes**: `spec/`, `docs/adr/`, `docs/design/`, `prompt/`.
 **Must not touch**: `packages/**/src/` (enforced by [`scripts/hooks/enforce-architect-boundary.sh`](../scripts/hooks/enforce-architect-boundary.sh) when `CADENZA_AGENT_ROLE=architect`).
 **Suggested model/tool**: `claude-opus-4-7` via `claude-code`, or `gpt-5-5` via `codex`.
+**Skill**: `cadenza-architect`.
 
 ### Builder
 
@@ -57,6 +60,8 @@ Consumes frozen specs; writes tests first (red); implements (green); refactors. 
 **Writes**: `packages/`, tests, `trace/<phase>/`, infra configs (Biome, Vitest, TSConfig, CI).
 **Must not touch**: `spec/` (when `CONTRACT_FROZEN`), `docs/adr/` (when `Accepted`).
 **Suggested model/tool**: `gpt-5-5` via `codex`.
+**Skill**: `cadenza-builder`, plus the local `tdd` skill during
+implementation.
 
 ### Reviewer
 
@@ -292,6 +297,11 @@ Every phase has one kick file per role under `prompt/PHASE<N>_KICK_<ROLE>.md`. T
 | **When stuck** | Ordered fallback list: re-read docs → check ADRs → ask user (one question, not three) |
 
 Kick files are **not** prompts that get pasted into the agent at session start. They are reference documents the agent reads (per `AGENTS.md` §1 Read Order). The session's actual prompt is a one-liner like: "Proceed with `PHASE0_KICK_ARCHITECT.md` batch A-M1."
+
+Operational role skills such as `cadenza-architect` and `cadenza-builder` do
+not replace these kick files. They teach reusable behavior across phases, while
+the kick file names the current phase scope, pre-flight checks, and first
+action.
 
 ---
 

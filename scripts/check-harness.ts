@@ -14,6 +14,10 @@ type Finding = {
 
 const repoRoot = process.cwd();
 const findings: Finding[] = [];
+const REQUIRED_OPERATIONAL_SKILLS = [
+  "cadenza-architect",
+  "cadenza-builder",
+] as const;
 
 function repoPath(file: string): string {
   return path.join(repoRoot, file);
@@ -141,6 +145,62 @@ function checkSkillMirror() {
   }
 }
 
+function checkRequiredOperationalSkills() {
+  for (const name of REQUIRED_OPERATIONAL_SKILLS) {
+    requirePath(`.agents/skills/${name}/SKILL.md`);
+
+    const evalFile = `.agents/skills/${name}/evals/evals.json`;
+    requirePath(evalFile);
+    if (!existsSync(repoPath(evalFile))) {
+      continue;
+    }
+
+    let data: {
+      skill_name?: unknown;
+      evals?: unknown;
+    };
+    try {
+      data = JSON.parse(readText(evalFile));
+    } catch (error) {
+      findings.push({
+        level: "error",
+        message: `${evalFile} is not valid JSON: ${String(error)}`,
+      });
+      continue;
+    }
+
+    if (data.skill_name !== name) {
+      findings.push({
+        level: "error",
+        message: `${evalFile} skill_name must be ${name}`,
+      });
+    }
+
+    if (!Array.isArray(data.evals) || data.evals.length < 3) {
+      findings.push({
+        level: "error",
+        message: `${evalFile} must contain at least three eval prompts`,
+      });
+      continue;
+    }
+
+    for (const [index, entry] of data.evals.entries()) {
+      if (
+        typeof entry !== "object" ||
+        entry === null ||
+        typeof (entry as { prompt?: unknown }).prompt !== "string" ||
+        typeof (entry as { expected_output?: unknown }).expected_output !==
+          "string"
+      ) {
+        findings.push({
+          level: "error",
+          message: `${evalFile} eval ${index} must include prompt and expected_output strings`,
+        });
+      }
+    }
+  }
+}
+
 for (const file of [
   "AGENTS.md",
   "STATUS.yaml",
@@ -165,6 +225,7 @@ requireScriptReference(".claude/settings.json");
 requireScriptReference(".codex/hooks.json");
 checkPublicMonoSkill();
 checkSkillMirror();
+checkRequiredOperationalSkills();
 
 const errorCount = findings.filter(
   (finding) => finding.level === "error",

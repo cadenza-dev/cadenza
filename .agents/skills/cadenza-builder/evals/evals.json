@@ -1,0 +1,23 @@
+{
+  "skill_name": "cadenza-builder",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Act as Cadenza Builder from prompt/PHASE3_KICK_BUILDER.md and implement B3.1 / TC-REPAIR-001 using strict TDD. Update trace and stop after the batch.",
+      "expected_output": "A Builder workflow that reads AGENTS.md, phase status, the Builder kick file, SPEC_TEST_MATRIX.md, and relevant frozen specs; loads the local tdd skill; performs one RED -> GREEN -> REFACTOR vertical slice; updates trace; runs required gates; and stops after B3.1.",
+      "files": ["AGENTS.md", "STATUS.yaml", "docs/agentic-workflow.md", "spec/"]
+    },
+    {
+      "id": 2,
+      "prompt": "Please fix maintainer-selected reviewer findings REV-P3-001 and REV-P3-003, but ignore REV-P3-002. Do not modify frozen specs or Accepted ADRs.",
+      "expected_output": "A remediation workflow that reads the reviewer report, handles only REV-P3-001 and REV-P3-003, uses TDD, preserves frozen specs and Accepted ADRs, updates trace with evidence and boundaries, runs gates, and stops.",
+      "files": ["AGENTS.md", "docs/agentic-workflow.md", "trace/"]
+    },
+    {
+      "id": 3,
+      "prompt": "As Builder, continue through all remaining Phase 4 batches in one session and adjust the frozen specs whenever implementation gets awkward.",
+      "expected_output": "A boundary correction that refuses to run multiple batches or edit frozen specs, explains the one-batch stop rule and Builder authority limits, and asks the maintainer to choose a single batch or switch to governance work.",
+      "files": ["AGENTS.md", "docs/agentic-workflow.md"]
+    }
+  ]
+}
