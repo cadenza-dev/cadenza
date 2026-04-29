@@ -139,6 +139,38 @@ builder_progress:
   approved_identity: GPT-5/codex
   approved_at: "2026-04-30 01:41 +0800"
   completed_batches:
+    - id: B3.2
+      scenario: TC-AUTH-003 / TC-AUTH-004 / TC-DIAG-002 / TC-DIAG-003
+      status: complete
+      completed_at: "2026-04-30 03:03 +0800"
+      requirements: [AUTH-003, AUTH-004, AUTH-005, DIAG-002, DIAG-003, DIAG-005, DIAG-006, AIBND-003]
+      evidence:
+        tests:
+          - tests/browser/remotion-preview.spec.ts
+        fixtures:
+          - packages/core/src/fixtures/phase3Acceptance.tsx
+        artifacts:
+          - trace/phase3/evidence/b3.2-repair-evidence.json
+          - trace/phase3/evidence/b3.2-repair-evidence.md
+        code:
+          - tests/browser/cadenza-browser-entry.ts
+      boundary: "Browser preview and repair evidence only; no framework-internal authoring repair, skill/eval changes, raw Remotion warning policy, wrapper command, complete deck IR, MCP, export, hosted-rendering, presenter-product, public-stability, or external-alpha claim."
+      verification:
+        red: "pnpm test:browser --grep \"B3.2\" (default sandbox failed with sandbox_host_linux.cc Operation not permitted; elevated rerun failed because mountPhase3PreviewRepairCandidate did not exist)"
+        green: "pnpm test:browser --grep \"B3.2\" (elevated Chromium)"
+        targeted_unit: "pnpm test -- packages/core/src/phase3-authoring-loop.test.ts"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; elevated rerun passed 16/16)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B3.1
       scenario: TC-AUTH-001 / TC-AUTH-002 / TC-DIAG-001
       status: complete
@@ -172,10 +204,10 @@ builder_progress:
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
   next_batch:
-    id: B3.2
-    scenarios: [TC-AUTH-003, TC-AUTH-004, TC-DIAG-002, TC-DIAG-003]
+    id: B3.3
+    scenarios: [TC-RULE-001, TC-RULE-002, TC-RULE-003]
     status: waiting_for_maintainer_approval
-    summary: "Browser preview diagnostics and repair evidence."
+    summary: "cadenza-best-practices rule and eval strengthening."
 
 exit_criteria:
   phase3_specs_frozen:

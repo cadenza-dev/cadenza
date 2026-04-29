@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { inflateSync } from "node:zlib";
@@ -7,6 +8,14 @@ const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const fixtureBundlePath = path.resolve(
   currentDir,
   "../../tmp/cadenza-browser-fixture.js",
+);
+const phase3RepairEvidenceJsonPath = path.resolve(
+  currentDir,
+  "../../trace/phase3/evidence/b3.2-repair-evidence.json",
+);
+const phase3RepairEvidenceSummaryPath = path.resolve(
+  currentDir,
+  "../../trace/phase3/evidence/b3.2-repair-evidence.md",
 );
 
 type RemotionPreviewMountResult = {
@@ -65,6 +74,14 @@ type RemotionPreviewWindow = Window & {
       config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
     mountErrorDiagnosticsPreview(
+      selector: string,
+      config: { compositionHeight: number; compositionWidth: number },
+    ): RemotionPreviewMountResult;
+    mountPhase3AcceptancePreview(
+      selector: string,
+      config: { compositionHeight: number; compositionWidth: number },
+    ): RemotionPreviewMountResult;
+    mountPhase3PreviewRepairCandidate(
       selector: string,
       config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
@@ -653,12 +670,183 @@ test.describe("B2.7 closeout remediation evidence", () => {
   });
 });
 
+test.describe("B3.2 Phase 3 preview diagnostics and repair evidence", () => {
+  test("TC-AUTH-003 + TC-AUTH-004 + TC-DIAG-002 + TC-DIAG-003 mounts, diagnoses, and records one repair loop", async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <main>
+        <style>
+          [data-cadenza-typography-box="local-loop-title"] span {
+            white-space: nowrap;
+          }
+        </style>
+        <div id="preview-root"></div>
+      </main>
+    `);
+    await loadCadenzaFixture(page);
+
+    const beforeMount = await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountPhase3PreviewRepairCandidate(
+        "#preview-root",
+        {
+          compositionHeight: 540,
+          compositionWidth: 960,
+        },
+      ),
+    );
+    expect(beforeMount.timeline.totalFrames).toBeGreaterThan(0);
+
+    await expect
+      .poll(() => phase3TypographyDiagnostic(page))
+      .toMatchObject({
+        code: "RSRM_TYPOGRAPHY_OVERFLOW",
+        requirementId: "RSRM-006",
+        severity: "warning",
+        source: "local-loop-title",
+      });
+
+    const beforeSnapshot = await windowSnapshot(page);
+    await expect(
+      page.locator("[data-cadenza-remotion-preview]"),
+    ).toHaveAttribute("data-cadenza-diagnostic-count", /[1-9]\d*/);
+
+    const afterMount = await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountPhase3AcceptancePreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+      }),
+    );
+    expect(afterMount.timeline.totalFrames).toBe(
+      beforeMount.timeline.totalFrames,
+    );
+
+    await expect
+      .poll(async () => (await windowSnapshot(page)).cursor)
+      .toMatchObject({
+        kind: "at-step",
+        slideId: "loop-contract",
+        stepIndex: 0,
+      });
+
+    const afterSnapshot = await windowSnapshot(page);
+    expect(afterSnapshot.diagnostics).toEqual([]);
+    expect(phase3TypographyDiagnosticFrom(afterSnapshot)).toBeUndefined();
+    await expect(
+      page.locator('[data-cadenza-slide-id="loop-contract"]'),
+    ).toContainText("AI-authored decks start with typed Cadenza TSX");
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountErrorDiagnosticsPreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+      }),
+    );
+    await expect
+      .poll(() => windowSnapshot(page))
+      .toMatchObject({
+        diagnostics: expect.arrayContaining([
+          expect.objectContaining({
+            code: "PRAD_REMOTION_PLAYER_ERROR",
+            requirementId: "PRAD-007",
+            severity: "fatal",
+            source: "remotion-player",
+          }),
+        ]),
+      });
+
+    const evidence = readPhase3RepairEvidence();
+    const beforeDiagnostic = phase3TypographyDiagnosticFrom(beforeSnapshot);
+    if (beforeDiagnostic === undefined) {
+      throw new Error("Expected the Phase 3 repair candidate diagnostic.");
+    }
+    expect(evidence).toMatchObject({
+      schemaVersion: 1,
+      acceptanceEvidenceKind: "browser-preview-snapshot",
+      authoredDeckPath: "packages/core/src/fixtures/phase3Acceptance.tsx",
+      repairedDeckPath: "packages/core/src/fixtures/phase3Acceptance.tsx",
+      scenarioIds: ["TC-AUTH-003", "TC-AUTH-004", "TC-DIAG-002", "TC-DIAG-003"],
+      repairScope: {
+        frameworkInternalEdits: [],
+      },
+    });
+    expect(evidence.before.previewDiagnostics).toEqual([
+      expect.objectContaining(beforeDiagnostic),
+    ]);
+    expect(evidence.after.previewDiagnostics).toEqual([]);
+    expect(evidence.before.repairQueue[0]).toMatchObject({
+      code: "RSRM_TYPOGRAPHY_OVERFLOW",
+      locator: {
+        componentId: "local-loop-title",
+        slideId: "loop-contract",
+      },
+      requirementRefs: ["DIAG-002", "DIAG-005", "DIAG-006"],
+      testRefs: ["TC-AUTH-004", "TC-DIAG-003"],
+    });
+    expect(readPhase3RepairEvidenceSummary()).toContain("B3.2 repair evidence");
+  });
+});
+
 async function windowSnapshot(page: Page): Promise<RemotionPreviewSnapshot> {
   return page.evaluate(() =>
     (
       window as unknown as RemotionPreviewWindow
     ).CadenzaRemotionPreview.snapshot(),
   );
+}
+
+async function phase3TypographyDiagnostic(
+  page: Page,
+): Promise<RemotionPreviewSnapshot["diagnostics"][number] | undefined> {
+  return phase3TypographyDiagnosticFrom(await windowSnapshot(page));
+}
+
+function phase3TypographyDiagnosticFrom(
+  snapshot: RemotionPreviewSnapshot,
+): RemotionPreviewSnapshot["diagnostics"][number] | undefined {
+  return snapshot.diagnostics.find(
+    (diagnostic) =>
+      diagnostic.code === "RSRM_TYPOGRAPHY_OVERFLOW" &&
+      diagnostic.source === "local-loop-title",
+  );
+}
+
+function readPhase3RepairEvidence(): {
+  acceptanceEvidenceKind: string;
+  after: {
+    previewDiagnostics: unknown[];
+  };
+  authoredDeckPath: string;
+  before: {
+    previewDiagnostics: unknown[];
+    repairQueue: Array<{
+      code: string;
+      locator: {
+        componentId: string;
+        slideId: string;
+      };
+      requirementRefs: string[];
+      testRefs: string[];
+    }>;
+  };
+  repairedDeckPath: string;
+  repairScope: {
+    frameworkInternalEdits: string[];
+  };
+  scenarioIds: string[];
+  schemaVersion: number;
+} {
+  return JSON.parse(readFileSync(phase3RepairEvidenceJsonPath, "utf8"));
+}
+
+function readPhase3RepairEvidenceSummary(): string {
+  return readFileSync(phase3RepairEvidenceSummaryPath, "utf8");
 }
 
 type PngVisualSanity = {

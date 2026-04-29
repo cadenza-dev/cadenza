@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "acceptanceEvidenceKind": "browser-preview-snapshot",
+  "scenarioIds": ["TC-AUTH-003", "TC-AUTH-004", "TC-DIAG-002", "TC-DIAG-003"],
+  "authoredDeckPath": "packages/core/src/fixtures/phase3Acceptance.tsx",
+  "repairedDeckPath": "packages/core/src/fixtures/phase3Acceptance.tsx",
+  "commands": ["pnpm test:browser --grep \"B3.2\""],
+  "before": {
+    "deckVariant": "phase3PreviewRepairCandidate",
+    "previewPass": false,
+    "previewDiagnostics": [
+      {
+        "severity": "warning",
+        "code": "RSRM_TYPOGRAPHY_OVERFLOW",
+        "message": "TypographyBox 'local-loop-title' overflowed during Remotion browser preview.",
+        "requirementId": "RSRM-006",
+        "source": "local-loop-title",
+        "locator": {
+          "slideId": "loop-contract",
+          "componentId": "local-loop-title",
+          "nodeKind": "typography-box"
+        },
+        "requirementRefs": [
+          "AUTH-004",
+          "AUTH-005",
+          "DIAG-002",
+          "DIAG-005",
+          "DIAG-006",
+          "AIBND-003"
+        ],
+        "testRefs": ["TC-AUTH-004", "TC-DIAG-003"]
+      }
+    ],
+    "repairQueue": [
+      {
+        "severity": "warning",
+        "code": "RSRM_TYPOGRAPHY_OVERFLOW",
+        "requirementId": "RSRM-006",
+        "sources": ["local-loop-title"],
+        "messages": [
+          "TypographyBox 'local-loop-title' overflowed during Remotion browser preview."
+        ],
+        "count": 1,
+        "action": "Repair the authored deck by giving the TypographyBox enough width and height for the headline content.",
+        "locator": {
+          "slideId": "loop-contract",
+          "componentId": "local-loop-title",
+          "nodeKind": "typography-box"
+        },
+        "requirementRefs": ["DIAG-002", "DIAG-005", "DIAG-006"],
+        "testRefs": ["TC-AUTH-004", "TC-DIAG-003"]
+      }
+    ]
+  },
+  "after": {
+    "deckVariant": "phase3Acceptance",
+    "previewPass": true,
+    "previewDiagnostics": []
+  },
+  "repairScope": {
+    "allowedEdits": ["packages/core/src/fixtures/phase3Acceptance.tsx"],
+    "authoringGuidanceEdits": [],
+    "frameworkInternalEdits": []
+  },
+  "traceDeclarationOnly": false,
+  "deferredScope": {
+    "completeDeckIr": "not introduced",
+    "wrapperCommand": "not introduced",
+    "mcp": "not introduced"
+  }
+}

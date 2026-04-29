@@ -1,5 +1,43 @@
 # Phase 3 Tracker
 
+## 2026-04-30 03:03 +0800 — B3.2 browser preview diagnostics and repair evidence
+
+- Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed `B3.2 / TC-AUTH-003 + TC-AUTH-004 + TC-DIAG-002 +
+  TC-DIAG-003` as one vertical slice.
+- RED: default `pnpm test:browser --grep "B3.2"` hit the known Chromium sandbox
+  launch failure; elevated rerun reached the browser and failed because
+  `mountPhase3PreviewRepairCandidate` did not exist.
+- GREEN: mounted the Phase 3 acceptance deck and an intentional preview-repair
+  candidate through the inherited Phase 2 `CadenzaPlayer` preview path, observed
+  structured preview diagnostics through `CadenzaPlayerHandle.getSnapshot()`,
+  verified Remotion Player errors still flow through the shared diagnostics
+  channel, and recorded before/after repair evidence.
+- Evidence: `tests/browser/remotion-preview.spec.ts` proves the repair
+  candidate emits `RSRM_TYPOGRAPHY_OVERFLOW` for `local-loop-title`, the
+  canonical acceptance deck repairs that diagnostic without changing framework
+  internals, and the persisted JSON/summary are tied to real browser evidence
+  rather than trace declarations alone.
+- Implementation links: `packages/core/src/fixtures/phase3Acceptance.tsx`,
+  `tests/browser/cadenza-browser-entry.ts`,
+  `tests/browser/remotion-preview.spec.ts`,
+  `trace/phase3/evidence/b3.2-repair-evidence.json`, and
+  `trace/phase3/evidence/b3.2-repair-evidence.md`.
+- Boundary preserved: no frozen specs, Accepted ADRs, skill/eval changes, raw
+  Remotion warning policy, wrapper command, complete deck IR, MCP, export,
+  hosted-rendering, presenter-product, public-stability, or external-alpha claim.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` passed 16/16.
+- Next gated batch: `B3.3 / TC-RULE-001 + TC-RULE-002 + TC-RULE-003`, pending
+  maintainer approval.
+
 ## 2026-04-30 01:41 +0800 — B3.1 canonical deck and compile diagnostics
 
 - Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after

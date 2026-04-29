@@ -24,6 +24,10 @@ import {
 } from "@cadenza-dev/core";
 import { createAllDomainMvpFixture } from "@cadenza-dev/core/fixtures/allDomainMvp";
 import {
+  createPhase3AcceptanceFixture,
+  createPhase3PreviewRepairCandidateFixture,
+} from "@cadenza-dev/core/fixtures/phase3Acceptance";
+import {
   CadenzaPlayer,
   type CadenzaPlayerHandle,
   createCadenzaPreviewMount,
@@ -109,6 +113,36 @@ type RemotionPreviewFixture = {
     };
   };
   mountErrorDiagnosticsPreview(
+    selector: string,
+    config: { compositionHeight: number; compositionWidth: number },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
+  mountPhase3AcceptancePreview(
+    selector: string,
+    config: { compositionHeight: number; compositionWidth: number },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
+  mountPhase3PreviewRepairCandidate(
     selector: string,
     config: { compositionHeight: number; compositionWidth: number },
   ): {
@@ -608,6 +642,16 @@ window.CadenzaRemotionPreview = {
       },
     };
   },
+  mountPhase3AcceptancePreview(selector, config) {
+    const fixture = createPhase3AcceptanceFixture();
+
+    return mountRemotionPreview(selector, config, fixture);
+  },
+  mountPhase3PreviewRepairCandidate(selector, config) {
+    const fixture = createPhase3PreviewRepairCandidateFixture();
+
+    return mountRemotionPreview(selector, config, fixture);
+  },
   mountControlledReadinessPreview(selector, config) {
     const host = document.querySelector(selector);
     if (!(host instanceof HTMLElement)) {
@@ -703,6 +747,70 @@ window.CadenzaRemotionPreview = {
     return requireRemotionPreviewHandle().getSnapshot();
   },
 };
+
+function mountRemotionPreview(
+  selector: string,
+  config: { compositionHeight: number; compositionWidth: number },
+  fixture: {
+    deck: Parameters<typeof CadenzaPlayer>[0]["deck"];
+    timeline: Parameters<typeof createCadenzaPreviewMount>[0]["timeline"];
+  },
+): {
+  playerProps: {
+    compositionHeight: number;
+    compositionWidth: number;
+    durationInFrames: number;
+    fps: number;
+  };
+  timeline: {
+    fps: number;
+    totalFrames: number;
+  };
+} {
+  const host = document.querySelector(selector);
+  if (!(host instanceof HTMLElement)) {
+    throw new Error(`Missing Remotion preview host '${selector}'.`);
+  }
+
+  const playerProps = createCadenzaPreviewMount({
+    compositionHeight: config.compositionHeight,
+    compositionWidth: config.compositionWidth,
+    timeline: fixture.timeline,
+  });
+
+  remotionPreviewRoot?.unmount();
+  remotionPreviewRoot = createRoot(host);
+  remotionPreviewRoot.render(
+    React.createElement(CadenzaPlayer, {
+      compositionHeight: config.compositionHeight,
+      compositionWidth: config.compositionWidth,
+      deck: fixture.deck,
+      onPreviewReady(handle) {
+        remotionPreviewHandle = handle;
+
+        return () => {
+          if (remotionPreviewHandle === handle) {
+            remotionPreviewHandle = undefined;
+          }
+        };
+      },
+      timeline: fixture.timeline,
+    }),
+  );
+
+  return {
+    playerProps: {
+      compositionHeight: playerProps.compositionHeight,
+      compositionWidth: playerProps.compositionWidth,
+      durationInFrames: playerProps.durationInFrames,
+      fps: playerProps.fps,
+    },
+    timeline: {
+      fps: fixture.timeline.fps,
+      totalFrames: fixture.timeline.totalFrames,
+    },
+  };
+}
 
 function requireRemotionPreviewHandle(): CadenzaPlayerHandle {
   if (!remotionPreviewHandle) {
