@@ -1,6 +1,53 @@
 import { compile, Deck, Slide, Step, Transition } from "@cadenza-dev/core";
-import { createCadenzaPreviewController } from "@cadenza-dev/preview-remotion";
+import {
+  type CadenzaPreviewController,
+  createCadenzaPreviewController,
+} from "@cadenza-dev/preview-remotion";
 import { describe, expect, it, vi } from "vitest";
+
+describe("TC-PKG-004 preview controller surface", () => {
+  it("exposes semantic state, diagnostics, and presenter metadata without raw frame math", () => {
+    const timeline = compile(
+      Deck({
+        fps: 10,
+        children: Slide({
+          id: "semantic",
+          children: Step({ duration: "1s", children: "Semantic state" }),
+        }),
+      }),
+    );
+    const controller: CadenzaPreviewController = createCadenzaPreviewController(
+      {
+        player: createMockPreviewPlayer(),
+        timeline,
+      },
+    );
+
+    expect(Object.keys(controller).sort()).toEqual([
+      "dispose",
+      "getCursor",
+      "getDiagnostics",
+      "getPresenterMetadata",
+      "goto",
+      "next",
+      "onCursorChange",
+      "previous",
+    ]);
+    expect("seekTo" in controller).toBe(false);
+    expect("getCurrentFrame" in controller).toBe(false);
+    expect(controller.getCursor()).toEqual({
+      kind: "at-step",
+      slideId: "semantic",
+      stepIndex: 0,
+    });
+    expect(controller.getDiagnostics()).toEqual([]);
+    expect(controller.getPresenterMetadata()).toMatchObject({
+      notes: [],
+      slideId: "semantic",
+      stepIndex: 0,
+    });
+  });
+});
 
 describe("TC-PRAD-003 preview navigation", () => {
   it("routes next, previous, and goto through runtime anchors and plays transition segments before pausing at semantic anchors", () => {

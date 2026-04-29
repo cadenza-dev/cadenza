@@ -43,9 +43,17 @@ type TraceabilityRow = {
 };
 
 export type TraceabilityRequirementCoverage = {
+  acceptanceEvidenceFiles: string[];
   id: string;
   implementationEvidenceFiles: string[];
   inSpec: boolean;
+  maintainerWaiver:
+    | {
+        approvedAt: string;
+        approvedBy: string;
+        source: string;
+      }
+    | undefined;
   matrixTestIds: string[];
   priority: string | null;
   sourceFiles: string[];
@@ -62,6 +70,15 @@ export type TraceabilityCoverageReport = {
     claim: string;
   }>;
   phase: string;
+  revP1004Disposition: {
+    currentDisposition: string;
+    deferredFollowUp: string;
+    followUpPaths: string[];
+    frozenPhase1SpecsEdited: boolean;
+    phase2Contract: string;
+    sourceFinding: string;
+    sourceFindingPresent: boolean;
+  };
   requirements: TraceabilityRequirementCoverage[];
   sources: {
     implementationFiles: string[];
@@ -131,6 +148,7 @@ export function createTraceabilityCoverageReport(
     traceStatus,
     statusEvidencePaths,
   );
+  const maintainerWaivers = extractMaintainerWaivers(traceStatus);
 
   const requirementIds = uniqueSorted([
     ...requirementBlocks.map((block) => block.id),
@@ -151,25 +169,34 @@ export function createTraceabilityCoverageReport(
       ...traceabilityRows.flatMap((row) => row.testIds),
     ]);
 
-    return {
+    const testEvidenceFiles = filesContainingAny(options.repoRoot, testFiles, [
       id,
-      implementationEvidenceFiles: filesContainingAny(
-        options.repoRoot,
-        implementationFiles,
-        [id, ...relatedTestIds],
-      ),
+      ...relatedTestIds,
+    ]);
+    const implementationEvidenceFiles = filesContainingAny(
+      options.repoRoot,
+      implementationFiles,
+      [id, ...relatedTestIds],
+    );
+    const traceabilityEvidencePaths = uniqueSorted(
+      traceabilityRows.flatMap((row) => row.evidencePaths),
+    );
+
+    return {
+      acceptanceEvidenceFiles: uniqueSorted([
+        ...testEvidenceFiles,
+        ...implementationEvidenceFiles,
+      ]),
+      id,
+      implementationEvidenceFiles,
       inSpec: matchingBlocks.length > 0,
+      maintainerWaiver: maintainerWaivers.get(id),
       matrixTestIds: uniqueSorted(matrixRows.map((row) => row.testId)),
       priority: matchingBlocks[0]?.priority ?? null,
       sourceFiles: uniqueSorted(matchingBlocks.map((block) => block.file)),
-      testEvidenceFiles: filesContainingAny(options.repoRoot, testFiles, [
-        id,
-        ...relatedTestIds,
-      ]),
+      testEvidenceFiles,
       traceStatusEvidenceFiles: statusRequirementEvidence.get(id) ?? [],
-      traceabilityEvidencePaths: uniqueSorted(
-        traceabilityRows.flatMap((row) => row.evidencePaths),
-      ),
+      traceabilityEvidencePaths,
       traceabilityTestIds: uniqueSorted(
         traceabilityRows.flatMap((row) => row.testIds),
       ),
@@ -180,6 +207,7 @@ export function createTraceabilityCoverageReport(
     findings: createFindings(requirements),
     nonGoals: createNonGoalEvidence(testRows),
     phase,
+    revP1004Disposition: createRevP1004Disposition(options.repoRoot),
     requirements,
     sources: {
       implementationFiles,
@@ -238,8 +266,12 @@ export function formatTraceabilityCoverageMarkdown(
     joinOrDash(requirement.matrixTestIds),
     joinOrDash(requirement.traceabilityTestIds),
     joinOrDash(requirement.traceStatusEvidenceFiles),
+    joinOrDash(requirement.acceptanceEvidenceFiles),
     joinOrDash(requirement.testEvidenceFiles),
     joinOrDash(requirement.implementationEvidenceFiles),
+    requirement.maintainerWaiver
+      ? `${requirement.maintainerWaiver.source} (${requirement.maintainerWaiver.approvedAt})`
+      : "-",
   ]);
 
   const nonGoalRows = report.nonGoals.map((nonGoal) => [
@@ -274,8 +306,10 @@ export function formatTraceabilityCoverageMarkdown(
         "Test matrix",
         "Traceability",
         "Trace status evidence",
+        "Acceptance evidence",
         "Test evidence",
         "Implementation evidence",
+        "Maintainer waiver",
       ],
       requirementRows,
     ),
@@ -296,6 +330,19 @@ export function formatTraceabilityCoverageMarkdown(
     )}`,
     `- Missing status evidence paths: ${joinOrDash(
       report.traceScope.statusEvidencePathsMissing,
+    )}`,
+    "",
+    "## REV-P1-004 Disposition",
+    "",
+    `- Source finding: \`${report.revP1004Disposition.sourceFinding}\`${
+      report.revP1004Disposition.sourceFindingPresent ? "" : " (missing)"
+    }`,
+    `- Phase 2 contract: \`${report.revP1004Disposition.phase2Contract}\``,
+    `- Current disposition: ${report.revP1004Disposition.currentDisposition}`,
+    `- Deferred follow-up: ${report.revP1004Disposition.deferredFollowUp}`,
+    `- Follow-up paths: ${joinOrDash(report.revP1004Disposition.followUpPaths)}`,
+    `- Frozen Phase 1 specs edited: ${yesNo(
+      report.revP1004Disposition.frozenPhase1SpecsEdited,
     )}`,
     "",
     "## Findings",
@@ -465,6 +512,100 @@ function extractRequirementEvidenceFromStatus(
   return evidenceByRequirement;
 }
 
+function extractMaintainerWaivers(traceStatus: string): Map<
+  string,
+  {
+    approvedAt: string;
+    approvedBy: string;
+    source: string;
+  }
+> {
+  const waivers = new Map<
+    string,
+    {
+      approvedAt: string;
+      approvedBy: string;
+      source: string;
+    }
+  >();
+  const lines = traceStatus.split(/\r?\n/);
+  let insideWaivers = false;
+  let current:
+    | {
+        approvedAt: string;
+        approvedBy: string;
+        requirements: string[];
+        source: string;
+      }
+    | undefined;
+
+  const flush = () => {
+    if (!current) {
+      return;
+    }
+
+    for (const requirement of current.requirements) {
+      waivers.set(requirement, {
+        approvedAt: current.approvedAt,
+        approvedBy: current.approvedBy,
+        source: current.source,
+      });
+    }
+  };
+
+  for (const line of lines) {
+    if (/^maintainer_approved_waivers:\s*$/.test(line)) {
+      insideWaivers = true;
+      continue;
+    }
+
+    if (!insideWaivers) {
+      continue;
+    }
+
+    if (/^\S/.test(line) && !/^maintainer_approved_waivers:\s*$/.test(line)) {
+      break;
+    }
+
+    const requirements = extractIds(line, REQUIREMENT_ID_PATTERN);
+    if (/^\s*-\s+requirements:/.test(line)) {
+      flush();
+      current = {
+        approvedAt: "unknown",
+        approvedBy: "maintainer",
+        requirements,
+        source: "trace/phase2/status.yaml",
+      };
+      continue;
+    }
+
+    if (!current) {
+      continue;
+    }
+
+    const approvedAt = line.match(/^\s+approved_at:\s*(.+)$/)?.[1];
+    if (approvedAt) {
+      current.approvedAt = stripYamlScalar(approvedAt);
+      continue;
+    }
+
+    const approvedBy = line.match(/^\s+approved_by:\s*(.+)$/)?.[1];
+    if (approvedBy) {
+      current.approvedBy = stripYamlScalar(approvedBy);
+      continue;
+    }
+
+    const source = line.match(/^\s+source:\s*(.+)$/)?.[1];
+    if (source) {
+      current.source = stripYamlScalar(source);
+    }
+  }
+
+  flush();
+
+  return waivers;
+}
+
 function filesContainingAny(
   repoRoot: string,
   files: string[],
@@ -492,12 +633,11 @@ function createFindings(
       findings.push(`${requirement.id} is missing from SPEC_TRACEABILITY.md.`);
     }
     if (
-      requirement.traceStatusEvidenceFiles.length === 0 &&
-      requirement.testEvidenceFiles.length === 0 &&
-      requirement.implementationEvidenceFiles.length === 0
+      requirement.acceptanceEvidenceFiles.length === 0 &&
+      !requirement.maintainerWaiver
     ) {
       findings.push(
-        `${requirement.id} lacks current trace, test, or implementation evidence.`,
+        `${requirement.id} lacks acceptance evidence or maintainer-approved waiver.`,
       );
     }
 
@@ -529,6 +669,26 @@ function createNonGoalEvidence(
     ),
     claim,
   }));
+}
+
+function createRevP1004Disposition(
+  repoRoot: string,
+): TraceabilityCoverageReport["revP1004Disposition"] {
+  return {
+    currentDisposition: "mitigated_by_phase2_non_mutating_report",
+    deferredFollowUp: "active-phase-only hard gate",
+    followUpPaths: [
+      "TODO.md",
+      "wip/architect/phase1-traceability-coverage.md",
+    ].filter((file) => existsSync(path.join(repoRoot, file))),
+    frozenPhase1SpecsEdited: false,
+    phase2Contract: "spec/phase2/SPEC_TRACEABILITY_COVERAGE.md",
+    sourceFinding: "trace/phase1/review-phase1-closeout.md",
+    sourceFindingPresent: readRelative(
+      repoRoot,
+      "trace/phase1/review-phase1-closeout.md",
+    ).includes("REV-P1-004"),
+  };
 }
 
 function extractNestedStatus(text: string, key: string): string | null {
@@ -573,6 +733,10 @@ function uniqueSorted(values: string[]): string[] {
 
 function joinOrDash(values: string[]): string {
   return values.length > 0 ? values.join(", ") : "-";
+}
+
+function stripYamlScalar(value: string): string {
+  return value.trim().replace(/^["']|["']$/g, "");
 }
 
 function yesNo(value: boolean): string {

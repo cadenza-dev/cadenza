@@ -287,17 +287,17 @@ builder_progress:
       closeout_disposition:
         satisfied_by_existing_phase2_evidence:
           - requirements: [PKG-004]
-            rationale: "The public preview controller already exposes navigation, cursor, diagnostics, and presenter metadata without author-facing frame math."
+            rationale: "The public preview controller exposes navigation, cursor, diagnostics, and presenter metadata without author-facing frame math; remediation added TC-PKG-004 unit evidence."
+          - requirements: [PRAD-007]
+            rationale: "Remediation added TC-PRAD-007 browser evidence that Remotion Player errors and Cadenza diagnostics share one preview diagnostics channel."
           - requirements: [BROW-007]
             rationale: "The CI workflow and local trace keep pnpm test:browser separate from unit tests and record Chromium environment failures separately from logic failures."
           - requirements: [RSRM-009, BROW-009]
-            rationale: "The frozen matrix and generated coverage report keep MP4/PDF/export/hosted-rendering scenarios absent by design; Phase 2 remains preview-only."
+            rationale: "The frozen matrix and generated coverage report keep MP4/PDF/export/hosted-rendering scenarios absent by design; remediation added TC-RSRM-009 report evidence."
         explicitly_waived_for_phase2_closeout:
           - requirements: [PKG-006, PRAD-008]
             rationale: "Optional custom-control hooks are P2/MAY scope; the default controller is enough for Phase 2 Reviewer handoff."
-          - requirements: [PRAD-007]
-            rationale: "Phase 2 already exposes structured Cadenza diagnostics, but Remotion Player error aggregation is waived for Builder closeout and left for Reviewer/Architect follow-up if needed."
-      boundary: "Phase closeout trace evidence only; no custom-control hook implementation, Remotion Player error aggregation, export claim, hosted-rendering claim, Phase 3 AI repair-loop work, frozen spec edit, Accepted ADR edit, or root phase pointer flip."
+      boundary: "Phase closeout trace evidence only; no custom-control hook implementation, export claim, hosted-rendering claim, Phase 3 AI repair-loop work, frozen spec edit, Accepted ADR edit, or root phase pointer flip."
       verification:
         unit: "pnpm test"
         typecheck: "pnpm typecheck"
@@ -311,10 +311,65 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.7-remediation
+      scenario: REV-P2-001 / REV-P2-002 / REV-P2-003
+      status: complete
+      completed_at: "2026-04-29 08:46 +0800"
+      findings: [REV-P2-001, REV-P2-002, REV-P2-003]
+      requirements: [PKG-004, PKG-006, PRAD-007, PRAD-008, RSRM-009, BROW-007, BROW-009, TRAC-001, TRAC-005]
+      evidence:
+        tests:
+          - packages/preview-remotion/src/navigation.test.ts
+          - tests/browser/remotion-preview.spec.ts
+          - scripts/traceability-coverage.test.ts
+        code:
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - tests/browser/cadenza-browser-entry.ts
+          - scripts/traceability-coverage.ts
+        report:
+          - trace/phase2/traceability-coverage.md
+        trace:
+          - trace/phase2/status.yaml
+          - trace/phase2/tracker.md
+      closeout_disposition:
+        proven:
+          - requirements: [PKG-004]
+            rationale: "TC-PKG-004 unit evidence proves the controller surface exposes semantic state, diagnostics, and presenter metadata without raw frame math."
+          - requirements: [PRAD-007, BROW-007]
+            rationale: "TC-PRAD-007 browser evidence proves Remotion Player errors and Cadenza diagnostics share one preview diagnostics channel; browser testing remains a separate gate."
+          - requirements: [RSRM-009, BROW-009]
+            rationale: "TC-RSRM-009 report evidence proves Phase 2 remains preview-only and does not claim MP4/PDF/hosted-rendering/export acceptance."
+          - requirements: [TRAC-001, TRAC-005]
+            rationale: "Coverage evidence now separates trace declarations from acceptance evidence and records REV-P1-004 disposition explicitly."
+        maintainer_approved_waived:
+          - requirements: [PKG-006, PRAD-008]
+            source: "maintainer selected REV-P2-001/002/003 remediation and authorized waivers when necessary"
+            rationale: "Optional custom-control hooks are P2/MAY scope and remain outside this closeout remediation."
+      boundary: "No CONTRACT_FROZEN spec edit, Accepted ADR edit, custom-control hook implementation, export claim, hosted-rendering claim, Phase 3 AI repair-loop work, or root phase pointer flip."
+      verification:
+        unit: "pnpm test"
+        typecheck: "pnpm typecheck"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser passed with elevated permissions after default sandbox Chromium launch failed with sandbox_host_linux.cc / Operation not permitted"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
     id: reviewer-closeout
     scenario: Phase 2 Reviewer review
     summary: "After Builder verification passes, launch Reviewer from the Phase 2 trace closeout artifacts."
+
+maintainer_approved_waivers:
+  - requirements: [PKG-006, PRAD-008]
+    approved_by: maintainer
+    approved_at: "2026-04-29 08:40 +0800"
+    source: "maintainer selected REV-P2-001/002/003 remediation and authorized waivers when necessary"
+    rationale: "Optional custom-control hooks are P2/MAY scope; Phase 2 closeout is satisfied by the default controller plus explicit waiver for custom-control depth."
 
 exit_criteria:
   phase2_specs_frozen:

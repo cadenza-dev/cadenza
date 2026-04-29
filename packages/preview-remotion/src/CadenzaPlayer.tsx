@@ -16,6 +16,7 @@ import { Player, type PlayerRef } from "@remotion/player";
 import {
   type CSSProperties,
   type ReactNode,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -114,10 +115,22 @@ export function CadenzaPlayer({
     [timeline],
   );
   const playerRef = useRef<PlayerRef>(null);
+  const playerDiagnosticsRef = useRef<CadenzaDiagnostic[]>([]);
   const controllerRef = useRef<CadenzaPreviewController | undefined>(undefined);
   const [snapshot, setSnapshot] = useState<CadenzaPlayerSnapshot>(() =>
     createInitialSnapshot(timeline, readiness),
   );
+  const recordPlayerError = useCallback((error: Error) => {
+    const diagnostic = createRemotionPlayerDiagnostic(error);
+    playerDiagnosticsRef.current = mergeDiagnostics([
+      ...playerDiagnosticsRef.current,
+      diagnostic,
+    ]);
+    setSnapshot((current) => ({
+      ...current,
+      diagnostics: mergeDiagnostics([...current.diagnostics, diagnostic]),
+    }));
+  }, []);
 
   useEffect(() => {
     const player = playerRef.current;
@@ -133,13 +146,27 @@ export function CadenzaPlayer({
     controllerRef.current = controller;
 
     const updateSnapshot = () => {
-      setSnapshot(createSnapshot(controller, player, timeline, readiness));
+      setSnapshot(
+        createSnapshot(
+          controller,
+          player,
+          timeline,
+          readiness,
+          playerDiagnosticsRef.current,
+        ),
+      );
     };
     const unbindCursor = controller.onCursorChange(updateSnapshot);
     const unbindReadiness = readiness.onChange(updateSnapshot);
     const handle: CadenzaPlayerHandle = {
       getSnapshot: () =>
-        createSnapshot(controller, player, timeline, readiness),
+        createSnapshot(
+          controller,
+          player,
+          timeline,
+          readiness,
+          playerDiagnosticsRef.current,
+        ),
       goto(slideId, stepIndex) {
         controller.goto(slideId, stepIndex);
         updateSnapshot();
@@ -201,7 +228,7 @@ export function CadenzaPlayer({
         .map((resource) => resource.resourceId)
         .join(" ")}
       data-cadenza-remotion-preview=""
-      data-cadenza-requirements="PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 RSRM-001 RSRM-002 RSRM-003 RSRM-004 RSRM-005 RSRM-006 RSRM-007 RSRM-008 BROW-001 BROW-002 BROW-003 BROW-004 BROW-005 BROW-006 BROW-008"
+      data-cadenza-requirements="PKG-004 PRAD-001 PRAD-002 PRAD-003 PRAD-004 PRAD-005 PRAD-006 PRAD-007 RSRM-001 RSRM-002 RSRM-003 RSRM-004 RSRM-005 RSRM-006 RSRM-007 RSRM-008 BROW-001 BROW-002 BROW-003 BROW-004 BROW-005 BROW-006 BROW-007 BROW-008"
       data-cadenza-width={mount.compositionWidth}
     >
       <div data-cadenza-preview-controls="">
@@ -227,6 +254,12 @@ export function CadenzaPlayer({
         compositionWidth={mount.compositionWidth}
         controls={controls}
         durationInFrames={mount.durationInFrames}
+        errorFallback={({ error }: { error: Error }) => (
+          <RemotionPlayerErrorFallback
+            error={error}
+            onError={recordPlayerError}
+          />
+        )}
         fps={mount.fps}
         inputProps={{
           bufferingResourceId: snapshot.bufferingResourceId,
@@ -286,6 +319,7 @@ function createSnapshot(
   player: PlayerRef,
   timeline: TimelineMap,
   readiness: PreviewReadinessRegistry,
+  playerDiagnostics: CadenzaDiagnostic[] = [],
 ): CadenzaPlayerSnapshot {
   const cursor = controller.getCursor();
 
@@ -296,10 +330,11 @@ function createSnapshot(
       readiness,
     ),
     cursor,
-    diagnostics: [
+    diagnostics: mergeDiagnostics([
       ...controller.getDiagnostics(),
       ...readiness.getDiagnostics(),
-    ],
+      ...playerDiagnostics,
+    ]),
     playerFrame: player.getCurrentFrame(),
     presenterMetadata: controller.getPresenterMetadata(),
     readiness: {
@@ -307,6 +342,55 @@ function createSnapshot(
       resources: readiness.getResourceStatuses(),
     },
   };
+}
+
+function createRemotionPlayerDiagnostic(error: Error): CadenzaDiagnostic {
+  return {
+    code: "PRAD_REMOTION_PLAYER_ERROR",
+    message: error.message,
+    requirementId: "PRAD-007",
+    severity: "fatal",
+    source: "remotion-player",
+  };
+}
+
+function mergeDiagnostics(
+  diagnostics: CadenzaDiagnostic[],
+): CadenzaDiagnostic[] {
+  const seen = new Set<string>();
+  const merged: CadenzaDiagnostic[] = [];
+
+  for (const diagnostic of diagnostics) {
+    const key = [
+      diagnostic.code,
+      diagnostic.requirementId,
+      diagnostic.source,
+      diagnostic.message,
+    ].join("\0");
+
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    merged.push(diagnostic);
+  }
+
+  return merged;
+}
+
+function RemotionPlayerErrorFallback({
+  error,
+  onError,
+}: {
+  error: Error;
+  onError: (error: Error) => void;
+}): ReactNode {
+  useEffect(() => {
+    onError(error);
+  }, [error, onError]);
+
+  return <div data-cadenza-remotion-player-error="">{error.message}</div>;
 }
 
 function cursorSlideId(cursor: Cursor): string {

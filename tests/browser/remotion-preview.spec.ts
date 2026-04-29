@@ -64,6 +64,10 @@ type RemotionPreviewWindow = Window & {
       selector: string,
       config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
+    mountErrorDiagnosticsPreview(
+      selector: string,
+      config: { compositionHeight: number; compositionWidth: number },
+    ): RemotionPreviewMountResult;
     markPreviewResourceReady(resourceId: string): void;
     nativeSeekToFrame(frame: number): void;
     navigateNext(): void;
@@ -608,6 +612,44 @@ test.describe("B2.5 render-safe browser validation", () => {
       uniqueRgbColors: expect.any(Number),
       width: expect.any(Number),
     });
+  });
+});
+
+test.describe("B2.7 closeout remediation evidence", () => {
+  test("TC-PRAD-007 reports Remotion Player errors and Cadenza diagnostics through one preview channel", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountErrorDiagnosticsPreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+      }),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-requirements",
+      /PRAD-007/,
+    );
+
+    await expect
+      .poll(() => windowSnapshot(page))
+      .toMatchObject({
+        diagnostics: expect.arrayContaining([
+          expect.objectContaining({
+            code: "PRAD_REMOTION_PLAYER_ERROR",
+            requirementId: "PRAD-007",
+            severity: "fatal",
+            source: "remotion-player",
+          }),
+        ]),
+      });
+    await expect(preview).toHaveAttribute("data-cadenza-diagnostic-count", "1");
   });
 });
 

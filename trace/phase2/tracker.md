@@ -1,5 +1,42 @@
 # Phase 2 Tracker
 
+## 2026-04-29 08:46 +0800 — REV-P2-001/002/003 remediation complete
+
+- Startup identity: proceeded as Builder remediation with `GPT-5` / `codex`
+  after maintainer approval in this session.
+- Scope: maintainer-selected Phase 2 closeout findings only:
+  `REV-P2-001`, `REV-P2-002`, and `REV-P2-003`; no `CONTRACT_FROZEN` specs,
+  Accepted ADRs, root phase pointer, or Phase 3 work were modified.
+- RED/GREEN 1 (`REV-P2-002`): added coverage regression fixtures proving that
+  trace-only declarations, and existing future implementation paths that do not
+  name the requirement or scenario, still emit findings; then separated
+  acceptance evidence from trace declarations in
+  `scripts/traceability-coverage.ts`.
+- RED/GREEN 2 (`REV-P2-001`): added `TC-PKG-004` unit evidence for the public
+  preview controller surface and `TC-PRAD-007` browser evidence proving
+  Remotion Player errors and Cadenza diagnostics share one preview diagnostics
+  channel.
+- Waiver handling: recorded maintainer-approved waiver evidence for
+  `PKG-006` / `PRAD-008` only, because the custom-control hook path is P2/MAY
+  scope; `PRAD-007` is now proven rather than waived.
+- RED/GREEN 3 (`REV-P2-003`): extended the generated coverage report with an
+  explicit `REV-P1-004 Disposition` section covering the source finding,
+  Phase 2 non-mutating report mitigation, deferred active-phase-only hard
+  gate, and the boundary that frozen Phase 1 specs were not edited.
+- Regenerated `trace/phase2/traceability-coverage.md`; it now records all 38
+  Phase 2 requirements with acceptance evidence or waiver, and reports no
+  promoted blocking coverage findings.
+- Verification after remediation: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Browser verification: default `pnpm test:browser` failed only because the
+  sandbox blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`; elevated `pnpm test:browser` then passed
+  15/15 browser tests.
+- Next step: Phase 2 Reviewer can re-review the remediation artifacts.
+
 ## 2026-04-29 07:34 +0800 — B2.7 Phase 2 trace closeout complete
 
 - Startup identity: proceeded as Builder with `GPT-5` / `codex` after

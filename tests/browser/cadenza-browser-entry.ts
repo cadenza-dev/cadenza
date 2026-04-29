@@ -108,6 +108,21 @@ type RemotionPreviewFixture = {
       totalFrames: number;
     };
   };
+  mountErrorDiagnosticsPreview(
+    selector: string,
+    config: { compositionHeight: number; compositionWidth: number },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
   markPreviewResourceReady(resourceId: string): void;
   nativeSeekToFrame(frame: number): void;
   navigateNext(): void;
@@ -494,6 +509,64 @@ window.CadenzaRemotionPreview = {
           }),
         }),
       ],
+    });
+    const timeline = compile(deck);
+    const playerProps = createCadenzaPreviewMount({
+      compositionHeight: config.compositionHeight,
+      compositionWidth: config.compositionWidth,
+      timeline,
+    });
+
+    remotionPreviewRoot?.unmount();
+    remotionPreviewRoot = createRoot(host);
+    remotionPreviewRoot.render(
+      React.createElement(CadenzaPlayer, {
+        compositionHeight: config.compositionHeight,
+        compositionWidth: config.compositionWidth,
+        deck,
+        onPreviewReady(handle) {
+          remotionPreviewHandle = handle;
+
+          return () => {
+            if (remotionPreviewHandle === handle) {
+              remotionPreviewHandle = undefined;
+            }
+          };
+        },
+        timeline,
+      }),
+    );
+
+    return {
+      playerProps: {
+        compositionHeight: playerProps.compositionHeight,
+        compositionWidth: playerProps.compositionWidth,
+        durationInFrames: playerProps.durationInFrames,
+        fps: playerProps.fps,
+      },
+      timeline: {
+        fps: timeline.fps,
+        totalFrames: timeline.totalFrames,
+      },
+    };
+  },
+  mountErrorDiagnosticsPreview(selector, config) {
+    const host = document.querySelector(selector);
+    if (!(host instanceof HTMLElement)) {
+      throw new Error(`Missing Remotion preview host '${selector}'.`);
+    }
+
+    const deck = Deck({
+      fps: 12,
+      children: Slide({
+        id: "player-error",
+        children: Step({
+          duration: "1s",
+          children: () => {
+            throw new Error("Controlled Remotion Player failure.");
+          },
+        }),
+      }),
     });
     const timeline = compile(deck);
     const playerProps = createCadenzaPreviewMount({
