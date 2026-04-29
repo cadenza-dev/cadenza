@@ -99,6 +99,19 @@ When the scoped batch is complete:
 - give the next short Builder launch phrase only if useful;
 - do not continue into the next batch without maintainer approval.
 
+When giving a next-session Builder launch phrase, keep it concise but
+cold-start safe. Do not depend on live chat context, commit history, or CI
+state to explain the route. Name the role, phase, kick file, required skills,
+exact next batch and scenario IDs, one-vertical-slice boundary, trace update,
+and stop rule. For maintainer-facing output, translate this one-sentence shape
+into Chinese:
+
+```text
+Act as Cadenza Phase <N> Builder; read prompt/PHASE<N>_KICK_BUILDER.md; load
+cadenza-builder and tdd; start from <batch> / <scenario IDs>; complete only
+this vertical slice; update trace and stop.
+```
+
 ## Boundary Corrections
 
 If asked to implement from an unfrozen spec, stop and ask for Architect freeze
