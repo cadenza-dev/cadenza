@@ -8,3 +8,5 @@ When a maintainer approves a lesson, add a short index entry here:
 
 - `MEM-20260429-minimal-phase-status-scaffold` — Phase-open `status.yaml`
   should stay minimal until Architect Stage A/B artifacts are accepted.
+- `MEM-20260430-cold-start-builder-launch-phrase` — Builder restart phrases
+  should be self-contained enough for cold sessions.
