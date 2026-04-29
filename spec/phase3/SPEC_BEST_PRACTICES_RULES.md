@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,13 +8,13 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines how Phase 3 strengthens `cadenza-best-practices`.
+This frozen contract defines how Phase 3 strengthens `cadenza-best-practices`.
 The mono-skill remains the single public authoring guidance surface. Phase 3 may
 add rule files, examples, and eval prompts, but it should not split back into
 multiple authoring skills or create a dedicated chart package unless evidence
 from repair scenarios makes that necessary.
 
-## Design Options
+## Resolved Design Options
 
 ### Data-Explainer Guidance Shape
 
@@ -23,8 +23,9 @@ from repair scenarios makes that necessary.
 2. Add examples and eval prompts only, with no new rule file.
 3. Create a separate `data-viz-slides` skill or a dedicated chart package.
 
-**Stage A leaning**: option 1. Technical talks often need data explainers, but
-the first Phase 3 move should be guidance and eval coverage, not a new package.
+**Decision**: use option 1. Technical talks often need data explainers, but the
+Phase 3 move is guidance and eval coverage inside the mono-skill, not a new
+package.
 
 ### Eval Evidence Depth
 
@@ -33,8 +34,8 @@ the first Phase 3 move should be guidance and eval coverage, not a new package.
    comparison artifacts.
 3. Full generated workspace benchmark for every eval run.
 
-**Stage A leaning**: option 2. The prior mono-skill eval loop showed that
-curated evidence is useful without committing large generated workspaces.
+**Decision**: use option 2. The prior mono-skill eval loop showed that curated
+evidence is useful without committing large generated workspaces.
 
 ## Requirements
 
@@ -62,8 +63,7 @@ curated evidence is useful without committing large generated workspaces.
 - **Owner**: Architect -> Builder
 - **Statement**: The skill SHOULD add data-explainer guidance for technical
   talks, including chart/story framing, bounded labels, notes, and render-safe
-  composition. This guidance MUST stay inside the mono-skill unless Stage B
-  explicitly approves a separate surface.
+  composition. This guidance MUST stay inside the mono-skill in Phase 3.
 - **Verification**: acceptance scenario `TC-RULE-002` covers a data-explainer
   authoring prompt and confirms generated guidance uses public Cadenza surfaces.
 
@@ -94,27 +94,20 @@ curated evidence is useful without committing large generated workspaces.
 - **Verification**: acceptance scenario `TC-RULE-003` records the rationale for
   any new rule file in skill evidence or trace.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-RULE-01
-- **Question**: How should Phase 3 promote data visualization authoring
-  guidance?
-- **Options considered**:
-  1. Add a data-explainer rule file, examples, and eval prompts to the
-     mono-skill.
-  2. Add examples and eval prompts only.
-  3. Create a separate skill or chart package.
-- **Leaning**: option 1; reject option 3 for Phase 3 unless repair scenarios
-  prove the mono-skill cannot carry the guidance.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-RULE-01
+- **Decision**: Add data-explainer guidance as a mono-skill rule file, examples,
+  and eval prompts. Do not create a separate skill or dedicated chart package in
+  Phase 3.
+- **Rationale**: Data explainers matter for technical talks, but early guidance
+  should strengthen the existing authoring surface before adding new package or
+  skill boundaries.
 
-- **FC-ID**: FC-RULE-02
-- **Question**: What eval evidence should Phase 3 require for
-  `cadenza-best-practices` changes?
-- **Options considered**:
-  1. Prompt-only checks.
-  2. Curated qualitative benchmark with `with_skill` / `without_skill`
-     comparison notes.
-  3. Full generated workspace benchmark committed for every run.
-- **Leaning**: option 2, matching the existing curated-evidence pattern.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-RULE-02
+- **Decision**: Require curated qualitative eval evidence with `with_skill` /
+  `without_skill` comparison notes for material `cadenza-best-practices`
+  changes.
+- **Rationale**: Prompt-only checks are too weak, while committing every full
+  generated workspace is too noisy. Curated comparison evidence matches the
+  existing successful mono-skill evaluation pattern.

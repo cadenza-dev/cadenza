@@ -84,3 +84,31 @@ pressure before becoming contracts.
 - **Reason to defer**: locale-specific text density can change layout and
   timing, so shared anchors would be unsafe; i18n is not part of the current
   phase sequence.
+
+## Authoring-loop orchestration command
+
+- **Source**: `spec/phase3/SPEC_AUTHORING_LOOP.md` `FC-AUTH-01`.
+- **Frozen Phase 3 decision**: Phase 3 uses an explicit documented command
+  sequence for authoring, compile, preview, diagnostics, repair, and verification
+  instead of a single wrapper command.
+- **Future support**: add a local orchestration command only if repeated
+  repair-loop evidence shows that command choreography, not deck authoring or
+  diagnostics quality, is the bottleneck.
+- **Reason to defer**: a wrapper command would hide useful failure boundaries
+  before the local repair loop is proven.
+
+## Complete deck IR / system-layer deck representation
+
+- **Source**: `spec/phase3/SPEC_REPAIR_DIAGNOSTICS.md` `FC-DIAG-01` and
+  `docs/analysis/analysis-final.md` §6.4.
+- **Frozen Phase 3 decision**: Phase 3 uses a normalized repair report with
+  optional thin locator fields. It does not introduce a standalone complete deck
+  IR or a second authoritative deck representation.
+- **Future support**: reconsider a complete deck IR when at least one of these
+  pressures is real: stable local edits instead of full-page regeneration,
+  structured diff/merge, visual editor requirements, strong audit or multi-tenant
+  constraints, cross-format import/export, or non-programmer long-term deck
+  maintenance.
+- **Reason to defer**: complete deck IR would effectively become a second deck
+  source. It should not be built before the project proves that a repair report
+  plus typed TSX cannot carry the workflow.

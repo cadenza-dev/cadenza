@@ -45,3 +45,18 @@ transitions, smart typography and density, and targeted technical-talk starters.
 - **Reason to defer**: progress subscriptions should not overload cursor-change
   semantics, and a public API should wait for a product-layer consumer.
 - **Disposition**: keep as Phase 4-or-later.
+
+## Read-only MCP resources and prompts evaluation
+
+- **Source**: `spec/phase3/SPEC_AI_BOUNDARIES.md` `FC-AIBND-02`,
+  `ROADMAP.md` Phase 3 and Phase 5 entries, and
+  `docs/analysis/analysis-final.md` §5.
+- **Frozen Phase 3 decision**: Phase 3 defers read-only MCP and relies on
+  `cadenza-best-practices`, Markdown docs, examples, and local reports.
+- **Future support**: evaluate read-only MCP near Phase 4 closeout or Phase 5
+  startup if rules, examples, technical-talk starters, and documentation outgrow
+  practical Markdown context injection across agents.
+- **Reason to defer**: read-only MCP solves resource and prompt access, not the
+  core Phase 3 question of whether agents can generate, preview, diagnose, and
+  repair decks through the local loop.
+- **Disposition**: keep as Phase 4-late or Phase 5-start candidate.

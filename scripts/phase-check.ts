@@ -371,11 +371,59 @@ function checkPhase3Initial() {
         message: `trace/phase3/status.yaml phase is ${phase3 ?? "(missing)"}, expected 3`,
       });
     }
-    if (phase3Lifecycle !== "architect_stage_a_open") {
+    const allowedPhase3Statuses = new Set([
+      "architect_stage_a_open",
+      "builder_ready",
+      "complete",
+    ]);
+    if (
+      phase3Lifecycle === null ||
+      !allowedPhase3Statuses.has(phase3Lifecycle)
+    ) {
       findings.push({
         level: "error",
-        message: `trace/phase3/status.yaml status is ${phase3Lifecycle ?? "(missing)"}, expected architect_stage_a_open`,
+        message: `trace/phase3/status.yaml status is ${phase3Lifecycle ?? "(missing)"}, expected one of ${Array.from(allowedPhase3Statuses).join(", ")}`,
       });
+    }
+
+    if (phase3Lifecycle === "builder_ready" || phase3Lifecycle === "complete") {
+      requirePath("prompt/PHASE3_KICK_BUILDER.md");
+      const phase3Specs = walkFiles("spec/phase3").filter((file) =>
+        file.endsWith(".md"),
+      );
+      if (phase3Specs.length === 0) {
+        findings.push({
+          level: "error",
+          message: "spec/phase3 has no Markdown specs",
+        });
+      }
+      for (const file of phase3Specs) {
+        const text = readText(file);
+        if (!/^Status:\s*CONTRACT_FROZEN$/m.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} is not CONTRACT_FROZEN`,
+          });
+        }
+        if (/Freeze Candidate/i.test(text) || /\*\*FC-ID\*\*:/i.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} contains unresolved Freeze Candidate marker`,
+          });
+        }
+      }
+
+      if (
+        phase3Lifecycle === "complete" &&
+        exitCriterionStatus(phase3Status, "reviewer_closeout_accepted") !==
+          "met"
+      ) {
+        findings.push({
+          level: "error",
+          message:
+            "trace/phase3/status.yaml status is complete but reviewer_closeout_accepted is not met",
+        });
+      }
     }
   }
 }

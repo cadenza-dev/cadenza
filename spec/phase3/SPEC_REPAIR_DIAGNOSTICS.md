@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,12 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines the diagnostics and repair-report surface that lets
+This frozen contract defines the diagnostics and repair-report surface that lets
 agents repair authored decks from evidence. It inherits Phase 1 validation
 reports and Phase 2 preview diagnostics. Phase 3 should enrich those surfaces
 only as much as the local repair loop needs.
 
-## Design Options
+## Resolved Design Options
 
 ### Repair Data Shape
 
@@ -23,8 +23,9 @@ only as much as the local repair loop needs.
 3. Add a broader deck IR that models deck structure, diagnostics, preview state,
    and suggested edits.
 
-**Stage A leaning**: option 2. A thin repair report is likely useful, but a full
-IR should be earned by failed repair scenarios.
+**Decision**: use option 2. Phase 3 adds a normalized repair report that may
+include thin locator fields, but it does not introduce a standalone thin IR or a
+complete deck IR.
 
 ### Report Persistence
 
@@ -32,7 +33,7 @@ IR should be earned by failed repair scenarios.
 2. Machine-readable JSON report plus a small human-readable summary.
 3. Markdown-only trace artifact.
 
-**Stage A leaning**: option 2. Agents need structured fields; reviewers need a
+**Decision**: use option 2. Agents need structured fields; reviewers need a
 concise summary.
 
 ## Requirements
@@ -87,31 +88,27 @@ concise summary.
 - **ID**: DIAG-006
 - **Priority**: P2
 - **Owner**: Architect -> Builder
-- **Statement**: Phase 3 MAY introduce a thin deck IR only if Stage B concludes
-  that existing diagnostics plus a repair report cannot support the acceptance
-  repair scenarios.
-- **Verification**: acceptance scenario `TC-DIAG-004` is required only if the
-  thin IR option is promoted during Stage B.
+- **Statement**: The repair report MAY include thin locator fields such as slide
+  IDs, component IDs, layout kinds, theme tokens, asset references, and timing
+  tokens when needed to make diagnostics actionable. Phase 3 MUST NOT introduce
+  a standalone complete deck IR or a second authoritative deck representation.
+- **Verification**: acceptance scenario `TC-DIAG-003` asserts repair diagnostics
+  can locate authored deck issues without requiring a complete deck IR.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-DIAG-01
-- **Question**: Does Phase 3 need a thin IR, or is a normalized repair report
-  enough?
-- **Options considered**:
-  1. No new IR; reuse existing diagnostics.
-  2. Thin repair report that normalizes compile and preview diagnostics.
-  3. Full deck IR for authoring, validation, and repair.
-- **Leaning**: option 2; option 3 stays deferred unless early repair scenarios
-  fail without it.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-DIAG-01
+- **Decision**: Add a normalized repair report that unifies compile and preview
+  diagnostics. The report may include thin locator fields, but Phase 3 defers a
+  complete deck IR to conditional future support.
+- **Rationale**: Agents need one repair queue across compile and preview
+  failures. A complete deck IR would create a second source representation
+  before local edits, visual editing, cross-format import/export, or strong audit
+  constraints have proven they need it.
 
-- **FC-ID**: FC-DIAG-02
-- **Question**: What persisted report format should Builder implement for the
-  repair loop?
-- **Options considered**:
-  1. Console-only diagnostics.
-  2. JSON report plus concise human-readable summary.
-  3. Markdown-only trace artifact.
-- **Leaning**: option 2.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-DIAG-02
+- **Decision**: Persist repair evidence as a machine-readable JSON report plus a
+  concise human-readable summary.
+- **Rationale**: JSON gives agents stable fields for repair, while a short
+  summary gives reviewers traceable evidence without forcing them to inspect raw
+  JSON for every loop.

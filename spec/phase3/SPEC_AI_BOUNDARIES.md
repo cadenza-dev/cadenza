@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,12 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines what Phase 3 AI-authoring strengthening may and may
+This frozen contract defines what Phase 3 AI-authoring strengthening may and may
 not do. It keeps the phase focused on local authoring, preview, diagnostics, and
 repair while preserving raw Remotion escape hatches and the skills-first MCP
 decision.
 
-## Design Options
+## Resolved Design Options
 
 ### Raw Remotion Warning Policy
 
@@ -22,8 +22,8 @@ decision.
    import raw Remotion primitives without an explicit reason.
 3. Hard-fail raw Remotion imports.
 
-**Stage A leaning**: option 2. Agents benefit from machine-readable warnings,
-but legitimate escape hatches must remain available.
+**Decision**: use option 2. Agents benefit from machine-readable warnings, but
+legitimate escape hatches must remain available.
 
 ### Read-Only MCP Boundary
 
@@ -33,9 +33,9 @@ but legitimate escape hatches must remain available.
 3. Add tool-based MCP operations such as validation, preview rendering, or
    composition inspection.
 
-**Stage A leaning**: option 1 unless maintainer review finds that rules,
-examples, and docs already exceed practical Markdown context. Option 3 is out
-of Phase 3 unless explicitly approved.
+**Decision**: use option 1. Phase 3 defers read-only MCP and tool-based MCP.
+Read-only MCP is routed to future support for Phase 4 late or Phase 5 start;
+tool-based MCP is routed to Phase 5 or later.
 
 ## Requirements
 
@@ -71,11 +71,11 @@ of Phase 3 unless explicitly approved.
 - **ID**: AIBND-004
 - **Priority**: P1
 - **Owner**: Architect -> Builder
-- **Statement**: If Phase 3 includes read-only MCP, it MUST expose resources and
-  prompts only. It MUST NOT expose tool-based validation, rendering, or
-  inspection operations in this phase.
-- **Verification**: acceptance scenario `TC-AIBND-003` either verifies the
-  read-only boundary or records Stage B deferral with rationale.
+- **Statement**: Phase 3 MUST NOT implement read-only MCP. Read-only MCP is
+  deferred until the rules, examples, starters, and documentation corpus exceeds
+  what Markdown context and the mono-skill can carry.
+- **Verification**: acceptance scenario `TC-AIBND-003` verifies that Phase 3
+  does not add read-only MCP and records the future-support routing.
 
 - **ID**: AIBND-005
 - **Priority**: P1
@@ -89,30 +89,26 @@ of Phase 3 unless explicitly approved.
 - **ID**: AIBND-006
 - **Priority**: P2
 - **Owner**: Architect -> Builder
-- **Statement**: Phase 3 MAY document how a future tool-based MCP could consume
-  the repair report, but it MUST NOT implement tool-based MCP without explicit
-  maintainer approval.
+- **Statement**: Phase 3 MUST NOT implement tool-based MCP operations such as
+  `validate_deck`, `render_preview`, or `inspect_composition`. Tool-based MCP is
+  deferred until local validation, preview, export, and report commands are
+  stable enough to expose through a shared capability surface.
 - **Verification**: acceptance scenario `TC-AIBND-003` confirms no tool-based
-  MCP operations are introduced unless separately approved.
+  MCP operations are introduced in Phase 3.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-AIBND-01
-- **Question**: What should the raw Remotion warning policy be in Phase 3?
-- **Options considered**:
-  1. Documentation-only warning.
-  2. Non-blocking diagnostic or lint warning unless raw usage has a `// why:`
-     reason.
-  3. Hard lint failure on raw Remotion imports.
-- **Leaning**: option 2.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-AIBND-01
+- **Decision**: Add non-blocking diagnostics or lint warnings for raw Remotion
+  usage unless the usage has a short `// why:` reason. Do not hard-fail raw
+  Remotion imports in Phase 3.
+- **Rationale**: Warnings give agents machine-readable repair feedback while
+  preserving the raw Remotion escape hatch for legitimate advanced cases.
 
-- **FC-ID**: FC-AIBND-02
-- **Question**: Should Phase 3 include read-only MCP?
-- **Options considered**:
-  1. Defer MCP and rely on the mono-skill plus Markdown context.
-  2. Add read-only MCP resources and prompts only.
-  3. Add tool-based MCP operations.
-- **Leaning**: option 1 unless maintainer review identifies a real context
-  retrieval bottleneck; option 3 is outside Phase 3 without explicit approval.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-AIBND-02
+- **Decision**: Defer MCP from Phase 3. Read-only MCP is future support for
+  Phase 4 late or Phase 5 start. Tool-based MCP belongs to Phase 5 or later,
+  once local validation, preview, export, and report commands are stable.
+- **Rationale**: Phase 3 must prove the local authoring and repair loop first.
+  MCP pays back when resource lookup or cross-tool actions become real
+  bottlenecks, not while the authoring loop itself is still being hardened.

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This draft contract defines the local AI-authoring loop for Phase 3. The loop
+This frozen contract defines the local AI-authoring loop for Phase 3. The loop
 starts from `cadenza-best-practices`, produces a small typed TSX technical deck,
 compiles it through the semantic core, mounts it in the Phase 2 browser preview
 path, repairs diagnostics with structured evidence, and stops without
@@ -18,7 +18,7 @@ Phase 3 strengthens authoring reliability. It does not claim MP4/PDF export,
 hosted rendering, presenter-product workflows, public API stability, or external
 alpha usage.
 
-## Design Options
+## Resolved Design Options
 
 ### Loop Entrypoint Shape
 
@@ -29,9 +29,10 @@ alpha usage.
 3. Skill-only workflow: the authoring skill describes the loop but no new local
    command or report surface is added.
 
-**Stage A leaning**: option 1. Phase 3 should prove the loop with public
-interfaces and existing commands before adding a wrapper. A wrapper can become
-earned scope only if the first repair scenarios show repeated command friction.
+**Decision**: use option 1. Phase 3 proves the loop with public interfaces and
+existing commands before adding a wrapper. A wrapper command is deferred to
+`wip/future-support/conditional-or-later-candidates.md` and can be reconsidered
+only if the explicit command sequence creates repeated repair-loop friction.
 
 ### Acceptance Deck Source
 
@@ -39,8 +40,8 @@ earned scope only if the first repair scenarios show repeated command friction.
 2. Multiple scenario-specific generated decks under browser/unit tests.
 3. Reuse the Phase 1 all-domain fixture only.
 
-**Stage A leaning**: option 1 plus targeted scenario fixtures only when needed.
-The all-domain fixture proves inherited runtime coverage, but Phase 3 needs an
+**Decision**: use option 1 plus targeted scenario fixtures only when needed. The
+all-domain fixture proves inherited runtime coverage, but Phase 3 needs an
 agent-authored technical-deck example that can fail and be repaired.
 
 ## Requirements
@@ -102,28 +103,20 @@ agent-authored technical-deck example that can fail and be repaired.
 - **Verification**: acceptance scenario `TC-AUTH-001` asserts the deck uses the
   relevant public primitives and stays within Phase 3 non-goals.
 
-## Freeze Candidates
+## Frozen Decisions
 
-- **FC-ID**: FC-AUTH-01
-- **Question**: Should Phase 3 Builder implement a single local orchestration
-  command for the authoring loop, or should it keep the loop as an explicit
-  documented sequence over existing commands?
-- **Options considered**:
-  1. Documented command sequence over existing compile, preview, and test
-     commands.
-  2. Single wrapper command that runs compile, preview, diagnostics, and report
-     generation.
-  3. Skill-only workflow with no new command surface.
-- **Leaning**: option 1 for Stage A; promote option 2 only if the first repair
-  scenarios prove repeated command friction.
-- **Must resolve before**: Stage B freeze.
+- **ID**: FC-AUTH-01
+- **Decision**: Phase 3 uses an explicit documented command sequence over
+  existing compile, preview, test, diagnostics, and repair evidence commands.
+  It does not add a single orchestration command.
+- **Rationale**: The loop should remain transparent while the repair workflow is
+  being proven. A wrapper command would be useful later only if repeated
+  real-loop evidence shows command choreography is the bottleneck.
 
-- **FC-ID**: FC-AUTH-02
-- **Question**: What is the canonical Phase 3 acceptance deck source?
-- **Options considered**:
-  1. One committed generated technical-deck fixture.
-  2. Multiple scenario-specific generated fixtures.
-  3. Reuse the Phase 1 all-domain fixture only.
-- **Leaning**: option 1, with targeted scenario fixtures added only when a
+- **ID**: FC-AUTH-02
+- **Decision**: Phase 3 uses one canonical generated technical-deck fixture as
+  the main acceptance deck, with targeted scenario fixtures added only when a
   diagnostic cannot be proven through the canonical deck.
-- **Must resolve before**: Stage B freeze.
+- **Rationale**: A single canonical deck keeps the repair loop reviewable and
+  avoids turning Phase 3 into a broad fixture-matrix exercise before the local
+  loop is proven.

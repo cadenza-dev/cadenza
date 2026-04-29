@@ -1,5 +1,40 @@
 # Phase 3 Tracker
 
+## 2026-04-30 01:16 +0800 — Stage B freeze and Builder handoff complete
+
+- Startup identity: continued as Phase 3 Architect with `GPT-5-family` /
+  `codex` under the maintainer-approved Architect identity for this session.
+- Scope: resolved all Phase 3 Stage A decisions per maintainer approval, froze
+  `spec/phase3/`, updated WIP routing for deferred features, and authored
+  `prompt/PHASE3_KICK_BUILDER.md`.
+- Frozen contracts: `spec/phase3/SPEC_AUTHORING_LOOP.md`,
+  `spec/phase3/SPEC_BEST_PRACTICES_RULES.md`,
+  `spec/phase3/SPEC_REPAIR_DIAGNOSTICS.md`,
+  `spec/phase3/SPEC_AI_BOUNDARIES.md`,
+  `spec/phase3/SPEC_TEST_MATRIX.md`, and
+  `spec/phase3/SPEC_TRACEABILITY.md`.
+- Resolved decisions: explicit command sequence instead of wrapper command;
+  one canonical generated technical-deck fixture; mono-skill data-explainer
+  rule/examples/evals; curated `with_skill` / `without_skill` eval evidence;
+  normalized JSON repair report plus concise summary; no complete deck IR;
+  non-blocking raw Remotion warning unless `// why:` is present; no MCP in
+  Phase 3.
+- Deferred WIP routing: wrapper command and complete deck IR to
+  `wip/future-support/conditional-or-later-candidates.md`; read-only MCP to
+  `wip/future-support/phase-4-candidates.md`; tool-based MCP to
+  `wip/future-support/phase-5-candidates.md`.
+- Builder handoff: `prompt/PHASE3_KICK_BUILDER.md` routes the first batch to
+  `B3.1 / TC-AUTH-001 + TC-AUTH-002 + TC-DIAG-001`.
+- Boundary preserved: no `packages/`, Accepted ADRs, or
+  `STATUS.yaml.current_phase` edits.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm lint:md`, `pnpm lint:shell`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` then passed 15/15 browser tests.
+
 ## 2026-04-29 22:51 +0800 — Stage A AI authoring contract drafts prepared
 
 - Startup identity: proceeded as Phase 3 Architect with `GPT-5-family` /

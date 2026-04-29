@@ -1,7 +1,7 @@
 version: 1
 phase: "3"
 phase_name: "AI Authoring Strengthening"
-status: architect_stage_a_open
+status: builder_ready
 timezone: Asia/Shanghai
 opened_at: "2026-04-29 22:38 +0800"
 
@@ -44,8 +44,9 @@ phase_scaffold:
   note: "Initial Phase 3 scaffold has been expanded after Architect Stage A draft artifacts were created."
 
 architect_stage_a:
-  status: drafted_pending_maintainer_review
+  status: complete
   drafted_at: "2026-04-29 22:51 +0800"
+  accepted_at: "2026-04-30 01:16 +0800"
   active_role: architect
   approved_identity: GPT-5-family/codex
   contracts:
@@ -55,7 +56,7 @@ architect_stage_a:
     - spec/phase3/SPEC_AI_BOUNDARIES.md
     - spec/phase3/SPEC_TEST_MATRIX.md
     - spec/phase3/SPEC_TRACEABILITY.md
-  freeze_candidates:
+  resolved_decisions:
     - FC-AUTH-01
     - FC-AUTH-02
     - FC-RULE-01
@@ -65,10 +66,13 @@ architect_stage_a:
     - FC-AIBND-01
     - FC-AIBND-02
   wip_disposition:
-    raw_remotion_warnings: "promoted as a non-blocking warning-policy Freeze Candidate"
+    authoring_loop_wrapper_command: "deferred to wip/future-support/conditional-or-later-candidates.md"
+    raw_remotion_warnings: "frozen as non-blocking warning policy"
     data_explainer_guidance: "promoted as mono-skill rule/eval scope, not a chart package"
-    thin_ir: "promoted as conditional repair-report-vs-IR Freeze Candidate"
-    read_only_mcp: "promoted as optional resources/prompts-only Freeze Candidate with Stage A leaning to defer"
+    complete_deck_ir: "deferred to wip/future-support/conditional-or-later-candidates.md"
+    repair_report: "frozen as normalized JSON report plus concise human-readable summary"
+    read_only_mcp: "deferred to wip/future-support/phase-4-candidates.md"
+    tool_based_mcp: "deferred to wip/future-support/phase-5-candidates.md"
     product_layer_items: "remain outside Phase 3"
   verification:
     typecheck: "pnpm typecheck"
@@ -82,8 +86,67 @@ architect_stage_a:
     harness: "pnpm check:harness"
     memory: "pnpm check:memory"
     whitespace: "git diff --check"
-  next_step: "Maintainer reviews Freeze Candidates before Stage B freeze."
+  next_step: "Phase 3 Builder starts from prompt/PHASE3_KICK_BUILDER.md."
 
 architect_stage_b:
+  status: complete
+  frozen_at: "2026-04-30 01:16 +0800"
+  approved_by: maintainer
+  frozen_contracts:
+    - spec/phase3/SPEC_AUTHORING_LOOP.md
+    - spec/phase3/SPEC_BEST_PRACTICES_RULES.md
+    - spec/phase3/SPEC_REPAIR_DIAGNOSTICS.md
+    - spec/phase3/SPEC_AI_BOUNDARIES.md
+    - spec/phase3/SPEC_TEST_MATRIX.md
+    - spec/phase3/SPEC_TRACEABILITY.md
+  builder_kick_file: prompt/PHASE3_KICK_BUILDER.md
+  accepted_decisions:
+    authoring_loop_entrypoint: "Use explicit documented command sequence; defer wrapper command."
+    acceptance_deck_source: "Use one canonical generated technical-deck fixture, with targeted scenario fixtures only when needed."
+    data_explainer_guidance: "Add mono-skill rule/examples/evals; no chart package or separate data-viz skill in Phase 3."
+    eval_evidence_depth: "Use curated with_skill / without_skill qualitative evidence."
+    repair_data_shape: "Use normalized repair report with thin locator fields; defer complete deck IR."
+    report_persistence: "Use JSON report plus concise human-readable summary."
+    raw_remotion_policy: "Use non-blocking warning unless raw usage has a // why: reason."
+    mcp_boundary: "Defer read-only MCP to Phase 4 late or Phase 5 start; defer tool-based MCP to Phase 5 or later."
+  verification:
+    typecheck: "pnpm typecheck"
+    unit: "pnpm test"
+    lint: "pnpm lint"
+    format: "pnpm format:check"
+    browser: "pnpm test:browser (passed with elevated permissions after default sandbox Chromium launch was blocked)"
+    markdown: "pnpm lint:md"
+    shell: "pnpm lint:shell"
+    spec: "pnpm spec:lint"
+    phase: "pnpm phase:check"
+    harness: "pnpm check:harness"
+    memory: "pnpm check:memory"
+    whitespace: "git diff --check"
+
+builder_handoff:
+  status: ready
+  active_role: builder
+  kick_file: prompt/PHASE3_KICK_BUILDER.md
+  next_batch:
+    id: B3.1
+    scenarios: [TC-AUTH-001, TC-AUTH-002, TC-DIAG-001]
+    summary: "Canonical agent-authored technical deck, compile path, and ordered compile diagnostics."
+  boundary: "No wrapper command, complete deck IR, read-only MCP, tool-based MCP, export claims, hosted-rendering claims, presenter-product claims, public API stability claims, or external alpha usage claims in Phase 3."
+
+builder_progress:
   status: not_started
-  boundary: "Do not mark Phase 3 specs CONTRACT_FROZEN or author prompt/PHASE3_KICK_BUILDER.md before explicit maintainer approval."
+  completed_batches: []
+
+exit_criteria:
+  phase3_specs_frozen:
+    status: met
+    artifact: spec/phase3/
+  builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE3_KICK_BUILDER.md
+  builder_batches_complete:
+    status: pending
+    artifact: trace/phase3/tracker.md
+  reviewer_closeout_accepted:
+    status: pending
+    artifact: trace/phase3/review-phase3-closeout.md

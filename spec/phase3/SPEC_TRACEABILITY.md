@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,9 +8,9 @@ Owner: Architect
 
 ## Purpose
 
-This draft matrix maps Phase 3 requirements to test scenarios and future
-implementation or artifact locations. It is a planning map for Builder after
-Stage B freeze, not evidence that any scenario has already passed.
+This frozen matrix maps Phase 3 requirements to test scenarios and future
+implementation or artifact locations. It is a planning map for Builder, not
+evidence that any scenario has already passed.
 
 ## Matrix
 
@@ -33,19 +33,19 @@ Stage B freeze, not evidence that any scenario has already passed.
 | DIAG-003 | TC-DIAG-003 | traceability coverage tests or Phase 3 repair evidence checks |
 | DIAG-004 | TC-AUTH-002, TC-DIAG-001 | repair report or validation report path |
 | DIAG-005 | TC-DIAG-003 | repair report or validation report path |
-| DIAG-006 | TC-DIAG-004 | thin IR path only if promoted during Stage B |
+| DIAG-006 | TC-DIAG-003 | repair report locator fields; no complete deck IR |
 | AIBND-001 | TC-AIBND-001 | Phase 3 docs, skills, trace, and examples |
 | AIBND-002 | TC-AIBND-002 | raw Remotion warning implementation or lint/diagnostic path |
 | AIBND-003 | TC-AUTH-004 | repair-loop tests and evidence artifact |
-| AIBND-004 | TC-AIBND-003 | MCP resource/prompt path only if promoted during Stage B |
+| AIBND-004 | TC-AIBND-003 | WIP deferral note for read-only MCP |
 | AIBND-005 | TC-RULE-003 | `skills/cadenza/evals/evals.json` |
 | AIBND-006 | TC-AIBND-003 | WIP deferral note or approved MCP design artifact |
 
-## Stage A Notes
+## Frozen Notes
 
-- `TC-DIAG-004` is intentionally P2 and conditional. It should disappear or be
-  marked deferred during Stage B if thin IR is not promoted.
-- `TC-AIBND-003` can be satisfied by explicit deferral if read-only MCP remains
-  outside the frozen Phase 3 contract.
+- Complete deck IR is not part of Phase 3. Repair reports may include thin
+  locator fields only when needed to make diagnostics actionable.
+- `TC-AIBND-003` is satisfied by explicit deferral because read-only MCP and
+  tool-based MCP remain outside the frozen Phase 3 contract.
 - Future locations are not permission to edit `CONTRACT_FROZEN` specs or
   Accepted ADRs.

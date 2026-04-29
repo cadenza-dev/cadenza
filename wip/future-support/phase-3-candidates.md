@@ -10,9 +10,10 @@ Authoring Strengthening**: compile -> error -> repair loop,
 `cadenza-best-practices` rule/eval expansion, thin IR if earned, and optional
 read-only MCP.
 
-## Architect Stage A disposition
+## Architect disposition
 
 > Recorded: 2026-04-29 during Phase 3 Architect Stage A drafting.
+> Updated: 2026-04-30 during Phase 3 Architect Stage B freeze.
 
 - Raw Remotion lint or diagnostic warnings: promoted into
   `spec/phase3/SPEC_AI_BOUNDARIES.md` as a Freeze Candidate for non-blocking
@@ -30,6 +31,10 @@ read-only MCP.
   retrieval bottleneck. Tool-based MCP remains later or separately approved.
 - Typography auto-fit, presenter view, multi-locale timeline compilation, and
   other product-layer items remain outside Phase 3.
+- Stage B result: Phase 3 specs are frozen around the local authoring and repair
+  loop. The orchestration command and complete deck IR are deferred to
+  `conditional-or-later-candidates.md`; read-only MCP is deferred to Phase 4
+  late or Phase 5 startup; tool-based MCP is deferred to Phase 5 or later.
 
 ## Raw Remotion lint or diagnostic warnings
 
