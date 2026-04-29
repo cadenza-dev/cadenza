@@ -185,7 +185,7 @@ enough for Phase 2 closeout review.
   non-mutating report mitigation, deferred active-phase-only hard gate, follow-up
   paths, and the boundary that frozen Phase 1 specs were not edited.
 
-### Verification
+### Final Verification
 
 - `pnpm test -- scripts/traceability-coverage.test.ts packages/preview-remotion/src/navigation.test.ts`
   passed.
@@ -205,4 +205,70 @@ enough for Phase 2 closeout review.
   `REV-P2-001`, `REV-P2-002`, and `REV-P2-003`. It does not reopen a full
   Phase 2 preview adapter architecture or UX review.
 - Root `STATUS.yaml.current_phase` and `trace/phase2/status.yaml` closeout
-  pointers were intentionally left unchanged by Reviewer.
+  pointers were intentionally left unchanged during that remediation acceptance;
+  final closeout status is recorded below.
+
+## Final Phase 2 Closeout Acceptance
+
+- Reviewed at: 2026-04-29 19:09 +0800
+- Reviewer role: Phase 2 Reviewer
+- Approved identity: GPT-5 / Codex, approved by maintainer in session
+- Scope:
+  - `trace/phase2/status.yaml`
+  - `trace/phase2/tracker.md`
+  - `trace/phase2/traceability-coverage.md`
+  - `scripts/traceability-coverage.ts`
+  - `scripts/traceability-coverage.test.ts`
+  - `scripts/phase-check.ts`
+  - targeted Phase 2 preview adapter and browser evidence
+- Mode: closeout review plus root status documentation update; no production
+  code remediation performed
+
+### Decision
+
+Accepted. Phase 2 is ready to close from the reviewer side. The previous
+`REV-P2-001`, `REV-P2-002`, and `REV-P2-003` false-closeout findings remain
+accepted as remediated, and the later `REV-P1-004` governance slice is now
+promoted into an active-phase-only closeout gate.
+
+### Closeout Evidence
+
+- `trace/phase2/traceability-coverage.md` reports all 38 Phase 2 requirements
+  present in specs, test matrix, and traceability matrix, with no promoted
+  blocking coverage gaps.
+- `scripts/traceability-coverage.ts --check` is non-mutating and fails when an
+  active-phase requirement lacks acceptance evidence or a maintainer-approved
+  waiver.
+- `scripts/phase-check.ts` runs that active-phase coverage check once
+  `trace/phase2/status.yaml` marks Builder batches complete.
+- `PRAD-007`, `PKG-004`, `BROW-007`, `RSRM-009`, and `BROW-009` have current
+  acceptance evidence; `PKG-006` and `PRAD-008` remain explicitly
+  maintainer-waived P2/MAY scope.
+- Latest pushed CI on `main` was green: GitHub Actions run `25104871915`
+  for commit `bc80c3f`.
+
+### Verification
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm lint
+pnpm format:check
+pnpm exec markdownlint-cli2 "**/*.md"
+find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d
+pnpm spec:lint
+pnpm phase:check
+node --experimental-strip-types scripts/traceability-coverage.ts --phase 2 --check
+pnpm check:harness
+pnpm check:memory
+git diff --check
+pnpm test:browser
+```
+
+Notes:
+
+- The default sandboxed `pnpm test:browser` run failed only at Chromium launch
+  with `sandbox_host_linux.cc:41` / `Operation not permitted`. The same command
+  passed with sandbox escalation: 15/15 browser tests green.
+- Root `STATUS.yaml.current_phase` remains `2`; this closeout does not advance
+  the phase pointer to Phase 3.

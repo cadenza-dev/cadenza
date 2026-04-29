@@ -10,17 +10,20 @@ It is not a Gamma replacement. It is not a WYSIWYG slide editor. It is a develop
 
 ## Status
 
-**Pre-alpha. Current routing phase: Phase 2 Architect Stage A.**
+**Pre-alpha. Current routing phase: Phase 2 closeout accepted.**
 
-Phase 1 has produced the semantic core: the typed TSX API surface, state-to-timeline
-compiler, runtime intent/navigation layer, render-safe metadata and DOM helper,
-validation reports, first authoring skills, and an all-domain MVP fixture.
-Builder work and the selected closeout remediations are trace-complete in
-[`trace/phase1/`](./trace/phase1/).
+Phase 1 produced the semantic core: the typed TSX API surface,
+state-to-timeline compiler, runtime intent/navigation layer, render-safe
+metadata and DOM helper, validation reports, first authoring skills, and an
+all-domain MVP fixture. Builder work and the selected closeout remediations are
+trace-complete in [`trace/phase1/`](./trace/phase1/).
 
-The maintainer has opened Phase 2 for Architect Stage A. The current task is to
-draft the React + Remotion Preview Adapter contracts, starting from
-[`prompt/PHASE2_KICK_ARCHITECT.md`](./prompt/PHASE2_KICK_ARCHITECT.md).
+Phase 2 has produced the React + Remotion preview adapter: package boundary,
+`@remotion/player` integration, deterministic player navigation, render-safe
+readiness behavior, browser measurement diagnostics, targeted visual sanity,
+and active-phase traceability coverage gating. Reviewer closeout is accepted in
+[`trace/phase2/review-phase2-closeout.md`](./trace/phase2/review-phase2-closeout.md).
+MP4/PDF export and hosted rendering remain out of scope.
 
 The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis
 that led to the project lives in
@@ -118,7 +121,7 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 ## Project Governance
 
 - **Maintainer**: [@DrEden33773](https://github.com/DrEden33773) (Eden Wang)
-- **Co-maintainers**: None yet. Interested? `CONTRIBUTING.md` will land after the Phase 2 contracts are frozen.
+- **Co-maintainers**: None yet. Interested? `CONTRIBUTING.md` will land before broader external contribution intake.
 - **Decision record**: All significant architectural decisions live in [`docs/adr/`](./docs/adr/).
 
 ---
@@ -143,12 +146,12 @@ Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 Pre-alpha contributions are currently limited to:
 
 - Review feedback on [`ROADMAP.md`](./ROADMAP.md), frozen Phase 1 trace, and
-  Phase 2 preview-adapter planning
+  Phase 2 closeout trace
 - Discussion of architectural decisions in [`docs/adr/`](./docs/adr/)
 - Focused issues that respect [`goals-non-goals.md`](./goals-non-goals.md)
 
-Broader code contributions should wait until Phase 2 contracts are frozen and
-`CONTRIBUTING.md` lands.
+Broader code contributions should wait until the next phase contracts and
+`CONTRIBUTING.md` land.
 
 ---
 

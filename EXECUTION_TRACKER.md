@@ -4,7 +4,7 @@
 
 ## Active phase
 
-**Phase 2 — React + Remotion Preview Adapter** *(Architect Stage A open; started 2026-04-29)*
+**Phase 2 — React + Remotion Preview Adapter** *(Reviewer closeout accepted; started 2026-04-29)*
 → [`trace/phase2/`](./trace/phase2/)
 
 ## Phase index
@@ -13,7 +13,7 @@
 | :---- | :------------------------------------ | :--------------------------------- | :--------------------------------- |
 | 0     | Technical Pre-Commitment              | complete                           | [`trace/phase0/`](./trace/phase0/) |
 | 1     | Core Semantics & Typed API            | complete                           | [`trace/phase1/`](./trace/phase1/) |
-| 2     | React + Remotion Preview Adapter      | architect_stage_a_open             | [`trace/phase2/`](./trace/phase2/) |
+| 2     | React + Remotion Preview Adapter      | complete                           | [`trace/phase2/`](./trace/phase2/) |
 | 3     | AI Authoring Strengthening            | not_started                        | `trace/phase3/`                    |
 | 4     | Presentation Product Layer (pruned)   | not_started                        | `trace/phase4/`                    |
 | 5     | Export + 0.1 Alpha Readiness          | not_started                        | `trace/phase5/`                    |

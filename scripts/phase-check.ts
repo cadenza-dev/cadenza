@@ -258,6 +258,7 @@ function checkPhase2Initial() {
     const allowedPhase2Statuses = new Set([
       "architect_stage_a_open",
       "builder_ready",
+      "complete",
     ]);
     if (
       phase2Lifecycle === null ||
@@ -269,7 +270,7 @@ function checkPhase2Initial() {
       });
     }
 
-    if (phase2Lifecycle === "builder_ready") {
+    if (phase2Lifecycle === "builder_ready" || phase2Lifecycle === "complete") {
       requirePath("prompt/PHASE2_KICK_BUILDER.md");
       const phase2Specs = walkFiles("spec/phase2").filter((file) =>
         file.endsWith(".md"),
@@ -300,6 +301,18 @@ function checkPhase2Initial() {
         exitCriterionStatus(phase2Status, "builder_batches_complete") === "met"
       ) {
         checkActivePhaseTraceabilityCoverage("2");
+      }
+
+      if (
+        phase2Lifecycle === "complete" &&
+        exitCriterionStatus(phase2Status, "reviewer_closeout_accepted") !==
+          "met"
+      ) {
+        findings.push({
+          level: "error",
+          message:
+            "trace/phase2/status.yaml status is complete but reviewer_closeout_accepted is not met",
+        });
       }
     }
   }
