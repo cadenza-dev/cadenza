@@ -24,6 +24,17 @@ Before editing a deck or recommending code:
 5. If a compile or preview failure is involved, run the validation-repair loop
    before changing visual style.
 
+## Local Authoring Loop
+
+For Phase 3 authoring work, keep the loop explicit and local:
+
+1. Author typed TSX with public Cadenza primitives.
+2. Run compile validation and keep the machine-readable diagnostics.
+3. Run browser preview when the issue is visual, resource, or DOM-observable.
+4. Inspect diagnostics and turn them into a repair queue.
+5. Repair the authored deck without editing framework internals.
+6. Re-run checks after each focused repair before changing style or scope.
+
 ## Rule Routing
 
 Load only the rule files needed for the task:
@@ -34,6 +45,7 @@ Load only the rule files needed for the task:
 | Timing, reveals, transitions, navigation | [`rules/motion-timing.md`](rules/motion-timing.md) |
 | Images, fonts, videos, bounded content | [`rules/render-safe-components.md`](rules/render-safe-components.md) |
 | Speaker notes or presenter metadata | [`rules/speaker-notes.md`](rules/speaker-notes.md) |
+| Data explainers, metrics, charts, or evidence slides | [`rules/data-explainers.md`](rules/data-explainers.md), [`rules/layout-composition.md`](rules/layout-composition.md) |
 | Compile, preview, browser, or export failures | [`rules/validation-repair.md`](rules/validation-repair.md), [`rules/browser-preview.md`](rules/browser-preview.md) |
 | Reviewing an agent-authored deck | Read all rule files, then report gaps by risk |
 

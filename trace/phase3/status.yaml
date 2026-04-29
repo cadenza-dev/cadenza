@@ -139,6 +139,43 @@ builder_progress:
   approved_identity: GPT-5/codex
   approved_at: "2026-04-30 01:41 +0800"
   completed_batches:
+    - id: B3.3
+      scenario: TC-RULE-001 / TC-RULE-002 / TC-RULE-003
+      status: complete
+      completed_at: "2026-04-30 03:51 +0800"
+      requirements: [RULE-001, RULE-002, RULE-003, RULE-004, RULE-005, RULE-006, AIBND-005]
+      evidence:
+        tests:
+          - packages/core/src/phase3-best-practices-rules.test.ts
+        skills:
+          - skills/cadenza/SKILL.md
+          - skills/cadenza/rules/data-explainers.md
+          - skills/cadenza/rules/browser-preview.md
+          - skills/cadenza/rules/validation-repair.md
+          - skills/cadenza/evals/evals.json
+          - skills/cadenza/examples/data-explainer.tsx
+        artifacts:
+          - skills/cadenza-best-practices-workspace/iteration-2/benchmark.md
+          - skills/cadenza-best-practices-workspace/iteration-2/conclusions.md
+        code:
+          - tsconfig.json
+      boundary: "cadenza-best-practices local-loop, data-explainer, eval, curated-evidence, and typecheckable-example strengthening only; no production runtime behavior, chart package, separate data-viz skill, wrapper command, complete deck IR, MCP, export, hosted-rendering, presenter-product, public-stability, or external-alpha claim."
+      verification:
+        red: "pnpm test -- packages/core/src/phase3-best-practices-rules.test.ts (failed because the local-loop section, data-explainer rule/example, and Phase 3 eval evidence did not exist)"
+        green: "pnpm test -- packages/core/src/phase3-best-practices-rules.test.ts"
+        sync: "scripts/commands-sync.sh"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; elevated rerun passed 16/16)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B3.2
       scenario: TC-AUTH-003 / TC-AUTH-004 / TC-DIAG-002 / TC-DIAG-003
       status: complete
@@ -204,10 +241,10 @@ builder_progress:
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
   next_batch:
-    id: B3.3
-    scenarios: [TC-RULE-001, TC-RULE-002, TC-RULE-003]
+    id: B3.4
+    scenarios: [TC-AIBND-001, TC-AIBND-002, TC-AIBND-003]
     status: waiting_for_maintainer_approval
-    summary: "cadenza-best-practices rule and eval strengthening."
+    summary: "AI boundaries and deferred-scope guards."
 
 exit_criteria:
   phase3_specs_frozen:

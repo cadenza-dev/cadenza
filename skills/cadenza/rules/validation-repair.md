@@ -31,3 +31,5 @@ focused repair before the next change.
 - Making several unrelated visual changes before re-running validation.
 - Treating a green unit test as proof that browser-observable preview behavior
   is correct.
+- Editing framework internals when the diagnostic points to authored deck
+  structure, render-safe metadata, or skill guidance.

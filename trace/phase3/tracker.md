@@ -1,5 +1,51 @@
 # Phase 3 Tracker
 
+## 2026-04-30 03:51 +0800 — B3.3 best-practices rule and eval strengthening
+
+- Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed `B3.3 / TC-RULE-001 + TC-RULE-002 + TC-RULE-003` as one
+  vertical slice.
+- RED: `pnpm test -- packages/core/src/phase3-best-practices-rules.test.ts`
+  failed because `cadenza-best-practices` did not yet teach the explicit Phase
+  3 local loop, did not include the data-explainer rule/example, and had only
+  the starter eval set without Phase 3 curated evidence.
+- GREEN: taught the mono-skill local authoring loop, added
+  `rules/data-explainers.md`, added a typecheckable data-explainer TSX example,
+  extended evals with data-explainer and diagnostics-driven repair prompts, and
+  recorded curated `with_skill` / `without_skill` evidence for the material
+  guidance change.
+- Evidence: `packages/core/src/phase3-best-practices-rules.test.ts` proves
+  mirror consistency, local-loop routing, mono-skill-only data-explainer
+  guidance, public Cadenza surfaces in the example, Phase 3 eval penalties for
+  raw Remotion drift / framework edits / export claims / Phase 4 claims, and
+  the RULE-006 rationale for the new rule file.
+- Implementation links: `skills/cadenza/SKILL.md`,
+  `skills/cadenza/rules/data-explainers.md`,
+  `skills/cadenza/rules/browser-preview.md`,
+  `skills/cadenza/rules/validation-repair.md`,
+  `skills/cadenza/evals/evals.json`,
+  `skills/cadenza/examples/data-explainer.tsx`,
+  `skills/cadenza-best-practices-workspace/iteration-2/benchmark.md`,
+  `skills/cadenza-best-practices-workspace/iteration-2/conclusions.md`,
+  `packages/core/src/phase3-best-practices-rules.test.ts`, and
+  `tsconfig.json`.
+- Boundary preserved: no frozen specs, Accepted ADRs, production runtime
+  behavior, chart package, separate data-viz skill, wrapper command, complete
+  deck IR, MCP, export, hosted-rendering, presenter-product, public-stability,
+  or external-alpha claim.
+- Verification: `scripts/commands-sync.sh`, `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` passed 16/16.
+- Next gated batch: `B3.4 / TC-AIBND-001 + TC-AIBND-002 + TC-AIBND-003`,
+  pending maintainer approval.
+
 ## 2026-04-30 03:03 +0800 — B3.2 browser preview diagnostics and repair evidence
 
 - Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after

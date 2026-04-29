@@ -32,6 +32,7 @@
   "include": [
     "packages/**/*.ts",
     "packages/**/*.tsx",
+    "skills/cadenza/examples/**/*.tsx",
     "playwright.config.ts",
     "scripts/**/*.ts",
     "tests/**/*.ts",

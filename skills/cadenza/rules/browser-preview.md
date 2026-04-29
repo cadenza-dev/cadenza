@@ -18,6 +18,8 @@ tests cannot see.
 - Browser preview is not MP4/PDF export.
 - Controlled fixtures are useful, but public adapters should own behavior when
   possible.
+- Preview diagnostics should travel through the shared diagnostic channel so
+  compile and browser evidence can be compared by source ID.
 - Generated browser bundles belong in ignored temporary output, not source.
 
 ## Review Questions

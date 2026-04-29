@@ -58,6 +58,43 @@
         "The output explicitly distinguishes browser preview from MP4/PDF export and avoids claiming export support.",
         "The output avoids bypassing diagnostics with raw Remotion primitives, screenshots, or opaque visual patches."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Create a Cadenza data-explainer slide for a technical talk comparing with_skill and without_skill repair quality. Keep the slice typecheckable and do not create a chart package.",
+      "expected_output": "A small public-API Cadenza TSX slice that frames the data story, uses bounded labels, Notes, Theme, Step pacing, and render-safe composition without adding a package or separate skill.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/data-explainers.md",
+        "skills/cadenza/examples/data-explainer.tsx"
+      ],
+      "expectations": [
+        "The output frames the data story before choosing the visual shape.",
+        "The output imports public Cadenza primitives from @cadenza-dev/core.",
+        "The output uses bounded labels with TypographyBox or ContentSlot.",
+        "The output uses Notes for speaker-only interpretation.",
+        "The output uses render-safe composition such as MediaFrame or SafeImage where visual evidence appears.",
+        "The output avoids creating a dedicated chart package, separate data-viz skill, or Phase 4 product-layer workflow."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Review an agent-authored Cadenza deck that has repairQueue diagnostics, raw Remotion drift, framework internal edits, export claims, and Phase 4 presenter-product claims. Give the repair plan and explain what to reject.",
+      "expected_output": "A diagnostics-driven repair plan that fixes authored deck surfaces first, rejects framework internal edits, penalizes raw Remotion drift without a // why: reason, and removes export or Phase 4 product claims.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/validation-repair.md",
+        "skills/cadenza/rules/browser-preview.md",
+        "skills/cadenza/rules/data-explainers.md"
+      ],
+      "expectations": [
+        "The output applies diagnostics-driven repair before visual restyling.",
+        "The output uses createValidationReport or repairQueue to order fatal issues before warnings.",
+        "The output keeps repairs in authored deck or guidance surfaces instead of framework internal edits.",
+        "The output penalizes raw Remotion drift unless there is a short // why: reason.",
+        "The output rejects MP4/PDF export claims, hosted rendering claims, and Phase 4 product-layer claims.",
+        "The output keeps the mono-skill boundary and does not introduce a new package, MCP, or separate authoring skill."
+      ]
     }
   ]
 }
