@@ -138,7 +138,43 @@ builder_progress:
   active_role: builder
   approved_identity: GPT-5/codex
   approved_at: "2026-04-30 01:41 +0800"
+  current_session_identity: GPT-5/codex
+  current_session_approved_at: "2026-04-30 04:20 +0800"
+  current_session_approval_note: "Maintainer answered y to proceed as Phase 3 Builder with GPT-5/codex for B3.4."
   completed_batches:
+    - id: B3.4
+      scenario: TC-AIBND-001 / TC-AIBND-002 / TC-AIBND-003
+      status: complete
+      completed_at: "2026-04-30 04:20 +0800"
+      requirements: [AIBND-001, AIBND-002, AIBND-004, AIBND-006, AUTH-001, DIAG-006]
+      evidence:
+        tests:
+          - packages/core/src/phase3-ai-boundaries.test.ts
+        code:
+          - packages/core/src/validation/aiBoundaries.ts
+          - packages/core/src/index.ts
+        future_support:
+          - wip/future-support/conditional-or-later-candidates.md
+          - wip/future-support/phase-4-candidates.md
+          - wip/future-support/phase-5-candidates.md
+      boundary: "AI boundary diagnostics and repo-artifact guards only; no wrapper command, complete deck IR, read-only MCP, tool-based MCP, export, hosted-rendering, presenter-product, public-stability, or external-alpha implementation or claim."
+      verification:
+        red_raw_remotion: "pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts (failed because validateRawRemotionUsage did not exist)"
+        red_claims: "pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts (failed because validatePhase3BoundaryClaims did not exist, then caught false positives on boundary-language artifacts before scanner refinement)"
+        red_deferred_scope: "pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts (failed because validatePhase3DeferredScopeClaims did not exist, then caught false positives on deferred future-support wording before scanner refinement)"
+        green: "pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; elevated rerun passed 16/16)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B3.3
       scenario: TC-RULE-001 / TC-RULE-002 / TC-RULE-003
       status: complete
@@ -241,10 +277,10 @@ builder_progress:
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
   next_batch:
-    id: B3.4
-    scenarios: [TC-AIBND-001, TC-AIBND-002, TC-AIBND-003]
+    id: B3.5
+    scenarios: [phase-closeout]
     status: waiting_for_maintainer_approval
-    summary: "AI boundaries and deferred-scope guards."
+    summary: "Phase closeout after all Phase 3 acceptance scenarios are green."
 
 exit_criteria:
   phase3_specs_frozen:

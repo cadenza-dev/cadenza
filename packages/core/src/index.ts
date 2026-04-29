@@ -111,6 +111,15 @@ export {
   Transition,
 } from "./typed-api/primitives.js";
 export type {
+  Phase3BoundaryArtifact,
+  RawRemotionUsageOptions,
+} from "./validation/aiBoundaries.js";
+export {
+  validatePhase3BoundaryClaims,
+  validatePhase3DeferredScopeClaims,
+  validateRawRemotionUsage,
+} from "./validation/aiBoundaries.js";
+export type {
   MediaFrameMeasurement,
   PreviewLayoutMeasurement,
   TypographyBoxMeasurement,

@@ -1,5 +1,54 @@
 # Phase 3 Tracker
 
+## 2026-04-30 04:20 +0800 — B3.4 AI boundaries and deferred-scope guards
+
+- Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed `B3.4 / TC-AIBND-001 + TC-AIBND-002 + TC-AIBND-003` as one
+  vertical slice.
+- RED 1: `pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts` failed
+  because `validateRawRemotionUsage` did not exist.
+- GREEN 1: added non-blocking raw Remotion usage diagnostics that warn on
+  `useCurrentFrame`, `delayRender`, `continueRender`, and `TransitionSeries`
+  unless a nearby short `// why:` reason is present.
+- RED 2: the same targeted test failed because
+  `validatePhase3BoundaryClaims` did not exist, then caught scanner false
+  positives on existing boundary-language artifacts before the context rules
+  were refined.
+- GREEN 2: added Phase 3 artifact claim guards for MP4/PDF export,
+  hosted rendering, Remotion Lambda, presenter product completeness, template
+  marketplace, public API stability, and external alpha usage.
+- RED 3: the targeted test failed because
+  `validatePhase3DeferredScopeClaims` did not exist, then caught scanner false
+  positives on deferred future-support wording before the same boundary-context
+  policy was reused.
+- GREEN 3: added deferred-scope guards for the authoring-loop wrapper command,
+  complete deck IR, read-only MCP, and tool-based MCP, and asserted the future
+  routes remain in `wip/future-support/conditional-or-later-candidates.md`,
+  `wip/future-support/phase-4-candidates.md`, and
+  `wip/future-support/phase-5-candidates.md`.
+- Evidence: `packages/core/src/phase3-ai-boundaries.test.ts` proves
+  `AIBND-001`, `AIBND-002`, `AIBND-004`, and `AIBND-006` through public
+  validation helpers plus repo-artifact scans; wrapper-command and complete-IR
+  boundaries are tied back to `AUTH-001` and `DIAG-006`.
+- Implementation links: `packages/core/src/validation/aiBoundaries.ts`,
+  `packages/core/src/index.ts`, and
+  `packages/core/src/phase3-ai-boundaries.test.ts`.
+- Boundary preserved: no frozen specs, Accepted ADRs, wrapper command, complete
+  deck IR, read-only MCP, tool-based MCP, export, hosted-rendering,
+  presenter-product, public-stability, or external-alpha implementation or
+  claim.
+- Verification: `pnpm test -- packages/core/src/phase3-ai-boundaries.test.ts`,
+  `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` passed 16/16.
+- Next gated batch: `B3.5 / phase-closeout`, pending maintainer approval.
+
 ## 2026-04-30 03:51 +0800 — B3.3 best-practices rule and eval strengthening
 
 - Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
