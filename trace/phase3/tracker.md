@@ -1,5 +1,35 @@
 # Phase 3 Tracker
 
+## 2026-04-30 04:53 +0800 — B3.5 Phase 3 Builder closeout
+
+- Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed `B3.5 / phase-closeout` as one vertical slice after
+  `B3.1`, `B3.2`, `B3.3`, and `B3.4` were already recorded complete.
+- Closeout status: updated `trace/phase3/status.yaml` so
+  `builder_progress.status` is `builder_complete_pending_reviewer`,
+  `builder_progress.next_batch.id` is `null`, and
+  `exit_criteria.builder_batches_complete.status` is `met`.
+- Evidence map: the closeout points Reviewer to the Phase 3 acceptance tests
+  (`packages/core/src/phase3-authoring-loop.test.ts`,
+  `packages/core/src/phase3-best-practices-rules.test.ts`,
+  `packages/core/src/phase3-ai-boundaries.test.ts`, and
+  `tests/browser/remotion-preview.spec.ts`), the canonical fixture, repair
+  evidence, mono-skill rule/eval artifacts, and future-support deferral notes.
+- Boundary preserved: no frozen specs, Accepted ADRs, root phase pointer,
+  runtime feature, wrapper command, complete deck IR, read-only MCP, tool-based
+  MCP, export, hosted-rendering, presenter-product, public-stability, or
+  external-alpha change.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` passed 16/16.
+- Next step: Phase 3 Reviewer review; Builder stops here.
+
 ## 2026-04-30 04:20 +0800 — B3.4 AI boundaries and deferred-scope guards
 
 - Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
