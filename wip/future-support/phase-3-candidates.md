@@ -10,6 +10,27 @@ Authoring Strengthening**: compile -> error -> repair loop,
 `cadenza-best-practices` rule/eval expansion, thin IR if earned, and optional
 read-only MCP.
 
+## Architect Stage A disposition
+
+> Recorded: 2026-04-29 during Phase 3 Architect Stage A drafting.
+
+- Raw Remotion lint or diagnostic warnings: promoted into
+  `spec/phase3/SPEC_AI_BOUNDARIES.md` as a Freeze Candidate for non-blocking
+  warning policy.
+- Data visualization authoring guidance: promoted into
+  `spec/phase3/SPEC_BEST_PRACTICES_RULES.md` as mono-skill
+  data-explainer guidance, not as a dedicated chart package.
+- Thin IR and richer validation or repair reports: promoted into
+  `spec/phase3/SPEC_REPAIR_DIAGNOSTICS.md` as a Freeze Candidate. Stage A
+  leans toward a normalized repair report first and defers a full IR unless
+  repair scenarios prove it necessary.
+- Read-only MCP for resources and prompts: promoted into
+  `spec/phase3/SPEC_AI_BOUNDARIES.md` as an optional Freeze Candidate. Stage A
+  leans toward deferral unless maintainer review identifies a concrete context
+  retrieval bottleneck. Tool-based MCP remains later or separately approved.
+- Typography auto-fit, presenter view, multi-locale timeline compilation, and
+  other product-layer items remain outside Phase 3.
+
 ## Raw Remotion lint or diagnostic warnings
 
 - **Source**: `spec/phase1/SPEC_TYPED_API.md` `FC-TAPI-02`.

@@ -10,6 +10,9 @@ session:
   approved_identity: GPT-5-family/codex
   approved_at: "2026-04-29 22:38 +0800"
   approval_note: "Maintainer explicitly requested updating STATUS.yaml current phase routing to Phase 3 and publishing the result."
+  current_session_identity: GPT-5-family/codex
+  current_session_approved_at: "2026-04-29 22:48 +0800"
+  current_session_approval_note: "Maintainer answered y to proceed as Phase 3 Architect with GPT-5-family/codex."
 
 handoff:
   source_phase: "2"
@@ -37,5 +40,50 @@ entry_conditions:
     artifact: STATUS.yaml
 
 phase_scaffold:
-  status: minimal
-  note: "Initial Phase 3 scaffold only. Do not pre-fill Stage A specs, Stage B freeze criteria, Builder batches, or implementation evidence before Architect artifacts exist and are accepted."
+  status: superseded_by_stage_a_drafts
+  note: "Initial Phase 3 scaffold has been expanded after Architect Stage A draft artifacts were created."
+
+architect_stage_a:
+  status: drafted_pending_maintainer_review
+  drafted_at: "2026-04-29 22:51 +0800"
+  active_role: architect
+  approved_identity: GPT-5-family/codex
+  contracts:
+    - spec/phase3/SPEC_AUTHORING_LOOP.md
+    - spec/phase3/SPEC_BEST_PRACTICES_RULES.md
+    - spec/phase3/SPEC_REPAIR_DIAGNOSTICS.md
+    - spec/phase3/SPEC_AI_BOUNDARIES.md
+    - spec/phase3/SPEC_TEST_MATRIX.md
+    - spec/phase3/SPEC_TRACEABILITY.md
+  freeze_candidates:
+    - FC-AUTH-01
+    - FC-AUTH-02
+    - FC-RULE-01
+    - FC-RULE-02
+    - FC-DIAG-01
+    - FC-DIAG-02
+    - FC-AIBND-01
+    - FC-AIBND-02
+  wip_disposition:
+    raw_remotion_warnings: "promoted as a non-blocking warning-policy Freeze Candidate"
+    data_explainer_guidance: "promoted as mono-skill rule/eval scope, not a chart package"
+    thin_ir: "promoted as conditional repair-report-vs-IR Freeze Candidate"
+    read_only_mcp: "promoted as optional resources/prompts-only Freeze Candidate with Stage A leaning to defer"
+    product_layer_items: "remain outside Phase 3"
+  verification:
+    typecheck: "pnpm typecheck"
+    unit: "pnpm test"
+    lint: "pnpm lint"
+    format: "pnpm format:check"
+    markdown: "pnpm lint:md"
+    shell: "pnpm lint:shell"
+    spec: "pnpm spec:lint"
+    phase: "pnpm phase:check"
+    harness: "pnpm check:harness"
+    memory: "pnpm check:memory"
+    whitespace: "git diff --check"
+  next_step: "Maintainer reviews Freeze Candidates before Stage B freeze."
+
+architect_stage_b:
+  status: not_started
+  boundary: "Do not mark Phase 3 specs CONTRACT_FROZEN or author prompt/PHASE3_KICK_BUILDER.md before explicit maintainer approval."
