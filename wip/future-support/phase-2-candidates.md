@@ -2,56 +2,45 @@
 
 > Status: WIP planning note, not a contract.
 > Source date: 2026-04-25.
+> Reclassified: 2026-04-29 after `fb8a408 docs: revise roadmap phase
+> sequencing`.
 
-These items are natural candidates for Phase 2 because that phase focuses on AI
-authoring strengthening, repair loops, expanded skills, thin IR, and optional
-read-only MCP.
+This file was created before the roadmap introduced a standalone Phase 2 for
+the **React + Remotion Preview Adapter**. The original note treated Phase 2 as
+AI authoring strengthening, repair loops, expanded skills, thin IR, and optional
+read-only MCP. That target is now Phase 3 in `ROADMAP.md`.
 
-## Raw Remotion lint warnings
+Phase 2 is complete. No open future-support item remains assigned to Phase 2.
 
-- **Source**: `spec/phase1/SPEC_TYPED_API.md` `FC-TAPI-02`.
-- **Frozen Phase 1 decision**: raw Remotion remains a documentation-only escape
-  hatch.
-- **Future support**: add non-blocking lint or diagnostic warnings for raw
-  Remotion usage during Phase 2 AI-authoring strengthening.
-- **Reason to defer**: Phase 2 owns the compile-error-repair loop and is a
-  better place to turn guidance into machine-readable agent feedback.
+## Reclassification
 
-## Data visualization authoring skill
+### Moved to Phase 3
 
-- **Source**: `spec/phase1/SPEC_SKILLS.md` `FC-SKIL-01`.
-- **Frozen Phase 1 decision**: `data-viz-slides` is not part of the first five
-  skills unless alpha examples prove it is essential.
-- **Future support**: add a dedicated data visualization skill in Phase 2.
-- **Reason to defer**: data visualization is important for technical talks, but
-  it can become its own deep design surface. The MVP skill pack should protect
-  the core authoring loop first.
+- Raw Remotion lint or diagnostic warnings.
+- Data visualization authoring guidance.
+- Thin IR and richer validation or repair reports.
+- Optional read-only MCP for resources and prompts.
 
-## Thin IR and richer validation reports
+Rationale: these are AI-authoring and local repair-loop concerns. They now match
+Phase 3's roadmap scope: generate, preview, diagnose, and repair agent-authored
+technical decks.
 
-- **Source**: `spec/phase1/SPEC_VALIDATION.md` `VAL-006`, `ROADMAP.md` Phase 2.
-- **Frozen Phase 1 decision**: validation may expose a machine-readable report,
-  but the MVP does not require a full repair-oriented IR.
-- **Future support**: introduce a thin IR and diagnostic report shape that
-  agents can consume for repair loops.
-- **Reason to defer**: the IR should be based on real failure modes observed in
-  Phase 1 alpha decks.
+### Moved to Phase 4 or Later
 
-## Read-only MCP for resources and prompts
+- Runtime transition progress subscription.
 
-- **Source**: `ROADMAP.md` Phase 2, ADR 0003.
-- **Frozen Phase 1 decision**: skills and instructions come before MCP.
-- **Future support**: add a read-only MCP server when docs, examples, and skill
-  assets outgrow plain Markdown context injection.
-- **Reason to defer**: MCP maintenance does not pay back until reusable dynamic
-  lookup becomes a real bottleneck.
+Rationale: Phase 2 implemented internal Player frame synchronization for preview
+adapter correctness. A public frame-granular progress subscription should wait
+for product-layer pressure from stronger transitions, presenter tools, or
+authoring UI.
 
-## Runtime transition progress subscription
+## Delete From Phase 2 Backlog
 
-- **Source**: `docs/design/compiler-design.md` OQ-2.
-- **Frozen Phase 1 decision**: `onCursorChange` emits semantic cursor changes,
-  not frame-level progress events.
-- **Future support**: add a separate transition-progress subscription API if
-  runtime UI or authoring tools prove they need frame-granular progress.
-- **Reason to defer**: progress subscriptions should not overload cursor-change
-  semantics.
+Delete the old assignment language, not the ideas:
+
+- "Phase 2 focuses on AI authoring strengthening."
+- "Phase 2 owns the compile-error-repair loop."
+- "Add a dedicated data visualization skill in Phase 2."
+- "`ROADMAP.md` Phase 2" as the source for read-only MCP.
+
+The surviving items are recorded in the Phase 3 and Phase 4 candidate files.

@@ -70,3 +70,17 @@ pressure before becoming contracts.
 - **Future support**: replace placeholders with concrete package paths after
   Builder workspace bootstrap.
 - **Reason to defer**: package boundaries are not final before scaffold.
+
+## Multi-locale timeline compilation
+
+- **Source**: `docs/design/compiler-design.md` OQ-4 and the old Phase 3
+  candidate note.
+- **Frozen Phase 1 decision**: Phase 1 does not support multi-locale slide
+  variants.
+- **Current roadmap stance**: `ROADMAP.md` explicitly defers i18n
+  infrastructure indefinitely.
+- **Future support**: compile one independent TimelineMap per locale only if
+  i18n re-enters scope through a future ADR.
+- **Reason to defer**: locale-specific text density can change layout and
+  timing, so shared anchors would be unsafe; i18n is not part of the current
+  phase sequence.
