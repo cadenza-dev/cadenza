@@ -1,5 +1,41 @@
 # Phase 3 Tracker
 
+## 2026-04-30 01:41 +0800 — B3.1 canonical deck and compile diagnostics
+
+- Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed `B3.1 / TC-AUTH-001 + TC-AUTH-002 + TC-DIAG-001` as one
+  vertical slice.
+- RED: `pnpm test -- packages/core/src/phase3-authoring-loop.test.ts` failed
+  because `@cadenza-dev/core/fixtures/phase3Acceptance` did not exist.
+- GREEN: added the canonical Phase 3 TSX technical-deck fixture, public fixture
+  subpath wiring, a `jsx-dev-runtime` shim for TSX test transforms, and compile
+  repair queue ordering that preserves diagnostic traversal order within
+  severity groups.
+- Evidence: `packages/core/src/phase3-authoring-loop.test.ts` proves the
+  canonical deck source imports from `@cadenza-dev/core`, avoids raw Remotion or
+  relative internal imports, uses render-safe nodes, compiles through preview and
+  offline semantic core paths, and turns a targeted invalid deck into a
+  deterministic machine-readable repair queue.
+- Implementation links: `packages/core/src/fixtures/phase3Acceptance.tsx`,
+  `packages/core/src/validation/report.ts`,
+  `packages/core/src/jsx-dev-runtime.ts`, `packages/core/package.json`,
+  `tsconfig.json`, and `vitest.config.ts`.
+- Boundary preserved: no frozen specs, Accepted ADRs, browser Phase 3 preview
+  scenario, persisted repair evidence artifact, skill/eval changes, raw
+  Remotion warning policy, wrapper command, complete deck IR, MCP, export,
+  hosted-rendering, presenter-product, public-stability, or external-alpha claim.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, `git diff --check`, and elevated
+  `pnpm test:browser` passed. Default `pnpm test:browser` failed only because
+  the sandbox blocked Chromium launch with `sandbox_host_linux.cc` /
+  `Operation not permitted`.
+- Next gated batch: `B3.2 / TC-AUTH-003 + TC-AUTH-004 + TC-DIAG-002 +
+  TC-DIAG-003`, pending maintainer approval.
+
 ## 2026-04-30 01:16 +0800 — Stage B freeze and Builder handoff complete
 
 - Startup identity: continued as Phase 3 Architect with `GPT-5-family` /

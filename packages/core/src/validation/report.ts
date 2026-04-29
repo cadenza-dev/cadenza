@@ -28,6 +28,7 @@ export type CadenzaValidationReport = {
 };
 
 type MutableRepairQueueItem = ValidationRepairQueueItem & {
+  firstDiagnosticIndex: number;
   messageSet: Set<string>;
   sourceSet: Set<string>;
 };
@@ -42,7 +43,7 @@ export function createValidationReport(
   };
   const repairGroups = new Map<string, MutableRepairQueueItem>();
 
-  for (const diagnostic of diagnostics) {
+  for (const [index, diagnostic] of diagnostics.entries()) {
     summary[diagnostic.severity] += 1;
     summary.byRequirement[diagnostic.requirementId] =
       (summary.byRequirement[diagnostic.requirementId] ?? 0) + 1;
@@ -53,7 +54,8 @@ export function createValidationReport(
       diagnostic.code,
       diagnostic.source ?? "",
     ].join("\u0000");
-    const group = repairGroups.get(groupKey) ?? createRepairGroup(diagnostic);
+    const group =
+      repairGroups.get(groupKey) ?? createRepairGroup(diagnostic, index);
 
     group.count += 1;
     group.messageSet.add(diagnostic.message);
@@ -65,8 +67,8 @@ export function createValidationReport(
   }
 
   const repairQueue = [...repairGroups.values()]
-    .map(finalizeRepairGroup)
-    .sort(compareRepairQueueItems);
+    .sort(compareRepairQueueItems)
+    .map(finalizeRepairGroup);
 
   return {
     schemaVersion: 1,
@@ -79,6 +81,7 @@ export function createValidationReport(
 
 function createRepairGroup(
   diagnostic: CadenzaDiagnostic,
+  firstDiagnosticIndex: number,
 ): MutableRepairQueueItem {
   return {
     severity: diagnostic.severity,
@@ -88,6 +91,7 @@ function createRepairGroup(
     messages: [],
     count: 0,
     action: repairActionFor(diagnostic.code),
+    firstDiagnosticIndex,
     messageSet: new Set(),
     sourceSet: new Set(),
   };
@@ -108,11 +112,12 @@ function finalizeRepairGroup(
 }
 
 function compareRepairQueueItems(
-  left: ValidationRepairQueueItem,
-  right: ValidationRepairQueueItem,
+  left: MutableRepairQueueItem,
+  right: MutableRepairQueueItem,
 ): number {
   return (
     severityRank(left.severity) - severityRank(right.severity) ||
+    left.firstDiagnosticIndex - right.firstDiagnosticIndex ||
     left.requirementId.localeCompare(right.requirementId) ||
     left.code.localeCompare(right.code) ||
     left.sources.join("\u0000").localeCompare(right.sources.join("\u0000"))
@@ -133,6 +138,8 @@ function repairActionFor(code: string): string {
       return "Flatten nested Deck nodes into the top-level Deck.";
     case "VAL_INVALID_STEP_KIND":
       return "Use a supported Step kind: fixed, wait-for-event, or computed.";
+    case "COMP_MISSING_EXPORT_DURATION":
+      return "Add exportDuration to wait-for-event steps before offline compilation.";
     case "RSAF_TYPOGRAPHY_OVERFLOW":
       return "Revise TypographyBox content, sizing, or layout so browser preview no longer overflows.";
     default:

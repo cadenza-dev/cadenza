@@ -134,8 +134,48 @@ builder_handoff:
   boundary: "No wrapper command, complete deck IR, read-only MCP, tool-based MCP, export claims, hosted-rendering claims, presenter-product claims, public API stability claims, or external alpha usage claims in Phase 3."
 
 builder_progress:
-  status: not_started
-  completed_batches: []
+  status: in_progress
+  active_role: builder
+  approved_identity: GPT-5/codex
+  approved_at: "2026-04-30 01:41 +0800"
+  completed_batches:
+    - id: B3.1
+      scenario: TC-AUTH-001 / TC-AUTH-002 / TC-DIAG-001
+      status: complete
+      completed_at: "2026-04-30 01:41 +0800"
+      requirements: [AUTH-001, AUTH-002, AUTH-006, RULE-005, DIAG-001, DIAG-004]
+      evidence:
+        tests:
+          - packages/core/src/phase3-authoring-loop.test.ts
+        fixtures:
+          - packages/core/src/fixtures/phase3Acceptance.tsx
+        code:
+          - packages/core/src/validation/report.ts
+          - packages/core/src/jsx-dev-runtime.ts
+          - packages/core/package.json
+          - tsconfig.json
+          - vitest.config.ts
+      boundary: "Canonical Phase 3 TSX deck, compile path, public fixture subpath, and ordered compile repair queue only; no browser Phase 3 preview scenario, repair evidence artifact, skill/eval changes, raw Remotion warning policy, wrapper command, complete deck IR, MCP, export, hosted-rendering, presenter-product, public-stability, or external-alpha claim."
+      verification:
+        red: "pnpm test -- packages/core/src/phase3-authoring-loop.test.ts (failed because @cadenza-dev/core/fixtures/phase3Acceptance did not exist)"
+        green: "pnpm test -- packages/core/src/phase3-authoring-loop.test.ts"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        browser: "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; elevated rerun passed 15/15)"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
+  next_batch:
+    id: B3.2
+    scenarios: [TC-AUTH-003, TC-AUTH-004, TC-DIAG-002, TC-DIAG-003]
+    status: waiting_for_maintainer_approval
+    summary: "Browser preview diagnostics and repair evidence."
 
 exit_criteria:
   phase3_specs_frozen:
