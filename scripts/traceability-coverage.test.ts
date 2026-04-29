@@ -351,6 +351,7 @@ describe("phase:check active-phase coverage gate", () => {
         "prompt/PHASE1_KICK_BUILDER.md",
         "prompt/PHASE2_KICK_ARCHITECT.md",
         "prompt/PHASE2_KICK_BUILDER.md",
+        "prompt/PHASE3_KICK_ARCHITECT.md",
         "pnpm-workspace.yaml",
         "biome.jsonc",
         "tsconfig.json",
@@ -485,6 +486,102 @@ describe("phase:check active-phase coverage gate", () => {
       );
 
       expect(result.status).toBe(1);
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("accepts Phase 3 Architect open routing after Phase 2 reviewer closeout", () => {
+    const repoRoot = mkdtempSync(path.join(tmpdir(), "cadenza-phase3-open-"));
+
+    try {
+      writeRepoFile(
+        repoRoot,
+        "STATUS.yaml",
+        [
+          'current_phase: "3"',
+          "current_phase_name: AI Authoring Strengthening",
+          "current_phase_status: architect_stage_a_open",
+          "current_phase_trace: trace/phase3/",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "package.json",
+        JSON.stringify(
+          {
+            scripts: {
+              "format:check": "biome format .",
+              lint: "biome check .",
+              "phase:check":
+                "node --experimental-strip-types scripts/phase-check.ts",
+              "spec:lint":
+                "node --experimental-strip-types scripts/lint-specs.ts",
+              test: "vitest run --passWithNoTests",
+              typecheck: "tsc --noEmit",
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      for (const file of [
+        "prompt/PHASE0_KICK_BUILDER.md",
+        "prompt/PHASE1_KICK_BUILDER.md",
+        "prompt/PHASE2_KICK_ARCHITECT.md",
+        "prompt/PHASE3_KICK_ARCHITECT.md",
+        "pnpm-workspace.yaml",
+        "biome.jsonc",
+        "tsconfig.json",
+        "scripts/lint-specs.ts",
+        "scripts/phase-check.ts",
+        ".githooks/pre-commit",
+        ".githooks/commit-msg",
+        ".github/workflows/ci.yml",
+        "trace/phase2/review-phase2-closeout.md",
+        "trace/phase2/phase3-architect-handoff.md",
+        "trace/phase3/tracker.md",
+      ]) {
+        writeRepoFile(repoRoot, file, "# placeholder\n");
+      }
+      writeRepoFile(
+        repoRoot,
+        "trace/phase2/status.yaml",
+        [
+          'phase: "2"',
+          "status: complete",
+          "exit_criteria:",
+          "  reviewer_closeout_accepted:",
+          "    status: met",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "trace/phase3/status.yaml",
+        ['phase: "3"', "status: architect_stage_a_open", ""].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "spec/phase1/SPEC_TEST_MATRIX.md",
+        [
+          "---",
+          "Status: CONTRACT_FROZEN",
+          "---",
+          "",
+          "# Phase 1 Test Matrix",
+          "",
+        ].join("\n"),
+      );
+
+      const result = spawnSync(
+        process.execPath,
+        ["--experimental-strip-types", path.resolve("scripts/phase-check.ts")],
+        { cwd: repoRoot, encoding: "utf8" },
+      );
+
+      expect(result.status).toBe(0);
     } finally {
       rmSync(repoRoot, { force: true, recursive: true });
     }

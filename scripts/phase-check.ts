@@ -93,6 +93,7 @@ requirePath("STATUS.yaml");
 requirePath("prompt/PHASE0_KICK_BUILDER.md");
 requirePath("prompt/PHASE1_KICK_BUILDER.md");
 requirePath("prompt/PHASE2_KICK_ARCHITECT.md");
+requirePath("prompt/PHASE3_KICK_ARCHITECT.md");
 requirePath("package.json");
 requirePath("pnpm-workspace.yaml");
 requirePath("biome.jsonc");
@@ -107,10 +108,15 @@ let currentPhase: string | null = null;
 if (exists("STATUS.yaml")) {
   const rootStatus = readText("STATUS.yaml");
   currentPhase = yamlScalar(rootStatus, "current_phase");
-  if (currentPhase !== "0" && currentPhase !== "1" && currentPhase !== "2") {
+  if (
+    currentPhase !== "0" &&
+    currentPhase !== "1" &&
+    currentPhase !== "2" &&
+    currentPhase !== "3"
+  ) {
     findings.push({
       level: "error",
-      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0, 1, or 2`,
+      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0, 1, 2, or 3`,
     });
   }
 }
@@ -318,12 +324,70 @@ function checkPhase2Initial() {
   }
 }
 
+function checkPhase3Initial() {
+  requirePath("trace/phase2/status.yaml");
+  requirePath("trace/phase2/review-phase2-closeout.md");
+  requirePath("trace/phase2/phase3-architect-handoff.md");
+  requirePath("trace/phase3/status.yaml");
+  requirePath("trace/phase3/tracker.md");
+
+  if (exists("trace/phase2/status.yaml")) {
+    const phase2Status = readText("trace/phase2/status.yaml");
+    const phase2 = yamlScalar(phase2Status, "phase");
+    const phase2Lifecycle = yamlScalar(phase2Status, "status");
+    const reviewerAccepted = exitCriterionStatus(
+      phase2Status,
+      "reviewer_closeout_accepted",
+    );
+
+    if (phase2 !== "2") {
+      findings.push({
+        level: "error",
+        message: `trace/phase2/status.yaml phase is ${phase2 ?? "(missing)"}, expected 2`,
+      });
+    }
+    if (phase2Lifecycle !== "complete") {
+      findings.push({
+        level: "error",
+        message: `trace/phase2/status.yaml status is ${phase2Lifecycle ?? "(missing)"}, expected complete`,
+      });
+    }
+    if (reviewerAccepted !== "met") {
+      findings.push({
+        level: "error",
+        message: `reviewer_closeout_accepted status is ${reviewerAccepted ?? "(missing)"}, expected met`,
+      });
+    }
+  }
+
+  if (exists("trace/phase3/status.yaml")) {
+    const phase3Status = readText("trace/phase3/status.yaml");
+    const phase3 = yamlScalar(phase3Status, "phase");
+    const phase3Lifecycle = yamlScalar(phase3Status, "status");
+
+    if (phase3 !== "3") {
+      findings.push({
+        level: "error",
+        message: `trace/phase3/status.yaml phase is ${phase3 ?? "(missing)"}, expected 3`,
+      });
+    }
+    if (phase3Lifecycle !== "architect_stage_a_open") {
+      findings.push({
+        level: "error",
+        message: `trace/phase3/status.yaml status is ${phase3Lifecycle ?? "(missing)"}, expected architect_stage_a_open`,
+      });
+    }
+  }
+}
+
 if (currentPhase === "0") {
   checkPhase0();
 } else if (currentPhase === "1") {
   checkPhase1Initial();
 } else if (currentPhase === "2") {
   checkPhase2Initial();
+} else if (currentPhase === "3") {
+  checkPhase3Initial();
 }
 
 const phase1Specs = walkFiles("spec/phase1").filter((file) =>

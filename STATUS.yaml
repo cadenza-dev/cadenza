@@ -10,14 +10,14 @@ repository: https://github.com/cadenza-dev/cadenza
 # ------------------------------------------------------------------
 # Current phase pointer (agents read this first)
 # ------------------------------------------------------------------
-current_phase: "2"
-current_phase_name: "React + Remotion Preview Adapter"
-current_phase_status: complete
+current_phase: "3"
+current_phase_name: "AI Authoring Strengthening"
+current_phase_status: architect_stage_a_open
 current_phase_started: "2026-04-29"
-current_phase_trace: trace/phase2/
+current_phase_trace: trace/phase3/
 
 # Dominant role for this phase. See phases.<n>.owners for the full list.
-current_phase_dominant_owner: wizard
+current_phase_dominant_owner: architect
 
 # ------------------------------------------------------------------
 # Phase index (per-phase status snapshots)
@@ -41,7 +41,7 @@ phases:
     trace: trace/phase2/
   "3":
     name: "AI Authoring Strengthening"
-    status: not_started
+    status: architect_stage_a_open
     owners: [architect, builder, reviewer, wizard]
     trace: trace/phase3/
   "4":
