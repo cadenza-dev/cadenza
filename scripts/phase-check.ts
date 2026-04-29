@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 type Finding = {
   level: "error" | "info";
@@ -7,6 +8,10 @@ type Finding = {
 };
 
 const repoRoot = process.cwd();
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const traceabilityCoverageModule = (await import(
+  pathToFileURL(path.join(scriptDir, "traceability-coverage.ts")).href
+)) as typeof import("./traceability-coverage.js");
 const findings: Finding[] = [];
 
 function readText(file: string): string {
@@ -66,6 +71,22 @@ function walkFiles(target: string): string[] {
     }
   }
   return files;
+}
+
+function checkActivePhaseTraceabilityCoverage(phase: string) {
+  const report = traceabilityCoverageModule.createTraceabilityCoverageReport({
+    phase,
+    repoRoot,
+  });
+
+  if (report.findings.length > 0) {
+    findings.push({
+      level: "error",
+      message: `active-phase traceability coverage check failed for phase ${phase}:\n${report.findings
+        .map((finding) => `- ${finding}`)
+        .join("\n")}`,
+    });
+  }
 }
 
 requirePath("STATUS.yaml");
@@ -273,6 +294,12 @@ function checkPhase2Initial() {
             message: `${file} contains unresolved Freeze Candidate marker`,
           });
         }
+      }
+
+      if (
+        exitCriterionStatus(phase2Status, "builder_batches_complete") === "met"
+      ) {
+        checkActivePhaseTraceabilityCoverage("2");
       }
     }
   }

@@ -675,8 +675,8 @@ function createRevP1004Disposition(
   repoRoot: string,
 ): TraceabilityCoverageReport["revP1004Disposition"] {
   return {
-    currentDisposition: "mitigated_by_phase2_non_mutating_report",
-    deferredFollowUp: "active-phase-only hard gate",
+    currentDisposition: "promoted_to_active_phase_only_closeout_gate",
+    deferredFollowUp: "none",
     followUpPaths: [
       "TODO.md",
       "wip/architect/phase1-traceability-coverage.md",
@@ -764,10 +764,27 @@ function main() {
   const args = process.argv.slice(2);
   const repoRoot = process.cwd();
   const phase = argValue(args, "--phase") ?? readCurrentPhase(repoRoot);
+  const checkOnly = args.includes("--check");
   const output =
     argValue(args, "--output") ??
     `trace/phase${phase}/traceability-coverage.md`;
   const report = createTraceabilityCoverageReport({ phase, repoRoot });
+
+  if (checkOnly) {
+    if (report.findings.length > 0) {
+      for (const finding of report.findings) {
+        console.error(`error: ${finding}`);
+      }
+      console.error(
+        `traceability coverage check failed for phase ${phase} (${report.findings.length} finding(s))`,
+      );
+      process.exit(1);
+    }
+
+    console.log(`traceability coverage check OK for phase ${phase}`);
+    return;
+  }
+
   const markdown = formatTraceabilityCoverageMarkdown(report);
 
   mkdirSync(path.dirname(path.join(repoRoot, output)), { recursive: true });

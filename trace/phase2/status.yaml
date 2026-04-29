@@ -359,6 +359,45 @@ builder_progress:
         harness: "pnpm check:harness"
         memory: "pnpm check:memory"
         whitespace: "git diff --check"
+    - id: B2.8-governance
+      scenario: REV-P1-004 active-phase-only closeout gate
+      status: complete
+      completed_at: "2026-04-29 18:35 +0800"
+      findings: [REV-P1-004]
+      requirements: [TRAC-001, TRAC-005]
+      evidence:
+        tests:
+          - scripts/traceability-coverage.test.ts
+        code:
+          - scripts/traceability-coverage.ts
+          - scripts/phase-check.ts
+        report:
+          - trace/phase2/traceability-coverage.md
+        trace:
+          - trace/phase2/status.yaml
+          - trace/phase2/tracker.md
+        todo:
+          - TODO.md
+      closeout_gate:
+        status: active
+        check_mode: "node --experimental-strip-types scripts/traceability-coverage.ts --phase 2 --check"
+        phase_check_condition: "trace/phase2/status.yaml exit_criteria.builder_batches_complete == met"
+        scope: "active phase only; non-mutating; no frozen Phase 1 spec mutation"
+      boundary: "No CONTRACT_FROZEN spec edit, Accepted ADR edit, Phase 3 work, package/runtime feature work, export claim, hosted-rendering claim, or root phase pointer flip."
+      verification:
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test -- scripts/traceability-coverage.test.ts"
+        full_unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        coverage_check: "node --experimental-strip-types scripts/traceability-coverage.ts --phase 2 --check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
   next_batch:
     id: reviewer-closeout
     scenario: Phase 2 Reviewer review

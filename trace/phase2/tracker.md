@@ -1,5 +1,36 @@
 # Phase 2 Tracker
 
+## 2026-04-29 18:35 +0800 — REV-P1-004 active-phase closeout gate promoted
+
+- Startup identity: proceeded as Builder governance slice with
+  `GPT-5-family` / `codex` after maintainer approval in this session.
+- Scope: promote the existing non-mutating `REV-P1-004` traceability coverage
+  report into an active-phase-only closeout gate; no `CONTRACT_FROZEN` specs,
+  Accepted ADRs, package/runtime feature files, Phase 3 work, or root phase
+  pointer were modified.
+- RED 1: extended `scripts/traceability-coverage.test.ts` so
+  `traceability-coverage.ts --check` must fail on active-phase coverage
+  findings without writing `trace/phase2/traceability-coverage.md`.
+- GREEN 1: added non-mutating `--check` mode to
+  `scripts/traceability-coverage.ts`; normal report generation remains
+  unchanged.
+- RED 2: added a Phase 2 closeout fixture proving `phase:check` passes before
+  `builder_batches_complete: met` but fails after that closeout condition when
+  active-phase coverage findings remain.
+- GREEN 2: wired `scripts/phase-check.ts` to run the active phase coverage
+  check in-process once Phase 2 Builder batches are marked complete.
+- Trace/TODO update: regenerated `trace/phase2/traceability-coverage.md`,
+  marked `REV-P1-004` as promoted to the active-phase-only closeout gate, and
+  moved the matching `TODO.md` item out of pending follow-up state.
+- Verification after slice: `pnpm test -- scripts/traceability-coverage.test.ts`
+  passed during the TDD loop; final gates passed with `pnpm typecheck`,
+  `pnpm test`, `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`,
+  `node --experimental-strip-types scripts/traceability-coverage.ts --phase 2 --check`,
+  `pnpm check:harness`, `pnpm check:memory`, and `git diff --check`.
+
 ## 2026-04-29 08:46 +0800 — REV-P2-001/002/003 remediation complete
 
 - Startup identity: proceeded as Builder remediation with `GPT-5` / `codex`

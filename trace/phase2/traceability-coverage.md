@@ -76,8 +76,8 @@
 
 - Source finding: `trace/phase1/review-phase1-closeout.md`
 - Phase 2 contract: `spec/phase2/SPEC_TRACEABILITY_COVERAGE.md`
-- Current disposition: mitigated_by_phase2_non_mutating_report
-- Deferred follow-up: active-phase-only hard gate
+- Current disposition: promoted_to_active_phase_only_closeout_gate
+- Deferred follow-up: none
 - Follow-up paths: TODO.md, wip/architect/phase1-traceability-coverage.md
 - Frozen Phase 1 specs edited: no
 

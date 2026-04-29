@@ -12,9 +12,9 @@
     workflow.
   - Promote only maintainer-approved reusable lessons into `memory/`.
 
-- Phase 2 traceability governance follow-up:
-  - After `Phase 2 Builder` completes, review the
-    `REV-P1-004` coverage-report evidence and decide whether to promote an
-    active-phase-only hard gate. Keep this separate from the Phase 2 freeze, do
-    not mutate frozen Phase 1 specs, and prefer a scoped gate that fails only
-    active-phase coverage holes over a global historical blocker.
+- Completed Phase 2 traceability governance follow-up:
+  - Done on 2026-04-29: `REV-P1-004` coverage-report evidence was promoted to
+    an active-phase-only closeout gate. `traceability-coverage.ts --check` is
+    non-mutating, and `pnpm phase:check` runs it only when the active Phase 2
+    status marks Builder batches complete. Frozen Phase 1 specs remain
+    unmodified.
