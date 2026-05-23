@@ -17,7 +17,10 @@ transitions, smart typography and density, and targeted technical-talk starters.
   engine in Phase 4.
 - **Reason to defer**: auto-fit affects visual quality and layout taste. Phase 1
   and Phase 2 needed reliable diagnostics before heuristic correction.
-- **Disposition**: keep.
+- **Frozen disposition**: promoted into
+  `spec/phase4/SPEC_TYPOGRAPHY_DENSITY.md` as Phase 4 frozen scope. Phase 4
+  uses opt-in deterministic auto-fit, bounded font/line/spacing adjustment, and
+  theme-level density budgets.
 
 ## Full presenter view
 
@@ -29,7 +32,10 @@ transitions, smart typography and density, and targeted technical-talk starters.
 - **Reason to defer**: Phase 1 proved semantic runtime metadata, and Phase 2
   proved real browser preview. The full presenter experience belongs in the
   product layer.
-- **Disposition**: keep.
+- **Frozen disposition**: promoted into
+  `spec/phase4/SPEC_PRESENTER_WORKFLOW.md` as Phase 4 frozen scope. Phase 4
+  uses a same-browser presenter panel, lightweight next context, and optional
+  chapter or section metadata on existing typed surfaces.
 
 ## Runtime transition progress subscription
 
@@ -44,7 +50,11 @@ transitions, smart typography and density, and targeted technical-talk starters.
   need frame-granular progress.
 - **Reason to defer**: progress subscriptions should not overload cursor-change
   semantics, and a public API should wait for a product-layer consumer.
-- **Disposition**: keep as Phase 4-or-later.
+- **Frozen disposition**: promoted into
+  `spec/phase4/SPEC_TRANSITIONS_PROGRESS.md` as Phase 4 frozen scope. Phase 4
+  uses a small typed transition roster, internal product-layer progress evidence
+  for presenter and diagnostics surfaces, and explicitly rejects overloading
+  `onCursorChange` or adding a public progress hook.
 
 ## Read-only MCP resources and prompts evaluation
 
@@ -59,4 +69,7 @@ transitions, smart typography and density, and targeted technical-talk starters.
 - **Reason to defer**: read-only MCP solves resource and prompt access, not the
   core Phase 3 question of whether agents can generate, preview, diagnose, and
   repair decks through the local loop.
-- **Disposition**: keep as Phase 4-late or Phase 5-start candidate.
+- **Frozen disposition**: deferred from Phase 4 implementation.
+  `spec/phase4/SPEC_TECHNICAL_TALK_STARTERS.md` keeps read-only MCP as a
+  closeout or Phase 5-start evaluation candidate and keeps tool-based MCP out
+  of Phase 4.
