@@ -1,4 +1,7 @@
-import type { RenderSafeNode } from "../render-safe/resources.js";
+import type {
+  ReadableDensityBudgets,
+  RenderSafeNode,
+} from "../render-safe/resources.js";
 
 export type DurationToken = number | `${number}ms` | `${number}s`;
 
@@ -32,6 +35,7 @@ export type StepChildren = StepStaticChild | StepRenderFunction;
 
 export type ThemeTokens = {
   color?: Record<string, string>;
+  density?: ReadableDensityBudgets;
   typography?: Record<string, string>;
   spacing?: Record<string, number | string>;
   motion?: Record<string, DurationToken>;

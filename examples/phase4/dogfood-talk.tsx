@@ -13,6 +13,7 @@ import {
   type ThemeDefinition,
   type TimelineMap,
   Transition,
+  type TypographyAutoFitConfig,
   TypographyBox,
 } from "@cadenza-dev/core";
 
@@ -39,7 +40,19 @@ export type Phase4DogfoodTalkChapter = {
 const RELIABILITY_BUDGET_SRC =
   "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='640'%20height='360'%20viewBox='0%200%20640%20360'%3E%3Crect%20width='640'%20height='360'%20fill='%230f172a'/%3E%3Ctext%20x='48'%20y='72'%20fill='%23f8fafc'%20font-family='Inter%2C%20Arial'%20font-size='30'%3EPreview%20Reliability%20Budget%3C/text%3E%3Crect%20x='64'%20y='130'%20width='160'%20height='150'%20rx='8'%20fill='%2322c55e'/%3E%3Crect%20x='240'%20y='95'%20width='160'%20height='185'%20rx='8'%20fill='%230ea5e9'/%3E%3Crect%20x='416'%20y='170'%20width='160'%20height='110'%20rx='8'%20fill='%23f59e0b'/%3E%3Ctext%20x='92'%20y='310'%20fill='%23f8fafc'%20font-family='Inter%2C%20Arial'%20font-size='20'%3ECompiler%3C/text%3E%3Ctext%20x='258'%20y='310'%20fill='%23f8fafc'%20font-family='Inter%2C%20Arial'%20font-size='20'%3ERender-safe%3C/text%3E%3Ctext%20x='444'%20y='310'%20fill='%23f8fafc'%20font-family='Inter%2C%20Arial'%20font-size='20'%3EPreview%3C/text%3E%3C/svg%3E";
 
-const theme = (
+export const PHASE4_BODY_AUTO_FIT = {
+  baseFontSizePx: 30,
+  baseLineHeight: 1.32,
+  baseSpacingPx: 12,
+  minFontSizePx: 20,
+  minLineHeight: 1.12,
+  minSpacingPx: 4,
+} satisfies TypographyAutoFitConfig;
+
+export const PHASE4_RELIABILITY_DENSITY_TEXT =
+  "Compiler evidence, render-safe resource status, local preview diagnostics, presenter notes, and visual acceptance repair paths all compete for the same dogfood slide and must stay readable.";
+
+export const phase4DogfoodTalkTheme = (
   <Theme
     name="phase-4-product-layer"
     tokens={{
@@ -52,6 +65,20 @@ const theme = (
       motion: {
         chapterShift: "700ms",
         reveal: "450ms",
+      },
+      density: {
+        comfortable: {
+          maxCharactersPer1000Px2: 2.4,
+          maxEstimatedLineCount: 5,
+          repairDirection:
+            "Repair the authored deck by shortening copy, splitting a reveal step, or increasing the typography box.",
+        },
+        compact: {
+          maxCharactersPer1000Px2: 1.8,
+          maxEstimatedLineCount: 3,
+          repairDirection:
+            "Repair the authored deck before accepting compact technical-talk copy.",
+        },
       },
       spacing: {
         framePadding: 56,
@@ -124,7 +151,7 @@ export const phase4DogfoodTalkMetadata = {
 };
 
 const phase4DogfoodTalk = (
-  <Deck fps={24} navigationPolicy="queue-next" theme={theme}>
+  <Deck fps={24} navigationPolicy="queue-next" theme={phase4DogfoodTalkTheme}>
     <Slide id="architecture-contract">
       <Notes>
         Frame Cadenza as a typed presentation system for developers writing
@@ -138,6 +165,14 @@ const phase4DogfoodTalk = (
           readability="headline"
         >
           <TypographyBox
+            autoFit={{
+              baseFontSizePx: 44,
+              baseLineHeight: 1.14,
+              baseSpacingPx: 10,
+              minFontSizePx: 30,
+              minLineHeight: 1.04,
+              minSpacingPx: 4,
+            }}
             id="architecture-contract-title"
             maxHeight={144}
             maxWidth={820}
@@ -164,6 +199,7 @@ const phase4DogfoodTalk = (
           readability="body"
         >
           <TypographyBox
+            autoFit={PHASE4_BODY_AUTO_FIT}
             id="timeline-compiler-map"
             maxHeight={180}
             maxWidth={860}
@@ -205,8 +241,20 @@ const phase4DogfoodTalk = (
         </MediaFrame>
       </Step>
       <Step duration="2s">
-        The product layer is credible only when those three bars are visible in
-        the same local preview.
+        <ContentSlot
+          id="preview-reliability-budget-density"
+          density="compact"
+          readability="body"
+        >
+          <TypographyBox
+            autoFit={PHASE4_BODY_AUTO_FIT}
+            id="preview-reliability-budget-density"
+            maxHeight={96}
+            maxWidth={420}
+          >
+            {PHASE4_RELIABILITY_DENSITY_TEXT}
+          </TypographyBox>
+        </ContentSlot>
       </Step>
     </Slide>
     <Transition kind="fade" duration="500ms" />
@@ -222,7 +270,12 @@ const phase4DogfoodTalk = (
           density="comfortable"
           readability="body"
         >
-          <TypographyBox id="product-layer-loop" maxHeight={168} maxWidth={840}>
+          <TypographyBox
+            autoFit={PHASE4_BODY_AUTO_FIT}
+            id="product-layer-loop"
+            maxHeight={168}
+            maxWidth={840}
+          >
             The Phase 4 loop is preview-first: authored example, local Player,
             presenter context, visual acceptance evidence, and maintainer
             sign-off or waiver.

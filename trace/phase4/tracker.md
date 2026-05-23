@@ -1,5 +1,57 @@
 # Phase 4 Tracker
 
+## 2026-05-24 01:38 +0800 — B4.4 typography auto-fit and density diagnostics
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only `B4.4 / TC-TYPO-001 + TC-TYPO-002` from frozen
+  `spec/phase4/SPEC_TEST_MATRIX.md` and
+  `spec/phase4/SPEC_TYPOGRAPHY_DENSITY.md`.
+- RED/GREEN evidence:
+  `pnpm test -- packages/core/src/phase4-typography-density.test.ts` first
+  failed because `fitTypographyBox` was not implemented, then passed after
+  opt-in deterministic auto-fit metadata and fitting diagnostics were added.
+  The same command then failed because `validateTypographyDensity` was not
+  implemented, then passed after theme-budget density diagnostics and preview
+  workflow exposure were added.
+- Artifacts written: `examples/phase4/dogfood-talk.tsx`,
+  `examples/phase4/preview.ts`, `examples/phase4/preview.jsx`,
+  `packages/core/src/render-safe/resources.ts`,
+  `packages/core/src/typed-api/primitives.ts`,
+  `packages/core/src/validation/typographyDensity.ts`,
+  `packages/core/src/index.ts`,
+  `packages/core/src/phase4-typography-density.test.ts`,
+  `packages/preview-remotion/src/CadenzaPlayer.tsx`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Behavior: `TypographyBox` now carries opt-in auto-fit bounds, core fitting is
+  deterministic for a fixed measurement/viewport/font-readiness state, and
+  non-fitting content emits an overflow fallback diagnostic instead of
+  rewriting authored prose. Theme tokens now carry readable density budgets
+  with deterministic defaults, and density diagnostics include locator,
+  measured value, category, theme budget, and authored-deck repair direction.
+- Product-layer workflow: the dogfood talk uses bounded auto-fit on typography
+  boxes; `CadenzaPlayer` exposes auto-fit status, fitted font size,
+  line-height, spacing, and overflow fallback as `data-cadenza-*` attributes;
+  the Phase 4 same-browser presenter panel exposes density diagnostics through
+  `data-cadenza-phase4-typography-density`.
+- Verification: targeted B4.4 tests, `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`, shell formatting check,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. `pnpm test:browser`
+  failed in the default sandbox with Chromium `sandbox_host_linux` permission
+  errors, then passed under approved elevated execution (`16/16`).
+  `pnpm preview:phase4` failed in the default sandbox with `listen EPERM`;
+  elevated rerun built the current preview bundle, then hit `EADDRINUSE`
+  because an existing Phase 4 preview server was already bound on 4174; `curl`
+  verified `/` and `/phase4-dogfood-preview.js` from that server, including the
+  B4.4 data attributes.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, export,
+  hosted-rendering, Remotion Lambda, public-stability, external-alpha,
+  WYSIWYG, marketplace, collaboration, or MCP implementation changes.
+- Next batch after maintainer approval:
+  `B4.5 / TC-TRPR-001 + TC-TRPR-002`.
+
 ## 2026-05-24 01:04 +0800 — B4.3 visual acceptance evidence and repair routing
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

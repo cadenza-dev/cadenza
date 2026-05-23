@@ -1,16 +1,20 @@
 /** @jsxImportSource react */
 
-import type {
-  CadenzaDiagnostic,
-  CadenzaNode,
-  Cursor,
-  DeckNode,
-  PresenterMetadata,
-  RenderSafeNode,
-  SlideNode,
-  StepContext,
-  StepNode,
-  TimelineMap,
+import {
+  type CadenzaDiagnostic,
+  type CadenzaNode,
+  type Cursor,
+  type DeckNode,
+  fitTypographyBox,
+  type PresenterMetadata,
+  type RenderSafeNode,
+  type SlideNode,
+  type StepContext,
+  type StepNode,
+  type TimelineMap,
+  type TypographyAutoFitConfig,
+  type TypographyFitDiagnostic,
+  type TypographyFitEvaluation,
 } from "@cadenza-dev/core";
 import { Player, type PlayerRef } from "@remotion/player";
 import {
@@ -673,6 +677,8 @@ function renderSafeNode(
           key={context.key}
           maxHeight={node.maxHeight}
           maxWidth={node.maxWidth}
+          autoFit={node.autoFit}
+          fontReadiness={context.fontReadiness}
           readiness={context.readiness}
           source={node.id}
         >
@@ -713,13 +719,17 @@ function renderSafeNode(
 }
 
 function TypographyBoxPreview({
+  autoFit,
   children,
+  fontReadiness,
   maxHeight,
   maxWidth,
   readiness,
   source,
 }: {
+  autoFit?: TypographyAutoFitConfig | undefined;
   children: ReactNode;
+  fontReadiness: PreviewFontReadinessMode;
   maxHeight: number;
   maxWidth: number;
   readiness: PreviewReadinessRegistry;
@@ -728,6 +738,9 @@ function TypographyBoxPreview({
   const ref = useRef<HTMLDivElement>(null);
   const [measurement, setMeasurement] = useState<
     TypographyPreviewMeasurement | undefined
+  >(undefined);
+  const [fitEvaluation, setFitEvaluation] = useState<
+    TypographyFitEvaluation | undefined
   >(undefined);
 
   useLayoutEffect(() => {
@@ -738,24 +751,74 @@ function TypographyBoxPreview({
 
     const nextMeasurement = measureTypographyBox(element, source);
     setMeasurement(nextMeasurement);
+    const nextFitEvaluation = fitTypographyBox({
+      fontReadiness: fontReadiness === "manual" ? "pending" : "ready",
+      measurement: nextMeasurement,
+      typography: {
+        autoFit,
+        children,
+        id: source,
+        kind: "typography-box",
+        maxHeight,
+        maxWidth,
+      },
+      viewport: {
+        height: window.innerHeight,
+        width: window.innerWidth,
+      },
+    });
+    setFitEvaluation(nextFitEvaluation);
+
+    for (const diagnostic of nextFitEvaluation.diagnostics) {
+      readiness.pushDiagnostic(toCadenzaDiagnostic(diagnostic));
+    }
 
     for (const diagnostic of validateTypographyBoxMeasurement(
       nextMeasurement,
     )) {
       readiness.pushDiagnostic(diagnostic);
     }
-  }, [readiness, source]);
+  }, [
+    autoFit,
+    children,
+    fontReadiness,
+    maxHeight,
+    maxWidth,
+    readiness,
+    source,
+  ]);
+
+  const fitResult = fitEvaluation?.result;
 
   return (
     <div
       data-cadenza-requirements="RSRM-006 BROW-005"
+      data-cadenza-typography-auto-fit={fitResult?.status ?? "disabled"}
       data-cadenza-typography-box={source}
       data-cadenza-typography-client-height={measurement?.clientHeight}
       data-cadenza-typography-client-width={measurement?.clientWidth}
+      data-cadenza-typography-font-size-px={fitResult?.fontSizePx}
+      data-cadenza-typography-line-height={fitResult?.lineHeight}
+      data-cadenza-typography-overflow-fallback={String(
+        fitResult?.status === "overflow-fallback",
+      )}
       data-cadenza-typography-scroll-height={measurement?.scrollHeight}
       data-cadenza-typography-scroll-width={measurement?.scrollWidth}
+      data-cadenza-typography-spacing-px={fitResult?.spacingPx}
       ref={ref}
       style={{
+        fontSize:
+          fitResult && fitResult.fontSizePx > 0
+            ? `${fitResult.fontSizePx}px`
+            : undefined,
+        gap:
+          fitResult && fitResult.spacingPx > 0
+            ? `${fitResult.spacingPx}px`
+            : undefined,
+        lineHeight:
+          fitResult && fitResult.lineHeight > 0
+            ? fitResult.lineHeight
+            : undefined,
         maxHeight,
         maxWidth,
         overflow: "hidden",
@@ -764,6 +827,18 @@ function TypographyBoxPreview({
       {children}
     </div>
   );
+}
+
+function toCadenzaDiagnostic(
+  diagnostic: TypographyFitDiagnostic,
+): CadenzaDiagnostic {
+  return {
+    code: diagnostic.code,
+    message: diagnostic.message,
+    requirementId: diagnostic.requirementId,
+    severity: diagnostic.severity,
+    source: diagnostic.locator.componentId,
+  };
 }
 
 function MediaFramePreview({

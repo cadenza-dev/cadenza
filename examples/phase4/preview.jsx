@@ -8,6 +8,7 @@ import {
   createPhase4DogfoodPreviewProps,
   createPhase4PresenterControls,
   createPhase4PresenterWorkflow,
+  createPhase4TypographyDiagnostics,
   createPhase4VisualAcceptanceDiagnostics,
   phase4DogfoodPreviewDescriptor,
 } from "./preview.js";
@@ -32,6 +33,10 @@ export function Phase4DogfoodPreviewApp() {
   );
   const visualAcceptanceDiagnostics = useMemo(
     () => createPhase4VisualAcceptanceDiagnostics(),
+    [],
+  );
+  const typographyDiagnostics = useMemo(
+    () => createPhase4TypographyDiagnostics(),
     [],
   );
   const handlePreviewReady = useCallback((handle) => {
@@ -77,6 +82,7 @@ export function Phase4DogfoodPreviewApp() {
       <Phase4PresenterPanel
         controls={presenterControls}
         outlineCount={phase4DogfoodTalkMetadata.outline.length}
+        typographyDiagnostics={typographyDiagnostics}
         visualAcceptanceDiagnostics={visualAcceptanceDiagnostics}
         workflow={presenterWorkflow}
       />
@@ -87,6 +93,7 @@ export function Phase4DogfoodPreviewApp() {
 function Phase4PresenterPanel({
   controls,
   outlineCount,
+  typographyDiagnostics,
   visualAcceptanceDiagnostics,
   workflow,
 }) {
@@ -172,6 +179,25 @@ function Phase4PresenterPanel({
             style={bodyTextStyle}
           >
             {diagnostic.summary}
+          </p>
+        ))}
+      </section>
+      <section
+        data-cadenza-phase4-typography-density=""
+        style={presenterSectionStyle}
+      >
+        <p style={eyebrowStyle}>Typography Density</p>
+        {typographyDiagnostics.map((diagnostic) => (
+          <p
+            data-cadenza-phase4-density-category={diagnostic.category}
+            data-cadenza-phase4-density-measured={
+              diagnostic.measured.charactersPer1000Px2
+            }
+            data-cadenza-phase4-density-repair={diagnostic.repairDirection}
+            key={diagnostic.code}
+            style={bodyTextStyle}
+          >
+            {diagnostic.message}
           </p>
         ))}
       </section>

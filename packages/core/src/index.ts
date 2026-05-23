@@ -53,12 +53,15 @@ export type {
   MediaFrameNode,
   MediaFrameProps,
   MediaFrameSnapshot,
+  ReadableDensityBudget,
+  ReadableDensityBudgets,
   RenderSafeNode,
   RenderSafeResourceNode,
   ResourceKind,
   SafeFontProps,
   SafeImageProps,
   SafeVideoProps,
+  TypographyAutoFitConfig,
   TypographyBoxNode,
   TypographyBoxProps,
 } from "./render-safe/resources.js";
@@ -138,6 +141,25 @@ export type {
 } from "./validation/report.js";
 export { createValidationReport } from "./validation/report.js";
 export { validateDeck } from "./validation/static.js";
+export type {
+  TypographyDensityCategory,
+  TypographyDensityDiagnostic,
+  TypographyDensityInput,
+  TypographyDensityMeasuredValues,
+  TypographyDiagnosticLocator,
+  TypographyFitDiagnostic,
+  TypographyFitEvaluation,
+  TypographyFitInput,
+  TypographyFitMeasurement,
+  TypographyFitResult,
+  TypographyFitResultStatus,
+  TypographyFontReadinessState,
+} from "./validation/typographyDensity.js";
+export {
+  fitTypographyBox,
+  resolveReadableDensityBudget,
+  validateTypographyDensity,
+} from "./validation/typographyDensity.js";
 export type {
   Phase4OptionalVisualArtifact,
   Phase4VisualAcceptanceEvidence,

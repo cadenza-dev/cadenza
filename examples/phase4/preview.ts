@@ -1,13 +1,20 @@
-import type { DeckNode, TimelineMap } from "@cadenza-dev/core";
+import {
+  type DeckNode,
+  type TimelineMap,
+  type TypographyDensityDiagnostic,
+  validateTypographyDensity,
+} from "@cadenza-dev/core";
 import type {
   CadenzaPlayerHandle,
   CadenzaPlayerSnapshot,
 } from "@cadenza-dev/preview-remotion";
 import {
   createPhase4DogfoodTalkFixture,
+  PHASE4_RELIABILITY_DENSITY_TEXT,
   type Phase4DogfoodTalkChapter,
   type Phase4DogfoodTalkOutlineEntry,
   phase4DogfoodTalkMetadata,
+  phase4DogfoodTalkTheme,
 } from "./dogfood-talk.js";
 
 export const PHASE4_DOGFOOD_PREVIEW_ROUTE = "/";
@@ -87,6 +94,8 @@ export type Phase4VisualAcceptanceDiagnostic = {
   testRefs: ["TC-VARR-001"];
 };
 
+export type Phase4TypographyDiagnostic = TypographyDensityDiagnostic;
+
 export const phase4DogfoodPreviewDescriptor = {
   bundlePath: "/phase4-dogfood-preview.js",
   command: "pnpm preview:phase4",
@@ -121,6 +130,24 @@ export function createPhase4VisualAcceptanceDiagnostics(): Phase4VisualAcceptanc
       testRefs: ["TC-VARR-001"],
     },
   ];
+}
+
+export function createPhase4TypographyDiagnostics(): Phase4TypographyDiagnostic[] {
+  return validateTypographyDensity({
+    box: {
+      maxHeight: 96,
+      maxWidth: 420,
+    },
+    density: "compact",
+    locator: {
+      chapterId: "product-layer",
+      componentId: "preview-reliability-budget-density",
+      slideId: "preview-reliability-budget",
+    },
+    readability: "body",
+    text: PHASE4_RELIABILITY_DENSITY_TEXT,
+    theme: phase4DogfoodTalkTheme,
+  });
 }
 
 export function createPhase4PresenterWorkflow({

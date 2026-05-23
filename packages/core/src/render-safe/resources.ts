@@ -3,6 +3,28 @@ export type ResourceKind = "asset" | "font" | "video";
 export type ContentDensity = "compact" | "comfortable" | "spacious";
 export type ContentReadability = "headline" | "body" | "caption";
 
+export type TypographyAutoFitConfig = {
+  baseFontSizePx: number;
+  baseLineHeight: number;
+  baseSpacingPx: number;
+  minFontSizePx: number;
+  minLineHeight: number;
+  minSpacingPx: number;
+  maxFontSizePx?: number | undefined;
+  maxLineHeight?: number | undefined;
+  maxSpacingPx?: number | undefined;
+};
+
+export type ReadableDensityBudget = {
+  maxCharactersPer1000Px2: number;
+  maxEstimatedLineCount: number;
+  repairDirection?: string | undefined;
+};
+
+export type ReadableDensityBudgets = Partial<
+  Record<ContentDensity, ReadableDensityBudget>
+>;
+
 export type RenderSafeResourceNode = {
   kind: "safe-resource";
   resourceKind: ResourceKind;
@@ -18,6 +40,7 @@ export type TypographyBoxNode = {
   id: string;
   maxWidth: number;
   maxHeight: number;
+  autoFit?: TypographyAutoFitConfig | undefined;
   children?: unknown;
 };
 
@@ -80,6 +103,7 @@ export type TypographyBoxProps = {
   id: string;
   maxWidth: number;
   maxHeight: number;
+  autoFit?: TypographyAutoFitConfig | undefined;
   children?: unknown;
 };
 
@@ -134,6 +158,7 @@ export function SafeVideo(props: SafeVideoProps): RenderSafeResourceNode {
 
 export function TypographyBox(props: TypographyBoxProps): TypographyBoxNode {
   return {
+    autoFit: props.autoFit,
     kind: "typography-box",
     id: props.id,
     maxWidth: props.maxWidth,
