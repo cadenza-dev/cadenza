@@ -4,8 +4,8 @@
 
 ## Active phase
 
-**Phase 3 — AI Authoring Strengthening** *(Builder ready; started 2026-04-29)*
-→ [`trace/phase3/`](./trace/phase3/)
+**Phase 4 — Presentation Product Layer (pruned)** *(Builder ready; started 2026-05-23)*
+→ [`trace/phase4/`](./trace/phase4/)
 
 ## Phase index
 
@@ -14,8 +14,8 @@
 | 0     | Technical Pre-Commitment              | complete                           | [`trace/phase0/`](./trace/phase0/) |
 | 1     | Core Semantics & Typed API            | complete                           | [`trace/phase1/`](./trace/phase1/) |
 | 2     | React + Remotion Preview Adapter      | complete                           | [`trace/phase2/`](./trace/phase2/) |
-| 3     | AI Authoring Strengthening            | builder_ready                      | [`trace/phase3/`](./trace/phase3/) |
-| 4     | Presentation Product Layer (pruned)   | not_started                        | `trace/phase4/`                    |
+| 3     | AI Authoring Strengthening            | complete                           | [`trace/phase3/`](./trace/phase3/) |
+| 4     | Presentation Product Layer (pruned)   | builder_ready                      | [`trace/phase4/`](./trace/phase4/) |
 | 5     | Export + 0.1 Alpha Readiness          | not_started                        | `trace/phase5/`                    |
 
 ## How to read this after a context reset

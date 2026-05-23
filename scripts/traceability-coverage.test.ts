@@ -697,6 +697,117 @@ describe("phase:check active-phase coverage gate", () => {
       rmSync(repoRoot, { force: true, recursive: true });
     }
   });
+
+  it("accepts Phase 4 Builder-ready routing after Phase 3 reviewer closeout", () => {
+    const repoRoot = mkdtempSync(
+      path.join(tmpdir(), "cadenza-phase4-builder-"),
+    );
+
+    try {
+      writeRepoFile(
+        repoRoot,
+        "STATUS.yaml",
+        [
+          'current_phase: "4"',
+          "current_phase_name: Presentation Product Layer (pruned)",
+          "current_phase_status: builder_ready",
+          "current_phase_trace: trace/phase4/",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "package.json",
+        JSON.stringify(
+          {
+            scripts: {
+              "format:check": "biome format .",
+              lint: "biome check .",
+              "phase:check":
+                "node --experimental-strip-types scripts/phase-check.ts",
+              "spec:lint":
+                "node --experimental-strip-types scripts/lint-specs.ts",
+              test: "vitest run --passWithNoTests",
+              typecheck: "tsc --noEmit",
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      for (const file of [
+        "prompt/PHASE0_KICK_BUILDER.md",
+        "prompt/PHASE1_KICK_BUILDER.md",
+        "prompt/PHASE2_KICK_ARCHITECT.md",
+        "prompt/PHASE3_KICK_ARCHITECT.md",
+        "prompt/PHASE4_KICK_BUILDER.md",
+        "pnpm-workspace.yaml",
+        "biome.jsonc",
+        "tsconfig.json",
+        "scripts/lint-specs.ts",
+        "scripts/phase-check.ts",
+        ".githooks/pre-commit",
+        ".githooks/commit-msg",
+        ".github/workflows/ci.yml",
+        "trace/phase3/review-phase3-closeout.md",
+        "trace/phase3/phase4-architect-handoff.md",
+        "trace/phase4/tracker.md",
+      ]) {
+        writeRepoFile(repoRoot, file, "# placeholder\n");
+      }
+      writeRepoFile(
+        repoRoot,
+        "trace/phase3/status.yaml",
+        [
+          'phase: "3"',
+          "status: complete",
+          "exit_criteria:",
+          "  reviewer_closeout_accepted:",
+          "    status: met",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "trace/phase4/status.yaml",
+        ['phase: "4"', "status: builder_ready", ""].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "spec/phase1/SPEC_TEST_MATRIX.md",
+        [
+          "---",
+          "Status: CONTRACT_FROZEN",
+          "---",
+          "",
+          "# Phase 1 Test Matrix",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "spec/phase4/SPEC_TEST_MATRIX.md",
+        [
+          "---",
+          "Status: CONTRACT_FROZEN",
+          "---",
+          "",
+          "# Phase 4 Test Matrix",
+          "",
+        ].join("\n"),
+      );
+
+      const result = spawnSync(
+        process.execPath,
+        ["--experimental-strip-types", path.resolve("scripts/phase-check.ts")],
+        { cwd: repoRoot, encoding: "utf8" },
+      );
+
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
 });
 
 describe("TC-RSRM-009 render-time compatibility boundary", () => {

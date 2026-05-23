@@ -1,0 +1,50 @@
+version: 1
+phase: "4"
+phase_name: "Presentation Product Layer (pruned)"
+status: builder_ready
+timezone: Asia/Shanghai
+opened_at: "2026-05-23 23:57 +0800"
+
+session:
+  active_role: builder
+  approved_identity: GPT-5/codex
+  approved_at: "2026-05-23 23:57 +0800"
+  approval_note: "Maintainer answered y to proceed as Phase 4 Builder routing handoff with GPT-5/codex."
+
+handoff:
+  source_phase: "3"
+  source_trace: trace/phase3/
+  handoff_file: trace/phase3/phase4-architect-handoff.md
+  kick_file: prompt/PHASE4_KICK_BUILDER.md
+  active_role: builder
+  summary: "Phase 4 Builder starts from the frozen Phase 4 contracts and B4.1 dogfood talk/local preview scenarios."
+
+entry_conditions:
+  phase3_closed:
+    status: met
+    artifact: trace/phase3/status.yaml
+  phase3_reviewer_closeout_accepted:
+    status: met
+    artifact: trace/phase3/review-phase3-closeout.md
+  phase4_architect_handoff_exists:
+    status: met
+    artifact: trace/phase3/phase4-architect-handoff.md
+  phase4_specs_frozen:
+    status: met
+    artifact: spec/phase4/
+  phase4_builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE4_KICK_BUILDER.md
+  root_phase_pointer_opened:
+    status: met
+    artifact: STATUS.yaml
+
+builder_handoff:
+  status: ready
+  active_role: builder
+  kick_file: prompt/PHASE4_KICK_BUILDER.md
+  next_batch:
+    id: B4.1
+    scenarios: [TC-DOGF-001, TC-DOGF-002]
+    summary: "Create the canonical Phase 4 dogfood talk under examples/phase4/ and a maintainer-facing local Remotion Player preview entrypoint."
+  boundary: "No packages implementation, CONTRACT_FROZEN spec, Accepted ADR, export, hosted-rendering, Remotion Lambda, public-stability, external-alpha, WYSIWYG, marketplace, collaboration, or MCP implementation work was performed during routing."
