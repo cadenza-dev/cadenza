@@ -78,3 +78,35 @@ Selected findings: `REV-P3-001`, `REV-P3-002`.
 ## Suggested Builder Remediation Launch Phrase
 
 请作为 Cadenza Builder remediation，读取 trace/phase3/review-phase3-closeout.md，只处理 maintainer-selected findings: REV-P3-001, REV-P3-002；不得扩大 scope，不修改 CONTRACT_FROZEN specs 或 Accepted ADRs；用 TDD 修复并更新 trace 后停止。
+
+## Reviewer Acceptance
+
+Reviewer identity for this acceptance pass: `GPT-5/Codex`, approved by
+maintainer in chat for Phase 3 Reviewer work on `REV-P3-001` and `REV-P3-002`
+remediation only.
+
+Accepted remediation commit: `39f397c`
+(`39f397ca9137133ebe6e4fc97235ef0b9e10ed7e`).
+
+Accepted CI evidence: GitHub Actions run `26332036994` (`CI`) completed with
+`success` on head SHA `39f397ca9137133ebe6e4fc97235ef0b9e10ed7e`.
+
+Acceptance scope:
+
+- `REV-P3-001`: accepted. The Phase 3 authored / repaired deck path is now
+  `examples/phase3/acceptance-deck.tsx`; repair evidence allowed edits point to
+  that example path, and `validatePhase3RepairEvidence` reports
+  `AUTH_PACKAGE_SRC_REPAIR_SCOPE` when repair evidence still uses
+  `packages/**/src/**`.
+- `REV-P3-002`: accepted. The repair-evidence unit test now includes a
+  trace-only negative fixture where `traceDeclarationOnly: true` remains a
+  `DIAG_TRACE_ONLY_DECLARATION` finding, while the real B3.2 browser evidence
+  clears that finding.
+
+No frozen Phase 3 specs or Accepted ADRs were modified by the accepted
+remediation commit. Reviewer performed no remediation.
+
+Closeout result: Phase 3 closeout is accepted from the Reviewer side. The next
+workflow step is Wizard preparation of the Phase 4 Architect handoff/kick
+artifact; Wizard must not flip `STATUS.yaml.current_phase` unless the maintainer
+explicitly requests that phase transition.
