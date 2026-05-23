@@ -5,6 +5,7 @@ import {
   type DeckNode,
   MediaFrame,
   Notes,
+  ProductTransition,
   SafeFont,
   SafeImage,
   Slide,
@@ -12,7 +13,6 @@ import {
   Theme,
   type ThemeDefinition,
   type TimelineMap,
-  Transition,
   type TypographyAutoFitConfig,
   TypographyBox,
 } from "@cadenza-dev/core";
@@ -186,7 +186,7 @@ const phase4DogfoodTalk = (
         contract visible to the maintainer.
       </Step>
     </Slide>
-    <Transition kind="fade" duration="500ms" />
+    <ProductTransition kind="soft-fade" />
     <Slide id="timeline-compiler">
       <Notes>
         Show how semantic slide structure becomes deterministic player anchors
@@ -218,7 +218,7 @@ const phase4DogfoodTalk = (
         }
       />
     </Slide>
-    <Transition kind="slide" duration="600ms" />
+    <ProductTransition kind="chapter-shift" />
     <Slide id="preview-reliability-budget">
       <Notes>
         Use the reliability budget as a data-explainer: the compiler,
@@ -257,7 +257,7 @@ const phase4DogfoodTalk = (
         </ContentSlot>
       </Step>
     </Slide>
-    <Transition kind="fade" duration="500ms" />
+    <ProductTransition kind="soft-fade" />
     <Slide id="product-layer-loop">
       <Notes>
         Close by showing the maintainer-facing loop: write the talk, open the

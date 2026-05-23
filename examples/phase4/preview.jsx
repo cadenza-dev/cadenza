@@ -8,6 +8,7 @@ import {
   createPhase4DogfoodPreviewProps,
   createPhase4PresenterControls,
   createPhase4PresenterWorkflow,
+  createPhase4TransitionDiagnostics,
   createPhase4TypographyDiagnostics,
   createPhase4VisualAcceptanceDiagnostics,
   phase4DogfoodPreviewDescriptor,
@@ -25,6 +26,16 @@ export function Phase4DogfoodPreviewApp() {
             timeline: playerProps.timeline,
           })
         : null,
+    [playerProps.timeline, presenterSnapshot],
+  );
+  const transitionDiagnostics = useMemo(
+    () =>
+      presenterSnapshot
+        ? createPhase4TransitionDiagnostics({
+            snapshot: presenterSnapshot,
+            timeline: playerProps.timeline,
+          })
+        : [],
     [playerProps.timeline, presenterSnapshot],
   );
   const presenterControls = useMemo(
@@ -83,6 +94,7 @@ export function Phase4DogfoodPreviewApp() {
         controls={presenterControls}
         outlineCount={phase4DogfoodTalkMetadata.outline.length}
         typographyDiagnostics={typographyDiagnostics}
+        transitionDiagnostics={transitionDiagnostics}
         visualAcceptanceDiagnostics={visualAcceptanceDiagnostics}
         workflow={presenterWorkflow}
       />
@@ -94,6 +106,7 @@ function Phase4PresenterPanel({
   controls,
   outlineCount,
   typographyDiagnostics,
+  transitionDiagnostics,
   visualAcceptanceDiagnostics,
   workflow,
 }) {
@@ -200,6 +213,53 @@ function Phase4PresenterPanel({
             {diagnostic.message}
           </p>
         ))}
+      </section>
+      <section
+        data-cadenza-phase4-transition-progress=""
+        style={presenterSectionStyle}
+      >
+        <p style={eyebrowStyle}>Transition Progress</p>
+        {transitionDiagnostics.length === 0 ? (
+          <p
+            data-cadenza-phase4-transition-progress-phase="idle"
+            style={bodyTextStyle}
+          >
+            No active transition evidence for the current semantic anchor.
+          </p>
+        ) : (
+          transitionDiagnostics.map((diagnostic) => (
+            <p
+              data-cadenza-phase4-transition-duration-frames={
+                diagnostic.transition.durationFrames
+              }
+              data-cadenza-phase4-transition-from={diagnostic.transition.from}
+              data-cadenza-phase4-transition-kind={diagnostic.transition.kind}
+              data-cadenza-phase4-transition-progress-diagnostic={
+                diagnostic.code
+              }
+              data-cadenza-phase4-transition-progress-phase={
+                diagnostic.transition.progressPhase
+              }
+              data-cadenza-phase4-transition-progress-value={
+                diagnostic.transition.progress
+              }
+              data-cadenza-phase4-transition-settle-behavior={
+                diagnostic.transition.settleBehavior
+              }
+              data-cadenza-phase4-transition-settle-frame={
+                diagnostic.transition.settleFrame
+              }
+              data-cadenza-phase4-transition-timing-token={
+                diagnostic.transition.timingToken
+              }
+              data-cadenza-phase4-transition-to={diagnostic.transition.to}
+              key={diagnostic.code}
+              style={bodyTextStyle}
+            >
+              {diagnostic.summary}
+            </p>
+          ))
+        )}
       </section>
       <div style={buttonGridStyle}>
         <button

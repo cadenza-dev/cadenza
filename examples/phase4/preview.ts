@@ -96,6 +96,30 @@ export type Phase4VisualAcceptanceDiagnostic = {
 
 export type Phase4TypographyDiagnostic = TypographyDensityDiagnostic;
 
+export type Phase4TransitionProgressPhase = "start" | "progress" | "settled";
+
+export type Phase4TransitionDiagnostic = {
+  code:
+    | "TRPR_TRANSITION_START"
+    | "TRPR_TRANSITION_PROGRESS"
+    | "TRPR_TRANSITION_SETTLED";
+  requirementRefs: ["TRPR-003", "TRPR-004"];
+  source: "phase4-transition-progress";
+  summary: string;
+  testRefs: ["TC-TRPR-002"];
+  transition: {
+    durationFrames: number;
+    from: string;
+    kind: string;
+    progress: number;
+    progressPhase: Phase4TransitionProgressPhase;
+    settleBehavior: "semantic-anchor";
+    settleFrame: number;
+    timingToken?: string | undefined;
+    to: string;
+  };
+};
+
 export const phase4DogfoodPreviewDescriptor = {
   bundlePath: "/phase4-dogfood-preview.js",
   command: "pnpm preview:phase4",
@@ -148,6 +172,35 @@ export function createPhase4TypographyDiagnostics(): Phase4TypographyDiagnostic[
     text: PHASE4_RELIABILITY_DENSITY_TEXT,
     theme: phase4DogfoodTalkTheme,
   });
+}
+
+export function createPhase4TransitionDiagnostics({
+  snapshot,
+  timeline,
+}: Phase4PresenterWorkflowInput): Phase4TransitionDiagnostic[] {
+  const transition = transitionEvidenceAtFrame(timeline, snapshot.playerFrame);
+
+  if (!transition) {
+    return [];
+  }
+
+  const code =
+    transition.progressPhase === "start"
+      ? "TRPR_TRANSITION_START"
+      : transition.progressPhase === "settled"
+        ? "TRPR_TRANSITION_SETTLED"
+        : "TRPR_TRANSITION_PROGRESS";
+
+  return [
+    {
+      code,
+      requirementRefs: ["TRPR-003", "TRPR-004"],
+      source: "phase4-transition-progress",
+      summary: `${transition.kind} ${transition.progressPhase} from ${transition.from} to ${transition.to}; progress ${(transition.progress * 100).toFixed(0)}% and settles at frame ${transition.settleFrame}.`,
+      testRefs: ["TC-TRPR-002"],
+      transition,
+    },
+  ];
 }
 
 export function createPhase4PresenterWorkflow({
@@ -206,6 +259,60 @@ export function createPhase4PresenterControls(
     },
     togglePlayback: () => target.togglePlayback(),
   };
+}
+
+function transitionEvidenceAtFrame(
+  timeline: TimelineMap,
+  frame: number,
+): Phase4TransitionDiagnostic["transition"] | undefined {
+  for (const slide of timeline.slides) {
+    const transition = slide.transitionOut;
+    if (!transition) {
+      continue;
+    }
+
+    const [startFrame, settleFrame] = transition.segment;
+    const durationFrames = transition.durationFrames;
+
+    if (frame === settleFrame) {
+      return {
+        durationFrames,
+        from: transition.from,
+        kind: transition.kind,
+        progress: 1,
+        progressPhase: "settled",
+        settleBehavior: "semantic-anchor",
+        settleFrame,
+        ...(transition.timingToken
+          ? { timingToken: transition.timingToken }
+          : {}),
+        to: transition.to,
+      };
+    }
+
+    if (frame < startFrame || frame >= settleFrame) {
+      continue;
+    }
+
+    const progress =
+      durationFrames === 0 ? 1 : (frame - startFrame) / durationFrames;
+
+    return {
+      durationFrames,
+      from: transition.from,
+      kind: transition.kind,
+      progress,
+      progressPhase: progress === 0 ? "start" : "progress",
+      settleBehavior: "semantic-anchor",
+      settleFrame,
+      ...(transition.timingToken
+        ? { timingToken: transition.timingToken }
+        : {}),
+      to: transition.to,
+    };
+  }
+
+  return undefined;
 }
 
 function createNextPresenterContext(

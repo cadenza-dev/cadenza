@@ -11,6 +11,7 @@ import type {
   SlideNode,
   StepKind,
   StepNode,
+  ThemeTokens,
   TransitionKind,
   TransitionNode,
 } from "../typed-api/primitives.js";
@@ -39,9 +40,11 @@ export type TimelineResource = {
 };
 
 export type TransitionSegment = {
+  durationFrames: number;
   kind: TransitionKind;
   segment: FrameSegment;
   from: string;
+  timingToken?: string;
   to: string;
 };
 
@@ -98,6 +101,7 @@ export function compile(
             node.id,
             cursor,
             deck.fps,
+            deck.theme?.tokens.motion,
           )
         : undefined;
 
@@ -243,16 +247,31 @@ function compileTransition(
   to: string,
   nextSlideStepStart: number,
   fps: number,
+  motionTokens: ThemeTokens["motion"] | undefined,
 ): TransitionSegment {
-  const durationFrames = durationToFrames(transition.duration, fps);
+  const duration = resolveTransitionDuration(transition, motionTokens);
+  const durationFrames = durationToFrames(duration, fps);
   const transitionStart = Math.max(0, nextSlideStepStart - durationFrames);
 
   return {
+    durationFrames,
     kind: transition.transitionKind,
     segment: [transitionStart, nextSlideStepStart],
     from,
+    ...(transition.timingToken ? { timingToken: transition.timingToken } : {}),
     to,
   };
+}
+
+function resolveTransitionDuration(
+  transition: TransitionNode,
+  motionTokens: ThemeTokens["motion"] | undefined,
+): DurationToken {
+  if (!transition.timingToken) {
+    return transition.duration;
+  }
+
+  return motionTokens?.[transition.timingToken] ?? transition.duration;
 }
 
 function compileSteps(

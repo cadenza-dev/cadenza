@@ -1,5 +1,46 @@
 # Phase 4 Tracker
 
+## 2026-05-24 03:21 +0800 — B4.5 stronger transitions and progress evidence
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only `B4.5 / TC-TRPR-001 + TC-TRPR-002` from frozen
+  `spec/phase4/SPEC_TEST_MATRIX.md` and
+  `spec/phase4/SPEC_TRANSITIONS_PROGRESS.md`.
+- RED/GREEN evidence:
+  `pnpm test -- packages/preview-remotion/src/phase4-transitions-progress.test.ts`
+  first failed because the dogfood talk still used ordinary `Transition`, then
+  passed after `ProductTransition` and theme-token duration resolution were
+  added. The same command then failed because
+  `createPhase4TransitionDiagnostics` was not implemented, then passed after
+  the internal product-layer transition diagnostic surface and presenter-panel
+  evidence were added.
+- Artifacts written: `examples/phase4/dogfood-talk.tsx`,
+  `examples/phase4/preview.ts`, `examples/phase4/preview.jsx`,
+  `packages/core/src/typed-api/primitives.ts`,
+  `packages/core/src/compiler/compile.ts`, `packages/core/src/index.ts`,
+  `packages/preview-remotion/src/CadenzaPlayer.tsx`,
+  `packages/preview-remotion/src/phase4-transitions-progress.test.ts`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Behavior: Phase 4 dogfood transitions now use a typed product-layer roster
+  through `ProductTransition`, resolving transition durations from theme
+  `motion` tokens. Local preview navigation plays transition segments before
+  pausing at deterministic semantic anchors.
+- Progress evidence: the Phase 4 presenter workflow exposes transition start,
+  progress, and settled diagnostics through
+  `createPhase4TransitionDiagnostics` and
+  `data-cadenza-phase4-transition-*` attributes. `onCursorChange` remains
+  semantic and is not converted into a frame-level progress stream.
+- Verification: targeted B4.5 tests, `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, and `pnpm format:check` passed before trace update. Final gate
+  results are recorded in `trace/phase4/status.yaml`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, export,
+  hosted-rendering, Remotion Lambda, public-stability, external-alpha,
+  WYSIWYG, marketplace, collaboration, or MCP implementation changes. No
+  public `onTransitionProgress` hook or callback was added.
+- Next batch after maintainer approval:
+  `B4.6 / TC-STAR-001 + TC-STAR-002 + TC-STAR-003`.
+
 ## 2026-05-24 01:38 +0800 — B4.4 typography auto-fit and density diagnostics
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

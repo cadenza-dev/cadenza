@@ -227,10 +227,15 @@ export function CadenzaPlayer({
       },
     };
     const unbindReady = onPreviewReady?.(handle);
+    const handleFrameUpdate = () => {
+      updateSnapshot();
+    };
+    player.addEventListener("frameupdate", handleFrameUpdate);
 
     updateSnapshot();
 
     return () => {
+      player.removeEventListener("frameupdate", handleFrameUpdate);
       unbindReady?.();
       unbindCursor();
       unbindReadiness();
