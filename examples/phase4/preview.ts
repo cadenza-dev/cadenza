@@ -79,6 +79,14 @@ export type Phase4PresenterControls = {
   togglePlayback(): void;
 };
 
+export type Phase4VisualAcceptanceDiagnostic = {
+  code: "VARR_VISUAL_ACCEPTANCE_REPAIRED";
+  requirementRefs: ["PRES-006", "VARR-005"];
+  source: "phase4-presenter-panel";
+  summary: string;
+  testRefs: ["TC-VARR-001"];
+};
+
 export const phase4DogfoodPreviewDescriptor = {
   bundlePath: "/phase4-dogfood-preview.js",
   command: "pnpm preview:phase4",
@@ -100,6 +108,19 @@ export function createPhase4DogfoodPreviewProps(
     deck: fixture.deck,
     timeline: fixture.timeline,
   };
+}
+
+export function createPhase4VisualAcceptanceDiagnostics(): Phase4VisualAcceptanceDiagnostic[] {
+  return [
+    {
+      code: "VARR_VISUAL_ACCEPTANCE_REPAIRED",
+      requirementRefs: ["PRES-006", "VARR-005"],
+      source: "phase4-presenter-panel",
+      summary:
+        "Presenter workflow exposes the repaired visual acceptance cue and routes review to trace evidence.",
+      testRefs: ["TC-VARR-001"],
+    },
+  ];
 }
 
 export function createPhase4PresenterWorkflow({

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "phase": "4",
+  "batchId": "B4.3",
+  "scenarioIds": ["TC-VARR-001", "TC-VARR-002", "TC-VARR-003"],
+  "acceptanceEvidenceKind": "local-preview-diagnostic-and-authored-deck-repair",
+  "traceDeclarationOnly": false,
+  "maintainerVisualDecision": "pending-closeout-signoff",
+  "commands": [
+    "pnpm preview:phase4",
+    "pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts"
+  ],
+  "optionalVisualArtifacts": [
+    {
+      "kind": "pixel-sanity",
+      "required": false,
+      "source": "trace/phase4/evidence/b4.3-pixel-sanity-note.json",
+      "summary": "Supplemental nonblank/pixel sanity note for reviewer inspection; not an acceptance oracle."
+    }
+  ],
+  "productWorkflowDiagnostics": [
+    {
+      "code": "VARR_VISUAL_ACCEPTANCE_REPAIRED",
+      "message": "Presenter panel exposes the repaired visual acceptance cue and routes review to trace evidence.",
+      "requirementRefs": ["PRES-006", "VARR-005"],
+      "severity": "info",
+      "source": "phase4-presenter-panel",
+      "testRefs": ["TC-VARR-001"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "VARR-B4.3-001",
+      "category": "diagnostics",
+      "affected": {
+        "chapterId": "product-layer",
+        "slideId": "product-layer-loop"
+      },
+      "observedProblem": "The dogfood talk mentioned traceable repair evidence but did not make visual acceptance sign-off or waiver visible in the authored talk or local presenter workflow.",
+      "intendedRepairSurface": "authored-deck",
+      "requirementRefs": ["PRES-006", "VARR-001", "VARR-004", "VARR-005"],
+      "testRefs": ["TC-VARR-001"],
+      "commandsOrRoutes": [
+        {
+          "kind": "command",
+          "value": "pnpm preview:phase4",
+          "result": "Maintainer-facing local preview route for visual review."
+        },
+        {
+          "kind": "route",
+          "value": "/",
+          "result": "Local preview route served by examples/phase4/serve-preview.mjs."
+        }
+      ],
+      "before": {
+        "diagnostics": [
+          {
+            "code": "VARR_PREVIEW_SUMMARY_MISSING",
+            "message": "The local dogfood workflow did not expose a visual acceptance cue for sign-off or waiver routing.",
+            "requirementRefs": ["PRES-006", "VARR-005"],
+            "severity": "warning",
+            "source": "examples/phase4/dogfood-talk.tsx",
+            "testRefs": ["TC-VARR-001"]
+          }
+        ],
+        "evidence": [
+          {
+            "kind": "preview-diagnostic",
+            "source": "examples/phase4/dogfood-talk.tsx",
+            "summary": "The product-layer loop slide named traceable repair evidence but not visual acceptance sign-off or waiver routing."
+          }
+        ]
+      },
+      "after": {
+        "diagnostics": [],
+        "evidence": [
+          {
+            "kind": "authored-deck-repair",
+            "source": "examples/phase4/dogfood-talk.tsx",
+            "summary": "The product-layer loop slide now names visual acceptance evidence and maintainer sign-off or waiver."
+          },
+          {
+            "kind": "presenter-workflow-diagnostic",
+            "source": "examples/phase4/preview.jsx",
+            "summary": "The same-browser presenter panel exposes a Visual Acceptance diagnostic for local review."
+          }
+        ]
+      },
+      "repairRouting": {
+        "kind": "authored-deck-repair",
+        "allowedEdits": [
+          "examples/phase4/dogfood-talk.tsx",
+          "examples/phase4/preview.ts",
+          "examples/phase4/preview.jsx",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.json",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.md"
+        ],
+        "frameworkInternalEdits": [],
+        "separateBuilderIssue": null
+      }
+    }
+  ]
+}

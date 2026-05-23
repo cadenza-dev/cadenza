@@ -8,6 +8,7 @@ import {
   createPhase4DogfoodPreviewProps,
   createPhase4PresenterControls,
   createPhase4PresenterWorkflow,
+  createPhase4VisualAcceptanceDiagnostics,
   phase4DogfoodPreviewDescriptor,
 } from "./preview.js";
 
@@ -28,6 +29,10 @@ export function Phase4DogfoodPreviewApp() {
   const presenterControls = useMemo(
     () => (previewHandle ? createPhase4PresenterControls(previewHandle) : null),
     [previewHandle],
+  );
+  const visualAcceptanceDiagnostics = useMemo(
+    () => createPhase4VisualAcceptanceDiagnostics(),
+    [],
   );
   const handlePreviewReady = useCallback((handle) => {
     setPreviewHandle(handle);
@@ -72,13 +77,19 @@ export function Phase4DogfoodPreviewApp() {
       <Phase4PresenterPanel
         controls={presenterControls}
         outlineCount={phase4DogfoodTalkMetadata.outline.length}
+        visualAcceptanceDiagnostics={visualAcceptanceDiagnostics}
         workflow={presenterWorkflow}
       />
     </main>
   );
 }
 
-function Phase4PresenterPanel({ controls, outlineCount, workflow }) {
+function Phase4PresenterPanel({
+  controls,
+  outlineCount,
+  visualAcceptanceDiagnostics,
+  workflow,
+}) {
   if (!workflow) {
     return (
       <aside
@@ -146,6 +157,21 @@ function Phase4PresenterPanel({ controls, outlineCount, workflow }) {
         {workflow.notes.map((note) => (
           <p key={note} style={bodyTextStyle}>
             {note}
+          </p>
+        ))}
+      </section>
+      <section
+        data-cadenza-phase4-visual-acceptance=""
+        style={presenterSectionStyle}
+      >
+        <p style={eyebrowStyle}>Visual Acceptance</p>
+        {visualAcceptanceDiagnostics.map((diagnostic) => (
+          <p
+            data-cadenza-phase4-visual-acceptance-diagnostic={diagnostic.code}
+            key={diagnostic.code}
+            style={bodyTextStyle}
+          >
+            {diagnostic.summary}
           </p>
         ))}
       </section>

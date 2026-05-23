@@ -224,13 +224,14 @@ const phase4DogfoodTalk = (
         >
           <TypographyBox id="product-layer-loop" maxHeight={168} maxWidth={840}>
             The Phase 4 loop is preview-first: authored example, local Player,
-            presenter context, and traceable repair evidence.
+            presenter context, visual acceptance evidence, and maintainer
+            sign-off or waiver.
           </TypographyBox>
         </ContentSlot>
       </Step>
       <Step duration="2s">
-        Normal talk repair stays in examples and guidance, not framework
-        internals.
+        Normal talk repair stays in authored examples, evidence records, and
+        guidance, not framework internals.
       </Step>
     </Slide>
   </Deck>

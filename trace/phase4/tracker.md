@@ -1,5 +1,50 @@
 # Phase 4 Tracker
 
+## 2026-05-24 01:04 +0800 — B4.3 visual acceptance evidence and repair routing
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only
+  `B4.3 / TC-VARR-001 + TC-VARR-002 + TC-VARR-003` from frozen
+  `spec/phase4/SPEC_TEST_MATRIX.md` and
+  `spec/phase4/SPEC_VISUAL_ACCEPTANCE_REPAIR.md`.
+- RED/GREEN evidence:
+  `pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts`
+  first failed because
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json` did not exist,
+  then passed after JSON and Markdown evidence plus the validator were added;
+  the same command then failed because trace-only evidence was not flagged,
+  then passed after `VARR_TRACE_ONLY_DECLARATION` and artifact-only validation
+  were added; the same command then failed because package-source repair
+  routing was not flagged, then passed after `VARR_PACKAGE_SRC_REPAIR_SCOPE`
+  routing validation was added.
+- Artifacts written: `examples/phase4/dogfood-talk.tsx`,
+  `examples/phase4/preview.ts`, `examples/phase4/preview.jsx`,
+  `packages/core/src/validation/visualAcceptanceEvidence.ts`,
+  `packages/core/src/index.ts`,
+  `packages/core/src/phase4-visual-acceptance-evidence.test.ts`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.md`,
+  `trace/phase4/evidence/b4.3-pixel-sanity-note.json`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Behavior: visual findings are now recorded as machine-readable JSON plus a
+  concise Markdown summary with category, affected slide/chapter, observed
+  problem, intended repair surface, commands/routes, diagnostics, and
+  before/after evidence. Trace-only declarations and artifact-only proof remain
+  insufficient without real preview, diagnostic, test, sign-off, or waiver
+  evidence, and the optional pixel-sanity note is supplemental only.
+- Repair routing: the actual repair stays in authored deck and product-layer
+  example surfaces by making visual acceptance sign-off or waiver visible in
+  the dogfood talk and same-browser presenter panel. Package-source repair
+  paths are flagged unless routed as a separate framework defect.
+- Verification: targeted B4.3 tests and `pnpm typecheck` passed before trace
+  update. Final gate results are recorded in `trace/phase4/status.yaml`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, export,
+  hosted-rendering, Remotion Lambda, public-stability, external-alpha,
+  WYSIWYG, marketplace, collaboration, or MCP implementation changes.
+- Next batch after maintainer approval:
+  `B4.4 / TC-TYPO-001 + TC-TYPO-002`.
+
 ## 2026-05-24 00:33 +0800 — B4.2 same-browser presenter workflow
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

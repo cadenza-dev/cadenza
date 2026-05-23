@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "kind": "pixel-sanity",
+  "source": "phase4-local-preview",
+  "required": false,
+  "summary": "Supplemental reviewer note only: Phase 4 visual acceptance remains based on structured findings, local preview diagnostics, and maintainer sign-off or waiver.",
+  "route": "/",
+  "command": "pnpm preview:phase4"
+}

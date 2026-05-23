@@ -138,3 +138,13 @@ export type {
 } from "./validation/report.js";
 export { createValidationReport } from "./validation/report.js";
 export { validateDeck } from "./validation/static.js";
+export type {
+  Phase4OptionalVisualArtifact,
+  Phase4VisualAcceptanceEvidence,
+  Phase4VisualAcceptanceEvidenceFinding,
+  Phase4VisualDiagnostic,
+  Phase4VisualEvidenceReference,
+  Phase4VisualFinding,
+  Phase4VisualFindingCategory,
+} from "./validation/visualAcceptanceEvidence.js";
+export { validatePhase4VisualAcceptanceEvidence } from "./validation/visualAcceptanceEvidence.js";
