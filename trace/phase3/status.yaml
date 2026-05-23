@@ -1,9 +1,10 @@
 version: 1
 phase: "3"
 phase_name: "AI Authoring Strengthening"
-status: builder_ready
+status: complete
 timezone: Asia/Shanghai
 opened_at: "2026-04-29 22:38 +0800"
+closed_at: "2026-05-23 20:59 +0800"
 
 session:
   active_role: architect
@@ -383,8 +384,33 @@ builder_progress:
   next_batch:
     id: null
     scenarios: []
-    status: builder_complete_pending_reviewer
-    summary: "Phase 3 Builder closeout is complete; next step is Reviewer review."
+    status: reviewer_closeout_accepted
+    summary: "Phase 3 Reviewer closeout is accepted; next step is Phase 4 Architect handoff."
+
+reviewer_closeout:
+  status: accepted
+  artifact: trace/phase3/review-phase3-closeout.md
+  accepted_findings: [REV-P3-001, REV-P3-002]
+  accepted_remediation_commit: 39f397ca9137133ebe6e4fc97235ef0b9e10ed7e
+  accepted_ci_run: 26332036994
+  result: "Phase 3 closeout is accepted from the Reviewer side."
+  boundary: "Reviewer performed no remediation and accepted no frozen spec or Accepted ADR changes."
+
+wizard_handoff:
+  status: prepared
+  prepared_at: "2026-05-23 20:59 +0800"
+  active_role: wizard
+  approved_identity: GPT-5/codex
+  approved_at: "2026-05-23 20:59 +0800"
+  approval_note: "Maintainer answered y to proceed as Wizard with GPT-5/codex for Phase 4 Architect handoff preparation."
+  source_review: trace/phase3/review-phase3-closeout.md
+  accepted_remediation_commit: 39f397ca9137133ebe6e4fc97235ef0b9e10ed7e
+  accepted_ci_run: 26332036994
+  handoff_file: trace/phase3/phase4-architect-handoff.md
+  kick_file: prompt/PHASE4_KICK_ARCHITECT.md
+  next_role: architect
+  root_phase_pointer: "STATUS.yaml.current_phase remains 3; maintainer owns the Phase 4 pointer flip."
+  boundary: "Wizard handoff only; no packages, CONTRACT_FROZEN specs, Accepted ADRs, root phase pointer, or Phase 4 trace scaffold changes."
 
 exit_criteria:
   phase3_specs_frozen:
@@ -398,5 +424,16 @@ exit_criteria:
     completed_at: "2026-04-30 04:53 +0800"
     artifact: trace/phase3/tracker.md
   reviewer_closeout_accepted:
-    status: pending
+    status: met
     artifact: trace/phase3/review-phase3-closeout.md
+    accepted_remediation_commit: 39f397ca9137133ebe6e4fc97235ef0b9e10ed7e
+    latest_ci:
+      run_id: 26332036994
+      status: success
+      head_sha: 39f397ca9137133ebe6e4fc97235ef0b9e10ed7e
+  phase4_architect_handoff_prepared:
+    status: met
+    prepared_at: "2026-05-23 20:59 +0800"
+    artifacts:
+      - prompt/PHASE4_KICK_ARCHITECT.md
+      - trace/phase3/phase4-architect-handoff.md
