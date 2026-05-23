@@ -1,5 +1,50 @@
 # Phase 4 Tracker
 
+## 2026-05-24 04:08 +0800 — B4.6 technical-talk starters and deferred guards
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only
+  `B4.6 / TC-STAR-001 + TC-STAR-002 + TC-STAR-003` from frozen
+  `spec/phase4/SPEC_TEST_MATRIX.md` and
+  `spec/phase4/SPEC_TECHNICAL_TALK_STARTERS.md`.
+- RED/GREEN evidence:
+  `pnpm test -- packages/core/src/phase4-technical-talk-starters.test.ts`
+  first failed because `examples/phase4/technical-talk-starters.tsx` did not
+  exist, then passed after the architecture talk, data explainer, and live-demo
+  starters were added. The same command then failed because
+  `skills/cadenza/rules/product-layer-workflow.md` did not exist, then passed
+  after `cadenza-best-practices` guidance and eval coverage were added. The
+  same command then failed because
+  `trace/phase4/evidence/b4.6-deferred-scope-guards.json` did not exist, then
+  passed after the read-only MCP disposition and tool-based MCP absence evidence
+  were recorded.
+- Artifacts written: `examples/phase4/technical-talk-starters.tsx`,
+  `packages/core/src/phase4-technical-talk-starters.test.ts`,
+  `skills/cadenza/SKILL.md`,
+  `skills/cadenza/rules/product-layer-workflow.md`,
+  `skills/cadenza/evals/evals.json`,
+  `trace/phase4/evidence/b4.6-deferred-scope-guards.json`,
+  `trace/phase4/evidence/b4.6-deferred-scope-guards.md`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Behavior: Phase 4 now has three narrow developer technical-talk starter
+  surfaces: architecture talk, data explainer, and live-demo talk. Each starter
+  uses public Cadenza TSX, render-safe components, `Notes`, outline/chapter
+  metadata, typed product transitions, and local preview repair workflow
+  metadata.
+- Guidance and evals: `cadenza-best-practices` now routes Phase 4 starter work
+  through `rules/product-layer-workflow.md` and adds eval coverage for
+  production-adjacent technical-talk structure plus boundary-drift penalties.
+- Deferred scope: read-only MCP is recorded only as a closeout or Phase 5-start
+  evaluation item. Tool-based MCP package and command surfaces remain absent.
+- Verification: targeted B4.6 tests passed before trace update. Final gate
+  results are recorded in `trace/phase4/status.yaml`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, new starter
+  package, export, hosted-rendering, Remotion Lambda, public-stability,
+  external-alpha, WYSIWYG, marketplace, collaboration, comments, SSO, i18n,
+  read-only MCP implementation, or tool-based MCP implementation changes.
+- Next batch after maintainer approval: `B4.7 / phase closeout`.
+
 ## 2026-05-24 03:21 +0800 — B4.5 stronger transitions and progress evidence
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

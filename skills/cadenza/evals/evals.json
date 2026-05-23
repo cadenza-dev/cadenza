@@ -95,6 +95,41 @@
         "The output rejects MP4/PDF export claims, hosted rendering claims, and Phase 4 product-layer claims.",
         "The output keeps the mono-skill boundary and does not introduce a new package, MCP, or separate authoring skill."
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Create Phase 4 technical-talk starters for an architecture talk, a data explainer, and a live-demo talk. Keep them production-adjacent for developers and connect each starter to presenter metadata and local preview repair.",
+      "expected_output": "A narrow starter set that uses public Cadenza TSX, render-safe components, Notes, outline or chapter metadata, typed product transitions, and local preview repair without creating a starter package.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/product-layer-workflow.md",
+        "examples/phase4/technical-talk-starters.tsx"
+      ],
+      "expectations": [
+        "The output uses architecture talk, data explainer, and live-demo starter surfaces for developers writing technical talks.",
+        "The output uses public Cadenza TSX, render-safe components, Notes, presenter metadata, and local preview repair workflow.",
+        "The output includes outline or chapter metadata and typed product transitions where transition semantics matter.",
+        "The output keeps starters as guidance plus TSX examples and does not introduce a new package or separate skill.",
+        "The output frames each starter as production-adjacent technical communication, not generic business prompt-to-deck generation."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Review a Phase 4 starter proposal that adds a WYSIWYG editor, template marketplace, MP4/PDF export buttons, hosted rendering, public API stability promises, external alpha claims, and MCP tools. Explain what to reject or defer.",
+      "expected_output": "A boundary-focused review that rejects WYSIWYG and marketplace expansion, removes export/hosted/stability/alpha claims, keeps read-only MCP as a closeout or Phase 5-start evaluation item, and confirms tool-based MCP remains absent.",
+      "files": [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/product-layer-workflow.md",
+        "examples/phase4/technical-talk-starters.tsx",
+        "wip/future-support/phase-5-candidates.md"
+      ],
+      "expectations": [
+        "The output rejects WYSIWYG editor scope and template marketplace scope for Phase 4 starters.",
+        "The output rejects MP4/PDF export, hosted rendering, Remotion Lambda, public API stability, and external alpha claims.",
+        "The output records read-only MCP only as a closeout or Phase 5-start evaluation item.",
+        "The output confirms tool-based MCP remains absent and does not introduce validate_deck, render_preview, or inspect_composition tools.",
+        "The output keeps the Phase 4 starter scope in cadenza-best-practices guidance plus TSX examples."
+      ]
     }
   ]
 }

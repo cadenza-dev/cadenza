@@ -1,0 +1,38 @@
+{
+  "batch": "B4.6",
+  "scenarios": ["TC-STAR-003"],
+  "requirements": ["DOGF-005", "TYPO-005", "TRPR-005", "STAR-005", "STAR-006"],
+  "readOnlyMcp": {
+    "implemented": false,
+    "disposition": "closeout-or-phase5-start-evaluation-only"
+  },
+  "toolBasedMcp": {
+    "status": "absent",
+    "prohibitedOperations": [
+      "validate_deck",
+      "render_preview",
+      "inspect_composition"
+    ],
+    "checkedAbsentPaths": [
+      "packages/mcp",
+      "packages/core/src/mcp",
+      "packages/core/src/mcp.ts",
+      "packages/preview-remotion/src/mcp.ts",
+      "scripts/validate_deck.ts",
+      "scripts/render_preview.ts",
+      "scripts/inspect_composition.ts",
+      "scripts/mcp-server.ts"
+    ]
+  },
+  "boundaryGuardArtifacts": [
+    "examples/phase4/technical-talk-starters.tsx",
+    "skills/cadenza/SKILL.md",
+    "skills/cadenza/rules/product-layer-workflow.md",
+    "skills/cadenza/evals/evals.json",
+    "wip/future-support/phase-5-candidates.md"
+  ],
+  "notes": [
+    "Read-only MCP is recorded only as a closeout or Phase 5-start evaluation item.",
+    "Tool-based MCP remains absent; Phase 4 starter work stays in cadenza-best-practices guidance plus TSX examples."
+  ]
+}

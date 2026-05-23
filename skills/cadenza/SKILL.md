@@ -35,6 +35,24 @@ For Phase 3 authoring work, keep the loop explicit and local:
 5. Repair the authored deck without editing framework internals.
 6. Re-run checks after each focused repair before changing style or scope.
 
+## Phase 4 Product-Layer Loop
+
+For Phase 4 technical-talk starters, keep the output narrow and previewable:
+
+1. Choose one of the three starter surfaces in
+   `examples/phase4/technical-talk-starters.tsx`: architecture talk, data
+   explainer, or live-demo talk.
+2. Author with public Cadenza TSX, render-safe components, `Notes`, outline or
+   chapter metadata, and typed product transitions.
+3. Open the local preview route with `pnpm preview:phase4` when validating
+   presenter context, visual acceptance, typography/density, or stronger
+   transitions.
+4. Repair authored TSX, starter guidance, or trace evidence before touching
+   framework internals.
+5. Keep starter work out of broad template catalogs, direct visual editors,
+   distribution promises, hosted runtime promises, long-term API guarantees,
+   outside-user validation, and MCP implementation claims.
+
 ## Rule Routing
 
 Load only the rule files needed for the task:
@@ -46,6 +64,7 @@ Load only the rule files needed for the task:
 | Images, fonts, videos, bounded content | [`rules/render-safe-components.md`](rules/render-safe-components.md) |
 | Speaker notes or presenter metadata | [`rules/speaker-notes.md`](rules/speaker-notes.md) |
 | Data explainers, metrics, charts, or evidence slides | [`rules/data-explainers.md`](rules/data-explainers.md), [`rules/layout-composition.md`](rules/layout-composition.md) |
+| Phase 4 product-layer workflows or technical-talk starters | [`rules/product-layer-workflow.md`](rules/product-layer-workflow.md), [`examples/phase4/technical-talk-starters.tsx`](../../examples/phase4/technical-talk-starters.tsx) |
 | Compile, preview, browser, or export failures | [`rules/validation-repair.md`](rules/validation-repair.md), [`rules/browser-preview.md`](rules/browser-preview.md) |
 | Reviewing an agent-authored deck | Read all rule files, then report gaps by risk |
 
