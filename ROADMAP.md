@@ -30,8 +30,27 @@ Developers and technical communicators who write talks, data explainers, and doc
 | **1. Core Semantics & Typed API** | Typed API primitives, state-to-timeline compiler, render-safe metadata, runtime intent, validation reports, `cadenza-best-practices` mono-skill | Frozen Phase 1 scenarios are green; the all-domain fixture compiles to deterministic preview/offline `TimelineMap` signatures; trace records the explicit boundary that real React/Remotion rendering, MP4 export, PDF export, external alpha usage, and public API stability are not claimed |
 | **2. React + Remotion Preview Adapter** | React/Remotion package boundary, `@remotion/player` integration, real browser preview, render-safe components backed by Remotion readiness patterns | The all-domain fixture renders in a real React + Remotion browser preview; navigation seeks via Remotion Player frame control; image/font/video readiness and typography/media checks run against the preview; MP4/PDF export remains out of scope |
 | **3. AI Authoring Strengthening** | Compile → error → repair loop, `cadenza-best-practices` rule/eval expansion, thin IR if earned, optional read-only MCP | Agent-authored decks can be generated, previewed, diagnosed, and repaired through the local validation loop without hand-editing the core framework |
-| **4. Presentation Product Layer *(pruned)*** | Presenter view, chapters/outline, stronger transitions, smart typography & density engine, targeted technical-talk starters | Maintainer dogfoods a production-adjacent technical talk through preview and presenter workflows; feedback from real users becomes relevant after this point but is not a phase gate |
+| **4. Presentation Product Layer *(pruned)*** | Preview-first dogfooding, presenter view, chapters/outline, stronger transitions, smart typography & density engine, targeted technical-talk starters | Maintainer dogfoods a production-adjacent technical talk through a local Remotion Player preview and presenter workflow; feedback from real users becomes relevant after this point but is not a phase gate |
 | **5. Export + 0.1 Alpha Readiness** | Local/web/MP4/PDF export, Remotion Lambda evaluation, multi-device presenter console if justified, tool-based MCP if justified | A longer agent-authored technical talk exports through the supported pipeline; the public API has remained stable for 1 month; hosted/commercial work is considered only after export infrastructure exists |
+
+Phase 4 Architect should treat these as roadmap-level acceptance seeds, not
+frozen contracts:
+
+- An agent-authored or agent-revised production-adjacent technical talk starts
+  from public typed TSX and `cadenza-best-practices`, not from a test-only
+  fixture.
+- A local preview surface or command opens that talk in Remotion Player for
+  maintainer review without requiring the maintainer to drive Playwright as the
+  primary interface.
+- The maintainer can navigate slides and steps, inspect speaker notes and
+  presenter metadata, and see preview diagnostics or layout state that matters
+  for visual acceptance.
+- Human visual findings can be recorded as repair evidence and routed back into
+  authored deck or authoring-guidance changes rather than framework-internal
+  edits.
+- MP4/PDF export, hosted rendering, Remotion Lambda, public API stability, and
+  external alpha claims remain Phase 5+ boundaries unless a later spec or ADR
+  explicitly supersedes this roadmap.
 
 **Explicitly deferred indefinitely** (see [`goals-non-goals.md`](./goals-non-goals.md)): template marketplace, real-time collaboration, comments, version history, WYSIWYG editor, SSO / enterprise features, i18n infrastructure.
 
@@ -47,7 +66,9 @@ Developers and technical communicators who write talks, data explainers, and doc
 - **Phase 1 ships** when the semantic core is trace-complete: typed API, compiler, runtime intent, render-safe metadata, validation report, authoring mono-skill, and all-domain fixture.
 - **Phase 2 ships** when that fixture runs through a real React + Remotion browser preview with player navigation and render-safe readiness behavior.
 - **Phase 3 ships** when agents can generate, preview, validate, and repair small technical decks through the local loop.
-- **Phase 4 ships** when a production-adjacent technical talk can be dogfooded through the preview and presenter workflows.
+- **Phase 4 ships** when a production-adjacent technical talk can be dogfooded
+  through a local Remotion Player preview and presenter workflow, with human
+  visual acceptance feeding the repair loop.
 - **Phase 5 ships** as `0.1 alpha readiness`: export infrastructure exists, a longer agent-authored technical talk exports through the supported path, and the public API has been stable for 1 month.
 
 ## What we will say no to
