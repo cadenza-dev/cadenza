@@ -769,10 +769,11 @@ test.describe("B3.2 Phase 3 preview diagnostics and repair evidence", () => {
     expect(evidence).toMatchObject({
       schemaVersion: 1,
       acceptanceEvidenceKind: "browser-preview-snapshot",
-      authoredDeckPath: "packages/core/src/fixtures/phase3Acceptance.tsx",
-      repairedDeckPath: "packages/core/src/fixtures/phase3Acceptance.tsx",
+      authoredDeckPath: "examples/phase3/acceptance-deck.tsx",
+      repairedDeckPath: "examples/phase3/acceptance-deck.tsx",
       scenarioIds: ["TC-AUTH-003", "TC-AUTH-004", "TC-DIAG-002", "TC-DIAG-003"],
       repairScope: {
+        allowedEdits: ["examples/phase3/acceptance-deck.tsx"],
         frameworkInternalEdits: [],
       },
     });
@@ -837,6 +838,7 @@ function readPhase3RepairEvidence(): {
   };
   repairedDeckPath: string;
   repairScope: {
+    allowedEdits: string[];
     frameworkInternalEdits: string[];
   };
   scenarioIds: string[];

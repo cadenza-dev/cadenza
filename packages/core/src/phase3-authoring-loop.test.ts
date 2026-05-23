@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { compile } from "@cadenza-dev/core";
+import { describe, expect, it } from "vitest";
 import {
   createPhase3AcceptanceFixture,
   createPhase3InvalidCompileReport,
-} from "@cadenza-dev/core/fixtures/phase3Acceptance";
-import { describe, expect, it } from "vitest";
+} from "../../../examples/phase3/acceptance-deck.js";
 
 describe("B3.1 Phase 3 authoring deck and compile repair surface", () => {
   it("proves the canonical technical deck uses public surfaces and compile diagnostics become an ordered repair queue", () => {
@@ -67,14 +67,7 @@ describe("B3.1 Phase 3 authoring deck and compile repair surface", () => {
 
 function readFixtureSource(): string {
   return readFileSync(
-    path.join(
-      process.cwd(),
-      "packages",
-      "core",
-      "src",
-      "fixtures",
-      "phase3Acceptance.tsx",
-    ),
+    path.join(process.cwd(), "examples", "phase3", "acceptance-deck.tsx"),
     "utf8",
   );
 }

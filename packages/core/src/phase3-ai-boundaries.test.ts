@@ -158,7 +158,7 @@ function readPhase3BoundaryArtifacts(): Array<{ path: string; text: string }> {
     "skills/cadenza/evals/evals.json",
     "skills/cadenza-best-practices-workspace/iteration-2/benchmark.md",
     "skills/cadenza-best-practices-workspace/iteration-2/conclusions.md",
-    "packages/core/src/fixtures/phase3Acceptance.tsx",
+    "examples/phase3/acceptance-deck.tsx",
   ].map((relativePath) => ({
     path: relativePath,
     text: readFileSync(path.join(process.cwd(), relativePath), "utf8"),

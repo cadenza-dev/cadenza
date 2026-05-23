@@ -24,16 +24,16 @@ import {
 } from "@cadenza-dev/core";
 import { createAllDomainMvpFixture } from "@cadenza-dev/core/fixtures/allDomainMvp";
 import {
-  createPhase3AcceptanceFixture,
-  createPhase3PreviewRepairCandidateFixture,
-} from "@cadenza-dev/core/fixtures/phase3Acceptance";
-import {
   CadenzaPlayer,
   type CadenzaPlayerHandle,
   createCadenzaPreviewMount,
 } from "@cadenza-dev/preview-remotion";
 import React from "react";
 import { createRoot, type Root } from "react-dom/client";
+import {
+  createPhase3AcceptanceFixture,
+  createPhase3PreviewRepairCandidateFixture,
+} from "../../examples/phase3/acceptance-deck.js";
 
 type BrowserFixture = {
   clickCalls(): string[];

@@ -127,6 +127,11 @@ export type {
 export { validatePreviewLayout } from "./validation/browser.js";
 export { CadenzaValidationError } from "./validation/errors.js";
 export type {
+  Phase3RepairEvidence,
+  Phase3RepairEvidenceFinding,
+} from "./validation/repairEvidence.js";
+export { validatePhase3RepairEvidence } from "./validation/repairEvidence.js";
+export type {
   CadenzaValidationReport,
   ValidationRepairQueueItem,
   ValidationReportSummary,

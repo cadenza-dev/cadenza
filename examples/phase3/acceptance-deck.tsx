@@ -140,7 +140,7 @@ function createPhase3AcceptanceDeck(
           duration="2s"
           exportDuration="2s"
           children={({ slideId }) =>
-            `Repair evidence is attached to ${slideId}, not packages/**/src edits.`
+            `Repair evidence is attached to ${slideId}, not framework internals.`
           }
         />
       </Slide>

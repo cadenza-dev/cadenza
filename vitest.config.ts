@@ -15,13 +15,6 @@ export default defineConfig({
         ),
       },
       {
-        find: "@cadenza-dev/core/fixtures/phase3Acceptance",
-        replacement: path.join(
-          rootDir,
-          "packages/core/src/fixtures/phase3Acceptance.tsx",
-        ),
-      },
-      {
         find: "@cadenza-dev/core/jsx-dev-runtime",
         replacement: path.join(rootDir, "packages/core/src/jsx-dev-runtime.ts"),
       },

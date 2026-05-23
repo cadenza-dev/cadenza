@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "acceptanceEvidenceKind": "browser-preview-snapshot",
   "scenarioIds": ["TC-AUTH-003", "TC-AUTH-004", "TC-DIAG-002", "TC-DIAG-003"],
-  "authoredDeckPath": "packages/core/src/fixtures/phase3Acceptance.tsx",
-  "repairedDeckPath": "packages/core/src/fixtures/phase3Acceptance.tsx",
+  "authoredDeckPath": "examples/phase3/acceptance-deck.tsx",
+  "repairedDeckPath": "examples/phase3/acceptance-deck.tsx",
   "commands": ["pnpm test:browser --grep \"B3.2\""],
   "before": {
     "deckVariant": "phase3PreviewRepairCandidate",
@@ -58,7 +58,7 @@
     "previewDiagnostics": []
   },
   "repairScope": {
-    "allowedEdits": ["packages/core/src/fixtures/phase3Acceptance.tsx"],
+    "allowedEdits": ["examples/phase3/acceptance-deck.tsx"],
     "authoringGuidanceEdits": [],
     "frameworkInternalEdits": []
   },

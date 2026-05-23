@@ -19,10 +19,6 @@
     "./fixtures/allDomainMvp": {
       "types": "./src/fixtures/allDomainMvp.ts",
       "import": "./src/fixtures/allDomainMvp.ts"
-    },
-    "./fixtures/phase3Acceptance": {
-      "types": "./src/fixtures/phase3Acceptance.tsx",
-      "import": "./src/fixtures/phase3Acceptance.tsx"
     }
   }
 }

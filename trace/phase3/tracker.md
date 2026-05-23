@@ -1,5 +1,43 @@
 # Phase 3 Tracker
 
+## 2026-05-23 19:50 +0800 — Phase 3 Builder remediation REV-P3-001 and REV-P3-002
+
+- Startup identity: proceeded as Phase 3 Builder remediation with `GPT-5` /
+  `codex` after maintainer approval in this session.
+- Scope: remediated only maintainer-selected findings `REV-P3-001` and
+  `REV-P3-002` from `trace/phase3/review-phase3-closeout.md`.
+- RED 1: `pnpm test -- packages/core/src/phase3-repair-evidence.test.ts`
+  failed because B3.2 repair evidence still pointed authored and repaired deck
+  paths at `packages/core/src/fixtures/phase3Acceptance.tsx`.
+- GREEN 1: moved the Phase 3 authored acceptance and repair-candidate deck to
+  `examples/phase3/acceptance-deck.tsx`, updated browser/authoring-loop usage,
+  and added `validatePhase3RepairEvidence` to flag package-source repair paths.
+- RED 2: the same targeted test failed because trace-only evidence did not
+  remain a `DIAG-003` finding.
+- GREEN 2: added a trace-only negative assertion for `TC-DIAG-003`; real B3.2
+  browser evidence clears the finding, while trace declarations alone do not.
+- Evidence: `packages/core/src/phase3-repair-evidence.test.ts`,
+  `tests/browser/remotion-preview.spec.ts`,
+  `packages/core/src/phase3-authoring-loop.test.ts`,
+  `packages/core/src/validation/repairEvidence.ts`,
+  `examples/phase3/acceptance-deck.tsx`,
+  `trace/phase3/evidence/b3.2-repair-evidence.json`, and
+  `trace/phase3/evidence/b3.2-repair-evidence.md`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, root phase
+  pointer, wrapper command, complete deck IR, MCP, export, hosted-rendering,
+  presenter-product, public-stability, or external-alpha change.
+- Verification: targeted `pnpm test -- packages/core/src/phase3-repair-evidence.test.ts`,
+  targeted `pnpm test -- packages/core/src/phase3-authoring-loop.test.ts packages/core/src/phase3-repair-evidence.test.ts`,
+  `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, `git diff --check`, elevated
+  `pnpm test:browser --grep "B3.2"`, and elevated `pnpm test:browser`
+  passed. Default `pnpm test:browser --grep "B3.2"` failed only because the
+  sandbox blocked Chromium launch with `sandbox_host_linux.cc` / `Operation not
+  permitted`.
+
 ## 2026-04-30 04:53 +0800 — B3.5 Phase 3 Builder closeout
 
 - Startup identity: proceeded as Phase 3 Builder with `GPT-5` / `codex` after

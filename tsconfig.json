@@ -11,9 +11,6 @@
       "@cadenza-dev/core/fixtures/allDomainMvp": [
         "./packages/core/src/fixtures/allDomainMvp.ts"
       ],
-      "@cadenza-dev/core/fixtures/phase3Acceptance": [
-        "./packages/core/src/fixtures/phase3Acceptance.tsx"
-      ],
       "@cadenza-dev/core/jsx-dev-runtime": [
         "./packages/core/src/jsx-dev-runtime.ts"
       ],
@@ -30,6 +27,7 @@
     "types": ["node", "vitest/globals"]
   },
   "include": [
+    "examples/**/*.tsx",
     "packages/**/*.ts",
     "packages/**/*.tsx",
     "skills/cadenza/examples/**/*.tsx",
