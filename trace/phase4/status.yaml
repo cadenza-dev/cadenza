@@ -53,12 +53,48 @@ builder_progress:
   status: in_progress
   active_role: builder
   current_session_identity: GPT-5/codex
-  current_session_approval_note: "Maintainer answered y to proceed as Phase 4 Builder with GPT-5/codex for B4.1 / TC-DOGF-001 + TC-DOGF-002 only."
+  current_session_approval_note: "Maintainer answered y to proceed as Phase 4 Builder with GPT-5/codex for B4.2 / TC-PRES-001 + TC-PRES-002 only."
   next_batch:
-    id: B4.2
-    scenarios: [TC-PRES-001, TC-PRES-002]
-    summary: "Presenter workflow with notes, current/next context, elapsed time, and outline or chapter navigation."
+    id: B4.3
+    scenarios: [TC-VARR-001, TC-VARR-002, TC-VARR-003]
+    summary: "Visual acceptance evidence and repair routing."
   completed_batches:
+    - id: B4.2
+      scenarios: [TC-PRES-001, TC-PRES-002]
+      status: complete
+      completed_at: "2026-05-24 00:33 +0800"
+      requirements: [PRES-001, PRES-002, PRES-003, PRES-004, PRES-005]
+      evidence:
+        examples:
+          - examples/phase4/preview.ts
+          - examples/phase4/preview.jsx
+        package_code:
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+        tests:
+          - packages/preview-remotion/src/phase4-presenter-workflow.test.ts
+        behavior:
+          - "Presenter workflow derives current slide, current step, notes, elapsed time, current context, and next context from CadenzaPlayerSnapshot plus the compiled dogfood timeline."
+          - "The same-browser Phase 4 preview panel renders current/next context, notes, elapsed time, outline navigation, chapter navigation, and presenter controls beside the local Remotion Player."
+          - "Outline and chapter controls call runtime-mediated goto targets; next, previous, restart, pause, resume, and toggle controls route through CadenzaPlayerHandle and do not use UI frame math."
+      boundary: "Same-browser presenter workflow only; no CONTRACT_FROZEN spec, Accepted ADR, export, hosted-rendering, Remotion Lambda, public-stability, external-alpha, multi-device presenter console, WYSIWYG, marketplace, collaboration, or MCP implementation."
+      verification:
+        red_tc_pres_001: "pnpm test -- packages/preview-remotion/src/phase4-presenter-workflow.test.ts (failed because createPhase4PresenterWorkflow was not implemented)"
+        green_tc_pres_001: "pnpm test -- packages/preview-remotion/src/phase4-presenter-workflow.test.ts"
+        red_tc_pres_002: "pnpm test -- packages/preview-remotion/src/phase4-presenter-workflow.test.ts (failed because createPhase4PresenterControls was not implemented)"
+        green_tc_pres_002: "pnpm test -- packages/preview-remotion/src/phase4-presenter-workflow.test.ts"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "pnpm lint:shell"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        preview_command: "pnpm preview:phase4 (default sandbox failed with listen EPERM; elevated rerun served http://127.0.0.1:4174/ and the root page was fetched)"
+        browser: "pnpm test:browser (default sandbox failed with Chromium sandbox_host_linux Operation not permitted; elevated rerun passed 16/16)"
+        whitespace: "git diff --check"
     - id: B4.1
       scenarios: [TC-DOGF-001, TC-DOGF-002]
       status: complete

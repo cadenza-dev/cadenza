@@ -1,5 +1,47 @@
 # Phase 4 Tracker
 
+## 2026-05-24 00:33 +0800 — B4.2 same-browser presenter workflow
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only `B4.2 / TC-PRES-001 + TC-PRES-002` from frozen
+  `spec/phase4/SPEC_TEST_MATRIX.md` and
+  `spec/phase4/SPEC_PRESENTER_WORKFLOW.md`.
+- RED/GREEN evidence:
+  `pnpm test -- packages/preview-remotion/src/phase4-presenter-workflow.test.ts`
+  first failed because `createPhase4PresenterWorkflow` did not exist, then
+  passed after presenter context derivation was added; the same command then
+  failed because `createPhase4PresenterControls` did not exist, then passed
+  after runtime-mediated controls and the same-browser panel were added.
+- Artifacts written: `examples/phase4/preview.ts`,
+  `examples/phase4/preview.jsx`,
+  `packages/preview-remotion/src/CadenzaPlayer.tsx`,
+  `packages/preview-remotion/src/phase4-presenter-workflow.test.ts`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Behavior: presenter workflow now derives current slide, current step, notes,
+  elapsed time, current context, and next context from `CadenzaPlayerSnapshot`
+  plus the compiled dogfood timeline; the Phase 4 local preview renders a
+  same-browser presenter panel with current/next context, notes, elapsed time,
+  outline navigation, chapter navigation, and presenter controls.
+- Verification: targeted B4.2 tests, `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`, `pnpm lint:shell`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. `pnpm test:browser`
+  failed in the default sandbox with Chromium `sandbox_host_linux` permission
+  errors, then passed under approved elevated execution (`16/16`).
+  `pnpm preview:phase4` failed in the default sandbox with `listen EPERM`, then
+  served `http://127.0.0.1:4174/` under approved elevated execution and the
+  root page was fetched.
+- Boundary preserved: outline and chapter navigation call runtime-mediated
+  `goto` targets; next, previous, restart, pause, resume, and toggle route
+  through `CadenzaPlayerHandle`; no UI frame math, `CONTRACT_FROZEN` spec,
+  Accepted ADR, export, hosted-rendering, Remotion Lambda, public-stability,
+  external-alpha, multi-device presenter console, WYSIWYG, marketplace,
+  collaboration, or MCP implementation changes.
+- Next batch after maintainer approval:
+  `B4.3 / TC-VARR-001 + TC-VARR-002 + TC-VARR-003`.
+
 ## 2026-05-24 00:14 +0800 — B4.1 dogfood talk and local preview
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

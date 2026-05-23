@@ -61,6 +61,7 @@ export type CadenzaPlayerProps = {
   deck: DeckNode;
   fontReadiness?: PreviewFontReadinessMode;
   onPreviewReady?: (handle: CadenzaPlayerHandle) => (() => void) | undefined;
+  onSnapshotChange?: (snapshot: CadenzaPlayerSnapshot) => void;
   playerStyle?: CSSProperties;
   timeline: TimelineMap;
 };
@@ -68,10 +69,14 @@ export type CadenzaPlayerProps = {
 export type CadenzaPlayerHandle = {
   getSnapshot(): CadenzaPlayerSnapshot;
   goto(slideId: string, stepIndex?: number): void;
+  isPlaying(): boolean;
   markResourceReady(resourceId: string): void;
   nativeSeekToFrame(frame: number): void;
   next(): void;
+  pause(): void;
+  play(): void;
   previous(): void;
+  togglePlayback(): void;
 };
 
 export type CadenzaPlayerSnapshot = {
@@ -102,6 +107,7 @@ export function CadenzaPlayer({
   deck,
   fontReadiness = "browser",
   onPreviewReady,
+  onSnapshotChange,
   playerStyle,
   timeline,
 }: CadenzaPlayerProps): ReactNode {
@@ -120,17 +126,31 @@ export function CadenzaPlayer({
   const [snapshot, setSnapshot] = useState<CadenzaPlayerSnapshot>(() =>
     createInitialSnapshot(timeline, readiness),
   );
-  const recordPlayerError = useCallback((error: Error) => {
-    const diagnostic = createRemotionPlayerDiagnostic(error);
-    playerDiagnosticsRef.current = mergeDiagnostics([
-      ...playerDiagnosticsRef.current,
-      diagnostic,
-    ]);
-    setSnapshot((current) => ({
-      ...current,
-      diagnostics: mergeDiagnostics([...current.diagnostics, diagnostic]),
-    }));
-  }, []);
+  const publishSnapshot = useCallback(
+    (nextSnapshot: CadenzaPlayerSnapshot) => {
+      setSnapshot(nextSnapshot);
+      onSnapshotChange?.(nextSnapshot);
+    },
+    [onSnapshotChange],
+  );
+  const recordPlayerError = useCallback(
+    (error: Error) => {
+      const diagnostic = createRemotionPlayerDiagnostic(error);
+      playerDiagnosticsRef.current = mergeDiagnostics([
+        ...playerDiagnosticsRef.current,
+        diagnostic,
+      ]);
+      setSnapshot((current) => {
+        const nextSnapshot = {
+          ...current,
+          diagnostics: mergeDiagnostics([...current.diagnostics, diagnostic]),
+        };
+        onSnapshotChange?.(nextSnapshot);
+        return nextSnapshot;
+      });
+    },
+    [onSnapshotChange],
+  );
 
   useEffect(() => {
     const player = playerRef.current;
@@ -146,7 +166,7 @@ export function CadenzaPlayer({
     controllerRef.current = controller;
 
     const updateSnapshot = () => {
-      setSnapshot(
+      publishSnapshot(
         createSnapshot(
           controller,
           player,
@@ -171,6 +191,9 @@ export function CadenzaPlayer({
         controller.goto(slideId, stepIndex);
         updateSnapshot();
       },
+      isPlaying() {
+        return player.isPlaying();
+      },
       markResourceReady(resourceId) {
         readiness.markReady(resourceId);
         updateSnapshot();
@@ -182,8 +205,20 @@ export function CadenzaPlayer({
         controller.next();
         updateSnapshot();
       },
+      pause() {
+        player.pause();
+        updateSnapshot();
+      },
+      play() {
+        player.play();
+        updateSnapshot();
+      },
       previous() {
         controller.previous();
+        updateSnapshot();
+      },
+      togglePlayback() {
+        player.toggle();
         updateSnapshot();
       },
     };
@@ -200,7 +235,7 @@ export function CadenzaPlayer({
         controllerRef.current = undefined;
       }
     };
-  }, [onPreviewReady, readiness, timeline]);
+  }, [onPreviewReady, publishSnapshot, readiness, timeline]);
 
   return (
     <section
