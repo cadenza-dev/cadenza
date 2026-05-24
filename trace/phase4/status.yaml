@@ -1,10 +1,11 @@
 version: 1
 phase: "4"
 phase_name: "Presentation Product Layer (pruned)"
-status: builder_ready
+status: complete
 timezone: Asia/Shanghai
 opened_at: "2026-05-23 23:57 +0800"
 builder_closed_at: "2026-05-24 17:30 +0800"
+closed_at: "2026-05-25 04:33 +0800"
 
 session:
   active_role: builder
@@ -51,7 +52,7 @@ builder_handoff:
   boundary: "No packages implementation, CONTRACT_FROZEN spec, Accepted ADR, export, hosted-rendering, Remotion Lambda, public-stability, external-alpha, WYSIWYG, marketplace, collaboration, or MCP implementation work was performed during routing."
 
 builder_progress:
-  status: builder_remediation_complete_pending_reviewer_recheck
+  status: reviewer_closeout_accepted
   active_role: builder
   current_session_identity: GPT-5/codex
   current_session_approved_at: "2026-05-24 21:06 +0800"
@@ -59,11 +60,11 @@ builder_progress:
   next_batch:
     id: null
     scenarios: []
-    status: ready_for_reviewer_recheck
-    summary: "REV-P4-002 closeout gate remediation is implemented; REV-P4-001 is maintainer signed-off after dogfood preview visual recheck."
+    status: reviewer_closeout_accepted
+    summary: "Phase 4 Reviewer closeout is accepted; next step is Phase 5 Architect handoff."
   selected_remediation:
     selected_findings: [REV-P4-001, REV-P4-002]
-    status: complete_pending_reviewer_recheck
+    status: accepted_by_reviewer
     remediated_at: "2026-05-24 20:18 +0800"
     findings:
       - id: REV-P4-001
@@ -469,7 +470,7 @@ builder_progress:
         whitespace: "git diff --check"
 
 reviewer_handoff:
-  status: ready_for_reviewer_recheck
+  status: accepted
   prepared_at: "2026-05-24 17:30 +0800"
   next_role: reviewer
   recommended_skill: cadenza-reviewer
@@ -479,6 +480,33 @@ reviewer_handoff:
     - trace/phase4/tracker.md
   review_scope: "Reviewer recheck should verify maintainer-signed visual evidence for REV-P4-001 and closeout-gate remediation for REV-P4-002."
   boundary: "Reviewer should not remediate or modify packages, specs, ADRs, prompts, or scripts."
+
+reviewer_closeout:
+  status: accepted
+  artifact: trace/phase4/review-phase4-closeout.md
+  accepted_findings: [REV-P4-001, REV-P4-002]
+  accepted_remediation_commit: 7b45c6e906a84310befd1837f87a7d945d6cbaac
+  accepted_review_commit: 256a226aaaf1cf1232a8c958d556ba855cacf3a8
+  accepted_ci_run: 26365074120
+  result: "Phase 4 closeout is accepted from the Reviewer side."
+  boundary: "Reviewer accepted the closeout without remediation and without frozen spec, Accepted ADR, prompt, or root phase pointer changes."
+
+wizard_handoff:
+  status: prepared
+  prepared_at: "2026-05-25 04:33 +0800"
+  active_role: wizard
+  approved_identity: GPT-5/codex
+  approved_at: "2026-05-25 04:33 +0800"
+  approval_note: "Maintainer answered y to proceed as Wizard with GPT-5/codex for Phase 5 Architect handoff preparation."
+  source_review: trace/phase4/review-phase4-closeout.md
+  accepted_remediation_commit: 7b45c6e906a84310befd1837f87a7d945d6cbaac
+  accepted_review_commit: 256a226aaaf1cf1232a8c958d556ba855cacf3a8
+  accepted_ci_run: 26365074120
+  handoff_file: trace/phase4/phase5-architect-handoff.md
+  kick_file: prompt/PHASE5_KICK_ARCHITECT.md
+  next_role: architect
+  root_phase_pointer: "STATUS.yaml.current_phase remains 4; maintainer owns the Phase 5 pointer flip."
+  boundary: "Wizard handoff only; no packages, CONTRACT_FROZEN specs, Accepted ADRs, or root phase pointer changes."
 
 exit_criteria:
   phase4_specs_frozen:
@@ -575,5 +603,16 @@ exit_criteria:
       - "pnpm preview:phase4"
       - "git diff --check"
   reviewer_closeout_accepted:
-    status: pending
-    artifact: null
+    status: met
+    artifact: trace/phase4/review-phase4-closeout.md
+    accepted_remediation_commit: 7b45c6e906a84310befd1837f87a7d945d6cbaac
+    latest_ci:
+      run_id: 26365074120
+      status: success
+      head_sha: 256a226aaaf1cf1232a8c958d556ba855cacf3a8
+  phase5_architect_handoff_prepared:
+    status: met
+    prepared_at: "2026-05-25 04:33 +0800"
+    artifacts:
+      - prompt/PHASE5_KICK_ARCHITECT.md
+      - trace/phase4/phase5-architect-handoff.md
