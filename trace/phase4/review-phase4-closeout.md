@@ -10,7 +10,42 @@ local preview evidence.
 This review is read-only. It does not remediate findings, modify frozen specs,
 modify Accepted ADRs, or update production code.
 
+## Recheck: 7b45c6e
+
+Result: accepted.
+
+Reviewer rechecked commit `7b45c6e` (`Remediate Phase 4 visual closeout`) for
+the maintainer-selected remediation scope: `REV-P4-001`, `REV-P4-002`, and the
+maintainer visual sign-off recorded after the dogfood preview recheck.
+
+Context note: `prompt/PHASE4_KICK_REVIEWER.md` is not present in this checkout;
+the recheck used this report, `trace/phase4/status.yaml`,
+`trace/phase4/tracker.md`, the frozen Phase 4 specs, and commit `7b45c6e` as
+the concrete review sources.
+
+- `REV-P4-001`: resolved. The Phase 4 visual evidence now records
+  `maintainerVisualDecision` as `signed-off`, and `trace/phase4/status.yaml`
+  records the maintainer sign-off at `2026-05-24 22:29 +0800`.
+- `REV-P4-002`: resolved. `validatePhase4VisualCloseoutEvidence` and the active
+  Phase 4 traceability coverage gate now fail pending visual decisions while
+  allowing `signed-off` or `explicit-waiver` closeout decisions.
+- Visual remediation evidence: the browser regression verifies current-slide
+  visual rendering, cumulative step reveal, hidden presenter notes/resource
+  markers, removal of the stale `render-safe-demo` control, and the repaired
+  `preview-reliability-budget` dense-copy clipping case.
+- Boundary check: commit `7b45c6e` did not modify frozen specs, Accepted ADRs,
+  prompts, or the root phase pointer. Framework edits under
+  `packages/preview-remotion/src/**` are routed through
+  `trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md` rather
+  than recorded as normal authored dogfood-talk repair.
+
 ## Findings
+
+No new findings remain after the `7b45c6e` recheck.
+
+The findings below are the original closeout findings from the first Reviewer
+pass. They are retained for audit history and are now resolved as described in
+the recheck section above.
 
 ### REV-P4-001 [blocker] Phase 4 closeout is missing the required maintainer visual sign-off or waiver
 
@@ -92,21 +127,36 @@ Recommended owner: builder-remediation
 
 ## Open Questions
 
-None blocking remediation. REV-P4-001 requires a maintainer decision: visual
-sign-off or explicit waiver.
+None.
 
 ## Residual Risk
 
 - Browser verification depends on a Chromium-capable environment. In the default
-  sandbox, `pnpm test:browser` fails with Chromium sandbox permission errors and
-  `pnpm preview:phase4` cannot bind localhost. Elevated reruns during review
-  confirmed `pnpm test:browser` passed 16/16 and the Phase 4 preview served `/`
-  plus `/phase4-dogfood-preview.js` as HTTP 200.
-- GitHub Actions run `26360043321` for `dedaca0` completed successfully, but CI
-  skipped browser preview jobs for this change set. Local elevated browser proof
-  is therefore the browser-observable evidence for this review.
+  sandbox, the focused Phase 4 Playwright tests fail before product execution
+  with Chromium `sandbox_host_linux` permission errors. An elevated local rerun
+  passed the `B4 dogfood` browser regressions 2/2.
+- GitHub Actions run `26364025714` for `7b45c6e` completed successfully,
+  including `Browser preview` jobs on Ubuntu, macOS, and Windows.
 
 ## Verification Performed
+
+### Recheck Verification
+
+- `pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts`
+  passed; Vitest reported 30 files and 78 tests passed.
+- `pnpm test -- scripts/traceability-coverage.test.ts` passed; Vitest reported
+  30 files and 78 tests passed.
+- `node --experimental-strip-types scripts/traceability-coverage.ts --phase 4
+  --check`
+- `pnpm phase:check`
+- `pnpm build:browser-fixture`
+- `pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g "B4
+  dogfood"` passed 2/2 under elevated Chromium-capable execution after the
+  default sandbox reproduced the known Chromium permission failure.
+- `gh run view 26364025714 --json conclusion,status,headSha,jobs,url` confirmed
+  successful CI for `7b45c6e906a84310befd1837f87a7d945d6cbaac`.
+
+### Initial Closeout Verification
 
 - `pnpm typecheck`
 - `pnpm test`
@@ -128,7 +178,10 @@ sign-off or explicit waiver.
 
 ## Closeout Disposition
 
-Phase 4 Builder output is not accepted yet. Reviewer Acceptance should wait
-until REV-P4-001 is resolved by maintainer sign-off or waiver, and REV-P4-002 is
-remediated so the closeout gate cannot pass while visual acceptance is still
-pending.
+Phase 4 Builder closeout is accepted for the reviewed scope. `REV-P4-001` and
+`REV-P4-002` are resolved, maintainer visual sign-off is recorded, and commit
+`7b45c6e` has green local recheck evidence plus successful CI run
+`26364025714`.
+
+Reviewer does not flip `STATUS.yaml.current_phase`. The next phase-boundary
+action, if approved by the maintainer, is Wizard handoff preparation.
