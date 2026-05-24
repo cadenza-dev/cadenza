@@ -4,10 +4,12 @@ import {
   type CadenzaDiagnostic,
   type CadenzaNode,
   type Cursor,
+  cursorAtFrame,
   type DeckNode,
   fitTypographyBox,
   type PresenterMetadata,
   type RenderSafeNode,
+  type RenderSafeResourceNode,
   type SlideNode,
   type StepContext,
   type StepNode,
@@ -27,6 +29,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useCurrentFrame } from "remotion";
 import {
   type CadenzaPreviewController,
   createCadenzaPreviewController,
@@ -101,6 +104,21 @@ type CadenzaTimelineCompositionProps = {
   fontReadiness: PreviewFontReadinessMode;
   readiness: PreviewReadinessRegistry;
   timeline: TimelineMap;
+};
+
+type VisibleFrameWindow = {
+  maxStepIndex: number;
+  slideId: string;
+};
+
+type CadenzaRenderContext = {
+  fontReadiness: PreviewFontReadinessMode;
+  key: string;
+  readiness: PreviewReadinessRegistry;
+  slideId: string | undefined;
+  stepIndex: number | undefined;
+  timeline: TimelineMap;
+  visibleFrame: VisibleFrameWindow;
 };
 
 export function CadenzaPlayer({
@@ -282,12 +300,6 @@ export function CadenzaPlayer({
         <button onClick={() => controllerRef.current?.next()} type="button">
           Next
         </button>
-        <button
-          onClick={() => controllerRef.current?.goto("render-safe-demo", 0)}
-          type="button"
-        >
-          Goto render-safe-demo
-        </button>
       </div>
       <Player
         acknowledgeRemotionLicense
@@ -468,6 +480,10 @@ function CadenzaTimelineComposition({
   readiness,
   timeline,
 }: CadenzaTimelineCompositionProps): ReactNode {
+  // why: the Remotion composition must render the visual slide for the
+  // current frame while navigation still flows through Cadenza's typed runtime.
+  const frame = useCurrentFrame();
+  const visibleFrame = visibleFrameWindowAt(timeline, frame);
   const colors = deck.theme?.tokens.color ?? {};
 
   return (
@@ -481,7 +497,9 @@ function CadenzaTimelineComposition({
         display: "grid",
         fontFamily: "Inter, Arial, sans-serif",
         gap: 16,
-        minHeight: "100%",
+        height: "100%",
+        minHeight: 0,
+        overflow: "hidden",
         padding: 32,
       }}
     >
@@ -489,6 +507,15 @@ function CadenzaTimelineComposition({
         readiness={readiness}
         resourceId={bufferingResourceId}
       />
+      <div data-cadenza-resource-preloads="" hidden>
+        {collectRenderSafeResources(deck).map((resource, index) =>
+          renderResourcePreview(resource, {
+            fontReadiness,
+            key: `resource-preload:${index}:${resource.resourceId}`,
+            readiness,
+          }),
+        )}
+      </div>
       {deck.children.map((node, index) =>
         renderCadenzaNode(node, {
           fontReadiness,
@@ -497,10 +524,41 @@ function CadenzaTimelineComposition({
           slideId: undefined,
           stepIndex: undefined,
           timeline,
+          visibleFrame,
         }),
       )}
     </main>
   );
+}
+
+function visibleFrameWindowAt(
+  timeline: TimelineMap,
+  frame: number,
+): VisibleFrameWindow {
+  const boundedFrame = Math.min(
+    Math.max(Math.floor(frame), 0),
+    Math.max(timeline.totalFrames - 1, 0),
+  );
+  const cursor = cursorAtFrame(timeline, boundedFrame);
+
+  if (cursor.kind === "in-transition") {
+    return {
+      maxStepIndex: 0,
+      slideId: cursor.to,
+    };
+  }
+
+  if (cursor.kind === "loading") {
+    return {
+      maxStepIndex: 0,
+      slideId: cursor.slideId,
+    };
+  }
+
+  return {
+    maxStepIndex: cursor.stepIndex,
+    slideId: cursor.slideId,
+  };
 }
 
 function PreviewBufferingBridge({
@@ -517,14 +575,7 @@ function PreviewBufferingBridge({
 
 function renderCadenzaNode(
   node: CadenzaNode,
-  context: {
-    fontReadiness: PreviewFontReadinessMode;
-    key: string;
-    readiness: PreviewReadinessRegistry;
-    slideId: string | undefined;
-    stepIndex: number | undefined;
-    timeline: TimelineMap;
-  },
+  context: CadenzaRenderContext,
 ): ReactNode {
   switch (node.kind) {
     case "deck":
@@ -536,6 +587,7 @@ function renderCadenzaNode(
           slideId: undefined,
           stepIndex: undefined,
           timeline: context.timeline,
+          visibleFrame: context.visibleFrame,
         }),
       );
     case "slide":
@@ -544,7 +596,7 @@ function renderCadenzaNode(
       return renderStep(node, context);
     case "notes":
       return (
-        <aside data-cadenza-presenter-notes="" key={context.key}>
+        <aside data-cadenza-presenter-notes="" hidden key={context.key}>
           {node.children}
         </aside>
       );
@@ -559,17 +611,28 @@ function renderCadenzaNode(
 
 function renderSlide(
   slide: SlideNode,
-  context: {
-    fontReadiness: PreviewFontReadinessMode;
-    key: string;
-    readiness: PreviewReadinessRegistry;
-    timeline: TimelineMap;
-  },
+  context: CadenzaRenderContext,
 ): ReactNode {
+  if (slide.id !== context.visibleFrame.slideId) {
+    return null;
+  }
+
   let stepIndex = 0;
 
   return (
-    <section data-cadenza-slide-id={slide.id} key={context.key}>
+    <section
+      data-cadenza-slide-id={slide.id}
+      key={context.key}
+      style={{
+        alignContent: "start",
+        boxSizing: "border-box",
+        display: "grid",
+        gap: 24,
+        height: "100%",
+        minHeight: 0,
+        overflow: "hidden",
+      }}
+    >
       {slide.children.map((child, index) => {
         const key = `${context.key}:child:${index}`;
 
@@ -581,6 +644,7 @@ function renderSlide(
             slideId: slide.id,
             stepIndex,
             timeline: context.timeline,
+            visibleFrame: context.visibleFrame,
           });
           stepIndex += 1;
 
@@ -594,25 +658,23 @@ function renderSlide(
           slideId: slide.id,
           stepIndex: undefined,
           timeline: context.timeline,
+          visibleFrame: context.visibleFrame,
         });
       })}
     </section>
   );
 }
 
-function renderStep(
-  step: StepNode,
-  context: {
-    fontReadiness: PreviewFontReadinessMode;
-    key: string;
-    readiness: PreviewReadinessRegistry;
-    slideId: string | undefined;
-    stepIndex: number | undefined;
-    timeline: TimelineMap;
-  },
-): ReactNode {
+function renderStep(step: StepNode, context: CadenzaRenderContext): ReactNode {
   const slideId = context.slideId ?? "unknown-slide";
   const stepIndex = context.stepIndex ?? 0;
+  if (
+    slideId !== context.visibleFrame.slideId ||
+    stepIndex > context.visibleFrame.maxStepIndex
+  ) {
+    return null;
+  }
+
   const stepContext: StepContext = {
     fps: context.timeline.fps,
     slideId,
@@ -629,6 +691,9 @@ function renderStep(
       data-cadenza-step-kind={step.stepKind}
       data-cadenza-step-slide-id={slideId}
       key={context.key}
+      style={{
+        minHeight: 0,
+      }}
     >
       {renderUnknown(children, `${context.key}:children`, context)}
     </div>
@@ -637,45 +702,11 @@ function renderStep(
 
 function renderSafeNode(
   node: RenderSafeNode,
-  context: {
-    fontReadiness: PreviewFontReadinessMode;
-    key: string;
-    readiness: PreviewReadinessRegistry;
-    slideId?: string | undefined;
-    stepIndex?: number | undefined;
-    timeline?: TimelineMap | undefined;
-  },
+  context: CadenzaRenderContext,
 ): ReactNode {
   switch (node.kind) {
     case "safe-resource":
-      if (node.resourceKind === "asset") {
-        return (
-          <SafeImagePreview
-            key={context.key}
-            readiness={context.readiness}
-            resource={node}
-          />
-        );
-      }
-
-      if (node.resourceKind === "font") {
-        return (
-          <SafeFontPreview
-            fontReadiness={context.fontReadiness}
-            key={context.key}
-            readiness={context.readiness}
-            resource={node}
-          />
-        );
-      }
-
-      return (
-        <SafeVideoPreview
-          key={context.key}
-          readiness={context.readiness}
-          resource={node}
-        />
-      );
+      return null;
     case "typography-box":
       return (
         <TypographyBoxPreview
@@ -704,6 +735,9 @@ function renderSafeNode(
           data-cadenza-readability={metadata.readability}
           data-cadenza-requirements="RSRM-008 BROW-005"
           key={context.key}
+          style={{
+            minHeight: 0,
+          }}
         >
           {renderUnknown(node.children, `${context.key}:children`, context)}
         </div>
@@ -721,6 +755,65 @@ function renderSafeNode(
         </MediaFramePreview>
       );
   }
+}
+
+function renderResourcePreview(
+  resource: RenderSafeResourceNode,
+  context: {
+    fontReadiness: PreviewFontReadinessMode;
+    key: string;
+    readiness: PreviewReadinessRegistry;
+  },
+): ReactNode {
+  if (resource.resourceKind === "asset") {
+    return (
+      <SafeImagePreview
+        key={context.key}
+        readiness={context.readiness}
+        resource={resource}
+      />
+    );
+  }
+
+  if (resource.resourceKind === "font") {
+    return (
+      <SafeFontPreview
+        fontReadiness={context.fontReadiness}
+        key={context.key}
+        readiness={context.readiness}
+        resource={resource}
+      />
+    );
+  }
+
+  return (
+    <SafeVideoPreview
+      key={context.key}
+      readiness={context.readiness}
+      resource={resource}
+    />
+  );
+}
+
+function collectRenderSafeResources(value: unknown): RenderSafeResourceNode[] {
+  if (Array.isArray(value)) {
+    return value.flatMap(collectRenderSafeResources);
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "kind" in value &&
+    value.kind === "safe-resource"
+  ) {
+    return [value as RenderSafeResourceNode];
+  }
+
+  if (typeof value !== "object" || value === null || !("children" in value)) {
+    return [];
+  }
+
+  return collectRenderSafeResources(value.children);
 }
 
 function TypographyBoxPreview({
@@ -754,35 +847,47 @@ function TypographyBoxPreview({
       return;
     }
 
-    const nextMeasurement = measureTypographyBox(element, source);
-    setMeasurement(nextMeasurement);
-    const nextFitEvaluation = fitTypographyBox({
-      fontReadiness: fontReadiness === "manual" ? "pending" : "ready",
-      measurement: nextMeasurement,
-      typography: {
-        autoFit,
-        children,
-        id: source,
-        kind: "typography-box",
-        maxHeight,
-        maxWidth,
-      },
-      viewport: {
-        height: window.innerHeight,
-        width: window.innerWidth,
-      },
+    const measureFrame = window.requestAnimationFrame(() => {
+      applyTypographyStyle(element, {
+        fontSizePx: autoFit?.baseFontSizePx,
+        lineHeight: autoFit?.baseLineHeight,
+        spacingPx: autoFit?.baseSpacingPx,
+      });
+      const nextMeasurement = measureTypographyBox(element, source);
+      setMeasurement(nextMeasurement);
+      const nextFitEvaluation = fitTypographyBox({
+        fontReadiness: fontReadiness === "manual" ? "pending" : "ready",
+        measurement: nextMeasurement,
+        typography: {
+          autoFit,
+          children,
+          id: source,
+          kind: "typography-box",
+          maxHeight,
+          maxWidth,
+        },
+        viewport: {
+          height: window.innerHeight,
+          width: window.innerWidth,
+        },
+      });
+      applyTypographyStyle(element, nextFitEvaluation.result);
+      setFitEvaluation(nextFitEvaluation);
+
+      for (const diagnostic of nextFitEvaluation.diagnostics) {
+        readiness.pushDiagnostic(toCadenzaDiagnostic(diagnostic));
+      }
+
+      for (const diagnostic of validateTypographyBoxMeasurement(
+        nextMeasurement,
+      )) {
+        readiness.pushDiagnostic(diagnostic);
+      }
     });
-    setFitEvaluation(nextFitEvaluation);
 
-    for (const diagnostic of nextFitEvaluation.diagnostics) {
-      readiness.pushDiagnostic(toCadenzaDiagnostic(diagnostic));
-    }
-
-    for (const diagnostic of validateTypographyBoxMeasurement(
-      nextMeasurement,
-    )) {
-      readiness.pushDiagnostic(diagnostic);
-    }
+    return () => {
+      window.cancelAnimationFrame(measureFrame);
+    };
   }, [
     autoFit,
     children,
@@ -794,6 +899,9 @@ function TypographyBoxPreview({
   ]);
 
   const fitResult = fitEvaluation?.result;
+  const fontSizePx = fitResult?.fontSizePx ?? autoFit?.baseFontSizePx;
+  const lineHeight = fitResult?.lineHeight ?? autoFit?.baseLineHeight;
+  const spacingPx = fitResult?.spacingPx ?? autoFit?.baseSpacingPx;
 
   return (
     <div
@@ -812,26 +920,40 @@ function TypographyBoxPreview({
       data-cadenza-typography-spacing-px={fitResult?.spacingPx}
       ref={ref}
       style={{
-        fontSize:
-          fitResult && fitResult.fontSizePx > 0
-            ? `${fitResult.fontSizePx}px`
-            : undefined,
-        gap:
-          fitResult && fitResult.spacingPx > 0
-            ? `${fitResult.spacingPx}px`
-            : undefined,
-        lineHeight:
-          fitResult && fitResult.lineHeight > 0
-            ? fitResult.lineHeight
-            : undefined,
+        boxSizing: "border-box",
+        fontSize: fontSizePx && fontSizePx > 0 ? `${fontSizePx}px` : undefined,
+        gap: spacingPx && spacingPx > 0 ? `${spacingPx}px` : undefined,
+        lineHeight: lineHeight && lineHeight > 0 ? lineHeight : undefined,
         maxHeight,
         maxWidth,
         overflow: "hidden",
+        overflowWrap: "anywhere",
       }}
     >
       {children}
     </div>
   );
+}
+
+function applyTypographyStyle(
+  element: HTMLElement,
+  style: {
+    fontSizePx?: number | undefined;
+    lineHeight?: number | undefined;
+    spacingPx?: number | undefined;
+  },
+): void {
+  if (style.fontSizePx && style.fontSizePx > 0) {
+    element.style.fontSize = `${style.fontSizePx}px`;
+  }
+
+  if (style.lineHeight && style.lineHeight > 0) {
+    element.style.lineHeight = String(style.lineHeight);
+  }
+
+  if (style.spacingPx && style.spacingPx > 0) {
+    element.style.gap = `${style.spacingPx}px`;
+  }
 }
 
 function toCadenzaDiagnostic(
@@ -861,6 +983,8 @@ function MediaFramePreview({
   const [measurement, setMeasurement] = useState<
     MediaFramePreviewMeasurement | undefined
   >(undefined);
+  const maxPreviewHeight = 260;
+  const maxPreviewWidth = Math.round(maxPreviewHeight * expectedAspectRatio);
 
   useLayoutEffect(() => {
     const element = ref.current;
@@ -892,7 +1016,12 @@ function MediaFramePreview({
       ref={ref}
       style={{
         aspectRatio: String(expectedAspectRatio),
+        boxSizing: "border-box",
+        display: "grid",
         margin: 0,
+        maxWidth: "100%",
+        placeItems: "center start",
+        width: `min(100%, ${maxPreviewWidth}px)`,
       }}
     >
       {children}
@@ -903,13 +1032,7 @@ function MediaFramePreview({
 function renderUnknown(
   value: unknown,
   key: string,
-  context: {
-    fontReadiness: PreviewFontReadinessMode;
-    readiness: PreviewReadinessRegistry;
-    slideId?: string | undefined;
-    stepIndex?: number | undefined;
-    timeline?: TimelineMap | undefined;
-  },
+  context: CadenzaRenderContext,
 ): ReactNode {
   if (Array.isArray(value)) {
     return value.map((item, index) =>
@@ -932,17 +1055,10 @@ function renderUnknown(
       readiness: context.readiness,
       slideId: context.slideId,
       stepIndex: context.stepIndex,
-      timeline: requireTimeline(context.timeline),
+      timeline: context.timeline,
+      visibleFrame: context.visibleFrame,
     });
   }
 
   return null;
-}
-
-function requireTimeline(timeline: TimelineMap | undefined): TimelineMap {
-  if (!timeline) {
-    throw new Error("Cadenza preview rendering requires a compiled timeline.");
-  }
-
-  return timeline;
 }

@@ -149,6 +149,10 @@ export function createTraceabilityCoverageReport(
     statusEvidencePaths,
   );
   const maintainerWaivers = extractMaintainerWaivers(traceStatus);
+  const phase4VisualCloseoutFindings = createPhase4VisualCloseoutFindings(
+    options.repoRoot,
+    phase,
+  );
 
   const requirementIds = uniqueSorted([
     ...requirementBlocks.map((block) => block.id),
@@ -204,7 +208,10 @@ export function createTraceabilityCoverageReport(
   });
 
   return {
-    findings: createFindings(phase, requirements),
+    findings: [
+      ...createFindings(phase, requirements),
+      ...phase4VisualCloseoutFindings,
+    ],
     nonGoals: createNonGoalEvidence(testRows),
     phase,
     revP1004Disposition: createRevP1004Disposition(options.repoRoot),
@@ -656,6 +663,58 @@ function createFindings(
   }
 
   return findings;
+}
+
+function createPhase4VisualCloseoutFindings(
+  repoRoot: string,
+  phase: string,
+): string[] {
+  if (phase !== "4") {
+    return [];
+  }
+
+  const evidencePath =
+    "trace/phase4/evidence/b4.3-visual-acceptance-evidence.json";
+  const evidenceText = readRelative(repoRoot, evidencePath);
+  if (!evidenceText) {
+    return [`Phase 4 visual closeout evidence is missing ${evidencePath}.`];
+  }
+
+  let evidence: unknown;
+  try {
+    evidence = JSON.parse(evidenceText);
+  } catch {
+    return [
+      `Phase 4 visual closeout evidence is not valid JSON: ${evidencePath}.`,
+    ];
+  }
+
+  if (
+    !isPhase4VisualCloseoutDecisionRecord(evidence) ||
+    evidence.maintainerVisualDecision === "pending-closeout-signoff"
+  ) {
+    return [
+      "Phase 4 visual closeout is pending maintainer sign-off or explicit waiver.",
+    ];
+  }
+
+  return [];
+}
+
+function isPhase4VisualCloseoutDecisionRecord(value: unknown): value is {
+  maintainerVisualDecision:
+    | "explicit-waiver"
+    | "pending-closeout-signoff"
+    | "signed-off";
+} {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "maintainerVisualDecision" in value &&
+    (value.maintainerVisualDecision === "explicit-waiver" ||
+      value.maintainerVisualDecision === "pending-closeout-signoff" ||
+      value.maintainerVisualDecision === "signed-off")
+  );
 }
 
 function createNonGoalEvidence(

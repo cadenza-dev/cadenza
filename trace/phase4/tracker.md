@@ -1,5 +1,152 @@
 # Phase 4 Tracker
 
+## 2026-05-24 22:29 +0800 — Maintainer visual sign-off recorded
+
+- Maintainer decision: `maintainerVisualDecision` is now `signed-off` after
+  visual recheck of the Phase 4 dogfood preview.
+- Sign-off basis: maintainer confirmed the font clipping issue is resolved and
+  that the current PPT-like visual navigation is sufficient to prove expected
+  function; no further visual adjustment is requested.
+- Scope: closeout evidence/status only. No `CONTRACT_FROZEN` spec, Accepted
+  ADR, package behavior, root phase pointer, export, hosted-rendering, public
+  stability, external-alpha, WYSIWYG, marketplace, or MCP implementation change
+  was made for sign-off.
+- Updated evidence: `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json`
+  records `signed-off`; `trace/phase4/status.yaml` marks the selected
+  remediation complete and routes the next step to Reviewer recheck.
+- Verification: the full local gate stack passed after sign-off, including
+  `pnpm phase:check`.
+- Next action: commit, push, and watch the exact CI run before handing off.
+
+## 2026-05-24 21:38 +0800 — Dogfood dense-copy clipping repair
+
+- Startup identity: continuing as approved Phase 4 Builder remediation with
+  `GPT-5` / `codex`.
+- Scope: repaired the maintainer-observed bottom clipping on
+  `preview-reliability-budget` step 2 after the broader dogfood visual
+  navigation repair. This remains part of the pending `REV-P4-001` visual
+  sign-off path and does not modify frozen specs or Accepted ADRs.
+- Objective judgment: the defect was mixed. The authored dogfood sample used a
+  `420x96` compact `TypographyBox` for long dense copy, and the renderer also
+  measured auto-fit before the configured base typography was applied while the
+  preceding `MediaFrame` was too unconstrained for a slide-like Player layout.
+- RED/GREEN evidence: the new focused browser regression first failed with
+  `data-cadenza-typography-overflow-fallback=true`, then exposed live DOM
+  overflow after the box was enlarged but fitted typography was not applied to
+  the element. It passed after shared box sizing, styled measurement, live
+  fitted-style application, and bounded slide/media layout were implemented.
+- Repair: `examples/phase4/dogfood-talk.tsx` now uses a shared
+  `PHASE4_RELIABILITY_DENSITY_BOX`; `examples/phase4/preview.ts` uses the same
+  dimensions for typography diagnostics; `CadenzaPlayer` now measures
+  `TypographyBoxPreview` from styled browser layout, applies the fit result to
+  the live DOM, and constrains slide, step, content-slot, and media-frame
+  preview layout.
+- Artifacts written: `examples/phase4/dogfood-talk.tsx`,
+  `examples/phase4/preview.ts`,
+  `packages/preview-remotion/src/CadenzaPlayer.tsx`,
+  `tests/browser/cadenza-browser-entry.ts`,
+  `tests/browser/remotion-preview.spec.ts`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.md`,
+  `trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Verification: focused dense-copy browser regression passed; full `B4
+  dogfood` browser group passed; `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm test:browser` (18/18 under Chromium-capable
+  execution), Markdown lint, shell formatting, `pnpm spec:lint`,
+  `pnpm check:harness`, `pnpm check:memory`, and `git diff --check` passed.
+  `pnpm phase:check` still fails only on the intentional pending visual
+  sign-off/waiver gate.
+- Remaining gate: `maintainerVisualDecision` is still
+  `pending-closeout-signoff`; maintainer must re-check the preview and then
+  record `signed-off` or `explicit-waiver` before Reviewer recheck.
+
+## 2026-05-24 21:06 +0800 — Dogfood preview visual navigation repair
+
+- Startup identity: continuing as approved Phase 4 Builder remediation with
+  `GPT-5` / `codex`.
+- Scope: repaired maintainer-observed visual sign-off blockers before
+  `REV-P4-001` can be signed off. The dogfood preview is now held to the stricter
+  expectation that the left Remotion Player surface behaves like a PPT preview,
+  not only that the right presenter panel metadata advances.
+- Issues fixed: the left Player composition previously rendered static deck
+  content instead of the current semantic slide; future slides and future steps
+  were visible too early; presenter notes and a font readiness marker leaked
+  into the visible slide surface; and the generic preview controls exposed a
+  stale `Goto render-safe-demo` button for a slide that is absent from the Phase
+  4 dogfood talk.
+- RED/GREEN evidence: the focused Phase 4 browser test first failed because
+  `timeline-compiler` was already present before navigation, then passed after
+  current-frame visual rendering was added.
+- Repair: `CadenzaPlayer` now renders the Remotion composition from the current
+  frame, shows only the active slide and cumulative step content, keeps
+  render-safe resources in a hidden preload layer for readiness diagnostics,
+  hides presenter notes from the visual surface, and removes the stale
+  `render-safe-demo` control. `SafeFontPreview` keeps readiness attributes while
+  preventing font markers from appearing visually.
+- Framework-defect route: because this repair touched
+  `packages/preview-remotion/src/**`, it is recorded separately in
+  `trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md` instead
+  of being treated as normal authored dogfood-talk repair.
+- Artifacts written: `packages/preview-remotion/src/CadenzaPlayer.tsx`,
+  `packages/preview-remotion/src/render-safe/SafeFontPreview.tsx`,
+  `tests/browser/cadenza-browser-entry.ts`,
+  `tests/browser/remotion-preview.spec.ts`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json`,
+  `trace/phase4/evidence/b4.3-visual-acceptance-evidence.md`,
+  `trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md`,
+  `trace/phase4/status.yaml`, and `trace/phase4/tracker.md`.
+- Verification: focused Phase 4 browser test passed under Chromium-capable
+  execution; full `pnpm test:browser` passed 17/17; `pnpm typecheck`,
+  `pnpm test`, `pnpm lint`, and `pnpm format:check` passed before trace update.
+- Boundary preserved: no root phase pointer, frozen spec, Accepted ADR, export,
+  hosted-rendering, Remotion Lambda, public-stability, external-alpha,
+  multi-device presenter console, WYSIWYG, marketplace, collaboration,
+  comments, SSO, i18n, read-only MCP implementation, or tool-based MCP
+  implementation changes.
+- Remaining gate: `maintainerVisualDecision` is still
+  `pending-closeout-signoff`; maintainer must re-check the preview and then
+  record `signed-off` or `explicit-waiver` before Reviewer recheck.
+
+## 2026-05-24 20:18 +0800 — Reviewer remediation REV-P4-001 and REV-P4-002
+
+- Startup identity: proceeded as Phase 4 Builder remediation with `GPT-5` /
+  `codex` after maintainer approval in this session.
+- Scope: handled only maintainer-selected findings `REV-P4-001` and
+  `REV-P4-002` from `trace/phase4/review-phase4-closeout.md`; no
+  `CONTRACT_FROZEN` spec or Accepted ADR was modified.
+- RED/GREEN evidence: the core visual acceptance test first failed because
+  `validatePhase4VisualCloseoutEvidence` was not exported, then passed after a
+  closeout-only validator was added. The traceability coverage test first
+  failed because Phase 4 closeout coverage did not report a pending visual
+  decision, then passed after the active Phase 4 coverage gate learned to fail
+  on `pending-closeout-signoff`.
+- `REV-P4-002`: remediated. Structured B4.3 visual evidence can still validate
+  for its original batch, but closeout validation and `pnpm phase:check` now
+  fail until `maintainerVisualDecision` is `signed-off` or
+  `explicit-waiver`.
+- `REV-P4-001`: still blocked on maintainer action. Builder did not record
+  visual sign-off or a waiver because the current evidence remains
+  `pending-closeout-signoff` and no explicit visual decision was provided in
+  this session.
+- Artifacts written: `packages/core/src/validation/visualAcceptanceEvidence.ts`,
+  `packages/core/src/index.ts`,
+  `packages/core/src/phase4-visual-acceptance-evidence.test.ts`,
+  `scripts/traceability-coverage.ts`,
+  `scripts/traceability-coverage.test.ts`, `trace/phase4/status.yaml`, and
+  `trace/phase4/tracker.md`.
+- Verification: targeted RED/GREEN tests passed, `pnpm typecheck`,
+  `pnpm lint`, and `pnpm format:check` passed. As intended, the active Phase 4
+  traceability check and `pnpm phase:check` now fail with
+  `Phase 4 visual closeout is pending maintainer sign-off or explicit waiver.`
+- Boundary preserved: no root phase pointer, frozen spec, Accepted ADR, export,
+  hosted-rendering, Remotion Lambda, public-stability, external-alpha,
+  multi-device presenter console, WYSIWYG, marketplace, collaboration,
+  comments, SSO, i18n, read-only MCP implementation, or tool-based MCP
+  implementation changes.
+- Next required action: maintainer must record Phase 4 visual sign-off or an
+  explicit maintainer waiver before Reviewer recheck.
+
 ## 2026-05-24 17:30 +0800 — B4.7 Phase 4 Builder closeout
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

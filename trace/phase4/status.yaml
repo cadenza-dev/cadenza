@@ -51,16 +51,73 @@ builder_handoff:
   boundary: "No packages implementation, CONTRACT_FROZEN spec, Accepted ADR, export, hosted-rendering, Remotion Lambda, public-stability, external-alpha, WYSIWYG, marketplace, collaboration, or MCP implementation work was performed during routing."
 
 builder_progress:
-  status: builder_complete_pending_reviewer
+  status: builder_remediation_complete_pending_reviewer_recheck
   active_role: builder
   current_session_identity: GPT-5/codex
-  current_session_approved_at: "2026-05-24 17:22 +0800"
-  current_session_approval_note: "Maintainer answered y to proceed as Phase 4 Builder with GPT-5/codex for B4.7 / phase closeout only."
+  current_session_approved_at: "2026-05-24 21:06 +0800"
+  current_session_approval_note: "Maintainer asked Builder to strictly repair the dogfood preview so it visually navigates like a PPT before visual sign-off."
   next_batch:
     id: null
     scenarios: []
-    status: pending_reviewer_review
-    summary: "Phase 4 Builder batches are complete; next step is Phase 4 Reviewer closeout."
+    status: ready_for_reviewer_recheck
+    summary: "REV-P4-002 closeout gate remediation is implemented; REV-P4-001 is maintainer signed-off after dogfood preview visual recheck."
+  selected_remediation:
+    selected_findings: [REV-P4-001, REV-P4-002]
+    status: complete_pending_reviewer_recheck
+    remediated_at: "2026-05-24 20:18 +0800"
+    findings:
+      - id: REV-P4-001
+        status: maintainer_signed_off
+        owner: maintainer
+        evidence:
+          - trace/phase4/evidence/b4.3-visual-acceptance-evidence.json
+          - trace/phase4/evidence/b4.3-visual-acceptance-evidence.md
+          - trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md
+          - examples/phase4/dogfood-talk.tsx
+          - examples/phase4/preview.ts
+          - tests/browser/remotion-preview.spec.ts
+          - tests/browser/cadenza-browser-entry.ts
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - packages/preview-remotion/src/render-safe/SafeFontPreview.tsx
+        decision: signed-off
+        signed_off_at: "2026-05-24 22:29 +0800"
+        sign_off_note: "Maintainer confirmed the dogfood preview now proves the expected PPT-like visual navigation and that no further visual adjustment is required."
+        repaired_behavior:
+          - "Left-side Remotion Player visual output now follows the current semantic slide and cumulative step content."
+          - "The preview-reliability-budget dense copy no longer clips at the bottom of the Player; the authored box is shared with presenter diagnostics and the renderer measures/apply auto-fit from styled browser layout."
+          - "Presenter notes and render-safe font markers no longer appear in the visible slide surface."
+          - "The stale Goto render-safe-demo button was removed from the generic preview controls."
+          - "The framework-internal repair is routed separately through trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md."
+      - id: REV-P4-002
+        status: remediated
+        owner: builder-remediation
+        evidence:
+          tests:
+            - packages/core/src/phase4-visual-acceptance-evidence.test.ts
+            - scripts/traceability-coverage.test.ts
+          code:
+            - packages/core/src/validation/visualAcceptanceEvidence.ts
+            - packages/core/src/index.ts
+            - scripts/traceability-coverage.ts
+        behavior:
+          - "Phase 4 visual evidence can still validate the B4.3 structured record, and closeout validation now fails only for pending visual decisions."
+          - "Active Phase 4 traceability coverage and pnpm phase:check are expected to pass after maintainerVisualDecision is recorded as signed-off."
+    verification:
+      red:
+        - "pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts (failed because validatePhase4VisualCloseoutEvidence was not exported)"
+        - "pnpm test -- scripts/traceability-coverage.test.ts (failed because Phase 4 closeout coverage did not report the pending visual decision)"
+      green:
+        - "pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts"
+        - "pnpm test -- scripts/traceability-coverage.test.ts"
+      resolved_blocker:
+        - "maintainerVisualDecision changed from pending-closeout-signoff to signed-off after maintainer visual recheck."
+      passed:
+        - "pnpm typecheck"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"reliability-budget copy\""
+        - "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"B4 dogfood\""
+        - "pnpm test:browser (18/18 under Chromium-capable execution)"
   completed_batches:
     - id: B4.7
       scenarios: [phase-closeout]
@@ -119,12 +176,17 @@ builder_progress:
           - packages/preview-remotion/src/phase4-dogfood-preview-entrypoint.test.ts
           - packages/preview-remotion/src/phase4-presenter-workflow.test.ts
           - packages/preview-remotion/src/phase4-transitions-progress.test.ts
+          - tests/browser/cadenza-browser-entry.ts
           - tests/browser/remotion-preview.spec.ts
           - tests/browser/render-safe-preview.spec.ts
+        package_code:
+          - packages/preview-remotion/src/CadenzaPlayer.tsx
+          - packages/preview-remotion/src/render-safe/SafeFontPreview.tsx
         trace_evidence:
           - trace/phase4/evidence/b4.3-visual-acceptance-evidence.json
           - trace/phase4/evidence/b4.3-visual-acceptance-evidence.md
           - trace/phase4/evidence/b4.3-pixel-sanity-note.json
+          - trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md
           - trace/phase4/evidence/b4.6-deferred-scope-guards.json
           - trace/phase4/evidence/b4.6-deferred-scope-guards.md
         guidance:
@@ -135,10 +197,11 @@ builder_progress:
           - scripts/traceability-coverage.ts
           - scripts/traceability-coverage.test.ts
       behavior:
-        - "All frozen Phase 4 acceptance scenarios are recorded complete; no maintainer waivers were required."
+        - "All frozen Phase 4 implementation scenarios are recorded complete, and Phase 4 visual closeout evidence is maintainer signed-off after dogfood preview recheck."
         - "The canonical dogfood talk, local Remotion Player preview entrypoint, same-browser presenter workflow, visual acceptance evidence, typography diagnostics, transition diagnostics, and starter guidance are all routed to concrete evidence."
+        - "Post-review visual navigation repair makes the dogfood Player surface follow the current semantic slide and cumulative step content while hiding presenter-only notes and resource markers."
         - "The active-phase closeout gate now scopes Phase 2 TRAC requirements to Phase 2 so Phase 4 traceability coverage is checked against Phase 4 requirements."
-        - "Phase 4 is ready for independent Reviewer closeout."
+        - "Phase 4 is ready for Reviewer recheck; reviewer acceptance remains pending."
       boundary: "Builder closeout and closeout-gate repair only; no CONTRACT_FROZEN spec, Accepted ADR, root phase pointer, export, hosted-rendering, Remotion Lambda, public-stability, external-alpha, multi-device presenter console, WYSIWYG, marketplace, collaboration, comments, SSO, i18n, read-only MCP implementation, or tool-based MCP implementation."
       verification:
         red_phase4_closeout_gate: "pnpm test -- scripts/traceability-coverage.test.ts (failed because Phase 4 coverage was blocked by Phase 2 TRAC requirements)"
@@ -406,7 +469,7 @@ builder_progress:
         whitespace: "git diff --check"
 
 reviewer_handoff:
-  status: ready
+  status: ready_for_reviewer_recheck
   prepared_at: "2026-05-24 17:30 +0800"
   next_role: reviewer
   recommended_skill: cadenza-reviewer
@@ -414,7 +477,7 @@ reviewer_handoff:
   source_trace:
     - trace/phase4/status.yaml
     - trace/phase4/tracker.md
-  review_scope: "Independent Phase 4 closeout review against frozen Phase 4 specs, Builder trace, tests, examples, guidance, and evidence artifacts."
+  review_scope: "Reviewer recheck should verify maintainer-signed visual evidence for REV-P4-001 and closeout-gate remediation for REV-P4-002."
   boundary: "Reviewer should not remediate or modify packages, specs, ADRs, prompts, or scripts."
 
 exit_criteria:
@@ -459,10 +522,14 @@ exit_criteria:
       - packages/preview-remotion/src/phase4-presenter-workflow.test.ts
   visual_acceptance_evidence:
     status: met
+    decision: signed-off
+    signed_off_at: "2026-05-24 22:29 +0800"
+    note: "Maintainer confirmed the dogfood preview now proves the expected visual behavior and no further visual adjustment is required."
     artifacts:
       - trace/phase4/evidence/b4.3-visual-acceptance-evidence.json
       - trace/phase4/evidence/b4.3-visual-acceptance-evidence.md
       - trace/phase4/evidence/b4.3-pixel-sanity-note.json
+      - trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md
   typography_density_diagnostics:
     status: met
     artifacts:
@@ -490,7 +557,9 @@ exit_criteria:
     artifact: trace/phase4/evidence/b4.6-deferred-scope-guards.json
   full_verification_stack:
     status: met
-    completed_at: "2026-05-24 17:30 +0800"
+    completed_at: "2026-05-24 22:32 +0800"
+    last_full_pass_before_reviewer_findings: "2026-05-24 17:30 +0800"
+    note: "Post-signoff verification passed locally before commit and push."
     commands:
       - "pnpm typecheck"
       - "pnpm test"

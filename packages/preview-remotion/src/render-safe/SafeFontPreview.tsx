@@ -73,6 +73,7 @@ export function SafeFontPreview({
       data-cadenza-resource-ready={String(ready)}
       data-cadenza-resource-timeout-ms={resource.timeoutMs}
       style={{
+        display: "none",
         fontFamily: family,
         visibility: ready ? "visible" : "hidden",
       }}

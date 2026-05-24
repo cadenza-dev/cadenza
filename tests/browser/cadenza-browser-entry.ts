@@ -34,6 +34,7 @@ import {
   createPhase3AcceptanceFixture,
   createPhase3PreviewRepairCandidateFixture,
 } from "../../examples/phase3/acceptance-deck.js";
+import { createPhase4DogfoodTalkFixture } from "../../examples/phase4/dogfood-talk.js";
 
 type BrowserFixture = {
   clickCalls(): string[];
@@ -145,6 +146,25 @@ type RemotionPreviewFixture = {
   mountPhase3PreviewRepairCandidate(
     selector: string,
     config: { compositionHeight: number; compositionWidth: number },
+  ): {
+    playerProps: {
+      compositionHeight: number;
+      compositionWidth: number;
+      durationInFrames: number;
+      fps: number;
+    };
+    timeline: {
+      fps: number;
+      totalFrames: number;
+    };
+  };
+  mountPhase4DogfoodPreview(
+    selector: string,
+    config: {
+      compositionHeight: number;
+      compositionWidth: number;
+      controls?: boolean;
+    },
   ): {
     playerProps: {
       compositionHeight: number;
@@ -652,6 +672,11 @@ window.CadenzaRemotionPreview = {
 
     return mountRemotionPreview(selector, config, fixture);
   },
+  mountPhase4DogfoodPreview(selector, config) {
+    const fixture = createPhase4DogfoodTalkFixture();
+
+    return mountRemotionPreview(selector, config, fixture);
+  },
   mountControlledReadinessPreview(selector, config) {
     const host = document.querySelector(selector);
     if (!(host instanceof HTMLElement)) {
@@ -750,7 +775,11 @@ window.CadenzaRemotionPreview = {
 
 function mountRemotionPreview(
   selector: string,
-  config: { compositionHeight: number; compositionWidth: number },
+  config: {
+    compositionHeight: number;
+    compositionWidth: number;
+    controls?: boolean;
+  },
   fixture: {
     deck: Parameters<typeof CadenzaPlayer>[0]["deck"];
     timeline: Parameters<typeof createCadenzaPreviewMount>[0]["timeline"];
@@ -784,6 +813,7 @@ function mountRemotionPreview(
     React.createElement(CadenzaPlayer, {
       compositionHeight: config.compositionHeight,
       compositionWidth: config.compositionWidth,
+      controls: config.controls,
       deck: fixture.deck,
       onPreviewReady(handle) {
         remotionPreviewHandle = handle;

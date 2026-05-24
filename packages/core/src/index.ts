@@ -174,4 +174,7 @@ export type {
   Phase4VisualFinding,
   Phase4VisualFindingCategory,
 } from "./validation/visualAcceptanceEvidence.js";
-export { validatePhase4VisualAcceptanceEvidence } from "./validation/visualAcceptanceEvidence.js";
+export {
+  validatePhase4VisualAcceptanceEvidence,
+  validatePhase4VisualCloseoutEvidence,
+} from "./validation/visualAcceptanceEvidence.js";

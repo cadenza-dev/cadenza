@@ -102,7 +102,118 @@ describe("Phase 4 closeout traceability coverage", () => {
       report.findings.filter((finding) => finding.includes("TRAC-")),
     ).toEqual([]);
   });
+
+  it("fails closeout coverage when Phase 4 visual sign-off or waiver is still pending", () => {
+    const pendingRepoRoot = createPhase4VisualDecisionFixture(
+      "pending-closeout-signoff",
+    );
+    const signedOffRepoRoot = createPhase4VisualDecisionFixture("signed-off");
+    const pendingFinding =
+      "Phase 4 visual closeout is pending maintainer sign-off or explicit waiver.";
+
+    try {
+      expect(
+        createTraceabilityCoverageReport({
+          phase: "4",
+          repoRoot: pendingRepoRoot,
+        }).findings,
+      ).toContain(pendingFinding);
+      expect(
+        createTraceabilityCoverageReport({
+          phase: "4",
+          repoRoot: signedOffRepoRoot,
+        }).findings,
+      ).not.toContain(pendingFinding);
+    } finally {
+      rmSync(pendingRepoRoot, { force: true, recursive: true });
+      rmSync(signedOffRepoRoot, { force: true, recursive: true });
+    }
+  });
 });
+
+function createPhase4VisualDecisionFixture(
+  maintainerVisualDecision:
+    | "explicit-waiver"
+    | "pending-closeout-signoff"
+    | "signed-off",
+): string {
+  const repoRoot = mkdtempSync(path.join(tmpdir(), "cadenza-phase4-visual-"));
+
+  writeRepoFile(repoRoot, "STATUS.yaml", 'current_phase: "4"\n');
+  writeRepoFile(
+    repoRoot,
+    "spec/phase4/SPEC_VISUAL_ACCEPTANCE_REPAIR.md",
+    [
+      "# Visual Acceptance",
+      "",
+      "- **ID**: VARR-002",
+      "- **Priority**: P0",
+      "- **Owner**: Architect -> Builder",
+      "- **Statement**: Visual acceptance evidence MUST distinguish real proof from trace-only declarations.",
+      "- **Verification**: acceptance scenario `TC-VARR-002` checks closeout proof.",
+      "",
+    ].join("\n"),
+  );
+  writeRepoFile(
+    repoRoot,
+    "spec/phase4/SPEC_TEST_MATRIX.md",
+    [
+      "# Test Matrix",
+      "",
+      "| Test ID | Priority | Requirement IDs | Scenario |",
+      "| :--- | :--- | :--- | :--- |",
+      "| TC-VARR-002 | P0 | VARR-002 | Trace-only visual acceptance remains insufficient. |",
+      "",
+    ].join("\n"),
+  );
+  writeRepoFile(
+    repoRoot,
+    "spec/phase4/SPEC_TRACEABILITY.md",
+    [
+      "# Traceability",
+      "",
+      "| Requirement ID | Test IDs | Future code location |",
+      "| :--- | :--- | :--- |",
+      "| VARR-002 | TC-VARR-002 | `trace/phase4/evidence/b4.3-visual-acceptance-evidence.json` |",
+      "",
+    ].join("\n"),
+  );
+  writeRepoFile(
+    repoRoot,
+    "trace/phase4/status.yaml",
+    [
+      'phase: "4"',
+      "status: builder_ready",
+      "exit_criteria:",
+      "  builder_batches_complete:",
+      "    status: met",
+      "builder_progress:",
+      "  completed_batches:",
+      "    - id: B4.3",
+      "      requirements: [VARR-002]",
+      "      evidence:",
+      "        trace_evidence:",
+      "          - trace/phase4/evidence/b4.3-visual-acceptance-evidence.json",
+      "",
+    ].join("\n"),
+  );
+  writeRepoFile(
+    repoRoot,
+    "trace/phase4/evidence/b4.3-visual-acceptance-evidence.json",
+    JSON.stringify(
+      {
+        batchId: "B4.3",
+        maintainerVisualDecision,
+        phase: "4",
+        schemaVersion: 1,
+      },
+      null,
+      2,
+    ),
+  );
+
+  return repoRoot;
+}
 
 describe("coverage evidence classification", () => {
   it("supports a non-mutating check mode that fails on active-phase coverage findings", () => {

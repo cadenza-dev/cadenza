@@ -85,6 +85,14 @@ type RemotionPreviewWindow = Window & {
       selector: string,
       config: { compositionHeight: number; compositionWidth: number },
     ): RemotionPreviewMountResult;
+    mountPhase4DogfoodPreview(
+      selector: string,
+      config: {
+        compositionHeight: number;
+        compositionWidth: number;
+        controls?: boolean;
+      },
+    ): RemotionPreviewMountResult;
     markPreviewResourceReady(resourceId: string): void;
     nativeSeekToFrame(frame: number): void;
     navigateNext(): void;
@@ -263,6 +271,149 @@ test.describe("B2.3 Remotion preview navigation", () => {
           stepIndex: 2,
         },
       });
+  });
+});
+
+test.describe("B4 dogfood preview visual navigation", () => {
+  test("shows the current Phase 4 slide and cumulative step content like a presenter preview", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountPhase4DogfoodPreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+      }),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+    await expect(
+      page.locator('[data-cadenza-slide-id="architecture-contract"]'),
+    ).toContainText("Cadenza turns typed TSX into inspectable technical talks");
+    await expect(
+      page.locator('[data-cadenza-slide-id="timeline-compiler"]'),
+    ).toHaveCount(0);
+    await expect(
+      preview.locator("[data-cadenza-presenter-notes]"),
+    ).toBeHidden();
+    await expect(preview.getByText("font: phase-4-talk-font")).toBeHidden();
+    await expect(
+      page.getByRole("button", { name: "Goto render-safe-demo" }),
+    ).toHaveCount(0);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.navigateNext(),
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-slide-id",
+      "architecture-contract",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-step-index",
+      "1",
+    );
+    await expect(
+      page.locator('[data-cadenza-slide-id="architecture-contract"]'),
+    ).toContainText("Authoring, compiler timeline");
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.navigateNext(),
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-slide-id",
+      "timeline-compiler",
+      { timeout: 4_000 },
+    );
+    await expect(
+      page.locator('[data-cadenza-slide-id="timeline-compiler"]'),
+    ).toContainText("Slide semantics compile into frame anchors");
+    await expect(
+      page.locator('[data-cadenza-slide-id="architecture-contract"]'),
+    ).toHaveCount(0);
+  });
+
+  test("keeps dense reliability-budget copy readable inside the Player viewport", async ({
+    page,
+  }) => {
+    await page.setContent('<main><div id="preview-root"></div></main>');
+    await loadCadenzaFixture(page);
+
+    await page.evaluate(() =>
+      (
+        window as unknown as RemotionPreviewWindow
+      ).CadenzaRemotionPreview.mountPhase4DogfoodPreview("#preview-root", {
+        compositionHeight: 540,
+        compositionWidth: 960,
+        controls: true,
+      }),
+    );
+
+    const preview = page.locator("[data-cadenza-remotion-preview]");
+    await expect(preview).toBeVisible();
+
+    await page.evaluate(() =>
+      (window as unknown as RemotionPreviewWindow).CadenzaRemotionPreview.goto(
+        "preview-reliability-budget",
+        1,
+      ),
+    );
+
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-slide-id",
+      "preview-reliability-budget",
+    );
+    await expect(preview).toHaveAttribute(
+      "data-cadenza-cursor-step-index",
+      "1",
+    );
+
+    const typography = page.locator(
+      '[data-cadenza-typography-box="preview-reliability-budget-density"]',
+    );
+    await expect(typography).toContainText("Compiler evidence");
+    await expect(typography).toHaveAttribute(
+      "data-cadenza-typography-auto-fit",
+      "fitted",
+    );
+    await expect(typography).toHaveAttribute(
+      "data-cadenza-typography-overflow-fallback",
+      "false",
+    );
+
+    const typographyOverflow = await typography.evaluate((element) => ({
+      clientHeight: element.clientHeight,
+      clientWidth: element.clientWidth,
+      scrollHeight: element.scrollHeight,
+      scrollWidth: element.scrollWidth,
+    }));
+    expect(typographyOverflow.scrollHeight).toBeLessThanOrEqual(
+      typographyOverflow.clientHeight,
+    );
+    expect(typographyOverflow.scrollWidth).toBeLessThanOrEqual(
+      typographyOverflow.clientWidth,
+    );
+
+    const player = preview.locator(".cadenza-remotion-player");
+    const playerBox = await player.boundingBox();
+    const typographyBox = await typography.boundingBox();
+    expect(playerBox).not.toBeNull();
+    expect(typographyBox).not.toBeNull();
+    if (playerBox === null || typographyBox === null) {
+      throw new Error("Missing dogfood Player or reliability copy bounds.");
+    }
+
+    expect(typographyBox.y + typographyBox.height).toBeLessThanOrEqual(
+      playerBox.y + playerBox.height - 56,
+    );
   });
 });
 

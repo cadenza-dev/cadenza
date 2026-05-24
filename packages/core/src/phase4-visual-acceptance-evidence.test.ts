@@ -3,6 +3,7 @@ import path from "node:path";
 import {
   type Phase4VisualAcceptanceEvidence,
   validatePhase4VisualAcceptanceEvidence,
+  validatePhase4VisualCloseoutEvidence,
 } from "@cadenza-dev/core";
 import { describe, expect, it } from "vitest";
 
@@ -97,6 +98,7 @@ describe("B4.3 visual acceptance evidence and repair routing", () => {
       ...evidence,
       acceptanceEvidenceKind: "screenshot-artifact-only",
       commands: [],
+      maintainerVisualDecision: "pending-closeout-signoff",
       productWorkflowDiagnostics: [],
     };
 
@@ -127,6 +129,35 @@ describe("B4.3 visual acceptance evidence and repair routing", () => {
         source: "trace/phase4/evidence/b4.3-pixel-sanity-note.json",
       }),
     ]);
+  });
+
+  it("REV-P4-002 keeps pending maintainer visual decisions from passing closeout", () => {
+    const evidence = readPhase4VisualAcceptanceEvidence();
+    const pendingEvidence: Phase4VisualAcceptanceEvidence = {
+      ...evidence,
+      maintainerVisualDecision: "pending-closeout-signoff",
+    };
+    const signedOffEvidence: Phase4VisualAcceptanceEvidence = {
+      ...evidence,
+      maintainerVisualDecision: "signed-off",
+    };
+    const waivedEvidence: Phase4VisualAcceptanceEvidence = {
+      ...evidence,
+      maintainerVisualDecision: "explicit-waiver",
+    };
+
+    expect(validatePhase4VisualAcceptanceEvidence(evidence)).toEqual([]);
+    expect(validatePhase4VisualCloseoutEvidence(pendingEvidence)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "VARR_CLOSEOUT_VISUAL_DECISION_PENDING",
+          requirementId: "VARR-002",
+          testRefs: ["TC-VARR-002"],
+        }),
+      ]),
+    );
+    expect(validatePhase4VisualCloseoutEvidence(signedOffEvidence)).toEqual([]);
+    expect(validatePhase4VisualCloseoutEvidence(waivedEvidence)).toEqual([]);
   });
 
   it("TC-VARR-003 repairs authored deck surfaces or routes framework defects separately", () => {

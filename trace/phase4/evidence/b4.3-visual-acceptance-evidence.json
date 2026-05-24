@@ -5,10 +5,12 @@
   "scenarioIds": ["TC-VARR-001", "TC-VARR-002", "TC-VARR-003"],
   "acceptanceEvidenceKind": "local-preview-diagnostic-and-authored-deck-repair",
   "traceDeclarationOnly": false,
-  "maintainerVisualDecision": "pending-closeout-signoff",
+  "maintainerVisualDecision": "signed-off",
   "commands": [
     "pnpm preview:phase4",
-    "pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts"
+    "pnpm test -- packages/core/src/phase4-visual-acceptance-evidence.test.ts",
+    "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"reliability-budget copy\"",
+    "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"B4 dogfood\""
   ],
   "optionalVisualArtifacts": [
     {
@@ -26,6 +28,28 @@
       "severity": "info",
       "source": "phase4-presenter-panel",
       "testRefs": ["TC-VARR-001"]
+    },
+    {
+      "code": "VARR_DOGFOOD_VISUAL_NAVIGATION_REPAIRED",
+      "message": "Dogfood preview visual output now follows the current semantic slide and cumulative step, hides presenter-only notes and resource markers, and removes the stale render-safe-demo control.",
+      "requirementRefs": ["DOGF-003", "PRES-005", "VARR-003", "VARR-005"],
+      "severity": "info",
+      "source": "phase4-dogfood-preview",
+      "testRefs": ["TC-DOGF-002", "TC-PRES-002", "TC-VARR-003"]
+    },
+    {
+      "code": "VARR_DOGFOOD_DENSE_COPY_CLIPPING_REPAIRED",
+      "message": "The preview-reliability-budget dense copy now auto-fits from a styled browser measurement and stays inside the Player viewport above Remotion controls.",
+      "requirementRefs": [
+        "DOGF-003",
+        "TYPO-001",
+        "TYPO-002",
+        "VARR-003",
+        "VARR-005"
+      ],
+      "severity": "info",
+      "source": "phase4-dogfood-preview",
+      "testRefs": ["TC-DOGF-002", "TC-TYPO-001", "TC-VARR-003"]
     }
   ],
   "findings": [
@@ -97,6 +121,184 @@
         ],
         "frameworkInternalEdits": [],
         "separateBuilderIssue": null
+      }
+    },
+    {
+      "id": "VARR-P4-CLOSEOUT-001",
+      "category": "presenter workflow",
+      "affected": {
+        "chapterId": "architecture",
+        "slideId": "architecture-contract"
+      },
+      "observedProblem": "During maintainer visual review, the dogfood preview's left Remotion Player output stayed on static deck content while the presenter panel advanced through semantic slides and steps. The preview also exposed presenter notes, a font readiness marker, and a stale Goto render-safe-demo control that targets a slide absent from the Phase 4 dogfood talk.",
+      "intendedRepairSurface": "framework-defect-route",
+      "requirementRefs": [
+        "DOGF-003",
+        "PRES-005",
+        "VARR-003",
+        "VARR-004",
+        "VARR-005"
+      ],
+      "testRefs": ["TC-DOGF-002", "TC-PRES-002", "TC-VARR-003"],
+      "commandsOrRoutes": [
+        {
+          "kind": "command",
+          "value": "pnpm preview:phase4",
+          "result": "Maintainer observed static left-side visual output and stale render-safe-demo control during local Phase 4 preview review."
+        },
+        {
+          "kind": "command",
+          "value": "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"B4 dogfood\"",
+          "result": "Browser regression test proves the Phase 4 dogfood preview visibly follows semantic navigation."
+        }
+      ],
+      "before": {
+        "diagnostics": [
+          {
+            "code": "VARR_DOGFOOD_VISUAL_NAVIGATION_STATIC",
+            "message": "The dogfood preview rendered all deck slides and steps statically instead of filtering visual output to the current semantic frame.",
+            "requirementRefs": ["DOGF-003", "PRES-005", "VARR-005"],
+            "severity": "warning",
+            "source": "packages/preview-remotion/src/CadenzaPlayer.tsx",
+            "testRefs": ["TC-DOGF-002", "TC-PRES-002"]
+          },
+          {
+            "code": "VARR_STALE_PREVIEW_CONTROL",
+            "message": "The generic preview controls exposed Goto render-safe-demo even though render-safe-demo is not a Phase 4 dogfood slide.",
+            "requirementRefs": ["DOGF-003", "PRES-005"],
+            "severity": "warning",
+            "source": "packages/preview-remotion/src/CadenzaPlayer.tsx",
+            "testRefs": ["TC-DOGF-002", "TC-PRES-002"]
+          }
+        ],
+        "evidence": [
+          {
+            "kind": "maintainer-preview-observation",
+            "source": "pnpm preview:phase4",
+            "summary": "Presenter metadata advanced, but the left visual slide stayed on static content and included presenter-only notes plus a font marker."
+          }
+        ]
+      },
+      "after": {
+        "diagnostics": [],
+        "evidence": [
+          {
+            "kind": "browser-preview-regression",
+            "source": "tests/browser/remotion-preview.spec.ts",
+            "summary": "The Phase 4 dogfood browser test verifies current-slide rendering, cumulative step reveal, hidden presenter notes/resource marker, and absence of the stale render-safe-demo button."
+          },
+          {
+            "kind": "framework-defect-repair",
+            "source": "packages/preview-remotion/src/CadenzaPlayer.tsx",
+            "summary": "CadenzaPlayer now renders the Remotion composition from the current frame while preserving hidden resource preloads for readiness diagnostics."
+          }
+        ]
+      },
+      "repairRouting": {
+        "kind": "framework-defect-route",
+        "allowedEdits": [
+          "tests/browser/cadenza-browser-entry.ts",
+          "tests/browser/remotion-preview.spec.ts",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.json",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.md",
+          "trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md"
+        ],
+        "frameworkInternalEdits": [
+          "packages/preview-remotion/src/CadenzaPlayer.tsx",
+          "packages/preview-remotion/src/render-safe/SafeFontPreview.tsx"
+        ],
+        "separateBuilderIssue": "trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md"
+      }
+    },
+    {
+      "id": "VARR-P4-CLOSEOUT-002",
+      "category": "typography layout",
+      "affected": {
+        "chapterId": "product-layer",
+        "slideId": "preview-reliability-budget",
+        "componentId": "preview-reliability-budget-density"
+      },
+      "observedProblem": "During maintainer visual review, the 'Compiler evidence...' dense copy on preview-reliability-budget step 2 was visibly clipped near the bottom of the left Remotion Player. The authored example used a 420x96 compact TypographyBox for a long data-explainer sentence, while the renderer measured auto-fit before applying the configured base typography style and allowed the preceding MediaFrame to consume excessive vertical space.",
+      "intendedRepairSurface": "authored-deck-and-framework-defect-route",
+      "requirementRefs": [
+        "DOGF-003",
+        "TYPO-001",
+        "TYPO-002",
+        "VARR-003",
+        "VARR-005"
+      ],
+      "testRefs": ["TC-DOGF-002", "TC-TYPO-001", "TC-VARR-003"],
+      "commandsOrRoutes": [
+        {
+          "kind": "command",
+          "value": "pnpm preview:phase4",
+          "result": "Maintainer observed bottom clipping on preview-reliability-budget step 2 during local visual review."
+        },
+        {
+          "kind": "command",
+          "value": "pnpm build:browser-fixture && pnpm exec playwright test tests/browser/remotion-preview.spec.ts -g \"reliability-budget copy\"",
+          "result": "Browser regression test verifies the dense copy uses fitted auto-fit, does not overflow its TypographyBox, and remains above the Player controls guard."
+        }
+      ],
+      "before": {
+        "diagnostics": [
+          {
+            "code": "VARR_DOGFOOD_DENSE_COPY_CLIPPED",
+            "message": "The reliability-budget dense copy could not fit in its authored TypographyBox and was clipped in the visible Player surface.",
+            "requirementRefs": ["DOGF-003", "TYPO-002", "VARR-005"],
+            "severity": "warning",
+            "source": "examples/phase4/dogfood-talk.tsx",
+            "testRefs": ["TC-DOGF-002", "TC-TYPO-001"]
+          }
+        ],
+        "evidence": [
+          {
+            "kind": "maintainer-preview-observation",
+            "source": "pnpm preview:phase4",
+            "summary": "The lower-left dense copy on preview-reliability-budget step 2 was visibly cut off in the Player."
+          },
+          {
+            "kind": "browser-preview-regression-red",
+            "source": "tests/browser/remotion-preview.spec.ts",
+            "summary": "The new clipping regression first failed with data-cadenza-typography-overflow-fallback=true for a 420x96 box, then exposed real scroll overflow after the box was enlarged but auto-fit still measured the wrong styled height."
+          }
+        ]
+      },
+      "after": {
+        "diagnostics": [],
+        "evidence": [
+          {
+            "kind": "authored-deck-repair",
+            "source": "examples/phase4/dogfood-talk.tsx",
+            "summary": "The reliability-budget dense copy now uses the shared PHASE4_RELIABILITY_DENSITY_BOX of 600x132, keeping the compact-budget pressure visible without clipping the slide."
+          },
+          {
+            "kind": "framework-defect-repair",
+            "source": "packages/preview-remotion/src/CadenzaPlayer.tsx",
+            "summary": "TypographyBoxPreview measures after applying base auto-fit typography, applies the fitted result to the live DOM, and constrains slide/MediaFrame layout inside the composition."
+          },
+          {
+            "kind": "browser-preview-regression",
+            "source": "tests/browser/remotion-preview.spec.ts",
+            "summary": "The regression verifies auto-fit reaches fitted, the live TypographyBox has no scroll overflow, and its bottom stays above the Player controls guard."
+          }
+        ]
+      },
+      "repairRouting": {
+        "kind": "framework-defect-route",
+        "allowedEdits": [
+          "examples/phase4/dogfood-talk.tsx",
+          "examples/phase4/preview.ts",
+          "tests/browser/cadenza-browser-entry.ts",
+          "tests/browser/remotion-preview.spec.ts",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.json",
+          "trace/phase4/evidence/b4.3-visual-acceptance-evidence.md",
+          "trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md"
+        ],
+        "frameworkInternalEdits": [
+          "packages/preview-remotion/src/CadenzaPlayer.tsx"
+        ],
+        "separateBuilderIssue": "trace/phase4/evidence/rev-p4-visual-navigation-framework-defect.md"
       }
     }
   ]

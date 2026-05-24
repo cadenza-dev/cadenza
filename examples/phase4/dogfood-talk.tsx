@@ -52,6 +52,11 @@ export const PHASE4_BODY_AUTO_FIT = {
 export const PHASE4_RELIABILITY_DENSITY_TEXT =
   "Compiler evidence, render-safe resource status, local preview diagnostics, presenter notes, and visual acceptance repair paths all compete for the same dogfood slide and must stay readable.";
 
+export const PHASE4_RELIABILITY_DENSITY_BOX = {
+  maxHeight: 132,
+  maxWidth: 600,
+} as const;
+
 export const phase4DogfoodTalkTheme = (
   <Theme
     name="phase-4-product-layer"
@@ -249,8 +254,8 @@ const phase4DogfoodTalk = (
           <TypographyBox
             autoFit={PHASE4_BODY_AUTO_FIT}
             id="preview-reliability-budget-density"
-            maxHeight={96}
-            maxWidth={420}
+            maxHeight={PHASE4_RELIABILITY_DENSITY_BOX.maxHeight}
+            maxWidth={PHASE4_RELIABILITY_DENSITY_BOX.maxWidth}
           >
             {PHASE4_RELIABILITY_DENSITY_TEXT}
           </TypographyBox>

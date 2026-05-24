@@ -10,6 +10,7 @@ import type {
 } from "@cadenza-dev/preview-remotion";
 import {
   createPhase4DogfoodTalkFixture,
+  PHASE4_RELIABILITY_DENSITY_BOX,
   PHASE4_RELIABILITY_DENSITY_TEXT,
   type Phase4DogfoodTalkChapter,
   type Phase4DogfoodTalkOutlineEntry,
@@ -159,8 +160,8 @@ export function createPhase4VisualAcceptanceDiagnostics(): Phase4VisualAcceptanc
 export function createPhase4TypographyDiagnostics(): Phase4TypographyDiagnostic[] {
   return validateTypographyDensity({
     box: {
-      maxHeight: 96,
-      maxWidth: 420,
+      maxHeight: PHASE4_RELIABILITY_DENSITY_BOX.maxHeight,
+      maxWidth: PHASE4_RELIABILITY_DENSITY_BOX.maxWidth,
     },
     density: "compact",
     locator: {

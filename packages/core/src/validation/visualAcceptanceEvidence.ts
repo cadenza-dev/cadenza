@@ -86,7 +86,7 @@ export type Phase4VisualAcceptanceEvidenceFinding = {
   code: string;
   message: string;
   requirementId: string;
-  severity: "warning";
+  severity: "error" | "warning";
   source: string;
   testRefs: string[];
 };
@@ -214,6 +214,26 @@ export function validatePhase4VisualAcceptanceEvidence(
       severity: "warning",
       source: evidence.acceptanceEvidenceKind,
       testRefs: ["TC-VARR-001"],
+    });
+  }
+
+  return findings;
+}
+
+export function validatePhase4VisualCloseoutEvidence(
+  evidence: Phase4VisualAcceptanceEvidence,
+): Phase4VisualAcceptanceEvidenceFinding[] {
+  const findings = validatePhase4VisualAcceptanceEvidence(evidence);
+
+  if (evidence.maintainerVisualDecision === "pending-closeout-signoff") {
+    findings.push({
+      code: "VARR_CLOSEOUT_VISUAL_DECISION_PENDING",
+      message:
+        "Phase 4 closeout requires maintainer visual sign-off or an explicit maintainer waiver.",
+      requirementId: "VARR-002",
+      severity: "error",
+      source: evidence.acceptanceEvidenceKind,
+      testRefs: ["TC-VARR-002"],
     });
   }
 
