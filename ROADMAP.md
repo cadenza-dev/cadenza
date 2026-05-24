@@ -52,6 +52,28 @@ frozen contracts:
   external alpha claims remain Phase 5+ boundaries unless a later spec or ADR
   explicitly supersedes this roadmap.
 
+Phase 5 Architect should treat these as roadmap-level acceptance seeds, not
+frozen contracts:
+
+- A longer agent-authored or agent-revised technical talk starts from public
+  typed TSX, `cadenza-best-practices`, and the Phase 4 product-layer
+  dogfood/starter workflow rather than package-internal fixtures.
+- A supported local export command produces reviewable deliverables from that
+  talk, with web bundle export as the baseline and MP4/PDF export either
+  implemented, explicitly scoped, or waived with maintainer approval.
+- Exported output is checked against the local Remotion Player preview for
+  timing, slide/step ordering, transitions, notes and presenter-boundary
+  behavior, render-safe assets, and typography/density regressions.
+- Export evidence includes machine-readable metadata plus a concise human
+  summary: source deck path, commands run, output artifact paths, diagnostics,
+  preview/export parity checks, and known limitations.
+- Remotion Lambda and hosted rendering are evaluated as deployment and
+  commercial candidates, but hosted/commercial work does not begin until local
+  export infrastructure is stable.
+- `0.1 alpha readiness` requires a longer technical-talk export path,
+  documented install/run/export commands, no unresolved public API instability
+  for the declared alpha surface, and traceable Reviewer acceptance.
+
 **Explicitly deferred indefinitely** (see [`goals-non-goals.md`](./goals-non-goals.md)): template marketplace, real-time collaboration, comments, version history, WYSIWYG editor, SSO / enterprise features, i18n infrastructure.
 
 ## Commercialization posture (OSS core + hosted tier, eventually)
