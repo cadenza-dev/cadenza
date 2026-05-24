@@ -1,5 +1,48 @@
 # Phase 4 Tracker
 
+## 2026-05-24 17:30 +0800 — B4.7 Phase 4 Builder closeout
+
+- Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only `B4.7 / phase-closeout` after `B4.1` through `B4.6`
+  were already recorded complete in `trace/phase4/status.yaml`.
+- Closeout status: updated `trace/phase4/status.yaml` so
+  `builder_progress.status` is `builder_complete_pending_reviewer`,
+  `builder_progress.next_batch.id` is `null`, and
+  `exit_criteria.builder_batches_complete.status` is `met`.
+- Gate repair TDD: `pnpm test -- scripts/traceability-coverage.test.ts` first
+  failed because Phase 4 active-phase coverage was blocked by Phase 2
+  `TRAC-001` through `TRAC-006` requirements. The coverage gate now scopes
+  those traceability-governance requirements to Phase 2, and the targeted test
+  passes.
+- Evidence map: the closeout points Reviewer to the Phase 4 dogfood talk,
+  local Remotion Player preview entrypoint, same-browser presenter workflow,
+  visual acceptance evidence, typography diagnostics, transition diagnostics,
+  technical-talk starters, `cadenza-best-practices` guidance/evals, and browser
+  preview tests.
+- Artifacts written: `scripts/traceability-coverage.ts`,
+  `scripts/traceability-coverage.test.ts`, `trace/phase4/status.yaml`, and
+  `trace/phase4/tracker.md`.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed. Default
+  `pnpm test:browser` failed only because the sandbox blocked Chromium launch
+  with `sandbox_host_linux.cc` / `Operation not permitted`; elevated
+  `pnpm test:browser` passed 16/16. Default `pnpm preview:phase4` failed only
+  because the sandbox blocked localhost binding; elevated preview served
+  `http://127.0.0.1:4174/`, `curl` verified `/` and
+  `/phase4-dogfood-preview.js` as HTTP 200, `rg` verified the Phase 4 dogfood,
+  presenter, visual, typography, transition, and `ProductTransition` bundle
+  markers, and the preview server was stopped.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR, root phase
+  pointer, export, hosted-rendering, Remotion Lambda, public-stability,
+  external-alpha, multi-device presenter console, WYSIWYG, marketplace,
+  collaboration, comments, SSO, i18n, read-only MCP implementation, or
+  tool-based MCP implementation changes.
+- Next step: Phase 4 Reviewer closeout; Builder stops here.
+
 ## 2026-05-24 04:08 +0800 — B4.6 technical-talk starters and deferred guards
 
 - Startup identity: proceeded as Phase 4 Builder with `GPT-5` / `codex` after

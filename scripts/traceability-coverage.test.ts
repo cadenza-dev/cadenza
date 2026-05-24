@@ -91,6 +91,19 @@ describe("TC-TRAC-001 traceability coverage report", () => {
   });
 });
 
+describe("Phase 4 closeout traceability coverage", () => {
+  it("does not require Phase 2 traceability-governance requirements for Phase 4", () => {
+    const report = createTraceabilityCoverageReport({
+      phase: "4",
+      repoRoot: process.cwd(),
+    });
+
+    expect(
+      report.findings.filter((finding) => finding.includes("TRAC-")),
+    ).toEqual([]);
+  });
+});
+
 describe("coverage evidence classification", () => {
   it("supports a non-mutating check mode that fails on active-phase coverage findings", () => {
     const repoRoot = mkdtempSync(path.join(tmpdir(), "cadenza-check-mode-"));

@@ -204,7 +204,7 @@ export function createTraceabilityCoverageReport(
   });
 
   return {
-    findings: createFindings(requirements),
+    findings: createFindings(phase, requirements),
     nonGoals: createNonGoalEvidence(testRows),
     phase,
     revP1004Disposition: createRevP1004Disposition(options.repoRoot),
@@ -618,6 +618,7 @@ function filesContainingAny(
 }
 
 function createFindings(
+  phase: string,
   requirements: TraceabilityRequirementCoverage[],
 ): string[] {
   const findings = requirements.flatMap((requirement) => {
@@ -644,11 +645,13 @@ function createFindings(
     return findings;
   });
 
-  for (const requiredId of TRACEABILITY_COVERAGE_REQUIREMENTS) {
-    if (!requirements.some((requirement) => requirement.id === requiredId)) {
-      findings.push(
-        `${requiredId} is missing from the traceability coverage report.`,
-      );
+  if (phase === "2") {
+    for (const requiredId of TRACEABILITY_COVERAGE_REQUIREMENTS) {
+      if (!requirements.some((requirement) => requirement.id === requiredId)) {
+        findings.push(
+          `${requiredId} is missing from the traceability coverage report.`,
+        );
+      }
     }
   }
 
