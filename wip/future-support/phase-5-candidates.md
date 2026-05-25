@@ -40,3 +40,21 @@ justified.
   it before validation, preview, export, and report semantics settle would
   freeze the wrong API.
 - **Disposition**: keep.
+
+## 2026-05-26 Phase 5 Stage B disposition
+
+Phase 5 Architect resolved these candidates in
+`spec/phase5/SPEC_MCP_AUTOMATION_BOUNDARY.md`:
+
+- Read-only MCP resources and prompts are deferred by default. Phase 5 may add
+  focused read-only resources only if launch-candidate evidence outgrows
+  practical Markdown context injection.
+- Tool-based MCP is deferred beyond Phase 5. It should wrap stable local
+  validation, preview, export, and report commands only after the public launch
+  path has settled.
+- If MCP appears at all during Phase 5, it is limited to resources or prompts
+  that expose contract-defined concepts rather than mutable package internals.
+
+Follow-up owner: future Architect, likely Phase 7 or later, after Phase 5 and
+Phase 6 prove that local command semantics are stable enough to expose across
+agents or IDEs.

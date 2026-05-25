@@ -112,3 +112,29 @@ pressure before becoming contracts.
 - **Reason to defer**: complete deck IR would effectively become a second deck
   source. It should not be built before the project proves that a repair report
   plus typed TSX cannot carry the workflow.
+
+## 2026-05-26 Phase 5 Stage B disposition
+
+Phase 5 Architect resolved the export and alpha-readiness candidates as
+follows:
+
+- **Browser export smoke test** is promoted and frozen into
+  `spec/phase5/SPEC_PREVIEW_EXPORT_PARITY.md` as a required browser-observable
+  smoke test for the exported web bundle.
+- **Live-presenter recording as canonical export** is explicitly deferred by
+  `spec/phase5/SPEC_PRESENTER_CONSOLE_FOLLOWUP.md`; deterministic offline
+  export remains canonical for Phase 5.
+- **Session replay** may appear only as debugging evidence if parity work needs
+  it. It is not a public Phase 5 feature.
+- **Hard deck-duration cap** and **slide-level FPS** remain conditional. Phase
+  5 export diagnostics may surface duration or timing evidence, but the frozen
+  contract does not promote either as a requirement.
+- **Screenshot diffing as stronger visual QA** remains optional supplemental
+  evidence. Browser smoke plus semantic parity is the primary gate.
+- **Complete deck IR**, **DSL**, visual-editor pressure, and non-programmer
+  long-term maintenance remain deferred. Phase 5 did not show two concrete ADR
+  0004 pressures that would justify a second authoritative deck representation.
+
+Follow-up owner: future Architect. Revisit presenter recording, replay, visual
+diffing, or deeper authoring surfaces only after public developer launch
+evidence shows real pressure.
