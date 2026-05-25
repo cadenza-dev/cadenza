@@ -1,0 +1,69 @@
+version: 1
+phase: "5"
+phase_name: "Export + 0.1 Alpha Readiness"
+status: builder_ready
+timezone: Asia/Shanghai
+opened_at: "2026-05-26 03:54 +0800"
+
+session:
+  active_role: builder
+  approved_identity: GPT-5/codex
+  approved_at: "2026-05-26 03:54 +0800"
+  approval_note: "Maintainer answered y to proceed as Phase 5 Builder routing handoff with GPT-5/codex."
+
+handoff:
+  source_phase: "4"
+  source_trace: trace/phase4/
+  handoff_file: trace/phase4/phase5-architect-handoff.md
+  kick_file: prompt/PHASE5_KICK_BUILDER.md
+  active_role: builder
+  summary: "Phase 5 Builder starts from the frozen Export + 0.1 Alpha Readiness contracts and B5.1 export-source/local-web-export scenarios."
+
+entry_conditions:
+  phase4_closed:
+    status: met
+    artifact: trace/phase4/status.yaml
+  phase4_reviewer_closeout_accepted:
+    status: met
+    artifact: trace/phase4/review-phase4-closeout.md
+  phase5_architect_handoff_exists:
+    status: met
+    artifact: trace/phase4/phase5-architect-handoff.md
+  phase5_specs_frozen:
+    status: met
+    artifact: spec/phase5/
+  phase5_builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE5_KICK_BUILDER.md
+  root_phase_pointer_opened:
+    status: met
+    artifact: STATUS.yaml
+
+builder_handoff:
+  status: ready
+  active_role: builder
+  kick_file: prompt/PHASE5_KICK_BUILDER.md
+  next_batch:
+    id: B5.1
+    scenarios: [TC-EXPT-001, TC-EXPT-002]
+    requirements: [EXPT-001, EXPT-002, EXPT-003, EXPT-005, FMT-001]
+    summary: "Create the canonical Phase 5 longer technical talk and the supported local cadenza export <deck> web-bundle baseline with a deterministic manifest."
+  boundary: "Routing only; no packages implementation, CONTRACT_FROZEN spec, Accepted ADR, export artifact, hosted-rendering, Remotion Lambda, MCP, presenter-console follow-up, public-release, npm-publish, or alpha-readiness evidence work was performed during phase open."
+
+builder_progress:
+  status: not_started
+  active_role: builder
+  next_batch:
+    id: B5.1
+    scenarios: [TC-EXPT-001, TC-EXPT-002]
+    status: ready
+    summary: "Start with one vertical slice through the Phase 5 export source and local web-bundle export command."
+  completed_batches: []
+
+exit_criteria:
+  builder_batches_complete:
+    status: pending
+    artifact: trace/phase5/status.yaml
+  reviewer_closeout_accepted:
+    status: pending
+    artifact: trace/phase5/review-phase5-closeout.md

@@ -4,8 +4,8 @@
 
 ## Active phase
 
-**Phase 4 — Presentation Product Layer (pruned)** *(Builder ready; started 2026-05-23)*
-→ [`trace/phase4/`](./trace/phase4/)
+**Phase 5 — Export + 0.1 Alpha Readiness** *(Builder ready; started 2026-05-26)*
+→ [`trace/phase5/`](./trace/phase5/)
 
 ## Phase index
 
@@ -15,8 +15,8 @@
 | 1     | Core Semantics & Typed API            | complete                           | [`trace/phase1/`](./trace/phase1/) |
 | 2     | React + Remotion Preview Adapter      | complete                           | [`trace/phase2/`](./trace/phase2/) |
 | 3     | AI Authoring Strengthening            | complete                           | [`trace/phase3/`](./trace/phase3/) |
-| 4     | Presentation Product Layer (pruned)   | builder_ready                      | [`trace/phase4/`](./trace/phase4/) |
-| 5     | Export + 0.1 Alpha Readiness          | not_started                        | `trace/phase5/`                    |
+| 4     | Presentation Product Layer (pruned)   | complete                           | [`trace/phase4/`](./trace/phase4/) |
+| 5     | Export + 0.1 Alpha Readiness          | builder_ready                      | [`trace/phase5/`](./trace/phase5/) |
 
 ## How to read this after a context reset
 
