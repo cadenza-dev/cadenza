@@ -10,7 +10,7 @@ It is not a Gamma replacement. It is not a WYSIWYG slide editor. It is a develop
 
 ## Status
 
-**Pre-alpha. Current routing phase: Phase 3 reviewer closeout accepted; Phase 4 handoff pending.**
+**Pre-alpha. Current routing phase: Phase 5 Builder-ready, Export + `0.1 Alpha Readiness`.**
 
 Phase 1 produced the semantic core: the typed TSX API surface,
 state-to-timeline compiler, runtime intent/navigation layer, render-safe
@@ -31,8 +31,24 @@ emit structured diagnostics, and record before/after repair evidence without
 framework-internal deck edits. Reviewer closeout and selected remediation are
 accepted in
 [`trace/phase3/review-phase3-closeout.md`](./trace/phase3/review-phase3-closeout.md).
-The next planned step is Phase 4 handoff and Architect scoping for a
-production-adjacent preview/presenter dogfood workflow.
+
+Phase 4 has produced the pruned presentation product layer: a canonical dogfood
+technical talk, a maintainer-facing local Remotion Player preview route,
+same-browser presenter workflow, visual acceptance evidence, typography and
+transition diagnostics, technical-talk starters, and product-layer guidance in
+`cadenza-best-practices`. Reviewer closeout is accepted in
+[`trace/phase4/review-phase4-closeout.md`](./trace/phase4/review-phase4-closeout.md),
+including maintainer visual sign-off for the dogfood preview. MP4/PDF export,
+hosted rendering, Remotion Lambda, external alpha claims, tool-based MCP, and
+multi-device presenter console work were explicitly left out of Phase 4.
+
+Phase 5 is now open for Builder work from the frozen
+[`spec/phase5/`](./spec/phase5/) contracts. The active trace is
+[`trace/phase5/`](./trace/phase5/), and the first Builder batch is B5.1 /
+`TC-EXPT-001` + `TC-EXPT-002`: create the canonical longer Phase 5 technical
+talk and the supported local `cadenza export <deck>` web-bundle baseline with a
+deterministic manifest. `0.1 alpha readiness` is not claimed yet; it requires
+Builder completion, evidence, and Reviewer acceptance.
 
 The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis
 that led to the project lives in
@@ -144,7 +160,7 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 | **2** | React + Remotion Preview Adapter | The all-domain fixture renders in a real React + Remotion browser preview with player navigation and render-safe readiness behavior; MP4/PDF export remains out of scope |
 | **3** | AI Authoring Strengthening | Agent-authored decks can be generated, previewed, diagnosed, and repaired through the local validation loop |
 | **4** | Presentation Product Layer *(pruned)* | Maintainer dogfoods a production-adjacent technical talk through local Remotion Player preview and presenter workflows |
-| **5** | Export + 0.1 Alpha Readiness | A longer agent-authored technical talk exports through the supported pipeline; the public API has remained stable for 1 month |
+| **5** | Export + 0.1 Alpha Readiness | A longer technical talk exports through the supported local pipeline with traceable web/format evidence, public-surface docs, and Reviewer acceptance before alpha readiness is claimed |
 
 Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 
@@ -155,12 +171,12 @@ Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 Pre-alpha contributions are currently limited to:
 
 - Review feedback on [`ROADMAP.md`](./ROADMAP.md), completed phase traces, and
-  Phase 3 closeout trace
+  Phase 5 frozen contracts and active trace routing
 - Discussion of architectural decisions in [`docs/adr/`](./docs/adr/)
 - Focused issues that respect [`goals-non-goals.md`](./goals-non-goals.md)
 
-Broader code contributions should wait until the next phase contracts and
-`CONTRIBUTING.md` land.
+Broader code contributions should wait until Phase 5 Builder work opens a
+specific contribution surface and `CONTRIBUTING.md` lands.
 
 ---
 
