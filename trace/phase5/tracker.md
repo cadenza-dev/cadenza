@@ -1,5 +1,52 @@
 # Phase 5 Tracker
 
+## 2026-05-26 23:37 +0800 — B5.5 alpha readiness surface
+
+- Scope: completed only B5.5 / `TC-ALFA-001` + `TC-ALFA-002` +
+  `TC-ALFA-003`; no frozen specs, Accepted ADRs, or root phase pointer were
+  modified.
+- Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED/GREEN evidence: the first focused B5.5 test failed because
+  `alpha-readiness-evidence.json` was missing from the generated export
+  artifact directory, then passed after export runs emitted JSON/Markdown alpha
+  readiness evidence and `docs/alpha-readiness.md`. The second focused test
+  failed because alpha-readiness claim, stability-gate, waiver-route, and
+  Reviewer-acceptance evidence were missing, then passed after those gates were
+  recorded. The third focused test failed because overclaim guards were
+  missing, then passed after publication boundaries and prohibited-claim guards
+  were recorded.
+- Export evidence: `pnpm cadenza export phase5-alpha-readiness-talk --run-id
+  b5-5-manual` wrote B5.5 evidence under
+  `dist/phase5/phase5-alpha-readiness-talk/b5-5-manual/`, including
+  `alpha-readiness-evidence.json` and `alpha-readiness-evidence.md`.
+- Public surface: the declared launch-candidate surface is package exports,
+  documented preview/export commands, `examples/phase5/alpha-readiness-talk.tsx`,
+  inherited Phase 4 examples, and `cadenza-best-practices` guidance. Package
+  internals, `scripts/cadenza.ts` internals, generated `dist/**`, tests, and
+  trace archives are excluded from the stability promise.
+- Clean-checkout docs: `docs/alpha-readiness.md` now documents install, run,
+  preview, export, and evidence review through supported local commands rather
+  than hidden scripts.
+- Readiness gate: final `0.1 alpha readiness` is not claimed. The stability
+  clock starts at the first Builder commit declaring the explicit public surface,
+  or an explicit maintainer waiver must be recorded in `trace/phase5/status.yaml`
+  with narrowed claim and risk. Reviewer acceptance after Builder closeout is
+  required; green tests, export evidence, or chat sign-off alone are not enough.
+- Overclaim guards: evidence records absent claims for hosted rendering
+  readiness, external alpha feedback, commercial readiness, marketplace/editor/
+  collaboration/SSO/i18n support, npm publication, broad arbitrary-deck MP4
+  support, and full PDF parity.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`, `README.md`,
+  `docs/alpha-readiness.md`, `trace/phase5/status.yaml`, and this tracker.
+- Verification: focused B5.5 Vitest passed; `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed after trace update.
+- Next batch: B5.6 / `TC-LHEV-001` + `TC-LHEV-002` + `TC-MCPA-001` +
+  `TC-MCPA-002` + `TC-PCON-001` + `TC-PCON-002`.
+
 ## 2026-05-26 23:15 +0800 — B5.4 format scope evidence
 
 - Scope: completed only B5.4 / `TC-FMT-001` + `TC-FMT-002`; no frozen specs,

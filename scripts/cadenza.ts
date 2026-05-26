@@ -83,6 +83,7 @@ export type Phase5ExportArtifact = {
 
 export type Phase5LocalWebExportManifest = {
   artifacts: Phase5ExportArtifact[];
+  alphaReadinessEvidencePath: "alpha-readiness-evidence.json";
   command: string;
   deckId: CadenzaExportDeckId;
   deterministic: {
@@ -412,6 +413,103 @@ type Phase5FormatLimitation = {
   severity: "info" | "warning";
 };
 
+type Phase5AlphaReadinessEvidence = {
+  alphaReadinessClaim: {
+    builderGreenTestsSufficient: false;
+    exportEvidenceSufficient: false;
+    maintainerChatSignoffSufficient: false;
+    status: "not-claimed";
+  };
+  batchId: "B5.5";
+  launchCandidate: {
+    docs: string[];
+    positioning: string;
+  };
+  overclaimGuards: {
+    prohibitedClaims: {
+      claim: Phase5ProhibitedAlphaClaim;
+      status: "absent";
+    }[];
+    publicationBoundary: {
+      explicitMaintainerApprovalRequired: true;
+      externalAnnouncementOpened: false;
+      npmPublicationPerformed: false;
+      packageMetadataPreparedOnly: true;
+      releaseTagsCreated: false;
+    };
+    scannedArtifacts: [
+      "README.md",
+      "docs/alpha-readiness.md",
+      "examples/phase5/alpha-readiness-talk.tsx",
+    ];
+  };
+  phase: "5";
+  publicSurface: {
+    commands: Phase5CleanCheckoutCommand[];
+    examples: string[];
+    excludedInternalSurface: string[];
+    guidance: string[];
+    packages: {
+      exports: string[];
+      packageName: string;
+    }[];
+  };
+  requirementRefs: [
+    "ALFA-001",
+    "ALFA-002",
+    "ALFA-003",
+    "ALFA-004",
+    "ALFA-005",
+    "ALFA-006",
+    "ALFA-007",
+  ];
+  reviewerAcceptanceGate: {
+    accepted: false;
+    acceptedArtifact: "trace/phase5/review-phase5-closeout.md#Reviewer Acceptance";
+    builderCloseoutRequired: true;
+    required: true;
+  };
+  scenarioIds: ["TC-ALFA-001", "TC-ALFA-002", "TC-ALFA-003"];
+  schemaVersion: 1;
+  stabilityGate: {
+    clock: {
+      duration: "P1M";
+      startTrigger: string;
+      status: "pending-first-builder-commit";
+      surfaceEvidence: [
+        "docs/alpha-readiness.md",
+        "alpha-readiness-evidence.json",
+      ];
+      unresolvedBreakingChangeFindings: [];
+    };
+    maintainerWaiverRoute: {
+      allowed: true;
+      narrowsReadinessClaim: true;
+      requiredArtifact: "trace/phase5/status.yaml";
+      riskExplanationRequired: true;
+    };
+  };
+};
+
+type Phase5CleanCheckoutCommand = {
+  command: string;
+  purpose: string;
+  stage: "evidence" | "export" | "install" | "preview" | "run";
+};
+
+type Phase5ProhibitedAlphaClaim =
+  | "SSO"
+  | "WYSIWYG editing"
+  | "broad arbitrary-deck MP4 support"
+  | "collaboration or comments"
+  | "commercial readiness"
+  | "external alpha user feedback"
+  | "full PDF parity"
+  | "hosted rendering readiness"
+  | "i18n infrastructure"
+  | "npm publication"
+  | "template marketplace support";
+
 const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
@@ -544,6 +642,16 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       path: "format-scope-evidence.md",
       role: "human-format-scope-summary",
     },
+    {
+      format: "json",
+      path: "alpha-readiness-evidence.json",
+      role: "machine-readable-alpha-readiness-evidence",
+    },
+    {
+      format: "markdown",
+      path: "alpha-readiness-evidence.md",
+      role: "human-alpha-readiness-summary",
+    },
   ];
   const stableHash = createStableHash({
     artifacts,
@@ -551,6 +659,7 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     sourceDeck: metadata.sourcePath,
   });
   const manifest: Phase5LocalWebExportManifest = {
+    alphaReadinessEvidencePath: "alpha-readiness-evidence.json",
     artifacts,
     command: metadata.exportCommand,
     deckId: metadata.deckId,
@@ -579,6 +688,7 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     manifest,
     metadata,
   });
+  const alphaReadinessEvidence = createAlphaReadinessEvidence();
 
   await mkdir(outputDirectory, { recursive: true });
   await writeJson(path.join(outputDirectory, "deck.json"), {
@@ -614,6 +724,14 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     path.join(outputDirectory, "format-scope-evidence.md"),
     renderFormatScopeEvidenceMarkdown(formatScopeEvidence),
   );
+  await writeJson(
+    path.join(outputDirectory, "alpha-readiness-evidence.json"),
+    alphaReadinessEvidence,
+  );
+  await writeFile(
+    path.join(outputDirectory, "alpha-readiness-evidence.md"),
+    renderAlphaReadinessEvidenceMarkdown(alphaReadinessEvidence),
+  );
 
   process.stdout.write(
     `${JSON.stringify(
@@ -625,6 +743,158 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       2,
     )}\n`,
   );
+}
+
+function createAlphaReadinessEvidence(): Phase5AlphaReadinessEvidence {
+  const prohibitedClaims: Phase5ProhibitedAlphaClaim[] = [
+    "external alpha user feedback",
+    "hosted rendering readiness",
+    "commercial readiness",
+    "template marketplace support",
+    "WYSIWYG editing",
+    "collaboration or comments",
+    "SSO",
+    "i18n infrastructure",
+    "npm publication",
+    "broad arbitrary-deck MP4 support",
+    "full PDF parity",
+  ];
+
+  return {
+    alphaReadinessClaim: {
+      builderGreenTestsSufficient: false,
+      exportEvidenceSufficient: false,
+      maintainerChatSignoffSufficient: false,
+      status: "not-claimed",
+    },
+    batchId: "B5.5",
+    launchCandidate: {
+      docs: ["docs/alpha-readiness.md", "README.md"],
+      positioning:
+        "Public launch-candidate material targets developers writing technical talks, not a business prompt-to-deck workflow.",
+    },
+    overclaimGuards: {
+      prohibitedClaims: prohibitedClaims.map((claim) => ({
+        claim,
+        status: "absent",
+      })),
+      publicationBoundary: {
+        explicitMaintainerApprovalRequired: true,
+        externalAnnouncementOpened: false,
+        npmPublicationPerformed: false,
+        packageMetadataPreparedOnly: true,
+        releaseTagsCreated: false,
+      },
+      scannedArtifacts: [
+        "README.md",
+        "docs/alpha-readiness.md",
+        "examples/phase5/alpha-readiness-talk.tsx",
+      ],
+    },
+    phase: "5",
+    publicSurface: {
+      commands: [
+        {
+          command: "pnpm install",
+          purpose: "Install workspace dependencies from a clean checkout.",
+          stage: "install",
+        },
+        {
+          command: "pnpm typecheck",
+          purpose: "Run the narrow clean-checkout TypeScript sanity command.",
+          stage: "run",
+        },
+        {
+          command: "pnpm preview:phase4",
+          purpose:
+            "Open the maintainer-facing local Remotion Player preview route inherited from the product layer.",
+          stage: "preview",
+        },
+        {
+          command:
+            "pnpm cadenza export phase5-alpha-readiness-talk --run-id local-alpha",
+          purpose:
+            "Export the canonical Phase 5 launch-candidate talk through the supported local command surface.",
+          stage: "export",
+        },
+        {
+          command:
+            "inspect dist/phase5/phase5-alpha-readiness-talk/local-alpha/",
+          purpose:
+            "Review manifest, export evidence, format evidence, MP4 proof, and alpha-readiness evidence artifacts.",
+          stage: "evidence",
+        },
+      ],
+      examples: [
+        "examples/phase5/alpha-readiness-talk.tsx",
+        "examples/phase4/dogfood-talk.tsx",
+        "examples/phase4/technical-talk-starters.tsx",
+      ],
+      excludedInternalSurface: [
+        "packages/*/src/** implementation internals behind package exports",
+        "scripts/cadenza.ts implementation internals behind pnpm cadenza",
+        "dist/** generated artifacts",
+        "tests/** and trace/** verification archives",
+      ],
+      guidance: [
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/product-layer-workflow.md",
+        "skills/cadenza/rules/validation-repair.md",
+      ],
+      packages: [
+        {
+          exports: [
+            ".",
+            "./jsx-runtime",
+            "./jsx-dev-runtime",
+            "./fixtures/allDomainMvp",
+          ],
+          packageName: "@cadenza-dev/core",
+        },
+        {
+          exports: ["."],
+          packageName: "@cadenza-dev/preview-remotion",
+        },
+      ],
+    },
+    requirementRefs: [
+      "ALFA-001",
+      "ALFA-002",
+      "ALFA-003",
+      "ALFA-004",
+      "ALFA-005",
+      "ALFA-006",
+      "ALFA-007",
+    ],
+    reviewerAcceptanceGate: {
+      accepted: false,
+      acceptedArtifact:
+        "trace/phase5/review-phase5-closeout.md#Reviewer Acceptance",
+      builderCloseoutRequired: true,
+      required: true,
+    },
+    scenarioIds: ["TC-ALFA-001", "TC-ALFA-002", "TC-ALFA-003"],
+    schemaVersion: 1,
+    stabilityGate: {
+      clock: {
+        duration: "P1M",
+        startTrigger:
+          "first Builder commit that declares docs/alpha-readiness.md and generated alpha-readiness evidence",
+        status: "pending-first-builder-commit",
+        surfaceEvidence: [
+          "docs/alpha-readiness.md",
+          "alpha-readiness-evidence.json",
+        ],
+        unresolvedBreakingChangeFindings: [],
+      },
+      maintainerWaiverRoute: {
+        allowed: true,
+        narrowsReadinessClaim: true,
+        requiredArtifact: "trace/phase5/status.yaml",
+        riskExplanationRequired: true,
+      },
+    },
+  };
 }
 
 function createExportEvidenceReport({
@@ -1126,6 +1396,78 @@ ${pdfLimitations}
 No broad arbitrary-deck MP4 support is claimed.
 No broad PDF support is claimed.
 No blanket format parity is claimed.
+`;
+}
+
+function renderAlphaReadinessEvidenceMarkdown(
+  evidence: Phase5AlphaReadinessEvidence,
+): string {
+  const packageLines = evidence.publicSurface.packages
+    .map(
+      (packageSurface) =>
+        `- \`${packageSurface.packageName}\`: ${packageSurface.exports
+          .map((entrypoint) => `\`${entrypoint}\``)
+          .join(", ")}`,
+    )
+    .join("\n");
+  const commandLines = evidence.publicSurface.commands
+    .map((command) => `- ${command.stage}: \`${command.command}\``)
+    .join("\n");
+  const exampleLines = evidence.publicSurface.examples
+    .map((example) => `- \`${example}\``)
+    .join("\n");
+  const guidanceLines = evidence.publicSurface.guidance
+    .map((guide) => `- \`${guide}\``)
+    .join("\n");
+
+  const alphaReadinessLabel = evidence.alphaReadinessClaim.status.replace(
+    "-",
+    " ",
+  );
+
+  return `# Phase 5 alpha readiness evidence
+
+- Batch: ${evidence.batchId}
+- Scenarios: ${evidence.scenarioIds.join(", ")}
+- Requirements: ${evidence.requirementRefs.join(", ")}
+- Positioning: ${evidence.launchCandidate.positioning}
+- Alpha readiness: ${alphaReadinessLabel}
+- Reviewer acceptance required: ${evidence.reviewerAcceptanceGate.required ? "yes" : "no"}
+- Stability clock: ${evidence.stabilityGate.clock.status} for ${evidence.stabilityGate.clock.duration}
+- Maintainer waiver route: ${evidence.stabilityGate.maintainerWaiverRoute.requiredArtifact}
+
+## Public Packages
+
+${packageLines}
+
+## Clean-Checkout Commands
+
+${commandLines}
+
+## Examples
+
+${exampleLines}
+
+## Guidance
+
+${guidanceLines}
+
+## Readiness Gate
+
+Builder green tests are not sufficient.
+Export evidence is not sufficient.
+Maintainer chat sign-off is not sufficient.
+Reviewer acceptance after Builder closeout is required before final \`0.1 alpha readiness\`.
+
+## Overclaim Guards
+
+No hosted rendering readiness is claimed.
+No npm publication is claimed.
+No external alpha adoption is claimed.
+No broad arbitrary-deck MP4 support is claimed.
+No full PDF parity is claimed.
+
+This is public launch-candidate material, not a final \`0.1 alpha readiness\` claim.
 `;
 }
 

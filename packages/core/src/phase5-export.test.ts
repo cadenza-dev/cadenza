@@ -690,6 +690,275 @@ describe("B5.4 Phase 5 format scope", () => {
   });
 });
 
+describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () => {
+  it("TC-ALFA-001 declares the alpha public surface and clean-checkout launch-candidate path", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-5-alpha-surface";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const readiness = readJson<Phase5AlphaReadinessEvidence>(
+      path.join(outputDir, "alpha-readiness-evidence.json"),
+    );
+    const launchGuide = readText("docs/alpha-readiness.md");
+    const rootManifest = readJson<{
+      scripts: Record<string, string>;
+    }>(path.join(process.cwd(), "package.json"));
+    const coreManifest = readJson<{
+      exports: Record<string, unknown>;
+      name: string;
+    }>(path.join(process.cwd(), "packages/core/package.json"));
+    const previewManifest = readJson<{
+      exports: Record<string, unknown>;
+      name: string;
+    }>(path.join(process.cwd(), "packages/preview-remotion/package.json"));
+
+    expect(manifest.alphaReadinessEvidencePath).toBe(
+      "alpha-readiness-evidence.json",
+    );
+    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining([
+        "alpha-readiness-evidence.json",
+        "alpha-readiness-evidence.md",
+      ]),
+    );
+    expect(readiness).toMatchObject({
+      batchId: "B5.5",
+      phase: "5",
+      scenarioIds: ["TC-ALFA-001", "TC-ALFA-002", "TC-ALFA-003"],
+      schemaVersion: 1,
+    });
+    expect(readiness.requirementRefs).toEqual(
+      expect.arrayContaining(["ALFA-001", "ALFA-002", "ALFA-007"]),
+    );
+    expect(readiness.publicSurface.packages).toEqual([
+      {
+        exports: Object.keys(coreManifest.exports),
+        packageName: coreManifest.name,
+      },
+      {
+        exports: Object.keys(previewManifest.exports),
+        packageName: previewManifest.name,
+      },
+    ]);
+    expect(readiness.publicSurface.commands).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          command: "pnpm install",
+          stage: "install",
+        }),
+        expect.objectContaining({
+          command: "pnpm typecheck",
+          stage: "run",
+        }),
+        expect.objectContaining({
+          command: "pnpm preview:phase4",
+          stage: "preview",
+        }),
+        expect.objectContaining({
+          command:
+            "pnpm cadenza export phase5-alpha-readiness-talk --run-id local-alpha",
+          stage: "export",
+        }),
+        expect.objectContaining({
+          command:
+            "inspect dist/phase5/phase5-alpha-readiness-talk/local-alpha/",
+          stage: "evidence",
+        }),
+      ]),
+    );
+    expect(rootManifest.scripts.cadenza).toBe(
+      "node --experimental-strip-types scripts/cadenza.ts",
+    );
+    expect(rootManifest.scripts["preview:phase4"]).toBe(
+      "node examples/phase4/serve-preview.mjs",
+    );
+    expect(readiness.publicSurface.examples).toEqual(
+      expect.arrayContaining([
+        "examples/phase5/alpha-readiness-talk.tsx",
+        "examples/phase4/dogfood-talk.tsx",
+        "examples/phase4/technical-talk-starters.tsx",
+      ]),
+    );
+    expect(readiness.publicSurface.guidance).toEqual(
+      expect.arrayContaining([
+        "skills/cadenza/SKILL.md",
+        "skills/cadenza/rules/product-layer-workflow.md",
+        "skills/cadenza/rules/validation-repair.md",
+      ]),
+    );
+    expect(readiness.publicSurface.excludedInternalSurface).toEqual(
+      expect.arrayContaining([
+        "packages/*/src/** implementation internals behind package exports",
+        "scripts/cadenza.ts implementation internals behind pnpm cadenza",
+        "dist/** generated artifacts",
+        "tests/** and trace/** verification archives",
+      ]),
+    );
+    expect(readiness.launchCandidate.positioning).toContain(
+      "developers writing technical talks",
+    );
+    expect(readiness.launchCandidate.positioning).toContain(
+      "not a business prompt-to-deck workflow",
+    );
+    expect(readiness.launchCandidate.docs).toEqual(
+      expect.arrayContaining(["docs/alpha-readiness.md", "README.md"]),
+    );
+    expect(launchGuide).toContain("Phase 5 Public Launch Candidate");
+    expect(launchGuide).toContain(
+      "pnpm cadenza export phase5-alpha-readiness-talk --run-id local-alpha",
+    );
+    expect(launchGuide).toContain(
+      "inspect dist/phase5/phase5-alpha-readiness-talk/local-alpha/",
+    );
+    expect(launchGuide).toContain("@cadenza-dev/core");
+    expect(launchGuide).toContain("@cadenza-dev/preview-remotion");
+    expect(launchGuide).toContain("cadenza-best-practices");
+  });
+
+  it("TC-ALFA-002 records the public-surface stability gate and Reviewer acceptance dependency", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-5-stability-reviewer";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const readiness = readJson<Phase5AlphaReadinessEvidence>(
+      path.join(outputDir, "alpha-readiness-evidence.json"),
+    );
+    const summary = readText(
+      path.join(outputDir, "alpha-readiness-evidence.md"),
+    );
+
+    expect(readiness.alphaReadinessClaim).toEqual({
+      builderGreenTestsSufficient: false,
+      exportEvidenceSufficient: false,
+      maintainerChatSignoffSufficient: false,
+      status: "not-claimed",
+    });
+    expect(readiness.stabilityGate).toEqual({
+      clock: {
+        duration: "P1M",
+        startTrigger:
+          "first Builder commit that declares docs/alpha-readiness.md and generated alpha-readiness evidence",
+        status: "pending-first-builder-commit",
+        surfaceEvidence: [
+          "docs/alpha-readiness.md",
+          "alpha-readiness-evidence.json",
+        ],
+        unresolvedBreakingChangeFindings: [],
+      },
+      maintainerWaiverRoute: {
+        allowed: true,
+        narrowsReadinessClaim: true,
+        requiredArtifact: "trace/phase5/status.yaml",
+        riskExplanationRequired: true,
+      },
+    });
+    expect(readiness.reviewerAcceptanceGate).toEqual({
+      accepted: false,
+      acceptedArtifact:
+        "trace/phase5/review-phase5-closeout.md#Reviewer Acceptance",
+      builderCloseoutRequired: true,
+      required: true,
+    });
+    expect(summary).toContain("Alpha readiness: not claimed");
+    expect(summary).toContain("Reviewer acceptance required: yes");
+    expect(summary).toContain("Builder green tests are not sufficient");
+    expect(summary).toContain(
+      "Maintainer waiver route: trace/phase5/status.yaml",
+    );
+  });
+
+  it("TC-ALFA-003 records overclaim guards and keeps publication boundaries closed", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-5-overclaim-guards";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const readiness = readJson<Phase5AlphaReadinessEvidence>(
+      path.join(outputDir, "alpha-readiness-evidence.json"),
+    );
+    const summary = readText(
+      path.join(outputDir, "alpha-readiness-evidence.md"),
+    );
+    const rootManifest = readJson<{
+      private: boolean;
+      scripts: Record<string, string>;
+    }>(path.join(process.cwd(), "package.json"));
+    const coreManifest = readJson<{ private: boolean }>(
+      path.join(process.cwd(), "packages/core/package.json"),
+    );
+    const previewManifest = readJson<{ private: boolean }>(
+      path.join(process.cwd(), "packages/preview-remotion/package.json"),
+    );
+    const scannedText = readiness.overclaimGuards.scannedArtifacts
+      .map((artifact) => readText(artifact))
+      .join("\n");
+
+    expect(readiness.overclaimGuards.publicationBoundary).toEqual({
+      explicitMaintainerApprovalRequired: true,
+      externalAnnouncementOpened: false,
+      npmPublicationPerformed: false,
+      packageMetadataPreparedOnly: true,
+      releaseTagsCreated: false,
+    });
+    expect(rootManifest.private).toBe(true);
+    expect(coreManifest.private).toBe(true);
+    expect(previewManifest.private).toBe(true);
+    expect(Object.values(rootManifest.scripts).join("\n")).not.toMatch(
+      /\bnpm publish\b|\bpnpm publish\b|\byarn publish\b/,
+    );
+    expect(readiness.overclaimGuards.prohibitedClaims).toEqual(
+      [
+        "external alpha user feedback",
+        "hosted rendering readiness",
+        "commercial readiness",
+        "template marketplace support",
+        "WYSIWYG editing",
+        "collaboration or comments",
+        "SSO",
+        "i18n infrastructure",
+        "npm publication",
+        "broad arbitrary-deck MP4 support",
+        "full PDF parity",
+      ].map((claim) => ({ claim, status: "absent" })),
+    );
+    expect(readiness.overclaimGuards.scannedArtifacts).toEqual(
+      expect.arrayContaining([
+        "README.md",
+        "docs/alpha-readiness.md",
+        "examples/phase5/alpha-readiness-talk.tsx",
+      ]),
+    );
+    expect(scannedText).not.toMatch(/0\.1 alpha readiness is claimed/i);
+    expect(scannedText).not.toMatch(/hosted rendering readiness/i);
+    expect(scannedText).not.toMatch(
+      /external alpha users? (?:completed|validated|adopted)/i,
+    );
+    expect(scannedText).not.toMatch(/published to npm/i);
+    expect(scannedText).not.toMatch(/commercial readiness is claimed/i);
+    expect(scannedText).not.toMatch(/template marketplace support is ready/i);
+    expect(scannedText).not.toMatch(/WYSIWYG editing is supported/i);
+    expect(scannedText).not.toMatch(
+      /collaboration (?:is supported|support is ready)/i,
+    );
+    expect(scannedText).not.toMatch(/SSO (?:is supported|support is ready)/i);
+    expect(scannedText).not.toMatch(/i18n infrastructure is ready/i);
+    expect(summary).toContain("No hosted rendering readiness is claimed.");
+    expect(summary).toContain("No npm publication is claimed.");
+    expect(summary).toContain("No external alpha adoption is claimed.");
+  });
+});
+
 type Phase5ExportManifest = {
   artifacts: {
     format: "json" | "markdown" | "mp4" | "web";
@@ -717,6 +986,7 @@ type Phase5ExportManifest = {
   };
   localOnly: boolean;
   outputDirectory: string;
+  alphaReadinessEvidencePath: "alpha-readiness-evidence.json";
   formatScopeEvidencePath: "format-scope-evidence.json";
   requiresHostedInfrastructure: boolean;
   runId: string;
@@ -773,6 +1043,72 @@ type Phase5ExportManifest = {
   webBundle: {
     entrypoint: "index.html";
     semanticAnchors: string[];
+  };
+};
+
+type Phase5AlphaReadinessEvidence = {
+  alphaReadinessClaim: {
+    builderGreenTestsSufficient: false;
+    exportEvidenceSufficient: false;
+    maintainerChatSignoffSufficient: false;
+    status: "not-claimed";
+  };
+  batchId: "B5.5";
+  launchCandidate: {
+    docs: string[];
+    positioning: string;
+  };
+  overclaimGuards: {
+    prohibitedClaims: {
+      claim: string;
+      status: "absent";
+    }[];
+    publicationBoundary: {
+      explicitMaintainerApprovalRequired: true;
+      externalAnnouncementOpened: false;
+      npmPublicationPerformed: false;
+      packageMetadataPreparedOnly: true;
+      releaseTagsCreated: false;
+    };
+    scannedArtifacts: string[];
+  };
+  phase: "5";
+  publicSurface: {
+    commands: {
+      command: string;
+      stage: "evidence" | "export" | "install" | "preview" | "run";
+    }[];
+    examples: string[];
+    excludedInternalSurface: string[];
+    guidance: string[];
+    packages: {
+      exports: string[];
+      packageName: string;
+    }[];
+  };
+  requirementRefs: string[];
+  reviewerAcceptanceGate: {
+    accepted: false;
+    acceptedArtifact: string;
+    builderCloseoutRequired: true;
+    required: true;
+  };
+  scenarioIds: ["TC-ALFA-001", "TC-ALFA-002", "TC-ALFA-003"];
+  schemaVersion: 1;
+  stabilityGate: {
+    clock: {
+      duration: "P1M";
+      startTrigger: string;
+      status: "pending-first-builder-commit";
+      surfaceEvidence: string[];
+      unresolvedBreakingChangeFindings: string[];
+    };
+    maintainerWaiverRoute: {
+      allowed: true;
+      narrowsReadinessClaim: true;
+      requiredArtifact: string;
+      riskExplanationRequired: true;
+    };
   };
 };
 

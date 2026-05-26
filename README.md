@@ -44,11 +44,14 @@ multi-device presenter console work were explicitly left out of Phase 4.
 
 Phase 5 is now open for Builder work from the frozen
 [`spec/phase5/`](./spec/phase5/) contracts. The active trace is
-[`trace/phase5/`](./trace/phase5/), and the first Builder batch is B5.1 /
-`TC-EXPT-001` + `TC-EXPT-002`: create the canonical longer Phase 5 technical
-talk and the supported local `cadenza export <deck>` web-bundle baseline with a
-deterministic manifest. `0.1 alpha readiness` is not claimed yet; it requires
-Builder completion, evidence, and Reviewer acceptance.
+[`trace/phase5/`](./trace/phase5/), and current Builder evidence covers the
+canonical longer technical talk, local `cadenza export <deck>` web bundle,
+preview/export parity, export diagnostics, repair routing, scoped MP4 proof,
+PDF waiver, and the public launch-candidate surface. The clean-checkout
+developer-preview path is documented in
+[`docs/alpha-readiness.md`](./docs/alpha-readiness.md). `0.1 alpha readiness`
+is not claimed yet; it requires Builder completion, evidence, and Reviewer
+acceptance.
 
 The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis
 that led to the project lives in
