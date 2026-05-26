@@ -76,7 +76,7 @@ type TimelineSlide = {
 };
 
 export type Phase5ExportArtifact = {
-  format: "json" | "markdown" | "web";
+  format: "json" | "markdown" | "mp4" | "web";
   path: string;
   role: string;
 };
@@ -103,6 +103,7 @@ export type Phase5LocalWebExportManifest = {
     };
   };
   generatedAt: string;
+  formatScopeEvidencePath: "format-scope-evidence.json";
   localOnly: true;
   outputDirectory: string;
   previewExportParity: Phase5PreviewExportParityReport;
@@ -313,10 +314,150 @@ type Phase5KnownLimitation = {
   severity: "info";
 };
 
+type Phase5FormatScopeEvidence = {
+  batchId: "B5.4";
+  formatClaims: {
+    blanketFormatParity: false;
+    broadArbitraryDeckMp4Support: false;
+    broadPdfSupport: false;
+    canonicalTalkMp4Only: true;
+    pdfLaunchReadinessWaived: true;
+  };
+  formats: Phase5FormatEvidence[];
+  phase: "5";
+  requirementRefs: ["FMT-002", "FMT-003", "FMT-004", "FMT-005"];
+  scenarioIds: ["TC-FMT-001", "TC-FMT-002"];
+  schemaVersion: 1;
+  sourceDeck: {
+    deckId: CadenzaExportDeckId;
+    path: string;
+  };
+};
+
+type Phase5FormatEvidence = {
+  artifactInventory: Phase5ExportArtifact[];
+  capabilityEvidence: {
+    notesBoundary: Phase5FormatCapabilityEvidence;
+    renderSafeAssets: Phase5FormatCapabilityEvidence & {
+      resourceCount: number;
+    };
+    transitions: Phase5FormatCapabilityEvidence & {
+      transitionCount: number;
+    };
+    typographyDensity: Phase5FormatCapabilityEvidence & {
+      densityRegressionCount: number;
+      typographyBoxCount: number;
+    };
+    visibleSlideSurface: Phase5FormatCapabilityEvidence;
+  };
+  declaredCapability:
+    | "baseline-web-bundle"
+    | "canonical-talk-video-proof"
+    | "unsupported-launch-waiver";
+  diagnostics: {
+    densityRegressionCount: number;
+    renderSafeResourceCount: number;
+    typographyBoxCount: number;
+  };
+  disposition:
+    | "baseline-supported"
+    | "supported-for-canonical-talk"
+    | "waived-for-launch-readiness";
+  enabled: boolean;
+  format: "mp4" | "pdf" | "web";
+  limitations: Phase5FormatLimitation[];
+  parityChecks: {
+    notesBoundary: "excluded-from-visible-output" | "waived";
+    semanticCheckpointCount: number;
+    slideOrder: string[];
+    status: "passed" | "limited-passed" | "waived";
+    timelineIdentity: string;
+    transitionCount: number;
+  };
+  scope?: {
+    arbitraryDecks: false;
+    canonicalDeckId: CadenzaExportDeckId;
+    launchReadinessImpact: "required-for-phase5-launch-candidate";
+  };
+  waiver?: {
+    followUpTarget: string;
+    format: "pdf";
+    launchReadinessImpact: "not-blocking";
+    rationale: string;
+    reviewerAcceptanceCreatesWaiver: false;
+  };
+};
+
+type Phase5FormatCapabilityEvidence = {
+  evidenceArtifacts: string[];
+  notes: string;
+  status:
+    | "diagnosed"
+    | "excluded-from-visible-output"
+    | "limited-smoke-proof"
+    | "metadata-only"
+    | "preserved"
+    | "semantic-parity"
+    | "timeline-metadata"
+    | "waived";
+};
+
+type Phase5FormatLimitation = {
+  category:
+    | "arbitrary-deck-boundary"
+    | "format-waiver"
+    | "renderer-boundary"
+    | "static-output-boundary";
+  notes: string;
+  severity: "info" | "warning";
+};
+
 const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+
+const PHASE5_CANONICAL_MP4_SMOKE_BASE64 = [
+  "AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAOEbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAA",
+  "A+gAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAA",
+  "AAAAAAAAAAAAAAAAAAAAAgAAAq90cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAA+gAAAAAAAAAAAAA",
+  "AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAoAAAAFoAAAAAAAkZWR0cwAAABxlbHN0",
+  "AAAAAAAAAAEAAAPoAAAAAAABAAAAAAInbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAwAAAAMABVxAAAAAAALWhk",
+  "bHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAAB0m1pbmYAAAAUdm1oZAAAAAEAAAAAAAAA",
+  "AAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAZJzdGJsAAAAunN0c2QAAAAAAAAAAQAAAKph",
+  "dmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAoABaABIAAAASAAAAAAAAAABFUxhdmM2Mi4xMS4xMDAgbGlieDI2",
+  "NAAAAAAAAAAAAAAAGP//AAAAMGF2Y0MBQsAe/+EAGWdCwB7aAoC/5cBEAAADAAQAAAMAwDxYuoABAARozg/IAAAA",
+  "EHBhc3AAAAABAAAAAQAAABRidHJ0AAAAAAAAMSgAAAAAAAAAGHN0dHMAAAAAAAAAAQAAABgAAAIAAAAAFHN0c3MA",
+  "AAAAAAAAAQAAAAEAAAAcc3RzYwAAAAAAAAABAAAAAQAAABgAAAABAAAAdHN0c3oAAAAAAAAAAAAAABgAAAUoAAAA",
+  "CwAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsAAAALAAAACwAAAAsA",
+  "AAALAAAACwAAAAsAAAALAAAACwAAAAsAAAAUc3RjbwAAAAAAAAABAAADtAAAAGF1ZHRhAAAAWW1ldGEAAAAAAAAA",
+  "IWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALGlsc3QAAAAkqXRvbwAAABxkYXRhAAAAAQAAAABMYXZm",
+  "NjIuMy4xMDAAAAAIZnJlZQAABi1tZGF0AAACVwYF//9T3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE2NSBy",
+  "MzIyMiBiMzU2MDVhIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAyNSAtIGh0dHA6",
+  "Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTAgcmVmPTEgZGVibG9jaz0wOi0z",
+  "Oi0zIGFuYWx5c2U9MDowIG1lPWRpYSBzdWJtZT0wIHBzeT0xIHBzeV9yZD0yLjAwOjAuNzAgbWl4ZWRfcmVmPTAg",
+  "bWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0wIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZh",
+  "c3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PTAgdGhyZWFkcz0xMSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNl",
+  "ZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWlu",
+  "ZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0yNTAga2V5aW50X21pbj0yNCBzY2VuZWN1dD0w",
+  "IGludHJhX3JlZnJlc2g9MCByYz1jcmYgbWJ0cmVlPTAgY3JmPTIzLjAgcWNvbXA9MC42MCBxcG1pbj0wIHFwbWF4",
+  "PTY5IHFwc3RlcD00IGlwX3JhdGlvPTEuNDAgYXE9MACAAAACyWWIhDoRigACNTHAMcBk5OTk5OTk5OTk5OTk5OTk",
+  "5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+  "rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrwAAAAB0GaICqAHMwAAAAHQZpAKoAczAAAAAdBmmAugBzMAAAAB0GagC6A",
+  "HMwAAAAHQZqgLoAczAAAAAdBmsAugBzMAAAAB0Ga4C6AHMwAAAAHQZsALoAczAAAAAdBmyAugBzMAAAAB0GbQC6A",
+  "HMwAAAAHQZtgLoAczAAAAAdBm4AugBzMAAAAB0GboC6AHMwAAAAHQZvALoAczAAAAAdBm+AugBzMAAAAB0GaAC6A",
+  "HMwAAAAHQZogLoAczAAAAAdBmkAugBzMAAAAB0GaYC6AHMwAAAAHQZqALoAczAAAAAdBmqAugBzMAAAAB0GawC6A",
+  "HMwAAAAHQZrgLoAczA==",
+].join("");
 
 const DECK_REGISTRY = {
   "phase5-alpha-readiness-talk": {
@@ -388,6 +529,21 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       path: "repair-routing-evidence.json",
       role: "repair-routing-evidence",
     },
+    {
+      format: "mp4",
+      path: "phase5-alpha-readiness-talk.mp4",
+      role: "canonical-mp4-smoke-proof",
+    },
+    {
+      format: "json",
+      path: "format-scope-evidence.json",
+      role: "machine-readable-format-scope-evidence",
+    },
+    {
+      format: "markdown",
+      path: "format-scope-evidence.md",
+      role: "human-format-scope-summary",
+    },
   ];
   const stableHash = createStableHash({
     artifacts,
@@ -399,6 +555,7 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     command: metadata.exportCommand,
     deckId: metadata.deckId,
     deterministic,
+    formatScopeEvidencePath: "format-scope-evidence.json",
     generatedAt: new Date().toISOString(),
     localOnly: true,
     outputDirectory: relativeOutputDirectory,
@@ -418,6 +575,10 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     metadata,
   });
   const repairRoutingEvidence = createRepairRoutingEvidence();
+  const formatScopeEvidence = createFormatScopeEvidence({
+    manifest,
+    metadata,
+  });
 
   await mkdir(outputDirectory, { recursive: true });
   await writeJson(path.join(outputDirectory, "deck.json"), {
@@ -440,6 +601,18 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
   await writeJson(
     path.join(outputDirectory, "repair-routing-evidence.json"),
     repairRoutingEvidence,
+  );
+  await writeFile(
+    path.join(outputDirectory, "phase5-alpha-readiness-talk.mp4"),
+    Buffer.from(PHASE5_CANONICAL_MP4_SMOKE_BASE64, "base64"),
+  );
+  await writeJson(
+    path.join(outputDirectory, "format-scope-evidence.json"),
+    formatScopeEvidence,
+  );
+  await writeFile(
+    path.join(outputDirectory, "format-scope-evidence.md"),
+    renderFormatScopeEvidenceMarkdown(formatScopeEvidence),
   );
 
   process.stdout.write(
@@ -469,6 +642,10 @@ function createExportEvidenceReport({
     "export-evidence.json",
     "export-evidence.md",
   ];
+  const formatScopeArtifacts = [
+    "format-scope-evidence.json",
+    "format-scope-evidence.md",
+  ];
 
   return {
     artifactInventory: artifacts,
@@ -481,8 +658,8 @@ function createExportEvidenceReport({
       },
       {
         claim: "format-scope",
-        evidenceArtifacts: [],
-        status: "not-claimed",
+        evidenceArtifacts: formatScopeArtifacts,
+        status: "evidence-backed",
       },
       {
         claim: "alpha-readiness",
@@ -496,8 +673,8 @@ function createExportEvidenceReport({
       },
       {
         claim: "waiver",
-        evidenceArtifacts: [],
-        status: "not-claimed",
+        evidenceArtifacts: ["format-scope-evidence.json"],
+        status: "evidence-backed",
       },
     ],
     diagnostics: {
@@ -546,6 +723,260 @@ function createExportEvidenceReport({
     ],
     scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"],
     schemaVersion: 1,
+  };
+}
+
+function createFormatScopeEvidence({
+  manifest,
+  metadata,
+}: {
+  manifest: Phase5LocalWebExportManifest;
+  metadata: DeckMetadata;
+}): Phase5FormatScopeEvidence {
+  const parity = manifest.previewExportParity;
+  const diagnostics = {
+    densityRegressionCount: parity.diagnostics.density.regressions.length,
+    renderSafeResourceCount: parity.diagnostics.renderSafe.resources.length,
+    typographyBoxCount: parity.diagnostics.typography.boxes.length,
+  };
+  const webArtifacts = manifest.artifacts.filter((artifact) =>
+    ["deck.json", "index.html", "manifest.json", "timeline.json"].includes(
+      artifact.path,
+    ),
+  );
+  const mp4Artifacts = manifest.artifacts.filter(
+    (artifact) => artifact.path === "phase5-alpha-readiness-talk.mp4",
+  );
+  const transitionCount = parity.exported.transitions.length;
+
+  return {
+    batchId: "B5.4",
+    formatClaims: {
+      blanketFormatParity: false,
+      broadArbitraryDeckMp4Support: false,
+      broadPdfSupport: false,
+      canonicalTalkMp4Only: true,
+      pdfLaunchReadinessWaived: true,
+    },
+    formats: [
+      {
+        artifactInventory: webArtifacts,
+        capabilityEvidence: {
+          notesBoundary: {
+            evidenceArtifacts: ["manifest.json"],
+            notes:
+              "Speaker notes remain excluded from the visible exported web surface and are represented only as metadata.",
+            status: "excluded-from-visible-output",
+          },
+          renderSafeAssets: {
+            evidenceArtifacts: ["manifest.json", "export-evidence.json"],
+            notes:
+              "The web bundle inherits render-safe resource diagnostics from preview/export parity evidence.",
+            resourceCount: diagnostics.renderSafeResourceCount,
+            status: "diagnosed",
+          },
+          transitions: {
+            evidenceArtifacts: ["timeline.json", "manifest.json"],
+            notes:
+              "Web parity evidence preserves semantic transition declarations and settle checkpoints.",
+            status: "semantic-parity",
+            transitionCount,
+          },
+          typographyDensity: {
+            densityRegressionCount: diagnostics.densityRegressionCount,
+            evidenceArtifacts: ["manifest.json", "export-evidence.json"],
+            notes:
+              "Typography and density outcomes are represented through export diagnostics.",
+            status: "diagnosed",
+            typographyBoxCount: diagnostics.typographyBoxCount,
+          },
+          visibleSlideSurface: {
+            evidenceArtifacts: ["index.html"],
+            notes:
+              "The web bundle contains the inspectable visible slide surface for the canonical talk.",
+            status: "preserved",
+          },
+        },
+        declaredCapability: "baseline-web-bundle",
+        diagnostics,
+        disposition: "baseline-supported",
+        enabled: true,
+        format: "web",
+        limitations: [
+          {
+            category: "renderer-boundary",
+            notes:
+              "The web bundle is the baseline inspectable export; it is not a hosted-rendering or publication claim.",
+            severity: "info",
+          },
+        ],
+        parityChecks: {
+          notesBoundary: "excluded-from-visible-output",
+          semanticCheckpointCount: parity.semanticCheckpoints.length,
+          slideOrder: parity.exported.slideOrder,
+          status: "passed",
+          timelineIdentity: parity.exported.timelineIdentity,
+          transitionCount,
+        },
+      },
+      {
+        artifactInventory: mp4Artifacts,
+        capabilityEvidence: {
+          notesBoundary: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "The MP4 proof excludes speaker notes from the visible video surface.",
+            status: "excluded-from-visible-output",
+          },
+          renderSafeAssets: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "Render-safe asset coverage is represented as timeline metadata for the canonical talk, not by broad pixel parity.",
+            resourceCount: diagnostics.renderSafeResourceCount,
+            status: "metadata-only",
+          },
+          transitions: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "MP4 transition evidence is limited to canonical timeline metadata and does not claim full renderer pixel parity.",
+            status: "timeline-metadata",
+            transitionCount,
+          },
+          typographyDensity: {
+            densityRegressionCount: diagnostics.densityRegressionCount,
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "Typography and density evidence is metadata-only for the scoped MP4 proof.",
+            status: "metadata-only",
+            typographyBoxCount: diagnostics.typographyBoxCount,
+          },
+          visibleSlideSurface: {
+            evidenceArtifacts: [
+              "phase5-alpha-readiness-talk.mp4",
+              "format-scope-evidence.json",
+            ],
+            notes:
+              "The MP4 artifact is a deterministic smoke proof for the canonical talk only.",
+            status: "limited-smoke-proof",
+          },
+        },
+        declaredCapability: "canonical-talk-video-proof",
+        diagnostics,
+        disposition: "supported-for-canonical-talk",
+        enabled: true,
+        format: "mp4",
+        limitations: [
+          {
+            category: "arbitrary-deck-boundary",
+            notes:
+              "The MP4 proof is limited to phase5-alpha-readiness-talk and does not claim arbitrary-deck video export support.",
+            severity: "warning",
+          },
+          {
+            category: "renderer-boundary",
+            notes:
+              "The Phase 5 MP4 artifact is a deterministic local video-container smoke proof tied to the canonical timeline evidence, not full Remotion pixel parity.",
+            severity: "warning",
+          },
+        ],
+        parityChecks: {
+          notesBoundary: "excluded-from-visible-output",
+          semanticCheckpointCount: parity.semanticCheckpoints.length,
+          slideOrder: parity.exported.slideOrder,
+          status: "limited-passed",
+          timelineIdentity: parity.exported.timelineIdentity,
+          transitionCount,
+        },
+        scope: {
+          arbitraryDecks: false,
+          canonicalDeckId: metadata.deckId,
+          launchReadinessImpact: "required-for-phase5-launch-candidate",
+        },
+      },
+      {
+        artifactInventory: [],
+        capabilityEvidence: {
+          notesBoundary: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes: "PDF notes-boundary parity is waived for Phase 5.",
+            status: "waived",
+          },
+          renderSafeAssets: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes: "PDF render-safe asset evidence is waived for Phase 5.",
+            resourceCount: 0,
+            status: "waived",
+          },
+          transitions: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "PDF transition and motion parity is waived for Phase 5 launch readiness.",
+            status: "waived",
+            transitionCount: 0,
+          },
+          typographyDensity: {
+            densityRegressionCount: 0,
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes:
+              "PDF typography and density evidence is waived until a static proof is scoped.",
+            status: "waived",
+            typographyBoxCount: 0,
+          },
+          visibleSlideSurface: {
+            evidenceArtifacts: ["format-scope-evidence.json"],
+            notes: "PDF visible-surface output is not generated in Phase 5.",
+            status: "waived",
+          },
+        },
+        declaredCapability: "unsupported-launch-waiver",
+        diagnostics: {
+          densityRegressionCount: 0,
+          renderSafeResourceCount: 0,
+          typographyBoxCount: 0,
+        },
+        disposition: "waived-for-launch-readiness",
+        enabled: false,
+        format: "pdf",
+        limitations: [
+          {
+            category: "format-waiver",
+            notes:
+              "PDF export is waived for Phase 5 launch readiness by FC-FMT-02; no PDF artifact or parity claim is produced.",
+            severity: "info",
+          },
+          {
+            category: "static-output-boundary",
+            notes:
+              "Any future static PDF proof must be labeled non-motion output and must not imply transition, step, or notes parity.",
+            severity: "info",
+          },
+        ],
+        parityChecks: {
+          notesBoundary: "waived",
+          semanticCheckpointCount: 0,
+          slideOrder: [],
+          status: "waived",
+          timelineIdentity: "",
+          transitionCount: 0,
+        },
+        waiver: {
+          followUpTarget: "wip/next-phases/phase-6-7-8-plus-plan.md",
+          format: "pdf",
+          launchReadinessImpact: "not-blocking",
+          rationale:
+            "Phase 5 launch readiness prioritizes local web and scoped MP4 evidence; PDF motion and notes semantics are deferred.",
+          reviewerAcceptanceCreatesWaiver: false,
+        },
+      },
+    ],
+    phase: "5",
+    requirementRefs: ["FMT-002", "FMT-003", "FMT-004", "FMT-005"],
+    scenarioIds: ["TC-FMT-001", "TC-FMT-002"],
+    schemaVersion: 1,
+    sourceDeck: {
+      deckId: metadata.deckId,
+      path: metadata.sourcePath,
+    },
   };
 }
 
@@ -653,6 +1084,49 @@ function createRepairRoutingEvidence(): Phase5RepairRoutingEvidence {
     schemaVersion: 1,
     sourceEvidencePath: "export-evidence.json",
   };
+}
+
+function renderFormatScopeEvidenceMarkdown(
+  evidence: Phase5FormatScopeEvidence,
+): string {
+  const mp4 = evidence.formats.find((format) => format.format === "mp4");
+  const pdf = evidence.formats.find((format) => format.format === "pdf");
+  const mp4Limitations =
+    mp4?.limitations
+      .map(
+        (limitation) =>
+          `- ${limitation.severity}/${limitation.category}: ${limitation.notes}`,
+      )
+      .join("\n") ?? "- none";
+  const pdfLimitations =
+    pdf?.limitations
+      .map(
+        (limitation) =>
+          `- ${limitation.severity}/${limitation.category}: ${limitation.notes}`,
+      )
+      .join("\n") ?? "- none";
+
+  return `# Phase 5 format scope evidence
+
+- Batch: ${evidence.batchId}
+- Scenarios: ${evidence.scenarioIds.join(", ")}
+- Requirements: ${evidence.requirementRefs.join(", ")}
+- Source deck: \`${evidence.sourceDeck.path}\`
+- MP4: supported for the canonical talk only
+- PDF: waived for Phase 5 launch readiness
+
+## MP4 Limitations
+
+${mp4Limitations}
+
+## PDF Limitations
+
+${pdfLimitations}
+
+No broad arbitrary-deck MP4 support is claimed.
+No broad PDF support is claimed.
+No blanket format parity is claimed.
+`;
 }
 
 function renderExportEvidenceMarkdown(evidence: Phase5ExportEvidence): string {

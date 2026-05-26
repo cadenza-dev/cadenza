@@ -57,11 +57,53 @@ builder_progress:
   current_session_approved_at: "2026-05-26 22:11 +0800"
   current_session_approval_note: "Maintainer answered y to proceed as Phase 5 Builder with GPT-5/codex after Startup Protocol mismatch check."
   next_batch:
-    id: B5.4
-    scenarios: [TC-FMT-001, TC-FMT-002]
+    id: B5.5
+    scenarios: [TC-ALFA-001, TC-ALFA-002, TC-ALFA-003]
     status: ready
-    summary: "Support or explicitly scope Phase 5 launch-candidate MP4/PDF format disposition with format-specific evidence and limitations."
+    summary: "Declare the public alpha surface, clean-checkout docs, launch-candidate material, stability/waiver route, Reviewer acceptance dependency, and overclaim guards."
   completed_batches:
+    - id: B5.4
+      scenarios: [TC-FMT-001, TC-FMT-002]
+      status: complete
+      completed_at: "2026-05-26 23:15 +0800"
+      requirements: [FMT-002, FMT-003, FMT-004, FMT-005]
+      evidence:
+        tests:
+          - packages/core/src/phase5-export.test.ts
+        code:
+          - scripts/cadenza.ts
+        generated_artifacts:
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/index.html
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/manifest.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/export-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/export-evidence.md
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/repair-routing-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/phase5-alpha-readiness-talk.mp4
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/format-scope-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/format-scope-evidence.md
+      behavior:
+        - "The local export manifest now includes format-scope evidence artifacts and a canonical MP4 smoke artifact for phase5-alpha-readiness-talk."
+        - "Format-scope evidence records capability-specific claims for web, MP4, and PDF instead of blanket parity: web remains the baseline, MP4 is supported only for the canonical talk, and PDF is waived for Phase 5 launch readiness."
+        - "MP4 evidence includes artifact inventory, limited parity checks, diagnostics, visible-surface/notes/render-safe/typography/transition capability evidence, and limitations that reject arbitrary-deck and full Remotion pixel-parity claims."
+        - "PDF evidence records the default launch-readiness waiver, rationale, non-blocking impact, follow-up target, and the rule that Reviewer acceptance alone does not create a format waiver."
+      boundary: "B5.4 only; no CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, broad arbitrary-deck MP4 claim, full PDF support, alpha-readiness declaration, hosted rendering, Remotion Lambda, MCP implementation, npm publication, external release, or presenter-console follow-up work."
+      verification:
+        red_tc_fmt_001: "pnpm test packages/core/src/phase5-export.test.ts (failed because format-scope-evidence.json was missing from the generated export artifact directory)"
+        green_tc_fmt_001: "pnpm test packages/core/src/phase5-export.test.ts"
+        red_tc_fmt_002: "pnpm test packages/core/src/phase5-export.test.ts (failed because per-format capabilityEvidence was missing from format-scope evidence)"
+        green_tc_fmt_002: "pnpm test packages/core/src/phase5-export.test.ts"
+        manual_export: "pnpm cadenza export phase5-alpha-readiness-talk --run-id b5-4-manual"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B5.3
       scenarios: [TC-EVDN-001, TC-EVDN-002]
       status: complete

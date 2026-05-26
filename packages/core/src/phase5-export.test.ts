@@ -483,15 +483,216 @@ describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
     ).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ claim: "alpha-readiness" }),
-        expect.objectContaining({ claim: "waiver" }),
+        expect.objectContaining({ claim: "hosted-readiness" }),
       ]),
     );
   });
 });
 
+describe("B5.4 Phase 5 format scope", () => {
+  it("TC-FMT-001 records the frozen MP4/PDF disposition and rejects silent broad claims", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-4-format-disposition";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const evidence = readJson<Phase5ExportEvidence>(
+      path.join(outputDir, "export-evidence.json"),
+    );
+    const formatScope = readJson<Phase5FormatScopeEvidence>(
+      path.join(outputDir, "format-scope-evidence.json"),
+    );
+    const summary = readText(path.join(outputDir, "format-scope-evidence.md"));
+    const mp4 = formatScope.formats.find((format) => format.format === "mp4");
+    const pdf = formatScope.formats.find((format) => format.format === "pdf");
+
+    expect(manifest.formatScopeEvidencePath).toBe("format-scope-evidence.json");
+    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining([
+        "phase5-alpha-readiness-talk.mp4",
+        "format-scope-evidence.json",
+        "format-scope-evidence.md",
+      ]),
+    );
+    expect(formatScope).toMatchObject({
+      batchId: "B5.4",
+      phase: "5",
+      requirementRefs: ["FMT-002", "FMT-003", "FMT-004", "FMT-005"],
+      scenarioIds: ["TC-FMT-001", "TC-FMT-002"],
+      schemaVersion: 1,
+    });
+    expect(formatScope.sourceDeck).toEqual({
+      deckId,
+      path: phase5AlphaReadinessTalkMetadata.sourcePath,
+    });
+    expect(formatScope.formatClaims).toEqual({
+      blanketFormatParity: false,
+      broadArbitraryDeckMp4Support: false,
+      broadPdfSupport: false,
+      canonicalTalkMp4Only: true,
+      pdfLaunchReadinessWaived: true,
+    });
+
+    expect(mp4).toMatchObject({
+      declaredCapability: "canonical-talk-video-proof",
+      disposition: "supported-for-canonical-talk",
+      enabled: true,
+      format: "mp4",
+    });
+    expect(mp4?.scope).toEqual({
+      arbitraryDecks: false,
+      canonicalDeckId: deckId,
+      launchReadinessImpact: "required-for-phase5-launch-candidate",
+    });
+    expect(mp4?.artifactInventory.map((artifact) => artifact.path)).toEqual([
+      "phase5-alpha-readiness-talk.mp4",
+    ]);
+    expect(
+      existsSync(path.join(outputDir, "phase5-alpha-readiness-talk.mp4")),
+    ).toBe(true);
+    expect(
+      readFileSync(path.join(outputDir, "phase5-alpha-readiness-talk.mp4"))
+        .subarray(4, 8)
+        .toString("utf8"),
+    ).toBe("ftyp");
+
+    expect(pdf).toMatchObject({
+      declaredCapability: "unsupported-launch-waiver",
+      disposition: "waived-for-launch-readiness",
+      enabled: false,
+      format: "pdf",
+      waiver: {
+        format: "pdf",
+        launchReadinessImpact: "not-blocking",
+        reviewerAcceptanceCreatesWaiver: false,
+      },
+    });
+    expect(pdf?.artifactInventory).toEqual([]);
+    expect(pdf?.limitations.map((limitation) => limitation.category)).toEqual(
+      expect.arrayContaining(["format-waiver"]),
+    );
+
+    expect(evidence.boundaryClaims).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          claim: "format-scope",
+          evidenceArtifacts: expect.arrayContaining([
+            "format-scope-evidence.json",
+            "format-scope-evidence.md",
+          ]),
+          status: "evidence-backed",
+        }),
+        expect.objectContaining({
+          claim: "waiver",
+          evidenceArtifacts: expect.arrayContaining([
+            "format-scope-evidence.json",
+          ]),
+          status: "evidence-backed",
+        }),
+      ]),
+    );
+    expect(summary).toContain("MP4: supported for the canonical talk only");
+    expect(summary).toContain("PDF: waived for Phase 5 launch readiness");
+    expect(summary).toContain(
+      "No broad arbitrary-deck MP4 support is claimed.",
+    );
+    expect(summary).toContain("No broad PDF support is claimed.");
+  });
+
+  it("TC-FMT-002 emits format-specific evidence, diagnostics, parity checks, and limitations", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-4-format-evidence";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const formatScope = readJson<Phase5FormatScopeEvidence>(
+      path.join(outputDir, "format-scope-evidence.json"),
+    );
+    const web = formatScope.formats.find((format) => format.format === "web");
+    const mp4 = formatScope.formats.find((format) => format.format === "mp4");
+    const pdf = formatScope.formats.find((format) => format.format === "pdf");
+
+    expect(web?.artifactInventory.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining(["index.html", "manifest.json", "timeline.json"]),
+    );
+    expect(web?.parityChecks.status).toBe("passed");
+    expect(web?.diagnostics.renderSafeResourceCount).toBeGreaterThan(0);
+    expect(web?.diagnostics.typographyBoxCount).toBeGreaterThan(0);
+    expect(web?.capabilityEvidence).toMatchObject({
+      notesBoundary: {
+        evidenceArtifacts: ["manifest.json"],
+        status: "excluded-from-visible-output",
+      },
+      renderSafeAssets: {
+        status: "diagnosed",
+      },
+      transitions: {
+        status: "semantic-parity",
+      },
+      typographyDensity: {
+        status: "diagnosed",
+      },
+      visibleSlideSurface: {
+        evidenceArtifacts: ["index.html"],
+        status: "preserved",
+      },
+    });
+
+    expect(mp4?.artifactInventory.map((artifact) => artifact.path)).toEqual([
+      "phase5-alpha-readiness-talk.mp4",
+    ]);
+    expect(mp4?.parityChecks.status).toBe("limited-passed");
+    expect(mp4?.parityChecks.slideOrder).toEqual(
+      phase5AlphaReadinessTalkMetadata.outline.map((entry) => entry.slideId),
+    );
+    expect(mp4?.parityChecks.transitionCount).toBeGreaterThan(0);
+    expect(mp4?.diagnostics.renderSafeResourceCount).toBeGreaterThan(0);
+    expect(mp4?.capabilityEvidence).toMatchObject({
+      notesBoundary: {
+        evidenceArtifacts: ["format-scope-evidence.json"],
+        status: "excluded-from-visible-output",
+      },
+      renderSafeAssets: {
+        status: "metadata-only",
+      },
+      transitions: {
+        status: "timeline-metadata",
+      },
+      typographyDensity: {
+        status: "metadata-only",
+      },
+      visibleSlideSurface: {
+        evidenceArtifacts: [
+          "phase5-alpha-readiness-talk.mp4",
+          "format-scope-evidence.json",
+        ],
+        status: "limited-smoke-proof",
+      },
+    });
+    expect(mp4?.limitations.length).toBeGreaterThanOrEqual(2);
+
+    expect(pdf?.capabilityEvidence).toMatchObject({
+      notesBoundary: { status: "waived" },
+      renderSafeAssets: { status: "waived" },
+      transitions: { status: "waived" },
+      typographyDensity: { status: "waived" },
+      visibleSlideSurface: { status: "waived" },
+    });
+    expect(pdf?.parityChecks.status).toBe("waived");
+    expect(pdf?.limitations.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
 type Phase5ExportManifest = {
   artifacts: {
-    format: "json" | "web";
+    format: "json" | "markdown" | "mp4" | "web";
     path: string;
     role: string;
   }[];
@@ -516,6 +717,7 @@ type Phase5ExportManifest = {
   };
   localOnly: boolean;
   outputDirectory: string;
+  formatScopeEvidencePath: "format-scope-evidence.json";
   requiresHostedInfrastructure: boolean;
   runId: string;
   sourceDeck: string;
@@ -640,6 +842,71 @@ type Phase5ExportEvidence = {
   requirementRefs: string[];
   scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"];
   schemaVersion: 1;
+};
+
+type Phase5FormatScopeEvidence = {
+  batchId: "B5.4";
+  formatClaims: {
+    blanketFormatParity: false;
+    broadArbitraryDeckMp4Support: false;
+    broadPdfSupport: false;
+    canonicalTalkMp4Only: true;
+    pdfLaunchReadinessWaived: true;
+  };
+  formats: {
+    artifactInventory: {
+      format: "json" | "markdown" | "mp4" | "web";
+      path: string;
+      role: string;
+    }[];
+    declaredCapability:
+      | "baseline-web-bundle"
+      | "canonical-talk-video-proof"
+      | "unsupported-launch-waiver";
+    capabilityEvidence: Record<string, unknown>;
+    disposition:
+      | "baseline-supported"
+      | "supported-for-canonical-talk"
+      | "waived-for-launch-readiness";
+    diagnostics: {
+      densityRegressionCount: number;
+      renderSafeResourceCount: number;
+      typographyBoxCount: number;
+    };
+    enabled: boolean;
+    format: "mp4" | "pdf" | "web";
+    limitations: {
+      category:
+        | "arbitrary-deck-boundary"
+        | "format-waiver"
+        | "renderer-boundary"
+        | "static-output-boundary";
+      severity: "info" | "warning";
+    }[];
+    parityChecks: {
+      slideOrder: string[];
+      status: "limited-passed" | "passed" | "waived";
+      transitionCount: number;
+    };
+    scope?: {
+      arbitraryDecks: false;
+      canonicalDeckId: string;
+      launchReadinessImpact: string;
+    };
+    waiver?: {
+      format: "pdf";
+      launchReadinessImpact: "not-blocking";
+      reviewerAcceptanceCreatesWaiver: false;
+    };
+  }[];
+  phase: "5";
+  requirementRefs: ["FMT-002", "FMT-003", "FMT-004", "FMT-005"];
+  scenarioIds: ["TC-FMT-001", "TC-FMT-002"];
+  schemaVersion: 1;
+  sourceDeck: {
+    deckId: string;
+    path: string;
+  };
 };
 
 type Phase5RepairRoutingEvidence = {

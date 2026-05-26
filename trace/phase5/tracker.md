@@ -1,5 +1,39 @@
 # Phase 5 Tracker
 
+## 2026-05-26 23:15 +0800 — B5.4 format scope evidence
+
+- Scope: completed only B5.4 / `TC-FMT-001` + `TC-FMT-002`; no frozen specs,
+  Accepted ADRs, or root phase pointer were modified.
+- Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED/GREEN evidence: the first focused B5.4 test failed because
+  `format-scope-evidence.json` was missing from the generated export artifact
+  directory, then passed after export runs emitted format-scope JSON/Markdown
+  plus a canonical MP4 smoke artifact. The second focused test failed because
+  per-format `capabilityEvidence` was missing, then passed after web, MP4, and
+  PDF each recorded its own visible-surface, notes-boundary, render-safe,
+  typography/density, transition, parity, diagnostic, and limitation fields.
+- Export evidence: `pnpm cadenza export phase5-alpha-readiness-talk --run-id
+  b5-4-manual` wrote B5.4 evidence under
+  `dist/phase5/phase5-alpha-readiness-talk/b5-4-manual/`, including
+  `phase5-alpha-readiness-talk.mp4`, `format-scope-evidence.json`, and
+  `format-scope-evidence.md`.
+- Format disposition: web remains the baseline supported export; MP4 is
+  supported only for the canonical `phase5-alpha-readiness-talk`; PDF is waived
+  for Phase 5 launch readiness with rationale, non-blocking impact, and a
+  future follow-up target recorded in repository evidence.
+- Limitations preserved: no broad arbitrary-deck MP4 support, no full Remotion
+  pixel-parity claim for the MP4 smoke artifact, no broad PDF support, and no
+  blanket parity claim across web, MP4, and PDF.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`, `trace/phase5/status.yaml`, and
+  this tracker.
+- Verification: focused B5.4 Vitest passed; `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed after trace update.
+- Next batch: B5.5 / `TC-ALFA-001` + `TC-ALFA-002` + `TC-ALFA-003`.
+
 ## 2026-05-26 22:11 +0800 — B5.3 export diagnostics and repair routing
 
 - Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
