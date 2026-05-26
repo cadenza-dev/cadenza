@@ -3,6 +3,8 @@ name: CI
 on:
   pull_request:
   push:
+  repository_dispatch:
+    types: [manual-ci]
   workflow_dispatch:
 
 concurrency:
