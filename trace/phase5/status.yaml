@@ -54,22 +54,85 @@ builder_progress:
   status: in_progress
   active_role: builder
   current_session_identity: GPT-5/codex
-  current_session_approved_at: "2026-05-26 22:11 +0800"
+  current_session_approved_at: "2026-05-27 00:44 +0800"
   current_session_approval_note: "Maintainer answered y to proceed as Phase 5 Builder with GPT-5/codex after Startup Protocol mismatch check."
   next_batch:
-    id: B5.6
-    scenarios:
-      [
-        TC-LHEV-001,
-        TC-LHEV-002,
-        TC-MCPA-001,
-        TC-MCPA-002,
-        TC-PCON-001,
-        TC-PCON-002,
-      ]
+    id: B5.7
+    scenarios: []
     status: ready
-    summary: "Produce local hosted/Lambda compatibility evidence, MCP deferral or read-only disposition, and presenter-console follow-up boundary checks without remote jobs or implementation expansion."
+    summary: "Run Phase 5 Builder closeout after all acceptance scenarios are green, update exit criteria, run the full verification stack, and prepare Reviewer handoff without claiming final 0.1 alpha readiness."
   completed_batches:
+    - id: B5.6
+      scenarios:
+        [
+          TC-LHEV-001,
+          TC-LHEV-002,
+          TC-MCPA-001,
+          TC-MCPA-002,
+          TC-PCON-001,
+          TC-PCON-002,
+        ]
+      status: complete
+      completed_at: "2026-05-27 00:44 +0800"
+      requirements:
+        [
+          LHEV-001,
+          LHEV-002,
+          LHEV-005,
+          EXPT-004,
+          LHEV-003,
+          LHEV-004,
+          MCPA-001,
+          MCPA-003,
+          MCPA-005,
+          MCPA-002,
+          MCPA-004,
+          PCON-001,
+          PCON-003,
+          PCON-004,
+          PCON-002,
+        ]
+      evidence:
+        tests:
+          - packages/core/src/phase5-export.test.ts
+        code:
+          - scripts/cadenza.ts
+        generated_artifacts:
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/index.html
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/manifest.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/export-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/export-evidence.md
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/repair-routing-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/phase5-alpha-readiness-talk.mp4
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/format-scope-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/format-scope-evidence.md
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/alpha-readiness-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/alpha-readiness-evidence.md
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/boundary-evaluation-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/boundary-evaluation-evidence.md
+      behavior:
+        - "The local export manifest now includes boundary-evaluation evidence artifacts alongside export, repair-routing, format-scope, MP4, and alpha-readiness evidence."
+        - "Remotion Lambda and hosted rendering remain evaluation-only: no remote jobs run, no hosted implementation starts, and future hosted implementation is routed to a Proposed ADR or explicit maintainer approval."
+        - "The local compatibility report records manifest identity, stable hash, artifact layout, render-safe readiness, parity diagnostics, cost assumptions, operational risks, licensing triggers, Apache-2.0 OSS-core boundary, and Remotion license boundary."
+        - "Boundary scans cover package scripts, CI, README, alpha docs, the Phase 5 example, and the export command implementation, and record no secrets, remote accounts, paid jobs, publishing, hosted infrastructure, Remotion Lambda command, AWS credential, GitHub release, or deploy prerequisite."
+        - "Read-only MCP is deferred by default because Markdown, examples, trace, generated evidence, and cadenza-best-practices remain adequate context; tool-based MCP remains deferred beyond Phase 5."
+        - "Multi-device presenter console is deferred, session replay is not introduced as a user-facing artifact, and live-presenter recording is not canonical; deterministic offline export remains canonical."
+      boundary: "B5.6 only; no CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, remote Lambda job, hosted implementation, remote account, secret, paid cloud job, external publishing, npm publication, release tag, tool-based MCP implementation, read-only MCP resource/prompt, multi-device presenter console, user-facing replay artifact, live-presenter-recording canonical path, commercial-readiness claim, or final alpha-readiness claim."
+      verification:
+        red_tc_lhev_mcpa_pcon: "pnpm test packages/core/src/phase5-export.test.ts (failed because boundary-evaluation-evidence.json was missing from the generated export artifact directory)"
+        green_tc_lhev_mcpa_pcon: "pnpm test packages/core/src/phase5-export.test.ts"
+        manual_export: "pnpm cadenza export phase5-alpha-readiness-talk --run-id b5-6-manual"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B5.5
       scenarios: [TC-ALFA-001, TC-ALFA-002, TC-ALFA-003]
       status: complete

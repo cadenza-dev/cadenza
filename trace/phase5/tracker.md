@@ -1,5 +1,47 @@
 # Phase 5 Tracker
 
+## 2026-05-27 00:44 +0800 — B5.6 hosted boundary evaluation
+
+- Scope: completed only B5.6 / `TC-LHEV-001` + `TC-LHEV-002` +
+  `TC-MCPA-001` + `TC-MCPA-002` + `TC-PCON-001` + `TC-PCON-002`; no frozen
+  specs, Accepted ADRs, or root phase pointer were modified.
+- Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- RED/GREEN evidence: the focused B5.6 test failed because
+  `boundary-evaluation-evidence.json` was missing from the generated export
+  artifact directory, then passed after local export emitted
+  `boundary-evaluation-evidence.json` and `boundary-evaluation-evidence.md`.
+- Export evidence: `pnpm cadenza export phase5-alpha-readiness-talk --run-id
+  b5-6-manual` wrote B5.6 evidence under
+  `dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/`, including
+  `boundary-evaluation-evidence.json` and `boundary-evaluation-evidence.md`.
+- Hosted/Lambda disposition: Remotion Lambda and hosted rendering remain
+  evaluation-only. The compatibility report records deterministic manifest
+  identity, stable hash, artifact layout, render-safe metadata, parity
+  diagnostics, cost assumptions, operational risks, licensing triggers,
+  Apache-2.0 OSS-core boundary, and Remotion license boundary. No remote jobs
+  were run and no hosted implementation was started.
+- Boundary scans: package scripts, CI, README, alpha docs, the Phase 5 example,
+  and `scripts/cadenza.ts` were scanned; the evidence records absent
+  prerequisites for secrets, remote accounts, paid cloud jobs, publishing,
+  hosted infrastructure, Remotion Lambda command shapes, AWS credentials,
+  GitHub releases, and deploy commands.
+- MCP disposition: read-only MCP remains deferred by default because Markdown,
+  examples, trace, generated evidence, and `cadenza-best-practices` are still
+  adequate context. Tool-based MCP remains deferred beyond Phase 5.
+- Presenter follow-up: multi-device presenter console remains deferred,
+  session replay was not introduced as a user-facing artifact, and
+  live-presenter recording is not the canonical export path. Deterministic
+  offline export remains canonical.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`, `trace/phase5/status.yaml`, and
+  this tracker.
+- Verification: focused B5.6 Vitest passed; `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed after trace update.
+- Next batch: B5.7 Phase 5 Builder closeout.
+
 ## 2026-05-26 23:37 +0800 — B5.5 alpha readiness surface
 
 - Scope: completed only B5.5 / `TC-ALFA-001` + `TC-ALFA-002` +

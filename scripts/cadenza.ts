@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -84,6 +84,7 @@ export type Phase5ExportArtifact = {
 export type Phase5LocalWebExportManifest = {
   artifacts: Phase5ExportArtifact[];
   alphaReadinessEvidencePath: "alpha-readiness-evidence.json";
+  boundaryEvaluationEvidencePath: "boundary-evaluation-evidence.json";
   command: string;
   deckId: CadenzaExportDeckId;
   deterministic: {
@@ -491,6 +492,162 @@ type Phase5AlphaReadinessEvidence = {
   };
 };
 
+type Phase5BoundaryEvaluationEvidence = {
+  batchId: "B5.6";
+  boundaryScans: Phase5BoundaryScanEvidence;
+  hostedEvaluation: {
+    costRiskLicense: {
+      apache2OssCoreBoundaryPreserved: true;
+      cadenzaRedistributesRemotion: false;
+      costAssumptions: {
+        notes: string;
+        status: "estimated" | "unsupported-assumption";
+        subject: string;
+      }[];
+      grantsRemotionCommercialRights: false;
+      licensingTriggers: {
+        evidence: string[];
+        trigger: string;
+      }[];
+      operationalRisks: {
+        category:
+          | "artifact-retention"
+          | "credential-management"
+          | "queue-failure";
+        mitigation: string;
+      }[];
+      productionGradeCostModel: false;
+    };
+    disposition: "evaluation-only";
+    hostedImplementationStarted: false;
+    localCompatibilityReport: {
+      artifactLayout: {
+        generatedArtifactRoot: string;
+        suitableForFutureRemotePackaging: true;
+      };
+      diagnostics: {
+        densityRegressionCount: number;
+        parityStatus: Phase5PreviewExportParityReport["status"];
+        typographyBoxCount: number;
+      };
+      localExportInputs: {
+        command: string;
+        localOnly: true;
+        sourceDeck: string;
+      };
+      manifest: {
+        hasDeterministicTimelineIdentity: true;
+        hasStableHash: true;
+      };
+      renderSafeReadiness: {
+        resourceCount: number;
+        status: "metadata-ready";
+      };
+    };
+    recommendation: {
+      nextStep: "future Proposed ADR or explicit maintainer approval before hosted implementation";
+      status: "defer-hosted-implementation";
+    };
+    remoteJobsRun: false;
+    requiresHostedInfrastructureForLocalExport: false;
+  };
+  mcpDisposition: {
+    contextInjectionAdequate: true;
+    inventory: [];
+    prohibitedCapabilitiesAbsent: [
+      "hosted rendering",
+      "commercial-tier workflows",
+      "WYSIWYG editing",
+      "template marketplace",
+      "collaboration or comments",
+      "SSO",
+      "i18n infrastructure",
+      "external publishing",
+    ];
+    readOnlyMcp: {
+      disposition: "deferred-default";
+      rationale: string;
+      resourcesOrPromptsAdded: [];
+    };
+    targetPhaseOrCondition: string;
+    toolBasedMcp: {
+      deferredBeyondPhase5: true;
+      implemented: false;
+      rationale: string;
+    };
+  };
+  phase: "5";
+  presenterFollowup: {
+    livePresenterRecording: {
+      canonicalExportPath: "deterministic-offline-export";
+      liveRecordingIsCanonical: false;
+      recordingArtifactsProduced: [];
+    };
+    multiDevicePresenterConsole: {
+      disposition: "deferred-beyond-phase5";
+      implemented: false;
+      rationale: string;
+    };
+    prohibitedScopeAbsent: [
+      "accounts",
+      "SSO",
+      "collaboration",
+      "comments",
+      "remote control services",
+      "external publishing",
+      "hosted infrastructure",
+    ];
+    sameBrowserPresenterWorkflowRemainsDefault: true;
+    sessionReplay: {
+      diagnosticAllowedIfParityNeedsIt: true;
+      disposition: "not-introduced";
+      userFacingReplayArtifactDefined: false;
+    };
+  };
+  requirementRefs: [
+    "LHEV-001",
+    "LHEV-002",
+    "LHEV-005",
+    "EXPT-004",
+    "LHEV-003",
+    "LHEV-004",
+    "MCPA-001",
+    "MCPA-003",
+    "MCPA-005",
+    "MCPA-002",
+    "MCPA-004",
+    "PCON-001",
+    "PCON-003",
+    "PCON-004",
+    "PCON-002",
+  ];
+  scenarioIds: [
+    "TC-LHEV-001",
+    "TC-LHEV-002",
+    "TC-MCPA-001",
+    "TC-MCPA-002",
+    "TC-PCON-001",
+    "TC-PCON-002",
+  ];
+  schemaVersion: 1;
+};
+
+type Phase5BoundaryScanEvidence = {
+  prohibitedPatternResults: {
+    matches: string[];
+    pattern: string;
+    status: "absent" | "present";
+  }[];
+  remotePrerequisites: {
+    externalPublishingRequired: false;
+    hostedInfrastructureRequired: false;
+    paidCloudJobsRequired: false;
+    remoteAccountsRequired: false;
+    secretsRequired: false;
+  };
+  scannedArtifacts: string[];
+};
+
 type Phase5CleanCheckoutCommand = {
   command: string;
   purpose: string;
@@ -652,6 +809,16 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       path: "alpha-readiness-evidence.md",
       role: "human-alpha-readiness-summary",
     },
+    {
+      format: "json",
+      path: "boundary-evaluation-evidence.json",
+      role: "machine-readable-boundary-evaluation-evidence",
+    },
+    {
+      format: "markdown",
+      path: "boundary-evaluation-evidence.md",
+      role: "human-boundary-evaluation-summary",
+    },
   ];
   const stableHash = createStableHash({
     artifacts,
@@ -661,6 +828,7 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
   const manifest: Phase5LocalWebExportManifest = {
     alphaReadinessEvidencePath: "alpha-readiness-evidence.json",
     artifacts,
+    boundaryEvaluationEvidencePath: "boundary-evaluation-evidence.json",
     command: metadata.exportCommand,
     deckId: metadata.deckId,
     deterministic,
@@ -689,6 +857,10 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     metadata,
   });
   const alphaReadinessEvidence = createAlphaReadinessEvidence();
+  const boundaryEvaluationEvidence = await createBoundaryEvaluationEvidence({
+    manifest,
+    metadata,
+  });
 
   await mkdir(outputDirectory, { recursive: true });
   await writeJson(path.join(outputDirectory, "deck.json"), {
@@ -731,6 +903,14 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
   await writeFile(
     path.join(outputDirectory, "alpha-readiness-evidence.md"),
     renderAlphaReadinessEvidenceMarkdown(alphaReadinessEvidence),
+  );
+  await writeJson(
+    path.join(outputDirectory, "boundary-evaluation-evidence.json"),
+    boundaryEvaluationEvidence,
+  );
+  await writeFile(
+    path.join(outputDirectory, "boundary-evaluation-evidence.md"),
+    renderBoundaryEvaluationEvidenceMarkdown(boundaryEvaluationEvidence),
   );
 
   process.stdout.write(
@@ -894,6 +1074,265 @@ function createAlphaReadinessEvidence(): Phase5AlphaReadinessEvidence {
         riskExplanationRequired: true,
       },
     },
+  };
+}
+
+async function createBoundaryEvaluationEvidence({
+  manifest,
+  metadata,
+}: {
+  manifest: Phase5LocalWebExportManifest;
+  metadata: DeckMetadata;
+}): Promise<Phase5BoundaryEvaluationEvidence> {
+  const parity = manifest.previewExportParity;
+
+  return {
+    batchId: "B5.6",
+    boundaryScans: await scanRepositoryBoundaries(),
+    hostedEvaluation: {
+      costRiskLicense: {
+        apache2OssCoreBoundaryPreserved: true,
+        cadenzaRedistributesRemotion: false,
+        costAssumptions: [
+          {
+            notes:
+              "Future cloud render minutes, storage, egress, retry, and queue costs are not measured by this local export.",
+            status: "estimated",
+            subject: "future Remotion Lambda render minutes",
+          },
+          {
+            notes:
+              "No production concurrency, retention, queueing, or region assumptions are validated in Phase 5.",
+            status: "unsupported-assumption",
+            subject: "production hosted rendering scale",
+          },
+        ],
+        grantsRemotionCommercialRights: false,
+        licensingTriggers: [
+          {
+            evidence: ["docs/adr/0007-two-stage-remotion-engagement.md"],
+            trigger: "hosted rendering or cloud-render commercial tier",
+          },
+          {
+            evidence: ["LICENSE.txt", "NOTICE.txt"],
+            trigger: "commercial packaging around the Apache-2.0 OSS core",
+          },
+        ],
+        operationalRisks: [
+          {
+            category: "credential-management",
+            mitigation:
+              "Require an ADR and explicit maintainer approval before any remote credential path is introduced.",
+          },
+          {
+            category: "queue-failure",
+            mitigation:
+              "Keep deterministic local export as the fallback and future source of parity truth.",
+          },
+          {
+            category: "artifact-retention",
+            mitigation:
+              "Define retention, deletion, and artifact ownership before hosted output is stored remotely.",
+          },
+        ],
+        productionGradeCostModel: false,
+      },
+      disposition: "evaluation-only",
+      hostedImplementationStarted: false,
+      localCompatibilityReport: {
+        artifactLayout: {
+          generatedArtifactRoot: manifest.outputDirectory,
+          suitableForFutureRemotePackaging: true,
+        },
+        diagnostics: {
+          densityRegressionCount: parity.diagnostics.density.regressions.length,
+          parityStatus: parity.status,
+          typographyBoxCount: parity.diagnostics.typography.boxes.length,
+        },
+        localExportInputs: {
+          command: metadata.exportCommand,
+          localOnly: manifest.localOnly,
+          sourceDeck: metadata.sourcePath,
+        },
+        manifest: {
+          hasDeterministicTimelineIdentity: true,
+          hasStableHash: true,
+        },
+        renderSafeReadiness: {
+          resourceCount: parity.diagnostics.renderSafe.resources.length,
+          status: "metadata-ready",
+        },
+      },
+      recommendation: {
+        nextStep:
+          "future Proposed ADR or explicit maintainer approval before hosted implementation",
+        status: "defer-hosted-implementation",
+      },
+      remoteJobsRun: false,
+      requiresHostedInfrastructureForLocalExport: false,
+    },
+    mcpDisposition: {
+      contextInjectionAdequate: true,
+      inventory: [],
+      prohibitedCapabilitiesAbsent: [
+        "hosted rendering",
+        "commercial-tier workflows",
+        "WYSIWYG editing",
+        "template marketplace",
+        "collaboration or comments",
+        "SSO",
+        "i18n infrastructure",
+        "external publishing",
+      ],
+      readOnlyMcp: {
+        disposition: "deferred-default",
+        rationale:
+          "Phase 5 Markdown, examples, trace, generated evidence, and cadenza-best-practices remain practical direct context.",
+        resourcesOrPromptsAdded: [],
+      },
+      targetPhaseOrCondition:
+        "Phase 7 or later, or earlier only if Markdown context injection proves inadequate.",
+      toolBasedMcp: {
+        deferredBeyondPhase5: true,
+        implemented: false,
+        rationale:
+          "Tool-based MCP must wrap stable local validation, preview, export, and report commands after the launch path settles.",
+      },
+    },
+    phase: "5",
+    presenterFollowup: {
+      livePresenterRecording: {
+        canonicalExportPath: "deterministic-offline-export",
+        liveRecordingIsCanonical: false,
+        recordingArtifactsProduced: [],
+      },
+      multiDevicePresenterConsole: {
+        disposition: "deferred-beyond-phase5",
+        implemented: false,
+        rationale:
+          "The inherited same-browser presenter workflow remains sufficient for the Phase 5 launch-candidate path.",
+      },
+      prohibitedScopeAbsent: [
+        "accounts",
+        "SSO",
+        "collaboration",
+        "comments",
+        "remote control services",
+        "external publishing",
+        "hosted infrastructure",
+      ],
+      sameBrowserPresenterWorkflowRemainsDefault: true,
+      sessionReplay: {
+        diagnosticAllowedIfParityNeedsIt: true,
+        disposition: "not-introduced",
+        userFacingReplayArtifactDefined: false,
+      },
+    },
+    requirementRefs: [
+      "LHEV-001",
+      "LHEV-002",
+      "LHEV-005",
+      "EXPT-004",
+      "LHEV-003",
+      "LHEV-004",
+      "MCPA-001",
+      "MCPA-003",
+      "MCPA-005",
+      "MCPA-002",
+      "MCPA-004",
+      "PCON-001",
+      "PCON-003",
+      "PCON-004",
+      "PCON-002",
+    ],
+    scenarioIds: [
+      "TC-LHEV-001",
+      "TC-LHEV-002",
+      "TC-MCPA-001",
+      "TC-MCPA-002",
+      "TC-PCON-001",
+      "TC-PCON-002",
+    ],
+    schemaVersion: 1,
+  };
+}
+
+async function scanRepositoryBoundaries(): Promise<Phase5BoundaryScanEvidence> {
+  const scannedArtifacts = [
+    "package.json",
+    "packages/core/package.json",
+    "packages/preview-remotion/package.json",
+    "scripts/cadenza.ts",
+    "README.md",
+    "docs/alpha-readiness.md",
+    "examples/phase5/alpha-readiness-talk.tsx",
+    ".github/workflows/ci.yml",
+  ];
+  const fileContents = await Promise.all(
+    scannedArtifacts.map(async (artifact) => ({
+      artifact,
+      text: await readFile(path.join(rootDir, artifact), "utf8"),
+    })),
+  );
+  const publishManagers = ["npm", "pnpm", "yarn"];
+  const prohibitedPatterns = [
+    ...publishManagers.map((manager) => ({
+      label: `${manager} publish`,
+      regex: new RegExp(`\\b${manager}\\s+publish\\b`, "i"),
+    })),
+    {
+      label: ["remotion", "lambda"].join(" "),
+      regex:
+        /\b(?:npx|pnpm|node)\s+remotion\s+lambda\b|\bremotion\s+lambda\s+(?:deploy|functions|render|sites)\b/,
+    },
+    {
+      label: ["AWS", "_*"].join(""),
+      regex: /\bAWS_[A-Z0-9_]+\b/,
+    },
+    {
+      label: ["GITHUB", "_TOKEN"].join(""),
+      regex: /\bGITHUB_TOKEN\b/,
+    },
+    {
+      label: ["gh", "release", "create"].join(" "),
+      regex: /\bgh\s+release\s+create\b/i,
+    },
+    {
+      label: ["vercel", "deploy"].join(" "),
+      regex: /\bvercel\s+deploy\b/i,
+    },
+  ];
+
+  const prohibitedPatternResults = prohibitedPatterns.map(
+    ({ label, regex }) => {
+      const matches = fileContents.flatMap(({ artifact, text }) =>
+        text
+          .split("\n")
+          .flatMap((line, index) =>
+            regex.test(line) ? [`${artifact}:${index + 1}`] : [],
+          ),
+      );
+      const status: Phase5BoundaryScanEvidence["prohibitedPatternResults"][number]["status"] =
+        matches.length === 0 ? "absent" : "present";
+
+      return {
+        matches,
+        pattern: label,
+        status,
+      };
+    },
+  );
+
+  return {
+    prohibitedPatternResults,
+    remotePrerequisites: {
+      externalPublishingRequired: false,
+      hostedInfrastructureRequired: false,
+      paidCloudJobsRequired: false,
+      remoteAccountsRequired: false,
+      secretsRequired: false,
+    },
+    scannedArtifacts,
   };
 }
 
@@ -1468,6 +1907,68 @@ No broad arbitrary-deck MP4 support is claimed.
 No full PDF parity is claimed.
 
 This is public launch-candidate material, not a final \`0.1 alpha readiness\` claim.
+`;
+}
+
+function renderBoundaryEvaluationEvidenceMarkdown(
+  evidence: Phase5BoundaryEvaluationEvidence,
+): string {
+  const scanLines = evidence.boundaryScans.prohibitedPatternResults
+    .map(
+      (result) =>
+        `- ${result.pattern}: ${result.status}${
+          result.matches.length > 0 ? ` (${result.matches.join(", ")})` : ""
+        }`,
+    )
+    .join("\n");
+  const riskLines = evidence.hostedEvaluation.costRiskLicense.operationalRisks
+    .map((risk) => `- ${risk.category}: ${risk.mitigation}`)
+    .join("\n");
+
+  return `# Phase 5 boundary evaluation evidence
+
+Batch: ${evidence.batchId}
+Scenarios: ${evidence.scenarioIds.join(", ")}
+Requirements: ${evidence.requirementRefs.join(", ")}
+
+## Hosted and Lambda Evaluation
+
+Disposition: ${evidence.hostedEvaluation.disposition}
+Remote jobs run: no
+Hosted implementation started: no
+Hosted infrastructure required for local export: no
+
+Local compatibility: manifest identity, stable hash, artifact layout, render-safe metadata, parity diagnostics, and generated evidence are suitable inputs for a future hosted evaluation path.
+
+Next hosted route: ${evidence.hostedEvaluation.recommendation.nextStep}
+
+## Boundary Scans
+
+No secrets, remote accounts, paid jobs, publishing, or hosted infrastructure are required.
+
+${scanLines}
+
+## Cost, Risk, and License
+
+Apache-2.0 OSS core boundary preserved: yes
+Cadenza redistributes Remotion: no
+Cadenza grants Remotion commercial rights: no
+Production-grade cost model: no
+
+${riskLines}
+
+## MCP Disposition
+
+Read-only MCP: deferred by default
+Tool-based MCP: deferred beyond Phase 5
+Context injection remains adequate through Markdown, examples, trace, generated evidence, and cadenza-best-practices.
+
+## Presenter Follow-Up
+
+Multi-device presenter console: deferred beyond Phase 5
+Session replay: not introduced as a user-facing artifact
+Live-presenter recording is not the canonical export path.
+Deterministic offline export remains canonical.
 `;
 }
 

@@ -959,12 +959,246 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
   });
 });
 
+describe("B5.6 Phase 5 hosted evaluation, MCP boundary, and presenter follow-up", () => {
+  it("TC-LHEV-001, TC-LHEV-002, TC-MCPA-001, TC-MCPA-002, TC-PCON-001, and TC-PCON-002 emit local boundary evidence without remote expansion", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-6-boundary-evidence";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const evidence = readJson<Phase5BoundaryEvaluationEvidence>(
+      path.join(outputDir, "boundary-evaluation-evidence.json"),
+    );
+    const summary = readText(
+      path.join(outputDir, "boundary-evaluation-evidence.md"),
+    );
+    const rootManifest = readJson<{
+      scripts: Record<string, string>;
+    }>(path.join(process.cwd(), "package.json"));
+
+    expect(manifest.boundaryEvaluationEvidencePath).toBe(
+      "boundary-evaluation-evidence.json",
+    );
+    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining([
+        "boundary-evaluation-evidence.json",
+        "boundary-evaluation-evidence.md",
+      ]),
+    );
+    expect(evidence).toMatchObject({
+      batchId: "B5.6",
+      phase: "5",
+      scenarioIds: [
+        "TC-LHEV-001",
+        "TC-LHEV-002",
+        "TC-MCPA-001",
+        "TC-MCPA-002",
+        "TC-PCON-001",
+        "TC-PCON-002",
+      ],
+      schemaVersion: 1,
+    });
+    expect(evidence.requirementRefs).toEqual([
+      "LHEV-001",
+      "LHEV-002",
+      "LHEV-005",
+      "EXPT-004",
+      "LHEV-003",
+      "LHEV-004",
+      "MCPA-001",
+      "MCPA-003",
+      "MCPA-005",
+      "MCPA-002",
+      "MCPA-004",
+      "PCON-001",
+      "PCON-003",
+      "PCON-004",
+      "PCON-002",
+    ]);
+
+    expect(evidence.hostedEvaluation).toMatchObject({
+      disposition: "evaluation-only",
+      hostedImplementationStarted: false,
+      remoteJobsRun: false,
+      requiresHostedInfrastructureForLocalExport: false,
+      recommendation: {
+        nextStep:
+          "future Proposed ADR or explicit maintainer approval before hosted implementation",
+        status: "defer-hosted-implementation",
+      },
+    });
+    expect(evidence.hostedEvaluation.localCompatibilityReport).toMatchObject({
+      artifactLayout: {
+        generatedArtifactRoot: `dist/phase5/${deckId}/${runId}`,
+        suitableForFutureRemotePackaging: true,
+      },
+      diagnostics: {
+        parityStatus: "passed",
+      },
+      localExportInputs: {
+        command: phase5AlphaReadinessTalkMetadata.exportCommand,
+        localOnly: true,
+        sourceDeck: phase5AlphaReadinessTalkMetadata.sourcePath,
+      },
+      manifest: {
+        hasDeterministicTimelineIdentity: true,
+        hasStableHash: true,
+      },
+      renderSafeReadiness: {
+        resourceCount:
+          manifest.previewExportParity.diagnostics.renderSafe.resources.length,
+        status: "metadata-ready",
+      },
+    });
+    expect(evidence.hostedEvaluation.costRiskLicense).toMatchObject({
+      apache2OssCoreBoundaryPreserved: true,
+      cadenzaRedistributesRemotion: false,
+      grantsRemotionCommercialRights: false,
+      productionGradeCostModel: false,
+    });
+    expect(evidence.hostedEvaluation.costRiskLicense.costAssumptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          status: "estimated",
+          subject: "future Remotion Lambda render minutes",
+        }),
+      ]),
+    );
+    expect(
+      evidence.hostedEvaluation.costRiskLicense.operationalRisks.map(
+        (risk) => risk.category,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "credential-management",
+        "queue-failure",
+        "artifact-retention",
+      ]),
+    );
+    expect(evidence.hostedEvaluation.costRiskLicense.licensingTriggers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          trigger: "hosted rendering or cloud-render commercial tier",
+        }),
+      ]),
+    );
+
+    expect(evidence.boundaryScans.remotePrerequisites).toEqual({
+      externalPublishingRequired: false,
+      hostedInfrastructureRequired: false,
+      paidCloudJobsRequired: false,
+      remoteAccountsRequired: false,
+      secretsRequired: false,
+    });
+    expect(evidence.boundaryScans.prohibitedPatternResults).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ pattern: "npm publish", status: "absent" }),
+        expect.objectContaining({
+          pattern: "pnpm publish",
+          status: "absent",
+        }),
+        expect.objectContaining({
+          pattern: "remotion lambda",
+          status: "absent",
+        }),
+        expect.objectContaining({ pattern: "AWS_*", status: "absent" }),
+      ]),
+    );
+    expect(evidence.boundaryScans.scannedArtifacts).toEqual(
+      expect.arrayContaining([
+        "package.json",
+        "scripts/cadenza.ts",
+        "README.md",
+        "docs/alpha-readiness.md",
+        ".github/workflows/ci.yml",
+      ]),
+    );
+    expect(Object.values(rootManifest.scripts).join("\n")).not.toMatch(
+      /\bnpm publish\b|\bpnpm publish\b|\byarn publish\b|remotion lambda/i,
+    );
+
+    expect(evidence.mcpDisposition).toEqual({
+      contextInjectionAdequate: true,
+      inventory: [],
+      prohibitedCapabilitiesAbsent: [
+        "hosted rendering",
+        "commercial-tier workflows",
+        "WYSIWYG editing",
+        "template marketplace",
+        "collaboration or comments",
+        "SSO",
+        "i18n infrastructure",
+        "external publishing",
+      ],
+      readOnlyMcp: {
+        disposition: "deferred-default",
+        resourcesOrPromptsAdded: [],
+        rationale:
+          "Phase 5 Markdown, examples, trace, generated evidence, and cadenza-best-practices remain practical direct context.",
+      },
+      targetPhaseOrCondition:
+        "Phase 7 or later, or earlier only if Markdown context injection proves inadequate.",
+      toolBasedMcp: {
+        deferredBeyondPhase5: true,
+        implemented: false,
+        rationale:
+          "Tool-based MCP must wrap stable local validation, preview, export, and report commands after the launch path settles.",
+      },
+    });
+
+    expect(evidence.presenterFollowup).toEqual({
+      livePresenterRecording: {
+        canonicalExportPath: "deterministic-offline-export",
+        liveRecordingIsCanonical: false,
+        recordingArtifactsProduced: [],
+      },
+      multiDevicePresenterConsole: {
+        disposition: "deferred-beyond-phase5",
+        implemented: false,
+        rationale:
+          "The inherited same-browser presenter workflow remains sufficient for the Phase 5 launch-candidate path.",
+      },
+      prohibitedScopeAbsent: [
+        "accounts",
+        "SSO",
+        "collaboration",
+        "comments",
+        "remote control services",
+        "external publishing",
+        "hosted infrastructure",
+      ],
+      sameBrowserPresenterWorkflowRemainsDefault: true,
+      sessionReplay: {
+        diagnosticAllowedIfParityNeedsIt: true,
+        disposition: "not-introduced",
+        userFacingReplayArtifactDefined: false,
+      },
+    });
+
+    expect(summary).toContain("Phase 5 boundary evaluation evidence");
+    expect(summary).toContain("Remote jobs run: no");
+    expect(summary).toContain("Read-only MCP: deferred by default");
+    expect(summary).toContain(
+      "Live-presenter recording is not the canonical export path.",
+    );
+    expect(summary).toContain(
+      "No secrets, remote accounts, paid jobs, publishing, or hosted infrastructure are required.",
+    );
+  });
+});
+
 type Phase5ExportManifest = {
   artifacts: {
     format: "json" | "markdown" | "mp4" | "web";
     path: string;
     role: string;
   }[];
+  boundaryEvaluationEvidencePath: "boundary-evaluation-evidence.json";
   command: string;
   deckId: string;
   deterministic: {
@@ -1270,6 +1504,122 @@ type Phase5RepairRoutingEvidence = {
   scenarioIds: ["TC-EVDN-002"];
   schemaVersion: 1;
   sourceEvidencePath: "export-evidence.json";
+};
+
+type Phase5BoundaryEvaluationEvidence = {
+  batchId: "B5.6";
+  boundaryScans: {
+    prohibitedPatternResults: {
+      matches: string[];
+      pattern: string;
+      status: "absent";
+    }[];
+    remotePrerequisites: {
+      externalPublishingRequired: false;
+      hostedInfrastructureRequired: false;
+      paidCloudJobsRequired: false;
+      remoteAccountsRequired: false;
+      secretsRequired: false;
+    };
+    scannedArtifacts: string[];
+  };
+  hostedEvaluation: {
+    costRiskLicense: {
+      apache2OssCoreBoundaryPreserved: true;
+      cadenzaRedistributesRemotion: false;
+      costAssumptions: {
+        notes: string;
+        status: "estimated" | "unsupported-assumption";
+        subject: string;
+      }[];
+      grantsRemotionCommercialRights: false;
+      licensingTriggers: {
+        evidence: string[];
+        trigger: string;
+      }[];
+      operationalRisks: {
+        category: string;
+        mitigation: string;
+      }[];
+      productionGradeCostModel: false;
+    };
+    disposition: "evaluation-only";
+    hostedImplementationStarted: false;
+    localCompatibilityReport: {
+      artifactLayout: {
+        generatedArtifactRoot: string;
+        suitableForFutureRemotePackaging: true;
+      };
+      diagnostics: {
+        parityStatus: "passed";
+      };
+      localExportInputs: {
+        command: string;
+        localOnly: true;
+        sourceDeck: string;
+      };
+      manifest: {
+        hasDeterministicTimelineIdentity: true;
+        hasStableHash: true;
+      };
+      renderSafeReadiness: {
+        resourceCount: number;
+        status: "metadata-ready";
+      };
+    };
+    recommendation: {
+      nextStep: string;
+      status: "defer-hosted-implementation";
+    };
+    remoteJobsRun: false;
+    requiresHostedInfrastructureForLocalExport: false;
+  };
+  mcpDisposition: {
+    contextInjectionAdequate: true;
+    inventory: [];
+    prohibitedCapabilitiesAbsent: string[];
+    readOnlyMcp: {
+      disposition: "deferred-default";
+      rationale: string;
+      resourcesOrPromptsAdded: [];
+    };
+    targetPhaseOrCondition: string;
+    toolBasedMcp: {
+      deferredBeyondPhase5: true;
+      implemented: false;
+      rationale: string;
+    };
+  };
+  phase: "5";
+  presenterFollowup: {
+    livePresenterRecording: {
+      canonicalExportPath: "deterministic-offline-export";
+      liveRecordingIsCanonical: false;
+      recordingArtifactsProduced: [];
+    };
+    multiDevicePresenterConsole: {
+      disposition: "deferred-beyond-phase5";
+      implemented: false;
+      rationale: string;
+    };
+    prohibitedScopeAbsent: string[];
+    sameBrowserPresenterWorkflowRemainsDefault: true;
+    sessionReplay: {
+      diagnosticAllowedIfParityNeedsIt: true;
+      disposition: "not-introduced";
+      userFacingReplayArtifactDefined: false;
+    };
+  };
+  requirementRefs: string[];
+  scenarioIds: [
+    "TC-LHEV-001",
+    "TC-LHEV-002",
+    "TC-MCPA-001",
+    "TC-MCPA-002",
+    "TC-PCON-001",
+    "TC-PCON-002",
+  ];
+  schemaVersion: 1;
 };
 
 function readText(relativePath: string): string {
