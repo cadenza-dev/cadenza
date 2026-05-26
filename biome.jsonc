@@ -4,6 +4,7 @@
     "ignoreUnknown": true,
     "includes": [
       "**",
+      "!dist",
       "!.codex",
       "!playwright-report",
       "!test-results",
