@@ -1,5 +1,37 @@
 # Phase 5 Tracker
 
+## 2026-05-27 01:05 +0800 — B5.7 Builder closeout
+
+- Scope: completed only B5.7 Phase 5 Builder closeout; no packages, tests,
+  scripts, examples, docs, frozen specs, Accepted ADRs, or root phase pointer
+  were modified.
+- Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Evidence audit: verified B5.1-B5.6 trace evidence against
+  `spec/phase5/SPEC_TEST_MATRIX.md` and `spec/phase5/SPEC_TRACEABILITY.md`;
+  all 17 Phase 5 acceptance scenarios are recorded complete and all 51
+  trace-referenced source/generated evidence paths existed before closeout.
+- Closeout status: updated `trace/phase5/status.yaml` so
+  `builder_progress.status` is `builder_complete_pending_reviewer`,
+  `builder_progress.next_batch.id` is `null`, and
+  `exit_criteria.builder_batches_complete.status` is `met`.
+- Reviewer handoff: `trace/phase5/status.yaml` now routes the next step to
+  read-only Reviewer review of B5.1-B5.7 trace evidence, generated export
+  evidence, verification, and alpha-readiness overclaim guards.
+- Boundary preserved: `reviewer_closeout_accepted` remains pending, and final
+  `0.1 alpha readiness` is not claimed. Hosted rendering, Remotion Lambda,
+  MCP implementation, presenter-console implementation, npm publishing,
+  external release, and broad MP4/PDF claims remain out of scope.
+- Verification: `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed after the closeout trace
+  update. Default `pnpm test:browser` failed only because the sandbox blocked
+  Chromium launch with `sandbox_host_linux.cc` / `Operation not permitted`;
+  the browser-capable rerun passed 19/19.
+- Next step: Phase 5 Reviewer closeout review; Builder stops here.
+
 ## 2026-05-27 00:44 +0800 — B5.6 hosted boundary evaluation
 
 - Scope: completed only B5.6 / `TC-LHEV-001` + `TC-LHEV-002` +
