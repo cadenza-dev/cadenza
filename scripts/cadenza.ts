@@ -76,7 +76,7 @@ type TimelineSlide = {
 };
 
 export type Phase5ExportArtifact = {
-  format: "json" | "web";
+  format: "json" | "markdown" | "web";
   path: string;
   role: string;
 };
@@ -208,6 +208,111 @@ type Phase5DensityRegression = {
   slideId: string;
 };
 
+type Phase5ExportEvidence = {
+  artifactInventory: Phase5ExportArtifact[];
+  batchId: "B5.3";
+  boundaryClaims: Phase5BoundaryClaim[];
+  diagnostics: {
+    densityRegressionCount: number;
+    parityStatus: Phase5PreviewExportParityReport["status"];
+    renderSafeResourceCount: number;
+    typographyBoxCount: number;
+  };
+  exportRun: {
+    command: string;
+    generatedManifestPath: "manifest.json";
+    options: {
+      format: "web";
+      localOnly: true;
+      outputDirectory: string;
+    };
+    runId: string;
+    sourceDeck: {
+      deckId: CadenzaExportDeckId;
+      path: string;
+    };
+  };
+  knownLimitations: Phase5KnownLimitation[];
+  parityChecks: {
+    browserSmoke: Phase5PreviewExportParityReport["browserSmoke"];
+    semanticCheckpointCount: number;
+    status: Phase5PreviewExportParityReport["status"];
+  };
+  phase: "5";
+  repairRoutingEvidencePath: "repair-routing-evidence.json";
+  requirementRefs: [
+    "EVDN-001",
+    "EVDN-002",
+    "EVDN-003",
+    "PEXP-005",
+    "EVDN-004",
+    "EVDN-005",
+  ];
+  scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"];
+  schemaVersion: 1;
+};
+
+type Phase5RepairRoutingEvidence = {
+  batchId: "B5.3";
+  categoryTaxonomy: Phase5RepairRoutingCategory[];
+  failureFixtures: Phase5RepairFailureFixture[];
+  passingExport: {
+    category: "none";
+    evidenceArtifacts: ["manifest.json", "export-evidence.json"];
+    status: "passed";
+  };
+  phase: "5";
+  readinessClaimPolicy: {
+    artifactBackedClaimsOnly: true;
+    chatOnlyDeclarationsAccepted: false;
+    reviewerReadableArtifactRequired: true;
+  };
+  requirementRefs: ["PEXP-005", "EVDN-004", "EVDN-005"];
+  scenarioIds: ["TC-EVDN-002"];
+  schemaVersion: 1;
+  sourceEvidencePath: "export-evidence.json";
+};
+
+type Phase5RepairCategory =
+  | "authored-deck-repair"
+  | "environment-limitation"
+  | "export-implementation-defect"
+  | "framework-defect-evidence"
+  | "guidance-repair"
+  | "maintainer-waiver"
+  | "render-safe-asset-defect";
+
+type Phase5RepairRoutingCategory = {
+  category: Phase5RepairCategory;
+  route: string;
+  when: string;
+};
+
+type Phase5RepairFailureFixture = {
+  category: Phase5RepairCategory;
+  evidenceArtifacts: string[];
+  fixtureId: string;
+  route: string;
+};
+
+type Phase5BoundaryClaim = {
+  claim:
+    | "alpha-readiness"
+    | "export-readiness"
+    | "format-scope"
+    | "hosted-readiness"
+    | "waiver";
+  evidenceArtifacts: string[];
+  status: "evidence-backed" | "not-claimed";
+};
+
+type Phase5KnownLimitation = {
+  affectedArtifact: string;
+  category: "environment-limitation";
+  notes: string;
+  severity: "info";
+};
+
 const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
@@ -268,6 +373,21 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       path: "manifest.json",
       role: "export-manifest",
     },
+    {
+      format: "json",
+      path: "export-evidence.json",
+      role: "machine-readable-export-evidence",
+    },
+    {
+      format: "markdown",
+      path: "export-evidence.md",
+      role: "human-export-evidence-summary",
+    },
+    {
+      format: "json",
+      path: "repair-routing-evidence.json",
+      role: "repair-routing-evidence",
+    },
   ];
   const stableHash = createStableHash({
     artifacts,
@@ -292,6 +412,12 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       semanticAnchors: metadata.outline.map((entry) => entry.slideId),
     },
   };
+  const evidence = createExportEvidenceReport({
+    artifacts,
+    manifest,
+    metadata,
+  });
+  const repairRoutingEvidence = createRepairRoutingEvidence();
 
   await mkdir(outputDirectory, { recursive: true });
   await writeJson(path.join(outputDirectory, "deck.json"), {
@@ -306,6 +432,15 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     renderWebBundleHtml(metadata, manifest, timeline),
   );
   await writeJson(path.join(outputDirectory, "manifest.json"), manifest);
+  await writeJson(path.join(outputDirectory, "export-evidence.json"), evidence);
+  await writeFile(
+    path.join(outputDirectory, "export-evidence.md"),
+    renderExportEvidenceMarkdown(evidence),
+  );
+  await writeJson(
+    path.join(outputDirectory, "repair-routing-evidence.json"),
+    repairRoutingEvidence,
+  );
 
   process.stdout.write(
     `${JSON.stringify(
@@ -317,6 +452,246 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
       2,
     )}\n`,
   );
+}
+
+function createExportEvidenceReport({
+  artifacts,
+  manifest,
+  metadata,
+}: {
+  artifacts: Phase5ExportArtifact[];
+  manifest: Phase5LocalWebExportManifest;
+  metadata: DeckMetadata;
+}): Phase5ExportEvidence {
+  const parity = manifest.previewExportParity;
+  const evidenceArtifacts = [
+    "manifest.json",
+    "export-evidence.json",
+    "export-evidence.md",
+  ];
+
+  return {
+    artifactInventory: artifacts,
+    batchId: "B5.3",
+    boundaryClaims: [
+      {
+        claim: "export-readiness",
+        evidenceArtifacts,
+        status: "evidence-backed",
+      },
+      {
+        claim: "format-scope",
+        evidenceArtifacts: [],
+        status: "not-claimed",
+      },
+      {
+        claim: "alpha-readiness",
+        evidenceArtifacts: [],
+        status: "not-claimed",
+      },
+      {
+        claim: "hosted-readiness",
+        evidenceArtifacts: [],
+        status: "not-claimed",
+      },
+      {
+        claim: "waiver",
+        evidenceArtifacts: [],
+        status: "not-claimed",
+      },
+    ],
+    diagnostics: {
+      densityRegressionCount: parity.diagnostics.density.regressions.length,
+      parityStatus: parity.status,
+      renderSafeResourceCount: parity.diagnostics.renderSafe.resources.length,
+      typographyBoxCount: parity.diagnostics.typography.boxes.length,
+    },
+    exportRun: {
+      command: metadata.exportCommand,
+      generatedManifestPath: "manifest.json",
+      options: {
+        format: "web",
+        localOnly: manifest.localOnly,
+        outputDirectory: manifest.outputDirectory,
+      },
+      runId: manifest.runId,
+      sourceDeck: {
+        deckId: metadata.deckId,
+        path: metadata.sourcePath,
+      },
+    },
+    knownLimitations: [
+      {
+        affectedArtifact: "web-bundle",
+        category: "environment-limitation",
+        notes:
+          "B5.3 records local web export evidence only; browser sandbox or host restrictions remain environment-specific verification limits.",
+        severity: "info",
+      },
+    ],
+    parityChecks: {
+      browserSmoke: parity.browserSmoke,
+      semanticCheckpointCount: parity.semanticCheckpoints.length,
+      status: parity.status,
+    },
+    phase: "5",
+    repairRoutingEvidencePath: "repair-routing-evidence.json",
+    requirementRefs: [
+      "EVDN-001",
+      "EVDN-002",
+      "EVDN-003",
+      "PEXP-005",
+      "EVDN-004",
+      "EVDN-005",
+    ],
+    scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"],
+    schemaVersion: 1,
+  };
+}
+
+function createRepairRoutingEvidence(): Phase5RepairRoutingEvidence {
+  return {
+    batchId: "B5.3",
+    categoryTaxonomy: [
+      {
+        category: "authored-deck-repair",
+        route: "examples/phase5/alpha-readiness-talk.tsx",
+        when: "The deck source causes semantic anchor, slide order, step order, notes-boundary, or density regressions.",
+      },
+      {
+        category: "guidance-repair",
+        route: "skills/cadenza/rules/validation-repair.md",
+        when: "A repeated authoring anti-pattern belongs in Cadenza best-practices guidance before another deck repair.",
+      },
+      {
+        category: "export-implementation-defect",
+        route: "scripts/cadenza.ts",
+        when: "The manifest, evidence report, web bundle, or parity metadata diverges from the same compiled deck.",
+      },
+      {
+        category: "render-safe-asset-defect",
+        route: "examples/phase5/alpha-readiness-talk.tsx",
+        when: "Render-safe resource readiness, timeout, typography, or density evidence points to a concrete asset declaration.",
+      },
+      {
+        category: "environment-limitation",
+        route: "trace/phase5/tracker.md",
+        when: "A browser, filesystem, sandbox, host, or local runtime limit blocks otherwise deterministic evidence.",
+      },
+      {
+        category: "framework-defect-evidence",
+        route: "trace/phase5/status.yaml",
+        when: "The failure appears below authored deck and CLI surfaces and needs a separately reviewable framework-defect route.",
+      },
+      {
+        category: "maintainer-waiver",
+        route: "trace/phase5/status.yaml",
+        when: "A readiness or waiver claim needs explicit maintainer-approved repository evidence.",
+      },
+    ],
+    failureFixtures: [
+      {
+        category: "authored-deck-repair",
+        evidenceArtifacts: ["examples/phase5/alpha-readiness-talk.tsx"],
+        fixtureId: "semantic-anchor-mismatch",
+        route:
+          "repair the authored Phase 5 talk source before changing export code",
+      },
+      {
+        category: "guidance-repair",
+        evidenceArtifacts: ["skills/cadenza/rules/validation-repair.md"],
+        fixtureId: "repeated-guidance-anti-pattern",
+        route: "update Cadenza best-practices guidance after repeated evidence",
+      },
+      {
+        category: "export-implementation-defect",
+        evidenceArtifacts: ["scripts/cadenza.ts"],
+        fixtureId: "manifest-html-divergence",
+        route: "repair the supported local export command implementation",
+      },
+      {
+        category: "render-safe-asset-defect",
+        evidenceArtifacts: ["examples/phase5/alpha-readiness-talk.tsx"],
+        fixtureId: "missing-render-safe-resource",
+        route:
+          "repair the authored render-safe resource declaration or asset metadata",
+      },
+      {
+        category: "environment-limitation",
+        evidenceArtifacts: ["trace/phase5/tracker.md"],
+        fixtureId: "browser-sandbox-restriction",
+        route:
+          "record environment-only limits separately from product regressions",
+      },
+      {
+        category: "framework-defect-evidence",
+        evidenceArtifacts: ["trace/phase5/status.yaml"],
+        fixtureId: "framework-parity-defect",
+        route:
+          "open a separate framework-defect evidence route before broad package edits",
+      },
+      {
+        category: "maintainer-waiver",
+        evidenceArtifacts: ["trace/phase5/status.yaml"],
+        fixtureId: "explicit-waiver-required",
+        route: "record an explicit repository artifact before any waiver claim",
+      },
+    ],
+    passingExport: {
+      category: "none",
+      evidenceArtifacts: ["manifest.json", "export-evidence.json"],
+      status: "passed",
+    },
+    phase: "5",
+    readinessClaimPolicy: {
+      artifactBackedClaimsOnly: true,
+      chatOnlyDeclarationsAccepted: false,
+      reviewerReadableArtifactRequired: true,
+    },
+    requirementRefs: ["PEXP-005", "EVDN-004", "EVDN-005"],
+    scenarioIds: ["TC-EVDN-002"],
+    schemaVersion: 1,
+    sourceEvidencePath: "export-evidence.json",
+  };
+}
+
+function renderExportEvidenceMarkdown(evidence: Phase5ExportEvidence): string {
+  const artifactLines = evidence.artifactInventory
+    .map((artifact) => `- \`${artifact.path}\` - ${artifact.role}`)
+    .join("\n");
+  const limitationLines = evidence.knownLimitations
+    .map(
+      (limitation) =>
+        `- ${limitation.severity}/${limitation.category} on ${limitation.affectedArtifact}: ${limitation.notes}`,
+    )
+    .join("\n");
+
+  return `# Phase 5 export evidence
+
+- Batch: ${evidence.batchId}
+- Scenarios: ${evidence.scenarioIds.join(", ")}
+- Requirements: ${evidence.requirementRefs.join(", ")}
+- Source deck: \`${evidence.exportRun.sourceDeck.path}\`
+- Command: \`${evidence.exportRun.command}\`
+- Output directory: \`${evidence.exportRun.options.outputDirectory}\`
+- Manifest: \`${evidence.exportRun.generatedManifestPath}\`
+- Preview/export parity: ${evidence.parityChecks.status}
+- Diagnostics: ${evidence.diagnostics.renderSafeResourceCount} render-safe resources, ${evidence.diagnostics.typographyBoxCount} typography boxes, ${evidence.diagnostics.densityRegressionCount} density regressions
+
+## Artifacts
+
+${artifactLines}
+
+## Known Limitations
+
+${limitationLines}
+
+## Next Repair Route
+
+Next repair route: inspect the machine-readable evidence first, then route any parity or diagnostic failure through \`${evidence.repairRoutingEvidencePath}\`.
+
+No alpha readiness claim is made by this export evidence.
+`;
 }
 
 function parseArgs(args: string[]): ExportArgs {

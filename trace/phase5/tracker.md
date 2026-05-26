@@ -1,5 +1,43 @@
 # Phase 5 Tracker
 
+## 2026-05-26 22:11 +0800 — B5.3 export diagnostics and repair routing
+
+- Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after
+  maintainer approval in this session.
+- Scope: completed only B5.3 / `TC-EVDN-001` + `TC-EVDN-002`; no frozen specs,
+  Accepted ADRs, or root phase pointer were modified.
+- RED/GREEN evidence: the first focused B5.3 test failed because
+  `export-evidence.json` was missing from the generated artifact directory,
+  then passed after export runs emitted machine-readable JSON evidence plus a
+  concise Markdown summary. The second focused test failed because
+  `repair-routing-evidence.json` was missing, then passed after repair-routing
+  taxonomy and artifact-backed claim policy were generated with the export.
+- Export evidence: `pnpm cadenza export phase5-alpha-readiness-talk --run-id
+  b5-3-manual` wrote the accepted B5.3 evidence under
+  `dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/`, including
+  `export-evidence.json`, `export-evidence.md`, and
+  `repair-routing-evidence.json`.
+- Behavior added: export evidence now names source deck, command, output
+  options, generated artifacts, diagnostics, preview/export parity checks,
+  known limitations, boundary claims, and the next repair route.
+- Repair routing: the generated repair evidence distinguishes authored-deck
+  repair, `cadenza-best-practices` guidance repair, export implementation
+  defects, render-safe asset defects, environment limitations,
+  framework-defect evidence, and maintainer waivers. Readiness and waiver
+  claims require repository artifacts; chat-only declarations remain
+  insufficient.
+- Boundary preserved: no MP4/PDF support, format-scope claim, alpha-readiness
+  declaration, hosted rendering, Remotion Lambda, MCP implementation, npm
+  publication, external release, or presenter-console follow-up.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`, `trace/phase5/status.yaml`, and
+  this tracker.
+- Verification: focused B5.3 Vitest passed; `pnpm typecheck`, `pnpm test`,
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed after trace update.
+- Next batch: B5.4 / `TC-FMT-001` + `TC-FMT-002`.
+
 ## 2026-05-26 21:50 +0800 — B5.2 preview and export parity
 
 - CI preflight: GitHub Actions was re-triggered on `main` with run

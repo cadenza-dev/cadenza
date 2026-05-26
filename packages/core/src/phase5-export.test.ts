@@ -126,7 +126,14 @@ describe("B5.1 Phase 5 export source and local web export", () => {
       expect(manifest.outputDirectory).toBe(`dist/phase5/${deckId}/${runId}`);
       expect(
         manifest.artifacts.map((artifact) => artifact.path).sort(),
-      ).toEqual(["deck.json", "index.html", "manifest.json", "timeline.json"]);
+      ).toEqual(
+        expect.arrayContaining([
+          "deck.json",
+          "index.html",
+          "manifest.json",
+          "timeline.json",
+        ]),
+      );
       expect(manifest.webBundle.entrypoint).toBe("index.html");
       expect(manifest.webBundle.semanticAnchors).toEqual(
         phase5AlphaReadinessTalkMetadata.outline.map((entry) => entry.slideId),
@@ -260,6 +267,228 @@ describe("B5.2 Phase 5 preview and export parity", () => {
   });
 });
 
+describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
+  it("TC-EVDN-001 emits machine-readable export evidence plus a concise Markdown summary", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-3-evidence";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const evidence = readJson<Phase5ExportEvidence>(
+      path.join(outputDir, "export-evidence.json"),
+    );
+    const summary = readText(path.join(outputDir, "export-evidence.md"));
+
+    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining(["export-evidence.json", "export-evidence.md"]),
+    );
+    expect(evidence).toMatchObject({
+      batchId: "B5.3",
+      phase: "5",
+      scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"],
+      schemaVersion: 1,
+    });
+    expect(evidence.requirementRefs).toEqual([
+      "EVDN-001",
+      "EVDN-002",
+      "EVDN-003",
+      "PEXP-005",
+      "EVDN-004",
+      "EVDN-005",
+    ]);
+    expect(evidence.exportRun).toMatchObject({
+      command: phase5AlphaReadinessTalkMetadata.exportCommand,
+      generatedManifestPath: "manifest.json",
+      options: {
+        format: "web",
+        localOnly: true,
+        outputDirectory: `dist/phase5/${deckId}/${runId}`,
+      },
+      runId,
+      sourceDeck: {
+        deckId,
+        path: phase5AlphaReadinessTalkMetadata.sourcePath,
+      },
+    });
+    expect(evidence.artifactInventory.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining([
+        "index.html",
+        "deck.json",
+        "timeline.json",
+        "manifest.json",
+        "export-evidence.json",
+        "export-evidence.md",
+      ]),
+    );
+    expect(evidence.diagnostics).toMatchObject({
+      densityRegressionCount: 0,
+      parityStatus: "passed",
+      renderSafeResourceCount:
+        manifest.previewExportParity.diagnostics.renderSafe.resources.length,
+      typographyBoxCount:
+        manifest.previewExportParity.diagnostics.typography.boxes.length,
+    });
+    expect(evidence.parityChecks).toMatchObject({
+      browserSmoke: manifest.previewExportParity.browserSmoke,
+      status: "passed",
+    });
+    expect(evidence.knownLimitations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          affectedArtifact: "web-bundle",
+          category: "environment-limitation",
+          severity: "info",
+        }),
+      ]),
+    );
+    expect(evidence.boundaryClaims).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          claim: "export-readiness",
+          evidenceArtifacts: expect.arrayContaining([
+            "manifest.json",
+            "export-evidence.json",
+            "export-evidence.md",
+          ]),
+          status: "evidence-backed",
+        }),
+        expect.objectContaining({
+          claim: "alpha-readiness",
+          status: "not-claimed",
+        }),
+      ]),
+    );
+    expect(summary).toContain("Phase 5 export evidence");
+    expect(summary).toContain("cadenza export phase5-alpha-readiness-talk");
+    expect(summary).toContain("Preview/export parity: passed");
+    expect(summary).toContain("Next repair route");
+    expect(summary).toContain(
+      "No alpha readiness claim is made by this export evidence.",
+    );
+  });
+
+  it("TC-EVDN-002 routes repair categories and keeps readiness or waiver claims artifact-backed", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-3-repair-routing";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const evidence = readJson<Phase5ExportEvidence>(
+      path.join(outputDir, "export-evidence.json"),
+    );
+    const repairRouting = readJson<Phase5RepairRoutingEvidence>(
+      path.join(outputDir, "repair-routing-evidence.json"),
+    );
+    const artifactPaths = evidence.artifactInventory.map(
+      (artifact) => artifact.path,
+    );
+
+    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+      expect.arrayContaining(["repair-routing-evidence.json"]),
+    );
+    expect(evidence.repairRoutingEvidencePath).toBe(
+      "repair-routing-evidence.json",
+    );
+    expect(repairRouting).toMatchObject({
+      batchId: "B5.3",
+      phase: "5",
+      requirementRefs: ["PEXP-005", "EVDN-004", "EVDN-005"],
+      scenarioIds: ["TC-EVDN-002"],
+      schemaVersion: 1,
+      sourceEvidencePath: "export-evidence.json",
+    });
+    expect(
+      repairRouting.categoryTaxonomy.map((entry) => entry.category),
+    ).toEqual([
+      "authored-deck-repair",
+      "guidance-repair",
+      "export-implementation-defect",
+      "render-safe-asset-defect",
+      "environment-limitation",
+      "framework-defect-evidence",
+      "maintainer-waiver",
+    ]);
+    expect(repairRouting.failureFixtures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: "authored-deck-repair",
+          evidenceArtifacts: ["examples/phase5/alpha-readiness-talk.tsx"],
+          fixtureId: "semantic-anchor-mismatch",
+        }),
+        expect.objectContaining({
+          category: "guidance-repair",
+          evidenceArtifacts: ["skills/cadenza/rules/validation-repair.md"],
+          fixtureId: "repeated-guidance-anti-pattern",
+        }),
+        expect.objectContaining({
+          category: "export-implementation-defect",
+          evidenceArtifacts: ["scripts/cadenza.ts"],
+          fixtureId: "manifest-html-divergence",
+        }),
+        expect.objectContaining({
+          category: "render-safe-asset-defect",
+          evidenceArtifacts: ["examples/phase5/alpha-readiness-talk.tsx"],
+          fixtureId: "missing-render-safe-resource",
+        }),
+        expect.objectContaining({
+          category: "environment-limitation",
+          evidenceArtifacts: ["trace/phase5/tracker.md"],
+          fixtureId: "browser-sandbox-restriction",
+        }),
+        expect.objectContaining({
+          category: "framework-defect-evidence",
+          evidenceArtifacts: ["trace/phase5/status.yaml"],
+          fixtureId: "framework-parity-defect",
+        }),
+        expect.objectContaining({
+          category: "maintainer-waiver",
+          evidenceArtifacts: ["trace/phase5/status.yaml"],
+          fixtureId: "explicit-waiver-required",
+        }),
+      ]),
+    );
+    expect(repairRouting.passingExport).toEqual({
+      category: "none",
+      evidenceArtifacts: ["manifest.json", "export-evidence.json"],
+      status: "passed",
+    });
+    expect(repairRouting.readinessClaimPolicy).toEqual({
+      artifactBackedClaimsOnly: true,
+      chatOnlyDeclarationsAccepted: false,
+      reviewerReadableArtifactRequired: true,
+    });
+
+    for (const claim of evidence.boundaryClaims) {
+      if (claim.status === "evidence-backed") {
+        expect(claim.evidenceArtifacts.length).toBeGreaterThan(0);
+        expect(
+          claim.evidenceArtifacts.every((artifact) =>
+            artifactPaths.includes(artifact),
+          ),
+        ).toBe(true);
+      }
+    }
+    expect(
+      evidence.boundaryClaims.filter((claim) => claim.status === "not-claimed"),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ claim: "alpha-readiness" }),
+        expect.objectContaining({ claim: "waiver" }),
+      ]),
+    );
+  });
+});
+
 type Phase5ExportManifest = {
   artifacts: {
     format: "json" | "web";
@@ -358,6 +587,86 @@ type Phase5ParityTimeline = {
     settleFrame: number;
     to: string;
   }[];
+};
+
+type Phase5ExportEvidence = {
+  artifactInventory: {
+    format: "json" | "markdown" | "web";
+    path: string;
+    role: string;
+  }[];
+  batchId: "B5.3";
+  boundaryClaims: {
+    claim:
+      | "alpha-readiness"
+      | "export-readiness"
+      | "format-scope"
+      | "hosted-readiness"
+      | "waiver";
+    evidenceArtifacts: string[];
+    status: "evidence-backed" | "not-claimed";
+  }[];
+  diagnostics: {
+    densityRegressionCount: number;
+    parityStatus: "passed";
+    renderSafeResourceCount: number;
+    typographyBoxCount: number;
+  };
+  exportRun: {
+    command: string;
+    generatedManifestPath: "manifest.json";
+    options: {
+      format: "web";
+      localOnly: true;
+      outputDirectory: string;
+    };
+    runId: string;
+    sourceDeck: {
+      deckId: string;
+      path: string;
+    };
+  };
+  knownLimitations: {
+    affectedArtifact: string;
+    category: string;
+    severity: string;
+  }[];
+  parityChecks: {
+    browserSmoke: Phase5ExportManifest["previewExportParity"]["browserSmoke"];
+    status: "passed";
+  };
+  phase: "5";
+  repairRoutingEvidencePath: "repair-routing-evidence.json";
+  requirementRefs: string[];
+  scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"];
+  schemaVersion: 1;
+};
+
+type Phase5RepairRoutingEvidence = {
+  batchId: "B5.3";
+  categoryTaxonomy: {
+    category: string;
+  }[];
+  failureFixtures: {
+    category: string;
+    evidenceArtifacts: string[];
+    fixtureId: string;
+  }[];
+  passingExport: {
+    category: "none";
+    evidenceArtifacts: string[];
+    status: "passed";
+  };
+  phase: "5";
+  readinessClaimPolicy: {
+    artifactBackedClaimsOnly: true;
+    chatOnlyDeclarationsAccepted: false;
+    reviewerReadableArtifactRequired: true;
+  };
+  requirementRefs: ["PEXP-005", "EVDN-004", "EVDN-005"];
+  scenarioIds: ["TC-EVDN-002"];
+  schemaVersion: 1;
+  sourceEvidencePath: "export-evidence.json";
 };
 
 function readText(relativePath: string): string {

@@ -54,14 +54,54 @@ builder_progress:
   status: in_progress
   active_role: builder
   current_session_identity: GPT-5/codex
-  current_session_approved_at: "2026-05-26 18:23 +0800"
+  current_session_approved_at: "2026-05-26 22:11 +0800"
   current_session_approval_note: "Maintainer answered y to proceed as Phase 5 Builder with GPT-5/codex after Startup Protocol mismatch check."
   next_batch:
-    id: B5.3
-    scenarios: [TC-EVDN-001, TC-EVDN-002]
+    id: B5.4
+    scenarios: [TC-FMT-001, TC-FMT-002]
     status: ready
-    summary: "Emit machine-readable export evidence plus a concise Markdown summary with repair routing and artifact-backed readiness boundaries."
+    summary: "Support or explicitly scope Phase 5 launch-candidate MP4/PDF format disposition with format-specific evidence and limitations."
   completed_batches:
+    - id: B5.3
+      scenarios: [TC-EVDN-001, TC-EVDN-002]
+      status: complete
+      completed_at: "2026-05-26 22:11 +0800"
+      requirements: [EVDN-001, EVDN-002, EVDN-003, PEXP-005, EVDN-004, EVDN-005]
+      evidence:
+        tests:
+          - packages/core/src/phase5-export.test.ts
+        code:
+          - scripts/cadenza.ts
+        generated_artifacts:
+          - dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/index.html
+          - dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/manifest.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/export-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/export-evidence.md
+          - dist/phase5/phase5-alpha-readiness-talk/b5-3-manual/repair-routing-evidence.json
+      behavior:
+        - "The local export manifest now records machine-readable export evidence, a concise Markdown evidence summary, and repair-routing evidence as generated artifacts beside the exported web bundle."
+        - "The export evidence JSON names the source deck, command, output options, generated manifest, artifact inventory, diagnostics, parity checks, known limitations, and boundary claims."
+        - "The Markdown summary gives a Reviewer-readable command/artifact/diagnostic/parity/limitation overview and routes repairs to the generated repair-routing evidence."
+        - "Repair-routing evidence distinguishes authored-deck repair, cadenza-best-practices guidance repair, export implementation defects, render-safe asset defects, environment limitations, framework-defect evidence, and maintainer waivers."
+        - "Export-readiness evidence is artifact-backed, while format scope, alpha readiness, hosted readiness, and waiver claims remain not claimed until later batches provide repository artifacts."
+      boundary: "B5.3 only; no CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, MP4/PDF support, format-scope claim, alpha-readiness declaration, hosted rendering, Remotion Lambda, MCP implementation, npm publication, external release, or presenter-console follow-up work."
+      verification:
+        red_tc_evdn_001: "pnpm test packages/core/src/phase5-export.test.ts (failed because export-evidence.json was missing from the generated export artifact directory)"
+        green_tc_evdn_001: "pnpm test packages/core/src/phase5-export.test.ts"
+        red_tc_evdn_002: "pnpm test packages/core/src/phase5-export.test.ts (failed because repair-routing-evidence.json was missing from the generated export artifact directory)"
+        green_tc_evdn_002: "pnpm test packages/core/src/phase5-export.test.ts"
+        manual_export: "pnpm cadenza export phase5-alpha-readiness-talk --run-id b5-3-manual"
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        whitespace: "git diff --check"
     - id: B5.2
       scenarios: [TC-PEXP-001, TC-PEXP-002]
       status: complete
