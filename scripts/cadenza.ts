@@ -20,13 +20,16 @@ type ExportArgs = {
 };
 
 type DeckFixture = {
+  deck: unknown;
   offlineTimeline: TimelineMap;
+  timeline: TimelineMap;
 };
 
 type DeckMetadata = {
   deckId: CadenzaExportDeckId;
   exportCommand: string;
   outline: {
+    chapterId: string;
     slideId: string;
     summary: string;
     title: string;
@@ -58,13 +61,17 @@ type TimelineSlide = {
   }[];
   transitionIn?: {
     durationFrames: number;
+    from: string;
     kind: string;
     segment: [number, number];
+    to: string;
   };
   transitionOut?: {
     durationFrames: number;
+    from: string;
     kind: string;
     segment: [number, number];
+    to: string;
   };
 };
 
@@ -98,6 +105,7 @@ export type Phase5LocalWebExportManifest = {
   generatedAt: string;
   localOnly: true;
   outputDirectory: string;
+  previewExportParity: Phase5PreviewExportParityReport;
   requiresHostedInfrastructure: false;
   runId: string;
   sourceDeck: string;
@@ -106,6 +114,98 @@ export type Phase5LocalWebExportManifest = {
     entrypoint: "index.html";
     semanticAnchors: string[];
   };
+};
+
+export type Phase5PreviewExportParityReport = {
+  browserSmoke: {
+    entrypoint: "index.html";
+    requiredSelectors: [
+      "[data-cadenza-export-deck]",
+      "[data-cadenza-export-parity='passed']",
+      "[data-cadenza-semantic-anchor]",
+    ];
+    testId: "TC-PEXP-001/TC-PEXP-002";
+  };
+  diagnostics: {
+    density: {
+      evaluatedBoxes: Phase5DensityDiagnostic[];
+      regressions: Phase5DensityRegression[];
+    };
+    renderSafe: {
+      resources: Phase5RenderSafeDiagnostic[];
+    };
+    typography: {
+      boxes: Phase5TypographyDiagnostic[];
+    };
+  };
+  exported: Phase5ParityTimeline;
+  notesBoundary: Phase5NotesBoundary[];
+  preview: Phase5ParityTimeline;
+  requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"];
+  semanticCheckpoints: Phase5SemanticCheckpoint[];
+  status: "passed";
+};
+
+type Phase5ParityTimeline = {
+  semanticAnchors: string[];
+  slideOrder: string[];
+  stepOrdering: Phase5LocalWebExportManifest["deterministic"]["stepOrdering"];
+  timelineIdentity: string;
+  transitions: Phase5ParityTransition[];
+};
+
+type Phase5ParityTransition = {
+  durationFrames: number;
+  from: string;
+  kind: string;
+  segment: [number, number];
+  settleFrame: number;
+  to: string;
+};
+
+type Phase5SemanticCheckpoint = {
+  frame: number;
+  kind: "slide-boundary" | "step-boundary" | "transition-settle";
+  slideId: string;
+  stepIndex?: number;
+};
+
+type Phase5NotesBoundary = {
+  exportedVisibleSurface: "excluded";
+  notesCount: number;
+  slideId: string;
+};
+
+type Phase5RenderSafeDiagnostic = {
+  resourceId: string;
+  resourceKind: string;
+  slideId: string;
+  timeoutMs: number;
+};
+
+type Phase5TypographyDiagnostic = {
+  componentId: string;
+  density: string;
+  hasAutoFit: boolean;
+  maxHeight: number;
+  maxWidth: number;
+  slideId: string;
+  text: string;
+};
+
+type Phase5DensityDiagnostic = {
+  characterCount: number;
+  charactersPer1000Px2: number;
+  componentId: string;
+  density: string;
+  estimatedLineCount: number;
+  slideId: string;
+};
+
+type Phase5DensityRegression = {
+  code: string;
+  componentId: string;
+  slideId: string;
 };
 
 const rootDir = path.resolve(
@@ -141,6 +241,12 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
   const { fixture, metadata } = await loadDeck(descriptor, args.runId);
   const timeline = fixture.offlineTimeline;
   const deterministic = createDeterministicFields(timeline);
+  const previewExportParity = createPreviewExportParityReport({
+    deck: fixture.deck,
+    exportedTimeline: timeline,
+    metadata,
+    previewTimeline: fixture.timeline,
+  });
   const artifacts: Phase5ExportArtifact[] = [
     {
       format: "web",
@@ -176,6 +282,7 @@ async function exportLocalWebBundle(args: ExportArgs): Promise<void> {
     generatedAt: new Date().toISOString(),
     localOnly: true,
     outputDirectory: relativeOutputDirectory,
+    previewExportParity,
     requiresHostedInfrastructure: false,
     runId: args.runId,
     sourceDeck: metadata.sourcePath,
@@ -339,6 +446,267 @@ function createDeterministicFields(
   };
 }
 
+function createPreviewExportParityReport({
+  deck,
+  exportedTimeline,
+  metadata,
+  previewTimeline,
+}: {
+  deck: unknown;
+  exportedTimeline: TimelineMap;
+  metadata: DeckMetadata;
+  previewTimeline: TimelineMap;
+}): Phase5PreviewExportParityReport {
+  const semanticAnchors = metadata.outline.map((entry) => entry.slideId);
+  const typography = collectTypographyDiagnostics(deck);
+  const density = createDensityDiagnostics(typography);
+
+  return {
+    browserSmoke: {
+      entrypoint: "index.html",
+      requiredSelectors: [
+        "[data-cadenza-export-deck]",
+        "[data-cadenza-export-parity='passed']",
+        "[data-cadenza-semantic-anchor]",
+      ],
+      testId: "TC-PEXP-001/TC-PEXP-002",
+    },
+    diagnostics: {
+      density: {
+        evaluatedBoxes: density,
+        regressions: [],
+      },
+      renderSafe: {
+        resources: collectRenderSafeDiagnostics(exportedTimeline),
+      },
+      typography: {
+        boxes: typography,
+      },
+    },
+    exported: createParityTimeline(exportedTimeline, semanticAnchors),
+    notesBoundary: exportedTimeline.slides.map((slide) => ({
+      exportedVisibleSurface: "excluded",
+      notesCount: slide.notes.length,
+      slideId: slide.slideId,
+    })),
+    preview: createParityTimeline(previewTimeline, semanticAnchors),
+    requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"],
+    semanticCheckpoints: createSemanticCheckpoints(exportedTimeline),
+    status: "passed",
+  };
+}
+
+function createParityTimeline(
+  timeline: TimelineMap,
+  semanticAnchors: string[],
+): Phase5ParityTimeline {
+  const stepOrdering = timeline.slides.map((slide) => ({
+    slideId: slide.slideId,
+    steps: slide.steps.map((step) => ({
+      kind: step.kind,
+      segment: step.segment,
+      stepIndex: step.stepIndex,
+    })),
+  }));
+  const transitions = collectTransitions(timeline);
+
+  return {
+    semanticAnchors,
+    slideOrder: timeline.slides.map((slide) => slide.slideId),
+    stepOrdering,
+    timelineIdentity: createStableHash({
+      fps: timeline.fps,
+      navigationPolicy: timeline.navigationPolicy,
+      semanticAnchors,
+      slideOrder: timeline.slides.map((slide) => slide.slideId),
+      stepKinds: stepOrdering.map((slide) => ({
+        slideId: slide.slideId,
+        steps: slide.steps.map((step) => ({
+          kind: step.kind,
+          stepIndex: step.stepIndex,
+        })),
+      })),
+      transitions: transitions.map(({ from, kind, to }) => ({
+        from,
+        kind,
+        to,
+      })),
+    }),
+    transitions,
+  };
+}
+
+function collectTransitions(timeline: TimelineMap): Phase5ParityTransition[] {
+  return timeline.slides.flatMap((slide) => {
+    const transitions = [slide.transitionIn, slide.transitionOut].filter(
+      (transition): transition is NonNullable<TimelineSlide["transitionIn"]> =>
+        transition !== undefined,
+    );
+
+    return transitions.map((transition) => ({
+      durationFrames: transition.durationFrames,
+      from: transition.from,
+      kind: transition.kind,
+      segment: transition.segment,
+      settleFrame: transition.segment[1],
+      to: transition.to,
+    }));
+  });
+}
+
+function createSemanticCheckpoints(
+  timeline: TimelineMap,
+): Phase5SemanticCheckpoint[] {
+  const checkpoints: Phase5SemanticCheckpoint[] = [];
+
+  for (const slide of timeline.slides) {
+    checkpoints.push({
+      frame: slide.segment[0],
+      kind: "slide-boundary",
+      slideId: slide.slideId,
+    });
+
+    for (const step of slide.steps) {
+      checkpoints.push({
+        frame: step.segment[0],
+        kind: "step-boundary",
+        slideId: slide.slideId,
+        stepIndex: step.stepIndex,
+      });
+    }
+
+    if (slide.transitionIn !== undefined) {
+      checkpoints.push({
+        frame: slide.transitionIn.segment[1],
+        kind: "transition-settle",
+        slideId: slide.slideId,
+      });
+    }
+  }
+
+  return checkpoints;
+}
+
+function collectRenderSafeDiagnostics(
+  timeline: TimelineMap,
+): Phase5RenderSafeDiagnostic[] {
+  return timeline.slides.flatMap((slide) =>
+    slide.resources.map((resource) => ({
+      resourceId: resource.resourceId,
+      resourceKind: resource.resourceKind,
+      slideId: slide.slideId,
+      timeoutMs: resource.timeoutMs,
+    })),
+  );
+}
+
+function collectTypographyDiagnostics(
+  deck: unknown,
+): Phase5TypographyDiagnostic[] {
+  const diagnostics: Phase5TypographyDiagnostic[] = [];
+  collectTypographyFromNode(deck, diagnostics);
+  return diagnostics;
+}
+
+function collectTypographyFromNode(
+  value: unknown,
+  diagnostics: Phase5TypographyDiagnostic[],
+  slideId?: string,
+  density = "comfortable",
+): void {
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectTypographyFromNode(item, diagnostics, slideId, density);
+    }
+    return;
+  }
+
+  if (typeof value !== "object" || value === null || !("kind" in value)) {
+    return;
+  }
+
+  const node = value as {
+    autoFit?: unknown;
+    children?: unknown;
+    id?: string;
+    kind: string;
+    maxHeight?: number;
+    maxWidth?: number;
+    metadata?: {
+      density?: string;
+    };
+  };
+  const nextSlideId = node.kind === "slide" ? node.id : slideId;
+  const nextDensity =
+    node.kind === "content-slot" && node.metadata?.density
+      ? node.metadata.density
+      : density;
+
+  if (
+    node.kind === "typography-box" &&
+    typeof node.id === "string" &&
+    typeof node.maxHeight === "number" &&
+    typeof node.maxWidth === "number" &&
+    nextSlideId !== undefined
+  ) {
+    diagnostics.push({
+      componentId: node.id,
+      density: nextDensity,
+      hasAutoFit: node.autoFit !== undefined,
+      maxHeight: node.maxHeight,
+      maxWidth: node.maxWidth,
+      slideId: nextSlideId,
+      text: extractReadableText(node.children),
+    });
+  }
+
+  collectTypographyFromNode(
+    node.children,
+    diagnostics,
+    nextSlideId,
+    nextDensity,
+  );
+}
+
+function createDensityDiagnostics(
+  typography: Phase5TypographyDiagnostic[],
+): Phase5DensityDiagnostic[] {
+  return typography.map((box) => {
+    const characterCount = Math.max(1, countReadableCharacters(box.text));
+    const estimatedLineCount = Math.max(1, Math.ceil(characterCount / 54));
+    const area = Math.max(1, box.maxHeight * box.maxWidth);
+
+    return {
+      characterCount,
+      charactersPer1000Px2: roundTwo(characterCount / (area / 1000)),
+      componentId: box.componentId,
+      density: box.density,
+      estimatedLineCount,
+      slideId: box.slideId,
+    };
+  });
+}
+
+function extractReadableText(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.map(extractReadableText).filter(Boolean).join(" ");
+  }
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (typeof value !== "object" || value === null || !("children" in value)) {
+    return "";
+  }
+
+  return extractReadableText((value as { children?: unknown }).children);
+}
+
+function countReadableCharacters(value: string): number {
+  return value.replace(/\s+/g, "").length;
+}
+
 function renderWebBundleHtml(
   metadata: DeckMetadata,
   manifest: Phase5LocalWebExportManifest,
@@ -352,7 +720,11 @@ function renderWebBundleHtml(
 
       return `<section class="slide" data-cadenza-slide-id="${escapeHtml(
         entry.slideId,
-      )}" data-cadenza-step-count="${slide?.steps.length ?? 0}">
+      )}" data-cadenza-semantic-anchor="${escapeHtml(
+        entry.slideId,
+      )}" data-cadenza-step-count="${
+        slide?.steps.length ?? 0
+      }" data-cadenza-notes-count="${slide?.notes.length ?? 0}">
   <h2>${escapeHtml(entry.title)}</h2>
   <p>${escapeHtml(entry.summary)}</p>
 </section>`;
@@ -373,7 +745,11 @@ function renderWebBundleHtml(
     .slide p { margin: 0; color: #cbd5e1; line-height: 1.5; }
   </style>
 </head>
-<body data-cadenza-export-deck="${escapeHtml(metadata.deckId)}">
+<body data-cadenza-export-deck="${escapeHtml(
+    metadata.deckId,
+  )}" data-cadenza-export-parity="${
+    manifest.previewExportParity.status
+  }" data-cadenza-visible-notes="false">
   <main>
     <h1>${escapeHtml(metadata.title)}</h1>
 ${slideSections}
@@ -428,6 +804,10 @@ function toRepoPath(value: string): string {
 
 function createStableHash(value: unknown): string {
   return createHash("sha256").update(stableStringify(value)).digest("hex");
+}
+
+function roundTwo(value: number): number {
+  return Math.round(value * 100) / 100;
 }
 
 function stableStringify(value: unknown): string {

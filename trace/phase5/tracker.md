@@ -1,5 +1,35 @@
 # Phase 5 Tracker
 
+## 2026-05-26 21:50 +0800 — B5.2 preview and export parity
+
+- CI preflight: GitHub Actions was re-triggered on `main` with run
+  `26451881488`; `gh run watch 26451881488 --exit-status` completed green and
+  `CI summary` passed before implementation work resumed.
+- Scope: completed only B5.2 / `TC-PEXP-001` + `TC-PEXP-002`; no frozen specs,
+  Accepted ADRs, or root phase pointer were modified.
+- RED/GREEN evidence: the B5.2 focused test first failed because
+  `manifest.previewExportParity` was missing after a test-path helper was fixed;
+  it passed after the export manifest and web bundle gained preview/export
+  parity fields, semantic checkpoints, notes-boundary metadata, and diagnostics.
+- Browser evidence: the first local Playwright run hit the known
+  `sandbox_host_linux` Chromium restriction; the same exported web smoke test
+  passed in a browser-capable execution path, then the full browser suite passed.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`,
+  `tests/browser/phase5-export-parity.spec.ts`,
+  `trace/phase5/status.yaml`, and this tracker.
+- Boundary preserved: no MP4/PDF support, export evidence Markdown summary,
+  repair-routing taxonomy, alpha-readiness declaration, hosted rendering,
+  Remotion Lambda, MCP implementation, npm publication, external release, or
+  presenter-console follow-up.
+- Verification: focused B5.2 Vitest passed; focused exported-web Playwright
+  smoke passed in a browser-capable execution path; `pnpm typecheck`,
+  `pnpm test`, `pnpm test:browser`, `pnpm lint`, `pnpm format:check`,
+  Markdown lint, shell formatting, `pnpm spec:lint`, `pnpm phase:check`,
+  `pnpm check:harness`, `pnpm check:memory`, and `git diff --check` passed
+  after trace update.
+- Next batch: B5.3 / `TC-EVDN-001` + `TC-EVDN-002`.
+
 ## 2026-05-26 18:32 +0800 — B5.1 export source and local web baseline
 
 - Startup identity: proceeded as Phase 5 Builder with `GPT-5` / `codex` after

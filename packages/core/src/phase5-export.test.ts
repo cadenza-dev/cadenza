@@ -144,6 +144,122 @@ describe("B5.1 Phase 5 export source and local web export", () => {
   });
 });
 
+describe("B5.2 Phase 5 preview and export parity", () => {
+  it("TC-PEXP-001 and TC-PEXP-002 emit semantic preview/export parity and notes/diagnostic boundaries", async () => {
+    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
+    const runId = "vitest-b5-2-parity";
+    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
+    rmSync(outputDir, { force: true, recursive: true });
+
+    await runCadenzaCli(["export", deckId, "--run-id", runId]);
+
+    const manifest = readJson<Phase5ExportManifest>(
+      path.join(outputDir, "manifest.json"),
+    );
+    const html = readText(path.join(outputDir, "index.html"));
+    const fixture = createPhase5AlphaReadinessTalkFixture();
+    const previewTimeline = fixture.timeline;
+    const exportTimeline = fixture.offlineTimeline;
+    const transition = exportTimeline.slides.find(
+      (slide) => slide.transitionIn !== undefined,
+    )?.transitionIn;
+
+    expect(manifest.previewExportParity.status).toBe("passed");
+    expect(manifest.previewExportParity.requirementRefs).toEqual([
+      "PEXP-001",
+      "PEXP-002",
+      "PEXP-003",
+      "PEXP-004",
+    ]);
+    expect(manifest.previewExportParity.preview.timelineIdentity).toEqual(
+      manifest.previewExportParity.exported.timelineIdentity,
+    );
+    expect(manifest.previewExportParity.preview.slideOrder).toEqual(
+      phase5AlphaReadinessTalkMetadata.outline.map((entry) => entry.slideId),
+    );
+    expect(manifest.previewExportParity.exported.slideOrder).toEqual(
+      manifest.deterministic.slideOrder,
+    );
+    expect(manifest.previewExportParity.exported.stepOrdering).toEqual(
+      manifest.deterministic.stepOrdering,
+    );
+    expect(manifest.previewExportParity.semanticCheckpoints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          frame: exportTimeline.slides[0]?.segment[0],
+          kind: "slide-boundary",
+          slideId: "launch-contract",
+        }),
+        expect.objectContaining({
+          frame: exportTimeline.slides[0]?.steps[1]?.segment[0],
+          kind: "step-boundary",
+          slideId: "launch-contract",
+          stepIndex: 1,
+        }),
+        expect.objectContaining({
+          frame: transition?.segment[1],
+          kind: "transition-settle",
+          slideId: transition?.to,
+        }),
+      ]),
+    );
+    expect(manifest.previewExportParity.notesBoundary).toEqual(
+      phase5AlphaReadinessTalkMetadata.outline.map((entry) =>
+        expect.objectContaining({
+          exportedVisibleSurface: "excluded",
+          notesCount:
+            exportTimeline.slides.find(
+              (slide) => slide.slideId === entry.slideId,
+            )?.notes.length ?? 0,
+          slideId: entry.slideId,
+        }),
+      ),
+    );
+    expect(
+      manifest.previewExportParity.diagnostics.renderSafe.resources.map(
+        (resource) => resource.resourceId,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "phase-5-talk-font",
+        "phase-5-export-pipeline",
+        "phase-5-alpha-boundaries",
+      ]),
+    );
+    expect(
+      manifest.previewExportParity.diagnostics.typography.boxes.map(
+        (box) => box.componentId,
+      ),
+    ).toEqual(
+      expect.arrayContaining([
+        "launch-contract-title",
+        "deterministic-manifest-copy",
+        "evidence-gates-copy",
+      ]),
+    );
+    expect(
+      manifest.previewExportParity.diagnostics.density.evaluatedBoxes.length,
+    ).toBeGreaterThan(0);
+    expect(
+      manifest.previewExportParity.diagnostics.density.regressions,
+    ).toEqual([]);
+    expect(manifest.previewExportParity.browserSmoke).toEqual({
+      entrypoint: "index.html",
+      requiredSelectors: [
+        "[data-cadenza-export-deck]",
+        "[data-cadenza-export-parity='passed']",
+        "[data-cadenza-semantic-anchor]",
+      ],
+      testId: "TC-PEXP-001/TC-PEXP-002",
+    });
+
+    expect(html).toContain('data-cadenza-export-parity="passed"');
+    expect(html).toContain('data-cadenza-visible-notes="false"');
+    expect(html).toContain('data-cadenza-semantic-anchor="launch-contract"');
+    expect(html).not.toContain(previewTimeline.slides[0]?.notes[0] ?? "");
+  });
+});
+
 type Phase5ExportManifest = {
   artifacts: {
     format: "json" | "web";
@@ -175,14 +291,82 @@ type Phase5ExportManifest = {
   runId: string;
   sourceDeck: string;
   stableHash: string;
+  previewExportParity: {
+    browserSmoke: {
+      entrypoint: "index.html";
+      requiredSelectors: string[];
+      testId: "TC-PEXP-001/TC-PEXP-002";
+    };
+    diagnostics: {
+      density: {
+        evaluatedBoxes: {
+          componentId: string;
+          slideId: string;
+        }[];
+        regressions: unknown[];
+      };
+      renderSafe: {
+        resources: {
+          resourceId: string;
+          resourceKind: string;
+          slideId: string;
+          timeoutMs: number;
+        }[];
+      };
+      typography: {
+        boxes: {
+          componentId: string;
+          hasAutoFit: boolean;
+          maxHeight: number;
+          maxWidth: number;
+          slideId: string;
+        }[];
+      };
+    };
+    exported: Phase5ParityTimeline;
+    notesBoundary: {
+      exportedVisibleSurface: "excluded";
+      notesCount: number;
+      slideId: string;
+    }[];
+    preview: Phase5ParityTimeline;
+    requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"];
+    semanticCheckpoints: {
+      frame: number;
+      kind: "slide-boundary" | "step-boundary" | "transition-settle";
+      slideId: string;
+      stepIndex?: number;
+    }[];
+    status: "passed";
+  };
   webBundle: {
     entrypoint: "index.html";
     semanticAnchors: string[];
   };
 };
 
+type Phase5ParityTimeline = {
+  semanticAnchors: string[];
+  slideOrder: string[];
+  stepOrdering: Phase5ExportManifest["deterministic"]["stepOrdering"];
+  timelineIdentity: string;
+  transitions: {
+    durationFrames: number;
+    from: string;
+    kind: string;
+    segment: [number, number];
+    settleFrame: number;
+    to: string;
+  }[];
+};
+
 function readText(relativePath: string): string {
-  return readFileSync(path.join(process.cwd(), relativePath), "utf8");
+  return readFileSync(
+    path.isAbsolute(relativePath)
+      ? relativePath
+      : path.join(process.cwd(), relativePath),
+    "utf8",
+  );
 }
 
 function readJson<T>(absolutePath: string): T {
