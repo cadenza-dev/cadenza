@@ -190,6 +190,63 @@ describe("B5.2 Phase 5 preview and export parity", () => {
     expect(manifest.previewExportParity.exported.stepOrdering).toEqual(
       manifest.deterministic.stepOrdering,
     );
+    expect(manifest.previewExportParity.timingComparison).toEqual({
+      finalSemanticAnchors: {
+        exported: "alpha-boundaries",
+        preview: "alpha-boundaries",
+        status: "matched",
+      },
+      offlineTiming: {
+        allowedDeltas: [
+          {
+            exportedSegment: [552, 624],
+            frameDelta: 24,
+            kind: "wait-for-event",
+            previewSegment: [552, 600],
+            reason:
+              "Offline exportDuration owns wait-for-event timing for deterministic export.",
+            slideId: "evidence-gates",
+            status: "allowed",
+            stepIndex: 1,
+            timingOwner: "offline-export-duration",
+          },
+        ],
+        status: "passed-with-allowed-deltas",
+        unexpectedMismatches: [],
+      },
+      slideOrder: { status: "matched" },
+      stepIdentity: { status: "matched" },
+      transitions: {
+        allowedDeltas: [
+          {
+            exportedSegment: [607, 624],
+            frameDelta: 24,
+            from: "evidence-gates",
+            kind: "chapter-shift",
+            previewSegment: [583, 600],
+            reason:
+              "Transition timing shifts with the preceding offline exportDuration delta.",
+            status: "allowed",
+            timingOwner: "propagated-offline-duration-delta",
+            to: "alpha-boundaries",
+          },
+          {
+            exportedSegment: [607, 624],
+            frameDelta: 24,
+            from: "evidence-gates",
+            kind: "chapter-shift",
+            previewSegment: [583, 600],
+            reason:
+              "Transition timing shifts with the preceding offline exportDuration delta.",
+            status: "allowed",
+            timingOwner: "propagated-offline-duration-delta",
+            to: "alpha-boundaries",
+          },
+        ],
+        status: "passed-with-allowed-deltas",
+        unexpectedMismatches: [],
+      },
+    });
     expect(manifest.previewExportParity.semanticCheckpoints).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -845,9 +902,12 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
     expect(readiness.stabilityGate).toEqual({
       clock: {
         duration: "P1M",
+        startCommit: "b60d4b75a52b7f6dcacdeccc06aaceb4406eeb79",
+        startCommitShort: "b60d4b7",
+        startedAt: "2026-05-27T00:28:11+08:00",
         startTrigger:
           "first Builder commit that declares docs/alpha-readiness.md and generated alpha-readiness evidence",
-        status: "pending-first-builder-commit",
+        status: "active",
         surfaceEvidence: [
           "docs/alpha-readiness.md",
           "alpha-readiness-evidence.json",
@@ -1273,6 +1333,45 @@ type Phase5ExportManifest = {
       stepIndex?: number;
     }[];
     status: "passed";
+    timingComparison: {
+      finalSemanticAnchors: {
+        exported: string;
+        preview: string;
+        status: "matched";
+      };
+      offlineTiming: {
+        allowedDeltas: {
+          exportedSegment: [number, number];
+          frameDelta: number;
+          kind: string;
+          previewSegment: [number, number];
+          reason: string;
+          slideId: string;
+          status: "allowed";
+          stepIndex: number;
+          timingOwner: "offline-export-duration";
+        }[];
+        status: "passed" | "passed-with-allowed-deltas";
+        unexpectedMismatches: unknown[];
+      };
+      slideOrder: { status: "matched" };
+      stepIdentity: { status: "matched" };
+      transitions: {
+        allowedDeltas: {
+          exportedSegment: [number, number];
+          frameDelta: number;
+          from: string;
+          kind: string;
+          previewSegment: [number, number];
+          reason: string;
+          status: "allowed";
+          timingOwner: "propagated-offline-duration-delta";
+          to: string;
+        }[];
+        status: "passed" | "passed-with-allowed-deltas";
+        unexpectedMismatches: unknown[];
+      };
+    };
   };
   webBundle: {
     entrypoint: "index.html";
@@ -1332,8 +1431,11 @@ type Phase5AlphaReadinessEvidence = {
   stabilityGate: {
     clock: {
       duration: "P1M";
+      startCommit: string;
+      startCommitShort: string;
+      startedAt: string;
       startTrigger: string;
-      status: "pending-first-builder-commit";
+      status: "active";
       surfaceEvidence: string[];
       unresolvedBreakingChangeFindings: string[];
     };

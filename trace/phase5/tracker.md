@@ -1,5 +1,49 @@
 # Phase 5 Tracker
 
+## 2026-05-27 18:45 +0800 — Reviewer remediation REV-P5-001/002
+
+- Scope: completed only maintainer-selected Reviewer findings `REV-P5-001`
+  and `REV-P5-002`; no frozen specs, Accepted ADRs, or root phase pointer were
+  modified.
+- Startup identity: proceeded as Phase 5 Builder remediation with `GPT-5` /
+  `codex` after maintainer approval in this session.
+- `REV-P5-001` RED/GREEN: the focused Phase 5 Vitest first failed because
+  `manifest.previewExportParity.timingComparison` was missing, then passed
+  after preview/export parity status was derived from explicit timing
+  comparison evidence instead of an unconditional `passed` value.
+- Parity evidence: regenerated
+  `dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/manifest.json` now
+  records the allowed `wait-for-event` offline exportDuration delta for
+  `evidence-gates` step 1 as preview `[552, 600]` versus exported
+  `[552, 624]`, plus the propagated `evidence-gates -> alpha-boundaries`
+  transition delta as preview `[583, 600]` versus exported `[607, 624]`.
+- `REV-P5-002` RED/GREEN: the focused Phase 5 Vitest first failed because
+  alpha-readiness evidence still recorded `pending-first-builder-commit`, then
+  passed after the stability clock recorded commit `b60d4b7`
+  (`2026-05-27T00:28:11+08:00`) as the active public-surface clock start.
+- Alpha boundary: this remediation did not change the declared public alpha
+  surface, so the stability clock was not restarted. Final `0.1 alpha
+  readiness` remains unclaimed and still requires traceable Reviewer
+  acceptance.
+- Export evidence: `pnpm cadenza export phase5-alpha-readiness-talk --run-id
+  b5-6-manual` regenerated the Reviewer-cited B5.6 artifacts with the new
+  parity timing comparison and active stability-clock evidence.
+- Artifacts written: `scripts/cadenza.ts`,
+  `packages/core/src/phase5-export.test.ts`, `trace/phase5/status.yaml`, and
+  this tracker.
+- Verification: focused Phase 5 Vitest passed after both remediation cycles,
+  the B5.6 manual export regenerated successfully, and `jq` confirmed the
+  corrected parity and alpha-readiness fields. Full stack also passed:
+  `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm format:check`,
+  `pnpm exec markdownlint-cli2 "**/*.md"`,
+  `find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d`,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check`. Default `pnpm test:browser`
+  failed only because the sandbox blocked Chromium launch with
+  `sandbox_host_linux.cc` / `Operation not permitted`; the rerun outside the
+  sandbox passed 19/19.
+- Next step: Reviewer recheck of `REV-P5-001` and `REV-P5-002`.
+
 ## 2026-05-27 01:05 +0800 — B5.7 Builder closeout
 
 - Scope: completed only B5.7 Phase 5 Builder closeout; no packages, tests,

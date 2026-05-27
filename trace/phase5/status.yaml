@@ -52,17 +52,61 @@ builder_handoff:
   boundary: "Routing only; no packages implementation, CONTRACT_FROZEN spec, Accepted ADR, export artifact, hosted-rendering, Remotion Lambda, MCP, presenter-console follow-up, public-release, npm-publish, or alpha-readiness evidence work was performed during phase open."
 
 builder_progress:
-  status: builder_complete_pending_reviewer
+  status: builder_remediation_complete_pending_reviewer
   active_role: builder
   current_session_identity: GPT-5/codex
-  current_session_approved_at: "2026-05-27 01:05 +0800"
-  current_session_approval_note: "Maintainer answered y to proceed as Phase 5 Builder with GPT-5/codex for B5.7 closeout after Startup Protocol mismatch check."
+  current_session_approved_at: "2026-05-27 18:45 +0800"
+  current_session_approval_note: "Maintainer answered y to proceed as Phase 5 Builder remediation with GPT-5/codex for REV-P5-001 and REV-P5-002 after Startup Protocol mismatch check."
   next_batch:
     id: null
     scenarios: []
     status: pending_reviewer
-    summary: "Phase 5 Builder closeout is ready for read-only Reviewer review; final 0.1 alpha readiness remains unclaimed until Reviewer acceptance."
+    summary: "Selected Phase 5 Reviewer findings REV-P5-001 and REV-P5-002 are remediated and ready for Reviewer recheck; final 0.1 alpha readiness remains unclaimed until Reviewer acceptance."
   completed_batches:
+    - id: B5.R-reviewer-remediation
+      findings: [REV-P5-001, REV-P5-002]
+      scenarios: [TC-PEXP-001, TC-PEXP-002, TC-ALFA-002]
+      status: complete
+      completed_at: "2026-05-27 18:45 +0800"
+      requirements: [PEXP-001, PEXP-002, PEXP-003, PEXP-004, ALFA-003, ALFA-004]
+      evidence:
+        reviewer_report: trace/phase5/review-phase5-closeout.md
+        tests:
+          - packages/core/src/phase5-export.test.ts
+        code:
+          - scripts/cadenza.ts
+        regenerated_artifacts:
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/manifest.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/alpha-readiness-evidence.json
+          - dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/alpha-readiness-evidence.md
+      behavior:
+        - "REV-P5-001: preview/export parity status is now derived from an explicit timing comparison instead of an unconditional passed value."
+        - "The regenerated B5.6 manifest records the allowed wait-for-event offline exportDuration delta for evidence-gates step 1 as preview [552, 600] versus exported [552, 624]."
+        - "The regenerated B5.6 manifest records the propagated transition timing delta for evidence-gates -> alpha-boundaries as preview [583, 600] versus exported [607, 624], with no unexpected mismatches."
+        - "REV-P5-002: alpha-readiness evidence now records the public-surface stability clock as active from commit b60d4b7 at 2026-05-27T00:28:11+08:00."
+        - "The remediation did not change the declared public alpha surface, so the stability clock was not restarted by this Builder remediation."
+        - "Final 0.1 alpha readiness remains not claimed and still requires traceable Reviewer acceptance."
+      boundary: "Remediation only for maintainer-selected REV-P5-001 and REV-P5-002; no CONTRACT_FROZEN specs, Accepted ADRs, STATUS.yaml.current_phase, public alpha-surface expansion, hosted rendering, Remotion Lambda, MCP implementation, presenter-console implementation, npm publication, external release, or final alpha-readiness claim."
+      verification:
+        red_rev_p5_001: "pnpm test packages/core/src/phase5-export.test.ts -- --runInBand (failed because manifest.previewExportParity.timingComparison was undefined)"
+        green_rev_p5_001: "pnpm test packages/core/src/phase5-export.test.ts -- --runInBand"
+        red_rev_p5_002: "pnpm test packages/core/src/phase5-export.test.ts -- --runInBand (failed because alpha-readiness evidence still recorded pending-first-builder-commit without b60d4b7)"
+        green_rev_p5_002: "pnpm test packages/core/src/phase5-export.test.ts -- --runInBand"
+        manual_export: "pnpm cadenza export phase5-alpha-readiness-talk --run-id b5-6-manual"
+        evidence_check: "jq confirmed regenerated manifest timingComparison status passed-with-allowed-deltas and alpha-readiness clock active at b60d4b7."
+        typecheck: "pnpm typecheck"
+        unit: "pnpm test (31 files / 90 tests passed)"
+        lint: "pnpm lint"
+        format: "pnpm format:check"
+        markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+        shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        spec: "pnpm spec:lint"
+        phase: "pnpm phase:check"
+        harness: "pnpm check:harness"
+        memory: "pnpm check:memory"
+        browser_default: "pnpm test:browser (environment-only Chromium sandbox_host_linux failure)"
+        browser_green: "pnpm test:browser (rerun outside the sandbox; 19 tests passed)"
+        whitespace: "git diff --check"
     - id: B5.7
       scenarios: [phase-closeout]
       status: complete
@@ -203,7 +247,7 @@ builder_progress:
         - "The alpha public surface is explicitly declared as package exports, documented preview/export commands, examples, and cadenza-best-practices guidance, with implementation internals, generated outputs, tests, and trace archives excluded from the stability promise."
         - "Clean-checkout documentation now covers install, run, preview, export, and evidence-review commands through supported surfaces rather than hidden scripts."
         - "Launch-candidate material targets developers writing technical talks and records that final 0.1 alpha readiness is not claimed."
-        - "The stability gate records the one-month clock start trigger or maintainer waiver route, and alpha readiness requires Reviewer acceptance after Builder closeout."
+        - "The stability gate records the one-month clock start trigger, the first public-surface Builder commit b60d4b7, or the maintainer waiver route; alpha readiness requires Reviewer acceptance after Builder closeout."
         - "Overclaim guards record absent claims for hosted rendering readiness, external alpha feedback, commercial readiness, marketplace/editor/collaboration/SSO/i18n support, npm publication, broad arbitrary-deck MP4 support, and full PDF parity."
       boundary: "B5.5 only; no CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, hosted rendering, Remotion Lambda, MCP implementation, presenter-console follow-up, npm publication, release tag, external announcement, commercial-readiness claim, broad arbitrary-deck MP4 claim, full PDF parity claim, or final alpha-readiness claim."
       verification:
@@ -329,7 +373,7 @@ builder_progress:
           branch: main
           status: "CI summary passed after workflow_dispatch"
       behavior:
-        - "The local web export manifest now records preview/export parity with equal semantic timeline identity, slide order, step ordering, transition declarations, semantic checkpoints, and deterministic offline frame fields."
+        - "The local web export manifest records preview/export parity with equal semantic timeline identity, slide order, step identity, transition declarations, semantic checkpoints, deterministic offline frame fields, and explicit allowed offline timing deltas for wait-for-event exportDuration differences."
         - "The exported web bundle exposes browser-observable parity attributes and semantic anchors while keeping speaker notes out of the visible slide surface."
         - "Parity diagnostics record render-safe resources, typography boxes, density evaluated boxes, and an empty regression list for the canonical Phase 5 talk."
         - "A Playwright smoke test opens the generated web bundle and verifies parity, semantic anchors, and notes-boundary behavior in a real browser."
@@ -423,8 +467,8 @@ exit_criteria:
       - phase-closeout
   full_verification_stack:
     status: met
-    completed_at: "2026-05-27 01:09 +0800"
-    note: "Full local Builder closeout verification stack passed after B5.7 trace update."
+    completed_at: "2026-05-27 18:51 +0800"
+    note: "Full local Builder remediation verification stack passed after REV-P5-001/REV-P5-002 trace update. Default browser gate failed only because the sandbox blocked Chromium launch; the rerun outside the sandbox passed 19/19."
     commands:
       - "pnpm typecheck"
       - "pnpm test"
@@ -436,7 +480,7 @@ exit_criteria:
       - "pnpm phase:check"
       - "pnpm check:harness"
       - "pnpm check:memory"
-      - "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; browser-capable rerun passed 19/19)"
+      - "pnpm test:browser (default sandbox failed with sandbox_host_linux.cc Operation not permitted; rerun outside the sandbox passed 19/19)"
       - "git diff --check"
   reviewer_closeout_accepted:
     status: pending
@@ -444,10 +488,10 @@ exit_criteria:
     note: "Reviewer acceptance is required before any final 0.1 alpha readiness claim."
 
 reviewer_handoff:
-  status: ready
-  prepared_at: "2026-05-27 01:05 +0800"
+  status: ready_for_recheck
+  prepared_at: "2026-05-27 18:49 +0800"
   next_role: reviewer
-  review_scope: "Read-only Phase 5 closeout review of B5.1-B5.7 trace evidence, generated export evidence, full verification, and alpha-readiness overclaim guards."
+  review_scope: "Read-only Phase 5 Reviewer recheck of maintainer-selected findings REV-P5-001 and REV-P5-002, regenerated B5.6 export evidence, full verification, and alpha-readiness overclaim guards."
   suggested_artifacts:
     - prompt/PHASE5_KICK_BUILDER.md
     - spec/phase5/SPEC_TEST_MATRIX.md

@@ -146,7 +146,62 @@ export type Phase5PreviewExportParityReport = {
   preview: Phase5ParityTimeline;
   requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"];
   semanticCheckpoints: Phase5SemanticCheckpoint[];
+  timingComparison: Phase5ParityTimingComparison;
   status: "passed";
+};
+
+type Phase5ParityTimingComparison = {
+  finalSemanticAnchors: {
+    exported: string;
+    preview: string;
+    status: "matched";
+  };
+  offlineTiming: {
+    allowedDeltas: Phase5ParityStepTimingDelta[];
+    status: "passed" | "passed-with-allowed-deltas";
+    unexpectedMismatches: Phase5ParityTimingMismatch[];
+  };
+  slideOrder: {
+    status: "matched";
+  };
+  stepIdentity: {
+    status: "matched";
+  };
+  transitions: {
+    allowedDeltas: Phase5ParityTransitionTimingDelta[];
+    status: "passed" | "passed-with-allowed-deltas";
+    unexpectedMismatches: Phase5ParityTimingMismatch[];
+  };
+};
+
+type Phase5ParityStepTimingDelta = {
+  exportedSegment: [number, number];
+  frameDelta: number;
+  kind: string;
+  previewSegment: [number, number];
+  reason: string;
+  slideId: string;
+  status: "allowed";
+  stepIndex: number;
+  timingOwner: "offline-export-duration";
+};
+
+type Phase5ParityTransitionTimingDelta = {
+  exportedSegment: [number, number];
+  frameDelta: number;
+  from: string;
+  kind: string;
+  previewSegment: [number, number];
+  reason: string;
+  status: "allowed";
+  timingOwner: "propagated-offline-duration-delta";
+  to: string;
+};
+
+type Phase5ParityTimingMismatch = {
+  exported: string;
+  preview: string;
+  reason: string;
 };
 
 type Phase5ParityTimeline = {
@@ -475,8 +530,11 @@ type Phase5AlphaReadinessEvidence = {
   stabilityGate: {
     clock: {
       duration: "P1M";
+      startCommit: "b60d4b75a52b7f6dcacdeccc06aaceb4406eeb79";
+      startCommitShort: "b60d4b7";
+      startedAt: "2026-05-27T00:28:11+08:00";
       startTrigger: string;
-      status: "pending-first-builder-commit";
+      status: "active";
       surfaceEvidence: [
         "docs/alpha-readiness.md",
         "alpha-readiness-evidence.json",
@@ -671,6 +729,12 @@ const rootDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+
+const PHASE5_ALPHA_SURFACE_CLOCK_START = {
+  commit: "b60d4b75a52b7f6dcacdeccc06aaceb4406eeb79",
+  commitShort: "b60d4b7",
+  timestamp: "2026-05-27T00:28:11+08:00",
+} as const;
 
 const PHASE5_CANONICAL_MP4_SMOKE_BASE64 = [
   "AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAOEbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAA",
@@ -1058,9 +1122,12 @@ function createAlphaReadinessEvidence(): Phase5AlphaReadinessEvidence {
     stabilityGate: {
       clock: {
         duration: "P1M",
+        startCommit: PHASE5_ALPHA_SURFACE_CLOCK_START.commit,
+        startCommitShort: PHASE5_ALPHA_SURFACE_CLOCK_START.commitShort,
+        startedAt: PHASE5_ALPHA_SURFACE_CLOCK_START.timestamp,
         startTrigger:
           "first Builder commit that declares docs/alpha-readiness.md and generated alpha-readiness evidence",
-        status: "pending-first-builder-commit",
+        status: "active",
         surfaceEvidence: [
           "docs/alpha-readiness.md",
           "alpha-readiness-evidence.json",
@@ -2152,6 +2219,11 @@ function createPreviewExportParityReport({
   const semanticAnchors = metadata.outline.map((entry) => entry.slideId);
   const typography = collectTypographyDiagnostics(deck);
   const density = createDensityDiagnostics(typography);
+  const timingComparison = createTimingComparison(
+    previewTimeline,
+    exportedTimeline,
+    semanticAnchors,
+  );
 
   return {
     browserSmoke: {
@@ -2184,7 +2256,8 @@ function createPreviewExportParityReport({
     preview: createParityTimeline(previewTimeline, semanticAnchors),
     requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"],
     semanticCheckpoints: createSemanticCheckpoints(exportedTimeline),
-    status: "passed",
+    status: derivePassedParityStatus(timingComparison),
+    timingComparison,
   };
 }
 
@@ -2277,6 +2350,293 @@ function createSemanticCheckpoints(
   }
 
   return checkpoints;
+}
+
+function createTimingComparison(
+  previewTimeline: TimelineMap,
+  exportedTimeline: TimelineMap,
+  semanticAnchors: string[],
+): Phase5ParityTimingComparison {
+  const previewSteps = flattenTimelineSteps(previewTimeline);
+  const exportedSteps = flattenTimelineSteps(exportedTimeline);
+  const allowedStepDeltas: Phase5ParityStepTimingDelta[] = [];
+  const stepMismatches: Phase5ParityTimingMismatch[] = [];
+  const shiftMarkers: { frameDelta: number; previewFrame: number }[] = [];
+  let accumulatedShift = 0;
+
+  for (const [index, previewStep] of previewSteps.entries()) {
+    const exportedStep = exportedSteps[index];
+
+    if (exportedStep === undefined) {
+      stepMismatches.push({
+        exported: "missing",
+        preview: `${previewStep.slideId}:${previewStep.stepIndex}:${previewStep.kind}`,
+        reason: "Preview step has no exported counterpart.",
+      });
+      continue;
+    }
+
+    if (
+      previewStep.slideId !== exportedStep.slideId ||
+      previewStep.stepIndex !== exportedStep.stepIndex ||
+      previewStep.kind !== exportedStep.kind
+    ) {
+      stepMismatches.push({
+        exported: `${exportedStep.slideId}:${exportedStep.stepIndex}:${exportedStep.kind}`,
+        preview: `${previewStep.slideId}:${previewStep.stepIndex}:${previewStep.kind}`,
+        reason: "Preview/export step identity differs.",
+      });
+      continue;
+    }
+
+    const startDelta = exportedStep.segment[0] - previewStep.segment[0];
+    const endDelta = exportedStep.segment[1] - previewStep.segment[1];
+
+    if (startDelta === accumulatedShift && endDelta === accumulatedShift) {
+      continue;
+    }
+
+    if (
+      previewStep.kind === "wait-for-event" &&
+      startDelta === accumulatedShift &&
+      endDelta !== accumulatedShift
+    ) {
+      allowedStepDeltas.push({
+        exportedSegment: exportedStep.segment,
+        frameDelta: endDelta - startDelta,
+        kind: previewStep.kind,
+        previewSegment: previewStep.segment,
+        reason:
+          "Offline exportDuration owns wait-for-event timing for deterministic export.",
+        slideId: previewStep.slideId,
+        status: "allowed",
+        stepIndex: previewStep.stepIndex,
+        timingOwner: "offline-export-duration",
+      });
+      accumulatedShift = endDelta;
+      shiftMarkers.push({
+        frameDelta: accumulatedShift,
+        previewFrame: previewStep.segment[1],
+      });
+      continue;
+    }
+
+    stepMismatches.push({
+      exported: `${exportedStep.slideId}:${exportedStep.stepIndex}:${exportedStep.segment.join("-")}`,
+      preview: `${previewStep.slideId}:${previewStep.stepIndex}:${previewStep.segment.join("-")}`,
+      reason:
+        "Step timing differs without an offline exportDuration allowance.",
+    });
+  }
+
+  if (exportedSteps.length > previewSteps.length) {
+    for (const exportedStep of exportedSteps.slice(previewSteps.length)) {
+      stepMismatches.push({
+        exported: `${exportedStep.slideId}:${exportedStep.stepIndex}:${exportedStep.kind}`,
+        preview: "missing",
+        reason: "Exported step has no preview counterpart.",
+      });
+    }
+  }
+
+  const transitionComparison = compareTransitionsWithAllowedShifts(
+    previewTimeline,
+    exportedTimeline,
+    shiftMarkers,
+  );
+  const finalPreviewAnchor =
+    previewTimeline.slides.at(-1)?.slideId ?? semanticAnchors.at(-1) ?? "";
+  const finalExportedAnchor =
+    exportedTimeline.slides.at(-1)?.slideId ?? finalPreviewAnchor;
+  const finalSemanticAnchors =
+    finalPreviewAnchor === finalExportedAnchor
+      ? ({
+          exported: finalExportedAnchor,
+          preview: finalPreviewAnchor,
+          status: "matched",
+        } as const)
+      : (() => {
+          throw new Error(
+            `Preview/export final semantic anchor mismatch: ${finalPreviewAnchor} != ${finalExportedAnchor}.`,
+          );
+        })();
+
+  if (
+    !sameStringArray(
+      previewTimeline.slides.map((slide) => slide.slideId),
+      exportedTimeline.slides.map((slide) => slide.slideId),
+    )
+  ) {
+    throw new Error("Preview/export slide order mismatch.");
+  }
+
+  if (
+    !sameStringArray(
+      previewSteps.map(
+        (step) => `${step.slideId}:${step.stepIndex}:${step.kind}`,
+      ),
+      exportedSteps.map(
+        (step) => `${step.slideId}:${step.stepIndex}:${step.kind}`,
+      ),
+    )
+  ) {
+    throw new Error("Preview/export step identity mismatch.");
+  }
+
+  return {
+    finalSemanticAnchors,
+    offlineTiming: {
+      allowedDeltas: allowedStepDeltas,
+      status:
+        allowedStepDeltas.length === 0
+          ? "passed"
+          : "passed-with-allowed-deltas",
+      unexpectedMismatches: stepMismatches,
+    },
+    slideOrder: { status: "matched" },
+    stepIdentity: { status: "matched" },
+    transitions: transitionComparison,
+  };
+}
+
+function derivePassedParityStatus(
+  timingComparison: Phase5ParityTimingComparison,
+): Phase5PreviewExportParityReport["status"] {
+  if (
+    timingComparison.offlineTiming.unexpectedMismatches.length > 0 ||
+    timingComparison.transitions.unexpectedMismatches.length > 0
+  ) {
+    throw new Error("Preview/export parity has unexpected timing mismatches.");
+  }
+
+  return "passed";
+}
+
+function compareTransitionsWithAllowedShifts(
+  previewTimeline: TimelineMap,
+  exportedTimeline: TimelineMap,
+  shiftMarkers: { frameDelta: number; previewFrame: number }[],
+): Phase5ParityTimingComparison["transitions"] {
+  const previewTransitions = collectTransitions(previewTimeline);
+  const exportedTransitions = collectTransitions(exportedTimeline);
+  const allowedDeltas: Phase5ParityTransitionTimingDelta[] = [];
+  const unexpectedMismatches: Phase5ParityTimingMismatch[] = [];
+
+  for (const [index, previewTransition] of previewTransitions.entries()) {
+    const exportedTransition = exportedTransitions[index];
+
+    if (exportedTransition === undefined) {
+      unexpectedMismatches.push({
+        exported: "missing",
+        preview: `${previewTransition.from}->${previewTransition.to}:${previewTransition.kind}`,
+        reason: "Preview transition has no exported counterpart.",
+      });
+      continue;
+    }
+
+    if (
+      previewTransition.from !== exportedTransition.from ||
+      previewTransition.to !== exportedTransition.to ||
+      previewTransition.kind !== exportedTransition.kind ||
+      previewTransition.durationFrames !== exportedTransition.durationFrames
+    ) {
+      unexpectedMismatches.push({
+        exported: `${exportedTransition.from}->${exportedTransition.to}:${exportedTransition.kind}`,
+        preview: `${previewTransition.from}->${previewTransition.to}:${previewTransition.kind}`,
+        reason: "Preview/export transition identity differs.",
+      });
+      continue;
+    }
+
+    const expectedShift = shiftAtFrame(
+      shiftMarkers,
+      previewTransition.settleFrame,
+    );
+    const startDelta =
+      exportedTransition.segment[0] - previewTransition.segment[0];
+    const endDelta =
+      exportedTransition.segment[1] - previewTransition.segment[1];
+
+    if (startDelta === expectedShift && endDelta === expectedShift) {
+      if (expectedShift !== 0) {
+        allowedDeltas.push({
+          exportedSegment: exportedTransition.segment,
+          frameDelta: expectedShift,
+          from: previewTransition.from,
+          kind: previewTransition.kind,
+          previewSegment: previewTransition.segment,
+          reason:
+            "Transition timing shifts with the preceding offline exportDuration delta.",
+          status: "allowed",
+          timingOwner: "propagated-offline-duration-delta",
+          to: previewTransition.to,
+        });
+      }
+      continue;
+    }
+
+    unexpectedMismatches.push({
+      exported: `${exportedTransition.from}->${exportedTransition.to}:${exportedTransition.segment.join("-")}`,
+      preview: `${previewTransition.from}->${previewTransition.to}:${previewTransition.segment.join("-")}`,
+      reason:
+        "Transition timing differs outside the allowed offline timing shift.",
+    });
+  }
+
+  if (exportedTransitions.length > previewTransitions.length) {
+    for (const exportedTransition of exportedTransitions.slice(
+      previewTransitions.length,
+    )) {
+      unexpectedMismatches.push({
+        exported: `${exportedTransition.from}->${exportedTransition.to}:${exportedTransition.kind}`,
+        preview: "missing",
+        reason: "Exported transition has no preview counterpart.",
+      });
+    }
+  }
+
+  return {
+    allowedDeltas,
+    status:
+      allowedDeltas.length === 0 ? "passed" : "passed-with-allowed-deltas",
+    unexpectedMismatches,
+  };
+}
+
+function flattenTimelineSteps(timeline: TimelineMap): {
+  kind: string;
+  segment: [number, number];
+  slideId: string;
+  stepIndex: number;
+}[] {
+  return timeline.slides.flatMap((slide) =>
+    slide.steps.map((step) => ({
+      kind: step.kind,
+      segment: step.segment,
+      slideId: slide.slideId,
+      stepIndex: step.stepIndex,
+    })),
+  );
+}
+
+function shiftAtFrame(
+  shiftMarkers: { frameDelta: number; previewFrame: number }[],
+  previewFrame: number,
+): number {
+  return shiftMarkers.reduce((currentShift, marker) => {
+    if (previewFrame >= marker.previewFrame) {
+      return marker.frameDelta;
+    }
+
+    return currentShift;
+  }, 0);
+}
+
+function sameStringArray(left: string[], right: string[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every((item, index) => item === right[index])
+  );
 }
 
 function collectRenderSafeDiagnostics(
