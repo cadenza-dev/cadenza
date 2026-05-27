@@ -1736,7 +1736,8 @@ function createFormatScopeEvidence({
           transitionCount: 0,
         },
         waiver: {
-          followUpTarget: "wip/next-phases/phase-6-7-8-plus-plan.md",
+          followUpTarget:
+            "wip/next-phases/phase-9-plus-cross-format-authoring-roadmap.md",
           format: "pdf",
           launchReadinessImpact: "not-blocking",
           rationale:

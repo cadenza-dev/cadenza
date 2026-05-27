@@ -1,7 +1,9 @@
 # Phase 6, Phase 7, and Phase 8+ Planning
 
-> Status: WIP planning note, not a contract.
+> Status: Deprecated WIP planning note, not a contract.
 > Created: 2026-05-26.
+> Deprecated: 2026-05-28.
+> Superseded by the Phase 5.5/6/7/8+/9+ roadmap files in `wip/next-phases/`.
 > Source: Phase 5 Architect Stage A maintainer review.
 
 ## Planning Premise
@@ -19,7 +21,7 @@ The next phases should keep Cadenza's launch path sharp:
 - skills, examples, quickstart, and repair evidence before tool-based MCP;
 - developer technical-talk positioning before any broader deck-product surface.
 
-## Phase 6 — Public Developer Launch
+## Phase 6 - Public Developer Launch
 
 Phase 6 should turn the Phase 5 launch candidate into a public developer alpha.
 
@@ -55,7 +57,7 @@ Phase 6 should turn the Phase 5 launch candidate into a public developer alpha.
 - The declared alpha surface is stable or has a maintainer-approved narrowed
   readiness claim.
 
-## Phase 7 — Cloud and Agent Interaction Expansion
+## Phase 7 - Cloud and Agent Interaction Expansion
 
 Phase 7 should expand from a strong local developer experience into shared
 agent and cloud-capable workflows.
@@ -86,7 +88,7 @@ agent and cloud-capable workflows.
 - Remotion Lambda or hosted evaluation recommends a cloud path with documented
   licensing and cost assumptions.
 
-## Phase 8+ — Authoring Surface and Editor Research
+## Phase 8+ - Authoring Surface and Editor Research
 
 Phase 8+ should revisit deeper authoring surfaces only if the TSX-first path
 shows real pressure.
