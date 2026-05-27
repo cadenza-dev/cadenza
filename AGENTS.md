@@ -125,6 +125,12 @@ flips `STATUS.yaml.current_phase`.
 
 Full description: [`docs/agentic-workflow.md`](./docs/agentic-workflow.md).
 
+Parallel worktree note: for independent pre-alpha lanes, agents may use linked
+Git worktrees. Prefer `/home/eden/cadenza-dev/tmp/cadenza-worktrees/` as the
+shared prefix, use short phase-scoped branch names, sync each branch from
+`main` before starting, and merge back through normal Git branch flow. Do not
+use system `/tmp` as a long-lived worktree root.
+
 ---
 
 ## 6. Verification Commands (run before declaring "done")
