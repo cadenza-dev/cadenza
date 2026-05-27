@@ -124,3 +124,56 @@ remains **not accepted pending remediation**.
 `trace/phase5/review-phase5-closeout.md`，只处理 maintainer-selected findings:
 `REV-P5-001`, `REV-P5-002`；不得扩大 scope，不修改 CONTRACT_FROZEN specs 或
 Accepted ADRs；用 TDD 修复并更新 trace 后停止。
+
+## 2026-05-27 19:31 +0800 - Reviewer Acceptance
+
+Startup identity: proceeded as Phase 5 Reviewer recheck with `GPT-5` / `codex`
+after maintainer approval in this session.
+
+Acceptance scope: rechecked only maintainer-selected findings `REV-P5-001` and
+`REV-P5-002` against remediation commit `58bc9ac`
+(`fix(phase5): remediate closeout findings`), `trace/phase5/status.yaml`,
+`trace/phase5/tracker.md`, regenerated B5.6 evidence, and CI run
+`26507063014`.
+
+Disposition: **accepted**. The selected Phase 5 closeout remediation resolves
+the Reviewer blockers within the requested scope.
+
+### REV-P5-001 Recheck
+
+Accepted. The regenerated B5.6 manifest now includes explicit
+`previewExportParity.timingComparison` evidence. The previous preview/export
+timing mismatch is no longer hidden behind an unconditional pass:
+
+- `offlineTiming.unexpectedMismatches` is empty.
+- The `evidence-gates` `wait-for-event` step records an allowed offline export
+  duration delta: preview `[552, 600]` versus exported `[552, 624]`.
+- The `evidence-gates -> alpha-boundaries` transition records the propagated
+  allowed delta: preview `[583, 600]` versus exported `[607, 624]`.
+- Focused Phase 5 tests now assert the timing comparison structure and the
+  allowed-delta semantics.
+
+### REV-P5-002 Recheck
+
+Accepted. The regenerated alpha-readiness evidence records the public-surface
+stability clock as active from commit `b60d4b7`
+(`2026-05-27T00:28:11+08:00`) and keeps final `0.1 alpha readiness` unclaimed.
+The evidence still requires Reviewer acceptance after Builder closeout, so this
+acceptance records closeout review completion without substituting for the
+one-month stability requirement or an explicit maintainer waiver.
+
+### CI Evidence
+
+CI run `26507063014` completed successfully for `main` at head SHA
+`58bc9ac36a70cadf2516991f506e73bd018da9b8`. The `CI summary` job passed, with
+TypeScript checks, tests, Biome lint/format, Markdown lint, governance checks,
+and whitespace checks green across the executed matrix. The CI-classified
+Browser preview and Shell format jobs were skipped; Builder trace records the
+browser-capable rerun and shell-format check evidence for the remediation.
+
+### Boundary
+
+Reviewer performed no remediation. This acceptance does not modify production
+code, frozen specs, Accepted ADRs, prompts, scripts, root phase routing, or the
+declared public alpha surface. Final `0.1 alpha readiness` remains governed by
+the Phase 5 stability clock or an explicit maintainer waiver.
