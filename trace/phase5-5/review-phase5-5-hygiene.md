@@ -39,6 +39,8 @@ recheck.
 - Frozen-contract fixture tests isolate local Git environment variables, so
   commit-hook execution cannot redirect temporary fixture commits into the
   active worktree.
+- The hook-env regression assertion compares canonical realpaths, avoiding
+  platform-specific temporary path spelling differences on macOS and Windows.
 - Browser parity wording is stronger but still bounded: Playwright verifies
   browser-visible parity status, semantic anchor order, notes boundaries, and
   the absence of timingComparison unexpected mismatches. It does not claim
@@ -64,6 +66,9 @@ recheck.
 - `git diff --check`
 - `pnpm test:browser`
 - `pnpm test scripts/check-contract-frozen.test.ts -- --runInBand`
+- GitHub Actions run `26591904049` exposed a cross-platform path normalization
+  issue in the new hook-env guard; the follow-up repair is in scope and keeps
+  the same harness-only boundary.
 
 ## Residual Risk
 

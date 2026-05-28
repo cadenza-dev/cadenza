@@ -1,5 +1,17 @@
 # Phase 5.5 Tracker
 
+## 2026-05-29 01:51 +0800 - Cross-Platform Hook Guard Repair
+
+The first pushed CI run (`26591904049`) failed `TypeScript checks` on macOS and
+Windows in the `Test` step while Ubuntu passed. The in-scope repair keeps the
+new frozen-contract hook-env regression test but makes its repository-root
+assertion compare canonical realpaths instead of raw temporary-directory
+strings, which may differ by platform path normalization.
+
+Verification:
+
+- `pnpm test scripts/check-contract-frozen.test.ts -- --runInBand`
+
 ## 2026-05-29 01:42 +0800 - Commit Hook Fixture Isolation Guard
 
 The final commit attempt exposed a hook-only harness regression:
