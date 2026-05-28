@@ -266,32 +266,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/ms-playwright
-            ~/Library/Caches/ms-playwright
-            ~/AppData/Local/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            playwright-${{ runner.os }}-
-
-      - name: Install Playwright Chromium headless shell with system dependencies
-        if: runner.os == 'Linux'
-        timeout-minutes: 10
-        env:
-          PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: 120000
-        run: pnpm exec playwright install --with-deps --only-shell chromium
-
-      - name: Install Playwright Chromium headless shell
-        if: runner.os != 'Linux'
-        timeout-minutes: 10
-        env:
-          PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT: 120000
-        run: pnpm exec playwright install --only-shell chromium
-
       - name: Browser preview tests
+        env:
+          CADENZA_PLAYWRIGHT_CHANNEL: chrome
         run: pnpm test:browser
 
   whitespace:

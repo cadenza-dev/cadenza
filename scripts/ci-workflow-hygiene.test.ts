@@ -6,24 +6,19 @@ const ciWorkflow = readFileSync(
   join(process.cwd(), ".github/workflows/ci.yml"),
   "utf8",
 );
+const playwrightConfig = readFileSync(
+  join(process.cwd(), "playwright.config.ts"),
+  "utf8",
+);
 
-describe("CI Playwright install hygiene", () => {
-  it("caches Playwright browser binaries per OS and lockfile", () => {
-    expect(ciWorkflow).toContain("name: Cache Playwright browsers");
-    expect(ciWorkflow).toContain("uses: actions/cache@v4");
-    expect(ciWorkflow).toMatch(
-      /key: playwright-\$\{\{ runner\.os \}\}-\$\{\{ hashFiles\('pnpm-lock\.yaml'\) \}\}/,
-    );
+describe("CI Playwright browser provisioning hygiene", () => {
+  it("keeps hosted browser jobs off Playwright installer downloads", () => {
+    expect(ciWorkflow).not.toContain("pnpm exec playwright install");
+    expect(ciWorkflow).toContain("CADENZA_PLAYWRIGHT_CHANNEL: chrome");
   });
 
-  it("bounds Chromium install latency and uses the headless shell needed by browser tests", () => {
-    expect(ciWorkflow).toContain("timeout-minutes: 10");
-    expect(ciWorkflow).toContain("PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT");
-    expect(ciWorkflow).toContain(
-      "pnpm exec playwright install --with-deps --only-shell chromium",
-    );
-    expect(ciWorkflow).toContain(
-      "pnpm exec playwright install --only-shell chromium",
-    );
+  it("lets CI select the preinstalled Chrome channel without changing local defaults", () => {
+    expect(playwrightConfig).toContain("CADENZA_PLAYWRIGHT_CHANNEL");
+    expect(playwrightConfig).toContain('channel: "chrome"');
   });
 });
