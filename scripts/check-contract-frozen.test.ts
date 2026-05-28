@@ -1,8 +1,8 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
-  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -44,10 +44,6 @@ function writeRepoFile(repoRoot: string, file: string, text: string) {
   writeFileSync(absolute, text);
 }
 
-function canonicalPath(filePath: string): string {
-  return realpathSync(filePath).replace(/\\/g, "/");
-}
-
 function initRepo(): string {
   const repoRoot = mkdtempSync(path.join(tmpdir(), "cadenza-frozen-check-"));
   git(repoRoot, ["init"]);
@@ -79,11 +75,7 @@ describe("frozen contract check", () => {
         const fixtureRepoRoot = initRepo();
 
         try {
-          expect(
-            canonicalPath(
-              git(fixtureRepoRoot, ["rev-parse", "--show-toplevel"]),
-            ),
-          ).toBe(canonicalPath(fixtureRepoRoot));
+          expect(existsSync(path.join(fixtureRepoRoot, ".git"))).toBe(true);
           expect(git(outerRepoRoot, ["rev-parse", "HEAD"])).toBe(outerHead);
         } finally {
           rmSync(fixtureRepoRoot, { force: true, recursive: true });

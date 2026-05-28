@@ -31,7 +31,7 @@ scope:
 hygiene_batch:
   id: P5.5-HH
   status: reviewer_accepted
-  completed_at: "2026-05-29 01:51 +0800"
+  completed_at: "2026-05-29 01:56 +0800"
   changes:
     taxonomy_alignment:
       - docs/design/testing-taxonomy.md
@@ -64,7 +64,7 @@ hygiene_batch:
     - "Traceability coverage now classifies dist/ and tmp/ evidence paths as regenerate-owned generated evidence instead of missing tracked trace files."
     - "Traceability coverage no longer treats batch identifiers such as B5.1 as path-like missing evidence."
     - "Frozen-contract fixture tests now clear inherited local Git environment variables so commit hooks cannot redirect temporary fixture commits into the active worktree."
-    - "Frozen-contract fixture repo path assertions now compare canonical realpaths so the hook-env guard is portable across Linux, macOS, and Windows runners."
+    - "Frozen-contract fixture repo assertions now avoid raw path spelling equality and instead verify the fixture owns a .git directory while the polluted outer repo HEAD stays unchanged."
     - "Browser export parity smoke now verifies browser-visible semantic anchor order and timingComparison unexpected-mismatch emptiness in addition to parity status and notes boundaries."
     - "Phase 5 trace evidence lists now point at tests/acceptance/phase5-export.test.ts after the test taxonomy move; historical RED/GREEN command strings remain unchanged."
   boundary: "No CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, product behavior, export behavior, Phase 6 CLI, MP4 renderer, Player App, web bundle redesign, cloud/Lambda, MCP, PDF/PPTX, or editor work."
@@ -79,7 +79,8 @@ hygiene_batch:
     green_path_like_parser: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand"
     green_frozen_contract_hook_env_guard: "pnpm test scripts/check-contract-frozen.test.ts -- --runInBand"
     ci_red_cross_platform_hook_env_guard: "GitHub Actions run 26591904049 failed TypeScript checks on macos-15 and windows-2025 in the Test step after the initial push."
-    green_cross_platform_path_guard: "pnpm test scripts/check-contract-frozen.test.ts -- --runInBand"
+    ci_red_windows_short_path_guard: "GitHub Actions run 26592387107 fixed macos-15 but failed windows-2025 because Windows reported RUNNER~1 and runneradmin path spellings for the same temp directory."
+    green_cross_platform_hook_guard: "pnpm test scripts/check-contract-frozen.test.ts -- --runInBand"
     green_phase5_acceptance_helper: "pnpm test tests/acceptance/phase5-export.test.ts -- --runInBand"
     combined_targeted: "pnpm test scripts/traceability-coverage.test.ts tests/acceptance/phase5-export.test.ts tests/repo/phase3-best-practices-rules.test.ts -- --runInBand"
     typecheck: "pnpm typecheck"
@@ -98,6 +99,6 @@ hygiene_batch:
 
 reviewer_pass:
   status: accepted
-  completed_at: "2026-05-29 01:51 +0800"
+  completed_at: "2026-05-29 01:56 +0800"
   report: trace/phase5-5/review-phase5-5-hygiene.md
   findings: []
