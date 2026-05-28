@@ -1,17 +1,25 @@
-import { existsSync, readFileSync, rmSync } from "node:fs";
-import path from "node:path";
 import { compile, type DeckNode } from "@cadenza-dev/core";
 import { describe, expect, it } from "vitest";
 import {
   createPhase5AlphaReadinessTalkFixture,
   phase5AlphaReadinessTalkMetadata,
-} from "../../../examples/phase5/alpha-readiness-talk.js";
-import { runCadenzaCli } from "../../../scripts/cadenza.js";
+} from "../../examples/phase5/alpha-readiness-talk.js";
+import {
+  type Phase5AlphaReadinessEvidence,
+  type Phase5BoundaryEvaluationEvidence,
+  type Phase5ExportEvidence,
+  type Phase5FormatScopeEvidence,
+  type Phase5RepairRoutingEvidence,
+  readRepoJson,
+  readRepoText,
+  repoFileExists,
+  runPhase5ExportFixture,
+} from "../support/phase5-export-fixture.js";
 
 describe("B5.1 Phase 5 export source and local web export", () => {
   it("TC-EXPT-001 ships a longer launch-grade technical talk on public Cadenza authoring surfaces", () => {
     const fixture = createPhase5AlphaReadinessTalkFixture();
-    const source = readText("examples/phase5/alpha-readiness-talk.tsx");
+    const source = readRepoText("examples/phase5/alpha-readiness-talk.tsx");
     const timeline = compile(fixture.deck, { mode: "offline" });
 
     expect(source).toContain('from "@cadenza-dev/core";');
@@ -90,28 +98,22 @@ describe("B5.1 Phase 5 export source and local web export", () => {
 
   it("TC-EXPT-002 exports a deterministic local web bundle baseline and manifest", async () => {
     const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const packageJson = readJson<{ scripts: Record<string, string> }>(
-      path.join(process.cwd(), "package.json"),
+    const packageJson = readRepoJson<{ scripts: Record<string, string> }>(
+      "package.json",
     );
     const runIds = ["vitest-b5-1-a", "vitest-b5-1-b"];
-    const manifests = [];
+    const runs = [];
 
     expect(packageJson.scripts.cadenza).toBe(
       "node --experimental-strip-types scripts/cadenza.ts",
     );
 
     for (const runId of runIds) {
-      const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-      rmSync(outputDir, { force: true, recursive: true });
-
-      await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-      manifests.push(
-        readJson<Phase5ExportManifest>(path.join(outputDir, "manifest.json")),
-      );
+      runs.push(await runPhase5ExportFixture(runId));
     }
 
-    for (const [index, manifest] of manifests.entries()) {
+    for (const [index, run] of runs.entries()) {
+      const { manifest } = run;
       const runId = runIds[index] ?? "";
       expect(manifest.deckId).toBe(deckId);
       expect(manifest.sourceDeck).toBe(
@@ -138,32 +140,24 @@ describe("B5.1 Phase 5 export source and local web export", () => {
       expect(manifest.webBundle.semanticAnchors).toEqual(
         phase5AlphaReadinessTalkMetadata.outline.map((entry) => entry.slideId),
       );
-      expect(
-        existsSync(path.join(process.cwd(), manifest.outputDirectory)),
-      ).toBe(true);
-      expect(
-        readText(path.join(manifest.outputDirectory, "index.html")),
-      ).toContain('data-cadenza-export-deck="phase5-alpha-readiness-talk"');
+      expect(repoFileExists(manifest.outputDirectory)).toBe(true);
+      expect(run.readArtifactText("index.html")).toContain(
+        'data-cadenza-export-deck="phase5-alpha-readiness-talk"',
+      );
     }
 
-    expect(manifests[0]?.deterministic).toEqual(manifests[1]?.deterministic);
-    expect(manifests[0]?.stableHash).toBe(manifests[1]?.stableHash);
+    expect(runs[0]?.manifest.deterministic).toEqual(
+      runs[1]?.manifest.deterministic,
+    );
+    expect(runs[0]?.manifest.stableHash).toBe(runs[1]?.manifest.stableHash);
   });
 });
 
 describe("B5.2 Phase 5 preview and export parity", () => {
   it("TC-PEXP-001 and TC-PEXP-002 emit semantic preview/export parity and notes/diagnostic boundaries", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-2-parity";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
-    );
-    const html = readText(path.join(outputDir, "index.html"));
+    const { manifest, readArtifactText } =
+      await runPhase5ExportFixture("vitest-b5-2-parity");
+    const html = readArtifactText("index.html");
     const fixture = createPhase5AlphaReadinessTalkFixture();
     const previewTimeline = fixture.timeline;
     const exportTimeline = fixture.offlineTimeline;
@@ -326,22 +320,20 @@ describe("B5.2 Phase 5 preview and export parity", () => {
 
 describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
   it("TC-EVDN-001 emits machine-readable export evidence plus a concise Markdown summary", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
     const runId = "vitest-b5-3-evidence";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
+    const {
+      artifactPaths,
+      deckId,
+      manifest,
+      readArtifactJson,
+      readArtifactText,
+    } = await runPhase5ExportFixture(runId);
+    const evidence = readArtifactJson<Phase5ExportEvidence>(
+      "export-evidence.json",
     );
-    const evidence = readJson<Phase5ExportEvidence>(
-      path.join(outputDir, "export-evidence.json"),
-    );
-    const summary = readText(path.join(outputDir, "export-evidence.md"));
+    const summary = readArtifactText("export-evidence.md");
 
-    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+    expect(artifactPaths).toEqual(
       expect.arrayContaining(["export-evidence.json", "export-evidence.md"]),
     );
     expect(evidence).toMatchObject({
@@ -430,27 +422,19 @@ describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
   });
 
   it("TC-EVDN-002 routes repair categories and keeps readiness or waiver claims artifact-backed", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-3-repair-routing";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
+    const { artifactPaths: manifestArtifactPaths, readArtifactJson } =
+      await runPhase5ExportFixture("vitest-b5-3-repair-routing");
+    const evidence = readArtifactJson<Phase5ExportEvidence>(
+      "export-evidence.json",
     );
-    const evidence = readJson<Phase5ExportEvidence>(
-      path.join(outputDir, "export-evidence.json"),
+    const repairRouting = readArtifactJson<Phase5RepairRoutingEvidence>(
+      "repair-routing-evidence.json",
     );
-    const repairRouting = readJson<Phase5RepairRoutingEvidence>(
-      path.join(outputDir, "repair-routing-evidence.json"),
-    );
-    const artifactPaths = evidence.artifactInventory.map(
+    const evidenceArtifactPaths = evidence.artifactInventory.map(
       (artifact) => artifact.path,
     );
 
-    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+    expect(manifestArtifactPaths).toEqual(
       expect.arrayContaining(["repair-routing-evidence.json"]),
     );
     expect(evidence.repairRoutingEvidencePath).toBe(
@@ -530,7 +514,7 @@ describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
         expect(claim.evidenceArtifacts.length).toBeGreaterThan(0);
         expect(
           claim.evidenceArtifacts.every((artifact) =>
-            artifactPaths.includes(artifact),
+            evidenceArtifactPaths.includes(artifact),
           ),
         ).toBe(true);
       }
@@ -548,28 +532,27 @@ describe("B5.3 Phase 5 export diagnostics and repair routing", () => {
 
 describe("B5.4 Phase 5 format scope", () => {
   it("TC-FMT-001 records the frozen MP4/PDF disposition and rejects silent broad claims", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
     const runId = "vitest-b5-4-format-disposition";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
+    const {
+      artifactPaths,
+      deckId,
+      manifest,
+      readArtifactBytes,
+      readArtifactJson,
+      readArtifactText,
+    } = await runPhase5ExportFixture(runId);
+    const evidence = readArtifactJson<Phase5ExportEvidence>(
+      "export-evidence.json",
     );
-    const evidence = readJson<Phase5ExportEvidence>(
-      path.join(outputDir, "export-evidence.json"),
+    const formatScope = readArtifactJson<Phase5FormatScopeEvidence>(
+      "format-scope-evidence.json",
     );
-    const formatScope = readJson<Phase5FormatScopeEvidence>(
-      path.join(outputDir, "format-scope-evidence.json"),
-    );
-    const summary = readText(path.join(outputDir, "format-scope-evidence.md"));
+    const summary = readArtifactText("format-scope-evidence.md");
     const mp4 = formatScope.formats.find((format) => format.format === "mp4");
     const pdf = formatScope.formats.find((format) => format.format === "pdf");
 
     expect(manifest.formatScopeEvidencePath).toBe("format-scope-evidence.json");
-    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+    expect(artifactPaths).toEqual(
       expect.arrayContaining([
         "phase5-alpha-readiness-talk.mp4",
         "format-scope-evidence.json",
@@ -609,11 +592,11 @@ describe("B5.4 Phase 5 format scope", () => {
     expect(mp4?.artifactInventory.map((artifact) => artifact.path)).toEqual([
       "phase5-alpha-readiness-talk.mp4",
     ]);
+    expect(artifactPaths.includes("phase5-alpha-readiness-talk.mp4")).toBe(
+      true,
+    );
     expect(
-      existsSync(path.join(outputDir, "phase5-alpha-readiness-talk.mp4")),
-    ).toBe(true);
-    expect(
-      readFileSync(path.join(outputDir, "phase5-alpha-readiness-talk.mp4"))
+      readArtifactBytes("phase5-alpha-readiness-talk.mp4")
         .subarray(4, 8)
         .toString("utf8"),
     ).toBe("ftyp");
@@ -662,15 +645,11 @@ describe("B5.4 Phase 5 format scope", () => {
   });
 
   it("TC-FMT-002 emits format-specific evidence, diagnostics, parity checks, and limitations", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-4-format-evidence";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const formatScope = readJson<Phase5FormatScopeEvidence>(
-      path.join(outputDir, "format-scope-evidence.json"),
+    const { readArtifactJson } = await runPhase5ExportFixture(
+      "vitest-b5-4-format-evidence",
+    );
+    const formatScope = readArtifactJson<Phase5FormatScopeEvidence>(
+      "format-scope-evidence.json",
     );
     const web = formatScope.formats.find((format) => format.format === "web");
     const mp4 = formatScope.formats.find((format) => format.format === "mp4");
@@ -749,36 +728,28 @@ describe("B5.4 Phase 5 format scope", () => {
 
 describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () => {
   it("TC-ALFA-001 declares the alpha public surface and clean-checkout launch-candidate path", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-5-alpha-surface";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
+    const { artifactPaths, manifest, readArtifactJson } =
+      await runPhase5ExportFixture("vitest-b5-5-alpha-surface");
+    const readiness = readArtifactJson<Phase5AlphaReadinessEvidence>(
+      "alpha-readiness-evidence.json",
     );
-    const readiness = readJson<Phase5AlphaReadinessEvidence>(
-      path.join(outputDir, "alpha-readiness-evidence.json"),
-    );
-    const launchGuide = readText("docs/alpha-readiness.md");
-    const rootManifest = readJson<{
+    const launchGuide = readRepoText("docs/alpha-readiness.md");
+    const rootManifest = readRepoJson<{
       scripts: Record<string, string>;
-    }>(path.join(process.cwd(), "package.json"));
-    const coreManifest = readJson<{
+    }>("package.json");
+    const coreManifest = readRepoJson<{
       exports: Record<string, unknown>;
       name: string;
-    }>(path.join(process.cwd(), "packages/core/package.json"));
-    const previewManifest = readJson<{
+    }>("packages/core/package.json");
+    const previewManifest = readRepoJson<{
       exports: Record<string, unknown>;
       name: string;
-    }>(path.join(process.cwd(), "packages/preview-remotion/package.json"));
+    }>("packages/preview-remotion/package.json");
 
     expect(manifest.alphaReadinessEvidencePath).toBe(
       "alpha-readiness-evidence.json",
     );
-    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+    expect(artifactPaths).toEqual(
       expect.arrayContaining([
         "alpha-readiness-evidence.json",
         "alpha-readiness-evidence.md",
@@ -879,19 +850,13 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
   });
 
   it("TC-ALFA-002 records the public-surface stability gate and Reviewer acceptance dependency", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-5-stability-reviewer";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const readiness = readJson<Phase5AlphaReadinessEvidence>(
-      path.join(outputDir, "alpha-readiness-evidence.json"),
+    const { readArtifactJson, readArtifactText } = await runPhase5ExportFixture(
+      "vitest-b5-5-stability-reviewer",
     );
-    const summary = readText(
-      path.join(outputDir, "alpha-readiness-evidence.md"),
+    const readiness = readArtifactJson<Phase5AlphaReadinessEvidence>(
+      "alpha-readiness-evidence.json",
     );
+    const summary = readArtifactText("alpha-readiness-evidence.md");
 
     expect(readiness.alphaReadinessClaim).toEqual({
       builderGreenTestsSufficient: false,
@@ -937,31 +902,25 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
   });
 
   it("TC-ALFA-003 records overclaim guards and keeps publication boundaries closed", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
-    const runId = "vitest-b5-5-overclaim-guards";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const readiness = readJson<Phase5AlphaReadinessEvidence>(
-      path.join(outputDir, "alpha-readiness-evidence.json"),
+    const { readArtifactJson, readArtifactText } = await runPhase5ExportFixture(
+      "vitest-b5-5-overclaim-guards",
     );
-    const summary = readText(
-      path.join(outputDir, "alpha-readiness-evidence.md"),
+    const readiness = readArtifactJson<Phase5AlphaReadinessEvidence>(
+      "alpha-readiness-evidence.json",
     );
-    const rootManifest = readJson<{
+    const summary = readArtifactText("alpha-readiness-evidence.md");
+    const rootManifest = readRepoJson<{
       private: boolean;
       scripts: Record<string, string>;
-    }>(path.join(process.cwd(), "package.json"));
-    const coreManifest = readJson<{ private: boolean }>(
-      path.join(process.cwd(), "packages/core/package.json"),
+    }>("package.json");
+    const coreManifest = readRepoJson<{ private: boolean }>(
+      "packages/core/package.json",
     );
-    const previewManifest = readJson<{ private: boolean }>(
-      path.join(process.cwd(), "packages/preview-remotion/package.json"),
+    const previewManifest = readRepoJson<{ private: boolean }>(
+      "packages/preview-remotion/package.json",
     );
     const scannedText = readiness.overclaimGuards.scannedArtifacts
-      .map((artifact) => readText(artifact))
+      .map((artifact) => readRepoText(artifact))
       .join("\n");
 
     expect(readiness.overclaimGuards.publicationBoundary).toEqual({
@@ -1021,30 +980,26 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
 
 describe("B5.6 Phase 5 hosted evaluation, MCP boundary, and presenter follow-up", () => {
   it("TC-LHEV-001, TC-LHEV-002, TC-MCPA-001, TC-MCPA-002, TC-PCON-001, and TC-PCON-002 emit local boundary evidence without remote expansion", async () => {
-    const deckId = phase5AlphaReadinessTalkMetadata.deckId;
     const runId = "vitest-b5-6-boundary-evidence";
-    const outputDir = path.join(process.cwd(), "dist/phase5", deckId, runId);
-    rmSync(outputDir, { force: true, recursive: true });
-
-    await runCadenzaCli(["export", deckId, "--run-id", runId]);
-
-    const manifest = readJson<Phase5ExportManifest>(
-      path.join(outputDir, "manifest.json"),
+    const {
+      artifactPaths,
+      deckId,
+      manifest,
+      readArtifactJson,
+      readArtifactText,
+    } = await runPhase5ExportFixture(runId);
+    const evidence = readArtifactJson<Phase5BoundaryEvaluationEvidence>(
+      "boundary-evaluation-evidence.json",
     );
-    const evidence = readJson<Phase5BoundaryEvaluationEvidence>(
-      path.join(outputDir, "boundary-evaluation-evidence.json"),
-    );
-    const summary = readText(
-      path.join(outputDir, "boundary-evaluation-evidence.md"),
-    );
-    const rootManifest = readJson<{
+    const summary = readArtifactText("boundary-evaluation-evidence.md");
+    const rootManifest = readRepoJson<{
       scripts: Record<string, string>;
-    }>(path.join(process.cwd(), "package.json"));
+    }>("package.json");
 
     expect(manifest.boundaryEvaluationEvidencePath).toBe(
       "boundary-evaluation-evidence.json",
     );
-    expect(manifest.artifacts.map((artifact) => artifact.path)).toEqual(
+    expect(artifactPaths).toEqual(
       expect.arrayContaining([
         "boundary-evaluation-evidence.json",
         "boundary-evaluation-evidence.md",
@@ -1251,491 +1206,6 @@ describe("B5.6 Phase 5 hosted evaluation, MCP boundary, and presenter follow-up"
     );
   });
 });
-
-type Phase5ExportManifest = {
-  artifacts: {
-    format: "json" | "markdown" | "mp4" | "web";
-    path: string;
-    role: string;
-  }[];
-  boundaryEvaluationEvidencePath: "boundary-evaluation-evidence.json";
-  command: string;
-  deckId: string;
-  deterministic: {
-    fps: number;
-    navigationPolicy: string;
-    slideOrder: string[];
-    stepOrdering: {
-      slideId: string;
-      steps: {
-        kind: string;
-        segment: [number, number];
-        stepIndex: number;
-      }[];
-    }[];
-    timelineIdentity: {
-      totalFrames: number;
-      transitionCount: number;
-    };
-  };
-  localOnly: boolean;
-  outputDirectory: string;
-  alphaReadinessEvidencePath: "alpha-readiness-evidence.json";
-  formatScopeEvidencePath: "format-scope-evidence.json";
-  requiresHostedInfrastructure: boolean;
-  runId: string;
-  sourceDeck: string;
-  stableHash: string;
-  previewExportParity: {
-    browserSmoke: {
-      entrypoint: "index.html";
-      requiredSelectors: string[];
-      testId: "TC-PEXP-001/TC-PEXP-002";
-    };
-    diagnostics: {
-      density: {
-        evaluatedBoxes: {
-          componentId: string;
-          slideId: string;
-        }[];
-        regressions: unknown[];
-      };
-      renderSafe: {
-        resources: {
-          resourceId: string;
-          resourceKind: string;
-          slideId: string;
-          timeoutMs: number;
-        }[];
-      };
-      typography: {
-        boxes: {
-          componentId: string;
-          hasAutoFit: boolean;
-          maxHeight: number;
-          maxWidth: number;
-          slideId: string;
-        }[];
-      };
-    };
-    exported: Phase5ParityTimeline;
-    notesBoundary: {
-      exportedVisibleSurface: "excluded";
-      notesCount: number;
-      slideId: string;
-    }[];
-    preview: Phase5ParityTimeline;
-    requirementRefs: ["PEXP-001", "PEXP-002", "PEXP-003", "PEXP-004"];
-    semanticCheckpoints: {
-      frame: number;
-      kind: "slide-boundary" | "step-boundary" | "transition-settle";
-      slideId: string;
-      stepIndex?: number;
-    }[];
-    status: "passed";
-    timingComparison: {
-      finalSemanticAnchors: {
-        exported: string;
-        preview: string;
-        status: "matched";
-      };
-      offlineTiming: {
-        allowedDeltas: {
-          exportedSegment: [number, number];
-          frameDelta: number;
-          kind: string;
-          previewSegment: [number, number];
-          reason: string;
-          slideId: string;
-          status: "allowed";
-          stepIndex: number;
-          timingOwner: "offline-export-duration";
-        }[];
-        status: "passed" | "passed-with-allowed-deltas";
-        unexpectedMismatches: unknown[];
-      };
-      slideOrder: { status: "matched" };
-      stepIdentity: { status: "matched" };
-      transitions: {
-        allowedDeltas: {
-          exportedSegment: [number, number];
-          frameDelta: number;
-          from: string;
-          kind: string;
-          previewSegment: [number, number];
-          reason: string;
-          status: "allowed";
-          timingOwner: "propagated-offline-duration-delta";
-          to: string;
-        }[];
-        status: "passed" | "passed-with-allowed-deltas";
-        unexpectedMismatches: unknown[];
-      };
-    };
-  };
-  webBundle: {
-    entrypoint: "index.html";
-    semanticAnchors: string[];
-  };
-};
-
-type Phase5AlphaReadinessEvidence = {
-  alphaReadinessClaim: {
-    builderGreenTestsSufficient: false;
-    exportEvidenceSufficient: false;
-    maintainerChatSignoffSufficient: false;
-    status: "not-claimed";
-  };
-  batchId: "B5.5";
-  launchCandidate: {
-    docs: string[];
-    positioning: string;
-  };
-  overclaimGuards: {
-    prohibitedClaims: {
-      claim: string;
-      status: "absent";
-    }[];
-    publicationBoundary: {
-      explicitMaintainerApprovalRequired: true;
-      externalAnnouncementOpened: false;
-      npmPublicationPerformed: false;
-      packageMetadataPreparedOnly: true;
-      releaseTagsCreated: false;
-    };
-    scannedArtifacts: string[];
-  };
-  phase: "5";
-  publicSurface: {
-    commands: {
-      command: string;
-      stage: "evidence" | "export" | "install" | "preview" | "run";
-    }[];
-    examples: string[];
-    excludedInternalSurface: string[];
-    guidance: string[];
-    packages: {
-      exports: string[];
-      packageName: string;
-    }[];
-  };
-  requirementRefs: string[];
-  reviewerAcceptanceGate: {
-    accepted: false;
-    acceptedArtifact: string;
-    builderCloseoutRequired: true;
-    required: true;
-  };
-  scenarioIds: ["TC-ALFA-001", "TC-ALFA-002", "TC-ALFA-003"];
-  schemaVersion: 1;
-  stabilityGate: {
-    clock: {
-      duration: "P1M";
-      startCommit: string;
-      startCommitShort: string;
-      startedAt: string;
-      startTrigger: string;
-      status: "active";
-      surfaceEvidence: string[];
-      unresolvedBreakingChangeFindings: string[];
-    };
-    maintainerWaiverRoute: {
-      allowed: true;
-      narrowsReadinessClaim: true;
-      requiredArtifact: string;
-      riskExplanationRequired: true;
-    };
-  };
-};
-
-type Phase5ParityTimeline = {
-  semanticAnchors: string[];
-  slideOrder: string[];
-  stepOrdering: Phase5ExportManifest["deterministic"]["stepOrdering"];
-  timelineIdentity: string;
-  transitions: {
-    durationFrames: number;
-    from: string;
-    kind: string;
-    segment: [number, number];
-    settleFrame: number;
-    to: string;
-  }[];
-};
-
-type Phase5ExportEvidence = {
-  artifactInventory: {
-    format: "json" | "markdown" | "web";
-    path: string;
-    role: string;
-  }[];
-  batchId: "B5.3";
-  boundaryClaims: {
-    claim:
-      | "alpha-readiness"
-      | "export-readiness"
-      | "format-scope"
-      | "hosted-readiness"
-      | "waiver";
-    evidenceArtifacts: string[];
-    status: "evidence-backed" | "not-claimed";
-  }[];
-  diagnostics: {
-    densityRegressionCount: number;
-    parityStatus: "passed";
-    renderSafeResourceCount: number;
-    typographyBoxCount: number;
-  };
-  exportRun: {
-    command: string;
-    generatedManifestPath: "manifest.json";
-    options: {
-      format: "web";
-      localOnly: true;
-      outputDirectory: string;
-    };
-    runId: string;
-    sourceDeck: {
-      deckId: string;
-      path: string;
-    };
-  };
-  knownLimitations: {
-    affectedArtifact: string;
-    category: string;
-    severity: string;
-  }[];
-  parityChecks: {
-    browserSmoke: Phase5ExportManifest["previewExportParity"]["browserSmoke"];
-    status: "passed";
-  };
-  phase: "5";
-  repairRoutingEvidencePath: "repair-routing-evidence.json";
-  requirementRefs: string[];
-  scenarioIds: ["TC-EVDN-001", "TC-EVDN-002"];
-  schemaVersion: 1;
-};
-
-type Phase5FormatScopeEvidence = {
-  batchId: "B5.4";
-  formatClaims: {
-    blanketFormatParity: false;
-    broadArbitraryDeckMp4Support: false;
-    broadPdfSupport: false;
-    canonicalTalkMp4Only: true;
-    pdfLaunchReadinessWaived: true;
-  };
-  formats: {
-    artifactInventory: {
-      format: "json" | "markdown" | "mp4" | "web";
-      path: string;
-      role: string;
-    }[];
-    declaredCapability:
-      | "baseline-web-bundle"
-      | "canonical-talk-video-proof"
-      | "unsupported-launch-waiver";
-    capabilityEvidence: Record<string, unknown>;
-    disposition:
-      | "baseline-supported"
-      | "supported-for-canonical-talk"
-      | "waived-for-launch-readiness";
-    diagnostics: {
-      densityRegressionCount: number;
-      renderSafeResourceCount: number;
-      typographyBoxCount: number;
-    };
-    enabled: boolean;
-    format: "mp4" | "pdf" | "web";
-    limitations: {
-      category:
-        | "arbitrary-deck-boundary"
-        | "format-waiver"
-        | "renderer-boundary"
-        | "static-output-boundary";
-      severity: "info" | "warning";
-    }[];
-    parityChecks: {
-      slideOrder: string[];
-      status: "limited-passed" | "passed" | "waived";
-      transitionCount: number;
-    };
-    scope?: {
-      arbitraryDecks: false;
-      canonicalDeckId: string;
-      launchReadinessImpact: string;
-    };
-    waiver?: {
-      format: "pdf";
-      launchReadinessImpact: "not-blocking";
-      reviewerAcceptanceCreatesWaiver: false;
-    };
-  }[];
-  phase: "5";
-  requirementRefs: ["FMT-002", "FMT-003", "FMT-004", "FMT-005"];
-  scenarioIds: ["TC-FMT-001", "TC-FMT-002"];
-  schemaVersion: 1;
-  sourceDeck: {
-    deckId: string;
-    path: string;
-  };
-};
-
-type Phase5RepairRoutingEvidence = {
-  batchId: "B5.3";
-  categoryTaxonomy: {
-    category: string;
-  }[];
-  failureFixtures: {
-    category: string;
-    evidenceArtifacts: string[];
-    fixtureId: string;
-  }[];
-  passingExport: {
-    category: "none";
-    evidenceArtifacts: string[];
-    status: "passed";
-  };
-  phase: "5";
-  readinessClaimPolicy: {
-    artifactBackedClaimsOnly: true;
-    chatOnlyDeclarationsAccepted: false;
-    reviewerReadableArtifactRequired: true;
-  };
-  requirementRefs: ["PEXP-005", "EVDN-004", "EVDN-005"];
-  scenarioIds: ["TC-EVDN-002"];
-  schemaVersion: 1;
-  sourceEvidencePath: "export-evidence.json";
-};
-
-type Phase5BoundaryEvaluationEvidence = {
-  batchId: "B5.6";
-  boundaryScans: {
-    prohibitedPatternResults: {
-      matches: string[];
-      pattern: string;
-      status: "absent";
-    }[];
-    remotePrerequisites: {
-      externalPublishingRequired: false;
-      hostedInfrastructureRequired: false;
-      paidCloudJobsRequired: false;
-      remoteAccountsRequired: false;
-      secretsRequired: false;
-    };
-    scannedArtifacts: string[];
-  };
-  hostedEvaluation: {
-    costRiskLicense: {
-      apache2OssCoreBoundaryPreserved: true;
-      cadenzaRedistributesRemotion: false;
-      costAssumptions: {
-        notes: string;
-        status: "estimated" | "unsupported-assumption";
-        subject: string;
-      }[];
-      grantsRemotionCommercialRights: false;
-      licensingTriggers: {
-        evidence: string[];
-        trigger: string;
-      }[];
-      operationalRisks: {
-        category: string;
-        mitigation: string;
-      }[];
-      productionGradeCostModel: false;
-    };
-    disposition: "evaluation-only";
-    hostedImplementationStarted: false;
-    localCompatibilityReport: {
-      artifactLayout: {
-        generatedArtifactRoot: string;
-        suitableForFutureRemotePackaging: true;
-      };
-      diagnostics: {
-        parityStatus: "passed";
-      };
-      localExportInputs: {
-        command: string;
-        localOnly: true;
-        sourceDeck: string;
-      };
-      manifest: {
-        hasDeterministicTimelineIdentity: true;
-        hasStableHash: true;
-      };
-      renderSafeReadiness: {
-        resourceCount: number;
-        status: "metadata-ready";
-      };
-    };
-    recommendation: {
-      nextStep: string;
-      status: "defer-hosted-implementation";
-    };
-    remoteJobsRun: false;
-    requiresHostedInfrastructureForLocalExport: false;
-  };
-  mcpDisposition: {
-    contextInjectionAdequate: true;
-    inventory: [];
-    prohibitedCapabilitiesAbsent: string[];
-    readOnlyMcp: {
-      disposition: "deferred-default";
-      rationale: string;
-      resourcesOrPromptsAdded: [];
-    };
-    targetPhaseOrCondition: string;
-    toolBasedMcp: {
-      deferredBeyondPhase5: true;
-      implemented: false;
-      rationale: string;
-    };
-  };
-  phase: "5";
-  presenterFollowup: {
-    livePresenterRecording: {
-      canonicalExportPath: "deterministic-offline-export";
-      liveRecordingIsCanonical: false;
-      recordingArtifactsProduced: [];
-    };
-    multiDevicePresenterConsole: {
-      disposition: "deferred-beyond-phase5";
-      implemented: false;
-      rationale: string;
-    };
-    prohibitedScopeAbsent: string[];
-    sameBrowserPresenterWorkflowRemainsDefault: true;
-    sessionReplay: {
-      diagnosticAllowedIfParityNeedsIt: true;
-      disposition: "not-introduced";
-      userFacingReplayArtifactDefined: false;
-    };
-  };
-  requirementRefs: string[];
-  scenarioIds: [
-    "TC-LHEV-001",
-    "TC-LHEV-002",
-    "TC-MCPA-001",
-    "TC-MCPA-002",
-    "TC-PCON-001",
-    "TC-PCON-002",
-  ];
-  schemaVersion: 1;
-};
-
-function readText(relativePath: string): string {
-  return readFileSync(
-    path.isAbsolute(relativePath)
-      ? relativePath
-      : path.join(process.cwd(), relativePath),
-    "utf8",
-  );
-}
-
-function readJson<T>(absolutePath: string): T {
-  return JSON.parse(readFileSync(absolutePath, "utf8")) as T;
-}
 
 function collectRenderSafeKinds(value: unknown): string[] {
   if (Array.isArray(value)) {

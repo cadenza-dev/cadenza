@@ -1,0 +1,100 @@
+version: 1
+phase: "5.5"
+phase_name: "Test and Harness Hygiene"
+status: reviewer_accepted
+timezone: Asia/Shanghai
+opened_at: "2026-05-29 01:26 +0800"
+
+session:
+  active_role: builder
+  approved_identity: GPT-5.5/codex
+  approved_at: "2026-05-29 01:26 +0800"
+  approval_note: "Maintainer approved GPT-5.5/codex as Phase 5.5 orchestrator/Builder/Reviewer for this scoped hygiene goal when Startup Protocol detects only advisory role/model mismatch."
+
+scope:
+  roadmap: wip/next-phases/phase-5-5-test-harness-hygiene-roadmap.md
+  no_root_phase_flip: true
+  frozen_specs_modified: false
+  accepted_adrs_modified: false
+  product_behavior_modified: false
+  export_behavior_modified: false
+  excluded_work:
+    - Phase 6 CLI
+    - MP4 renderer
+    - Player App
+    - web bundle redesign
+    - cloud/Lambda
+    - MCP
+    - PDF/PPTX
+    - editor work
+
+hygiene_batch:
+  id: P5.5-HH
+  status: reviewer_accepted
+  completed_at: "2026-05-29 01:42 +0800"
+  changes:
+    taxonomy_alignment:
+      - docs/design/testing-taxonomy.md
+      - vitest.config.ts
+    phase_acceptance_tests:
+      - tests/acceptance/phase5-export.test.ts
+      - tests/support/phase5-export-fixture.ts
+    repo_artifact_smoke:
+      - tests/repo/phase3-best-practices-rules.test.ts
+    traceability_coverage:
+      - scripts/traceability-coverage.ts
+      - scripts/traceability-coverage.test.ts
+    frozen_contract_fixture_isolation:
+      - scripts/check-contract-frozen.test.ts
+    browser_smoke_strength:
+      - tests/browser/phase5-export-parity.spec.ts
+    evidence_contract_types:
+      - scripts/cadenza.ts
+    phase5_trace_sync:
+      - trace/phase5/status.yaml
+    phase55_trace:
+      - trace/phase5-5/status.yaml
+      - trace/phase5-5/tracker.md
+      - trace/phase5-5/review-phase5-5-hygiene.md
+  behavior:
+    - "Phase-bound Phase 5 export acceptance assertions moved out of package-local tests into tests/acceptance while keeping public export behavior unchanged."
+    - "Repo-artifact cadenza-best-practices smoke assertions moved out of packages/core into tests/repo."
+    - "Repeated Phase 5 live export setup, cleanup ownership, manifest readers, artifact readers, and generated artifact path handling are centralized in tests/support/phase5-export-fixture.ts."
+    - "Traceability coverage no longer scans nested node_modules workspace links as test or implementation evidence."
+    - "Traceability coverage now classifies dist/ and tmp/ evidence paths as regenerate-owned generated evidence instead of missing tracked trace files."
+    - "Traceability coverage no longer treats batch identifiers such as B5.1 as path-like missing evidence."
+    - "Frozen-contract fixture tests now clear inherited local Git environment variables so commit hooks cannot redirect temporary fixture commits into the active worktree."
+    - "Browser export parity smoke now verifies browser-visible semantic anchor order and timingComparison unexpected-mismatch emptiness in addition to parity status and notes boundaries."
+    - "Phase 5 trace evidence lists now point at tests/acceptance/phase5-export.test.ts after the test taxonomy move; historical RED/GREEN command strings remain unchanged."
+  boundary: "No CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, product behavior, export behavior, Phase 6 CLI, MP4 renderer, Player App, web bundle redesign, cloud/Lambda, MCP, PDF/PPTX, or editor work."
+  verification:
+    red_phase5_acceptance_taxonomy: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand (failed because tests/acceptance/phase5-export.test.ts did not exist and packages/core/src/phase5-export.test.ts was still scanned)"
+    green_phase5_acceptance_taxonomy: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand"
+    red_repo_smoke_taxonomy: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand (failed because tests/repo/phase3-best-practices-rules.test.ts did not exist)"
+    green_repo_smoke_taxonomy: "pnpm test scripts/traceability-coverage.test.ts tests/repo/phase3-best-practices-rules.test.ts -- --runInBand"
+    red_traceability_proof_strength: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand (failed because generatedEvidencePaths was missing and nested node_modules tests were scanned)"
+    green_traceability_proof_strength: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand"
+    red_path_like_parser: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand (failed because B5.1-style batch IDs were treated as missing path-like evidence)"
+    green_path_like_parser: "pnpm test scripts/traceability-coverage.test.ts -- --runInBand"
+    green_frozen_contract_hook_env_guard: "pnpm test scripts/check-contract-frozen.test.ts -- --runInBand"
+    green_phase5_acceptance_helper: "pnpm test tests/acceptance/phase5-export.test.ts -- --runInBand"
+    combined_targeted: "pnpm test scripts/traceability-coverage.test.ts tests/acceptance/phase5-export.test.ts tests/repo/phase3-best-practices-rules.test.ts -- --runInBand"
+    typecheck: "pnpm typecheck"
+    test: "pnpm test"
+    lint: "pnpm lint"
+    format: "pnpm format:check"
+    markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+    shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+    spec: "pnpm spec:lint"
+    phase: "pnpm phase:check"
+    harness: "pnpm check:harness"
+    memory: "pnpm check:memory"
+    whitespace: "git diff --check"
+    browser: "pnpm test:browser"
+    full_stack_status: passed
+
+reviewer_pass:
+  status: accepted
+  completed_at: "2026-05-29 01:42 +0800"
+  report: trace/phase5-5/review-phase5-5-hygiene.md
+  findings: []

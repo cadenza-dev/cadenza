@@ -266,7 +266,7 @@ type Phase5DensityRegression = {
   slideId: string;
 };
 
-type Phase5ExportEvidence = {
+export type Phase5ExportEvidence = {
   artifactInventory: Phase5ExportArtifact[];
   batchId: "B5.3";
   boundaryClaims: Phase5BoundaryClaim[];
@@ -310,7 +310,7 @@ type Phase5ExportEvidence = {
   schemaVersion: 1;
 };
 
-type Phase5RepairRoutingEvidence = {
+export type Phase5RepairRoutingEvidence = {
   batchId: "B5.3";
   categoryTaxonomy: Phase5RepairRoutingCategory[];
   failureFixtures: Phase5RepairFailureFixture[];
@@ -371,7 +371,7 @@ type Phase5KnownLimitation = {
   severity: "info";
 };
 
-type Phase5FormatScopeEvidence = {
+export type Phase5FormatScopeEvidence = {
   batchId: "B5.4";
   formatClaims: {
     blanketFormatParity: false;
@@ -469,7 +469,7 @@ type Phase5FormatLimitation = {
   severity: "info" | "warning";
 };
 
-type Phase5AlphaReadinessEvidence = {
+export type Phase5AlphaReadinessEvidence = {
   alphaReadinessClaim: {
     builderGreenTestsSufficient: false;
     exportEvidenceSufficient: false;
@@ -550,7 +550,7 @@ type Phase5AlphaReadinessEvidence = {
   };
 };
 
-type Phase5BoundaryEvaluationEvidence = {
+export type Phase5BoundaryEvaluationEvidence = {
   batchId: "B5.6";
   boundaryScans: Phase5BoundaryScanEvidence;
   hostedEvaluation: {

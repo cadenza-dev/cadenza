@@ -72,7 +72,7 @@ builder_progress:
       evidence:
         reviewer_report: trace/phase5/review-phase5-closeout.md
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         code:
           - scripts/cadenza.ts
         regenerated_artifacts:
@@ -178,7 +178,7 @@ builder_progress:
         ]
       evidence:
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         code:
           - scripts/cadenza.ts
         generated_artifacts:
@@ -225,7 +225,7 @@ builder_progress:
         [ALFA-001, ALFA-002, ALFA-003, ALFA-004, ALFA-005, ALFA-006, ALFA-007]
       evidence:
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         code:
           - scripts/cadenza.ts
         docs:
@@ -276,7 +276,7 @@ builder_progress:
       requirements: [FMT-002, FMT-003, FMT-004, FMT-005]
       evidence:
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         code:
           - scripts/cadenza.ts
         generated_artifacts:
@@ -318,7 +318,7 @@ builder_progress:
       requirements: [EVDN-001, EVDN-002, EVDN-003, PEXP-005, EVDN-004, EVDN-005]
       evidence:
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         code:
           - scripts/cadenza.ts
         generated_artifacts:
@@ -358,7 +358,7 @@ builder_progress:
       requirements: [PEXP-001, PEXP-002, PEXP-003, PEXP-004]
       evidence:
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
           - tests/browser/phase5-export-parity.spec.ts
         code:
           - scripts/cadenza.ts
@@ -408,7 +408,7 @@ builder_progress:
           - package.json
           - scripts/cadenza.ts
         tests:
-          - packages/core/src/phase5-export.test.ts
+          - tests/acceptance/phase5-export.test.ts
         generated_artifacts:
           - dist/phase5/phase5-alpha-readiness-talk/b5-1-manual/index.html
           - dist/phase5/phase5-alpha-readiness-talk/b5-1-manual/deck.json

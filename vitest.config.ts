@@ -36,7 +36,12 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ["packages/**/*.test.ts", "scripts/**/*.test.ts"],
+    include: [
+      "packages/**/*.test.ts",
+      "scripts/**/*.test.ts",
+      "tests/acceptance/**/*.test.ts",
+      "tests/repo/**/*.test.ts",
+    ],
     passWithNoTests: true,
   },
 });

@@ -42,6 +42,16 @@ test.describe("B5.2 Phase 5 exported web parity smoke", () => {
           slideId: string;
         }>;
         status: string;
+        timingComparison: {
+          offlineTiming: {
+            status: string;
+            unexpectedMismatches: unknown[];
+          };
+          transitions: {
+            status: string;
+            unexpectedMismatches: unknown[];
+          };
+        };
       };
       webBundle: {
         semanticAnchors: string[];
@@ -62,6 +72,27 @@ test.describe("B5.2 Phase 5 exported web parity smoke", () => {
 
     await expect(page.locator("[data-cadenza-semantic-anchor]")).toHaveCount(
       manifest.webBundle.semanticAnchors.length,
+    );
+    await expect(
+      page.locator("[data-cadenza-semantic-anchor]").first(),
+    ).toHaveAttribute("data-cadenza-semantic-anchor", "launch-contract");
+    const browserAnchorOrder = await page
+      .locator("[data-cadenza-semantic-anchor]")
+      .evaluateAll((nodes) =>
+        nodes.map((node) => node.getAttribute("data-cadenza-semantic-anchor")),
+      );
+    expect(browserAnchorOrder).toEqual(manifest.webBundle.semanticAnchors);
+    expect(manifest.previewExportParity.timingComparison.offlineTiming).toEqual(
+      expect.objectContaining({
+        status: "passed-with-allowed-deltas",
+        unexpectedMismatches: [],
+      }),
+    );
+    expect(manifest.previewExportParity.timingComparison.transitions).toEqual(
+      expect.objectContaining({
+        status: "passed-with-allowed-deltas",
+        unexpectedMismatches: [],
+      }),
     );
     await expect(
       page.getByText(

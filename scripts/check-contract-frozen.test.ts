@@ -5,10 +5,28 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 const scriptPath = path.resolve("scripts/check-contract-frozen.ts");
+const LOCAL_GIT_ENV_KEYS = [
+  "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+  "GIT_COMMON_DIR",
+  "GIT_DIR",
+  "GIT_INDEX_FILE",
+  "GIT_OBJECT_DIRECTORY",
+  "GIT_PREFIX",
+  "GIT_WORK_TREE",
+];
+
+function isolatedGitEnv(): NodeJS.ProcessEnv {
+  const env = { ...process.env };
+  for (const key of LOCAL_GIT_ENV_KEYS) {
+    delete env[key];
+  }
+  return env;
+}
 
 function git(repoRoot: string, args: string[]): string {
   return execFileSync("git", args, {
     cwd: repoRoot,
+    env: isolatedGitEnv(),
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
   }).trim();
@@ -36,6 +54,45 @@ function initRepo(): string {
 }
 
 describe("frozen contract check", () => {
+  it("keeps temporary fixture repos isolated from inherited hook Git environment", () => {
+    const outerRepoRoot = initRepo();
+
+    try {
+      const outerGitDir = path.join(outerRepoRoot, ".git");
+      const outerHead = git(outerRepoRoot, ["rev-parse", "HEAD"]);
+      const previousGitDir = process.env.GIT_DIR;
+      const previousGitWorkTree = process.env.GIT_WORK_TREE;
+      process.env.GIT_DIR = outerGitDir;
+      process.env.GIT_WORK_TREE = outerRepoRoot;
+
+      try {
+        const fixtureRepoRoot = initRepo();
+
+        try {
+          expect(git(fixtureRepoRoot, ["rev-parse", "--show-toplevel"])).toBe(
+            fixtureRepoRoot,
+          );
+          expect(git(outerRepoRoot, ["rev-parse", "HEAD"])).toBe(outerHead);
+        } finally {
+          rmSync(fixtureRepoRoot, { force: true, recursive: true });
+        }
+      } finally {
+        if (previousGitDir === undefined) {
+          delete process.env.GIT_DIR;
+        } else {
+          process.env.GIT_DIR = previousGitDir;
+        }
+        if (previousGitWorkTree === undefined) {
+          delete process.env.GIT_WORK_TREE;
+        } else {
+          process.env.GIT_WORK_TREE = previousGitWorkTree;
+        }
+      }
+    } finally {
+      rmSync(outerRepoRoot, { force: true, recursive: true });
+    }
+  });
+
   it("accepts base-mode frozen spec changes when the commit range has an override", () => {
     const repoRoot = initRepo();
 
@@ -56,7 +113,7 @@ describe("frozen contract check", () => {
       const result = spawnSync(
         process.execPath,
         ["--experimental-strip-types", scriptPath, "--base", base],
-        { cwd: repoRoot, encoding: "utf8" },
+        { cwd: repoRoot, encoding: "utf8", env: isolatedGitEnv() },
       );
 
       expect(result.status).toBe(0);
@@ -81,7 +138,7 @@ describe("frozen contract check", () => {
       const result = spawnSync(
         process.execPath,
         ["--experimental-strip-types", scriptPath, "--base", base],
-        { cwd: repoRoot, encoding: "utf8" },
+        { cwd: repoRoot, encoding: "utf8", env: isolatedGitEnv() },
       );
 
       expect(result.status).toBe(1);

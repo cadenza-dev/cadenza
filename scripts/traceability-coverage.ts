@@ -22,7 +22,7 @@ const REQUIREMENT_ID_PATTERN = /\b[A-Z]{2,6}-[0-9]{3,4}\b/g;
 const TEST_ID_PATTERN = /\bTC-[A-Z]{2,6}-[0-9]{3,4}\b/g;
 const REQUIREMENT_ID_EXACT_PATTERN = /^[A-Z]{2,6}-[0-9]{3,4}$/;
 const TEST_ID_EXACT_PATTERN = /^TC-[A-Z]{2,6}-[0-9]{3,4}$/;
-const PATH_LIKE_PATTERN = /^[\w@./-]+\.[\w]+$/;
+const PATH_LIKE_PATTERN = /^[\w@./-]+\.[A-Za-z][\w-]*$/;
 
 type RequirementBlock = {
   file: string;
@@ -94,6 +94,8 @@ export type TraceabilityCoverageReport = {
       marker: string;
     }>;
     deferredWipFiles: string[];
+    generatedEvidencePaths: string[];
+    generatedEvidencePathsMissing: string[];
     stageAStatus: string | null;
     stageBStatus: string | null;
     statusEvidencePathsMissing: string[];
@@ -144,6 +146,12 @@ export function createTraceabilityCoverageReport(
   );
   const traceStatus = readRelative(options.repoRoot, traceStatusPath);
   const statusEvidencePaths = extractStatusEvidencePaths(traceStatus);
+  const generatedEvidencePaths = statusEvidencePaths.filter(
+    isGeneratedEvidencePath,
+  );
+  const trackedStatusEvidencePaths = statusEvidencePaths.filter(
+    (file) => !isGeneratedEvidencePath(file),
+  );
   const statusRequirementEvidence = extractRequirementEvidenceFromStatus(
     traceStatus,
     statusEvidencePaths,
@@ -227,9 +235,13 @@ export function createTraceabilityCoverageReport(
     traceScope: {
       deferredItems: collectDeferredItems(options.repoRoot),
       deferredWipFiles: collectDeferredWipFiles(options.repoRoot),
+      generatedEvidencePaths,
+      generatedEvidencePathsMissing: generatedEvidencePaths.filter(
+        (file) => !existsSync(path.join(options.repoRoot, file)),
+      ),
       stageAStatus: extractNestedStatus(traceStatus, "architect_stage_a"),
       stageBStatus: extractNestedStatus(traceStatus, "architect_stage_b"),
-      statusEvidencePathsMissing: statusEvidencePaths.filter(
+      statusEvidencePathsMissing: trackedStatusEvidencePaths.filter(
         (file) => !existsSync(path.join(options.repoRoot, file)),
       ),
     },
@@ -330,6 +342,8 @@ export function formatTraceabilityCoverageMarkdown(
     `- Stage A status: ${report.traceScope.stageAStatus ?? "missing"}`,
     `- Stage B status: ${report.traceScope.stageBStatus ?? "missing"}`,
     `- Deferred WIP files: ${joinOrDash(report.traceScope.deferredWipFiles)}`,
+    `- Generated evidence paths: ${joinOrDash(report.traceScope.generatedEvidencePaths)}`,
+    `- Missing generated evidence paths: ${joinOrDash(report.traceScope.generatedEvidencePathsMissing)}`,
     `- Deferred WIP markers: ${joinOrDash(
       report.traceScope.deferredItems.map(
         (item) => `${item.file} -> ${item.marker}`,
@@ -383,7 +397,6 @@ function walkFiles(repoRoot: string, target: string): string[] {
   const files: string[] = [];
   for (const entry of readdirSync(absolute)) {
     if (
-      target === "." &&
       [
         "node_modules",
         ".git",
@@ -405,6 +418,10 @@ function walkFiles(repoRoot: string, target: string): string[] {
     }
   }
   return files;
+}
+
+function isGeneratedEvidencePath(file: string): boolean {
+  return file.startsWith("dist/") || file.startsWith("tmp/");
 }
 
 function extractRequirementBlocks(

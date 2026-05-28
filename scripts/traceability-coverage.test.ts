@@ -1045,6 +1045,88 @@ describe("phase:check active-phase coverage gate", () => {
   });
 });
 
+describe("Phase 5 acceptance evidence taxonomy", () => {
+  it("keeps phase-bound export acceptance evidence out of package-local tests", () => {
+    const report = createTraceabilityCoverageReport({
+      phase: "5",
+      repoRoot: process.cwd(),
+    });
+    const pexp001 = report.requirements.find(
+      (requirement) => requirement.id === "PEXP-001",
+    );
+
+    expect(report.sources.testFiles).toContain(
+      "tests/acceptance/phase5-export.test.ts",
+    );
+    expect(report.sources.testFiles).toContain(
+      "tests/browser/phase5-export-parity.spec.ts",
+    );
+    expect(report.sources.testFiles).not.toContain(
+      "packages/core/src/phase5-export.test.ts",
+    );
+    expect(pexp001?.testEvidenceFiles).toEqual(
+      expect.arrayContaining([
+        "tests/acceptance/phase5-export.test.ts",
+        "tests/browser/phase5-export-parity.spec.ts",
+      ]),
+    );
+  });
+});
+
+describe("Phase 5 generated artifact ownership", () => {
+  it("classifies ignored live export outputs as regenerate-owned evidence instead of missing tracked trace files", () => {
+    const report = createTraceabilityCoverageReport({
+      phase: "5",
+      repoRoot: process.cwd(),
+    });
+
+    expect(report.traceScope.generatedEvidencePaths).toEqual(
+      expect.arrayContaining([
+        "dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/manifest.json",
+        "dist/phase5/phase5-alpha-readiness-talk/b5-6-manual/export-evidence.json",
+      ]),
+    );
+    expect(report.traceScope.statusEvidencePathsMissing).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/^dist\//)]),
+    );
+    expect(report.traceScope.statusEvidencePathsMissing).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/^B5\./)]),
+    );
+  });
+});
+
+describe("repo artifact smoke taxonomy", () => {
+  it("keeps cadenza-best-practices repo artifact checks out of package-local tests", () => {
+    const report = createTraceabilityCoverageReport({
+      phase: "3",
+      repoRoot: process.cwd(),
+    });
+
+    expect(report.sources.testFiles).toContain(
+      "tests/repo/phase3-best-practices-rules.test.ts",
+    );
+    expect(report.sources.testFiles).not.toContain(
+      "packages/core/src/phase3-best-practices-rules.test.ts",
+    );
+  });
+});
+
+describe("evidence scan hygiene", () => {
+  it("does not collect test evidence from nested node_modules workspace links", () => {
+    const report = createTraceabilityCoverageReport({
+      phase: "5",
+      repoRoot: process.cwd(),
+    });
+
+    expect(report.sources.testFiles).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("/node_modules/")]),
+    );
+    expect(report.sources.implementationFiles).not.toEqual(
+      expect.arrayContaining([expect.stringContaining("/node_modules/")]),
+    );
+  });
+});
+
 describe("TC-RSRM-009 render-time compatibility boundary", () => {
   it("keeps render-safe preview compatibility from becoming export acceptance evidence", () => {
     const report = createTraceabilityCoverageReport({
