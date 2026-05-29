@@ -1,0 +1,120 @@
+version: 1
+phase: "6"
+phase_name: "Universal CLI and Local Export Engine"
+status: builder_ready
+timezone: Asia/Shanghai
+opened_at: "2026-05-30 07:00 +0800"
+
+session:
+  active_role: builder
+  approved_identity: GPT-5/codex
+  approved_at: "2026-05-30 07:00 +0800"
+  approval_note: "Maintainer answered y, then explicitly limited this session to Phase 6 routing init, trace scaffold creation, commit, push, and CI verification before Builder batch work."
+
+handoff:
+  source_phase: "5.5"
+  source_trace: trace/phase5-5/
+  handoff_file: trace/phase5-5/phase6-architect-handoff.md
+  kick_file: prompt/PHASE6_KICK_BUILDER.md
+  active_role: builder
+  summary: "Phase 6 Builder starts from frozen Universal CLI and Local Export Engine contracts after accepted Phase 5 closeout and Phase 5.5 hygiene."
+
+entry_conditions:
+  phase5_reviewer_closeout_accepted:
+    status: met
+    artifact: trace/phase5/review-phase5-closeout.md
+  phase55_hygiene_reviewer_accepted:
+    status: met
+    artifact: trace/phase5-5/status.yaml
+  phase6_architect_handoff_exists:
+    status: met
+    artifact: trace/phase5-5/phase6-architect-handoff.md
+  phase6_specs_frozen:
+    status: met
+    artifact: spec/phase6/
+  adr_0016_accepted:
+    status: met
+    artifact: docs/adr/0016-phase-6-local-cli-export-package-topology.md
+  phase6_builder_kick_exists:
+    status: met
+    artifact: prompt/PHASE6_KICK_BUILDER.md
+  root_phase_pointer_opened:
+    status: met
+    artifact: STATUS.yaml
+
+builder_handoff:
+  status: ready
+  active_role: builder
+  kick_file: prompt/PHASE6_KICK_BUILDER.md
+  next_batch:
+    id: B6.1
+    scenarios:
+      - TC-CLIS-001
+      - TC-CLIS-005
+      - TC-DLOD-001
+      - TC-DLOD-002
+      - TC-DLOD-003
+      - TC-DLOD-004
+      - TC-DLOD-005
+      - TC-CNFG-001
+      - TC-CNFG-002
+      - TC-CNFG-003
+      - TC-CNFG-004
+      - TC-CNFG-005
+    requirements:
+      - CLIS-001
+      - CLIS-005
+      - CLIS-006
+      - CLIS-008
+      - DLOD-001
+      - DLOD-002
+      - DLOD-003
+      - DLOD-004
+      - DLOD-006
+      - DLOD-007
+      - DLOD-008
+      - CNFG-001
+      - CNFG-002
+      - CNFG-003
+      - CNFG-004
+      - CNFG-005
+      - CNFG-007
+      - EXEN-006
+      - EXEN-007
+      - VIDO-002
+    summary: "Create Phase 6 CLI/export-local package topology, deterministic help/version, minimal config/path registry, and deck loading through the frozen Phase 6 deck contract."
+  boundary: "Routing init only; no Builder implementation, tests, docs, frozen specs, Accepted ADRs, production code, export artifacts, hosted rendering, Player App, MP4 renderer, npm publication, release tag, external launch, or alpha-readiness claim was performed."
+
+builder_progress:
+  status: not_started
+  active_role: builder
+  next_batch:
+    id: B6.1
+    scenarios:
+      - TC-CLIS-001
+      - TC-CLIS-005
+      - TC-DLOD-001
+      - TC-DLOD-002
+      - TC-DLOD-003
+      - TC-DLOD-004
+      - TC-DLOD-005
+      - TC-CNFG-001
+      - TC-CNFG-002
+      - TC-CNFG-003
+      - TC-CNFG-004
+      - TC-CNFG-005
+    status: ready
+    summary: "Await maintainer's planned PHASE6_KICK_BUILDER.md improvement for goal-mode autonomous batch iteration before implementation begins."
+  completed_batches: []
+
+exit_criteria:
+  builder_batches_complete:
+    status: pending
+    artifact: trace/phase6/tracker.md
+  full_verification_stack:
+    status: pending
+    note: "Pending Phase 6 Builder implementation and closeout."
+  reviewer_closeout_accepted:
+    status: pending
+    artifact: trace/phase6/review-phase6-closeout.md
+    note: "Reviewer acceptance is required before Phase 6 closeout."

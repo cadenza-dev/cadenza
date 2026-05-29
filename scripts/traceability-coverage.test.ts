@@ -1043,6 +1043,112 @@ describe("phase:check active-phase coverage gate", () => {
       rmSync(repoRoot, { force: true, recursive: true });
     }
   });
+
+  it("accepts Phase 6 Builder-ready routing after Phase 5 closeout and Phase 5.5 hygiene", () => {
+    const repoRoot = mkdtempSync(
+      path.join(tmpdir(), "cadenza-phase6-builder-"),
+    );
+
+    try {
+      writeRepoFile(
+        repoRoot,
+        "STATUS.yaml",
+        [
+          'current_phase: "6"',
+          "current_phase_name: Universal CLI and Local Export Engine",
+          "current_phase_status: builder_ready",
+          "current_phase_trace: trace/phase6/",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "package.json",
+        JSON.stringify(
+          {
+            scripts: {
+              "format:check": "biome format .",
+              lint: "biome check .",
+              "phase:check":
+                "node --experimental-strip-types scripts/phase-check.ts",
+              "spec:lint":
+                "node --experimental-strip-types scripts/lint-specs.ts",
+              test: "vitest run --passWithNoTests",
+              typecheck: "tsc --noEmit",
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      for (const file of [
+        "prompt/PHASE0_KICK_BUILDER.md",
+        "prompt/PHASE1_KICK_BUILDER.md",
+        "prompt/PHASE2_KICK_ARCHITECT.md",
+        "prompt/PHASE3_KICK_ARCHITECT.md",
+        "prompt/PHASE6_KICK_BUILDER.md",
+        "pnpm-workspace.yaml",
+        "biome.jsonc",
+        "tsconfig.json",
+        "scripts/lint-specs.ts",
+        "scripts/phase-check.ts",
+        ".githooks/pre-commit",
+        ".githooks/commit-msg",
+        ".github/workflows/ci.yml",
+        "trace/phase5/review-phase5-closeout.md",
+        "trace/phase5-5/review-phase5-5-hygiene.md",
+        "trace/phase5-5/phase6-architect-handoff.md",
+        "trace/phase6/tracker.md",
+        "docs/adr/0016-phase-6-local-cli-export-package-topology.md",
+      ]) {
+        writeRepoFile(repoRoot, file, "# placeholder\n");
+      }
+      writeRepoFile(
+        repoRoot,
+        "trace/phase5-5/status.yaml",
+        ['phase: "5.5"', "status: reviewer_accepted", ""].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "trace/phase6/status.yaml",
+        ['phase: "6"', "status: builder_ready", ""].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "spec/phase1/SPEC_TEST_MATRIX.md",
+        [
+          "---",
+          "Status: CONTRACT_FROZEN",
+          "---",
+          "",
+          "# Phase 1 Test Matrix",
+          "",
+        ].join("\n"),
+      );
+      writeRepoFile(
+        repoRoot,
+        "spec/phase6/SPEC_TEST_MATRIX.md",
+        [
+          "---",
+          "Status: CONTRACT_FROZEN",
+          "---",
+          "",
+          "# Phase 6 Test Matrix",
+          "",
+        ].join("\n"),
+      );
+
+      const result = spawnSync(
+        process.execPath,
+        ["--experimental-strip-types", path.resolve("scripts/phase-check.ts")],
+        { cwd: repoRoot, encoding: "utf8" },
+      );
+
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(repoRoot, { force: true, recursive: true });
+    }
+  });
 });
 
 describe("Phase 5 acceptance evidence taxonomy", () => {

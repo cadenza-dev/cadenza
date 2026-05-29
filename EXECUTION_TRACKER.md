@@ -4,19 +4,21 @@
 
 ## Active phase
 
-**Phase 5 — Export + 0.1 Alpha Readiness** *(Builder ready; started 2026-05-26)*
-→ [`trace/phase5/`](./trace/phase5/)
+**Phase 6 — Universal CLI and Local Export Engine** *(Builder ready; started 2026-05-30)*
+→ [`trace/phase6/`](./trace/phase6/)
 
 ## Phase index
 
-| Phase | Name                                  | Status                             | Archive                            |
-| :---- | :------------------------------------ | :--------------------------------- | :--------------------------------- |
-| 0     | Technical Pre-Commitment              | complete                           | [`trace/phase0/`](./trace/phase0/) |
-| 1     | Core Semantics & Typed API            | complete                           | [`trace/phase1/`](./trace/phase1/) |
-| 2     | React + Remotion Preview Adapter      | complete                           | [`trace/phase2/`](./trace/phase2/) |
-| 3     | AI Authoring Strengthening            | complete                           | [`trace/phase3/`](./trace/phase3/) |
-| 4     | Presentation Product Layer (pruned)   | complete                           | [`trace/phase4/`](./trace/phase4/) |
-| 5     | Export + 0.1 Alpha Readiness          | builder_ready                      | [`trace/phase5/`](./trace/phase5/) |
+| Phase | Name                                  | Status                             | Archive                                |
+| :---- | :------------------------------------ | :--------------------------------- | :------------------------------------- |
+| 0     | Technical Pre-Commitment              | complete                           | [`trace/phase0/`](./trace/phase0/)     |
+| 1     | Core Semantics & Typed API            | complete                           | [`trace/phase1/`](./trace/phase1/)     |
+| 2     | React + Remotion Preview Adapter      | complete                           | [`trace/phase2/`](./trace/phase2/)     |
+| 3     | AI Authoring Strengthening            | complete                           | [`trace/phase3/`](./trace/phase3/)     |
+| 4     | Presentation Product Layer (pruned)   | complete                           | [`trace/phase4/`](./trace/phase4/)     |
+| 5     | Export + 0.1 Alpha Readiness          | complete                           | [`trace/phase5/`](./trace/phase5/)     |
+| 5.5   | Test and Harness Hygiene              | reviewer_accepted                  | [`trace/phase5-5/`](./trace/phase5-5/) |
+| 6     | Universal CLI and Local Export Engine | builder_ready                      | [`trace/phase6/`](./trace/phase6/)     |
 
 ## How to read this after a context reset
 

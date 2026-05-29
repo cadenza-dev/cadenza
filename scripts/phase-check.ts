@@ -114,11 +114,12 @@ if (exists("STATUS.yaml")) {
     currentPhase !== "2" &&
     currentPhase !== "3" &&
     currentPhase !== "4" &&
-    currentPhase !== "5"
+    currentPhase !== "5" &&
+    currentPhase !== "6"
   ) {
     findings.push({
       level: "error",
-      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0, 1, 2, 3, 4, or 5`,
+      message: `STATUS.yaml current_phase is ${currentPhase ?? "(missing)"}, expected 0, 1, 2, 3, 4, 5, or 6`,
     });
   }
 }
@@ -642,6 +643,105 @@ function checkPhase5Initial() {
   }
 }
 
+function checkPhase6Initial() {
+  requirePath("trace/phase5/review-phase5-closeout.md");
+  requirePath("trace/phase5-5/status.yaml");
+  requirePath("trace/phase5-5/review-phase5-5-hygiene.md");
+  requirePath("trace/phase5-5/phase6-architect-handoff.md");
+  requirePath("trace/phase6/status.yaml");
+  requirePath("trace/phase6/tracker.md");
+
+  if (exists("trace/phase5-5/status.yaml")) {
+    const phase55Status = readText("trace/phase5-5/status.yaml");
+    const phase55 = yamlScalar(phase55Status, "phase");
+    const phase55Lifecycle = yamlScalar(phase55Status, "status");
+
+    if (phase55 !== "5.5") {
+      findings.push({
+        level: "error",
+        message: `trace/phase5-5/status.yaml phase is ${phase55 ?? "(missing)"}, expected 5.5`,
+      });
+    }
+    if (phase55Lifecycle !== "reviewer_accepted") {
+      findings.push({
+        level: "error",
+        message: `trace/phase5-5/status.yaml status is ${phase55Lifecycle ?? "(missing)"}, expected reviewer_accepted`,
+      });
+    }
+  }
+
+  if (exists("trace/phase6/status.yaml")) {
+    const phase6Status = readText("trace/phase6/status.yaml");
+    const phase6 = yamlScalar(phase6Status, "phase");
+    const phase6Lifecycle = yamlScalar(phase6Status, "status");
+
+    if (phase6 !== "6") {
+      findings.push({
+        level: "error",
+        message: `trace/phase6/status.yaml phase is ${phase6 ?? "(missing)"}, expected 6`,
+      });
+    }
+    const allowedPhase6Statuses = new Set(["builder_ready", "complete"]);
+    if (
+      phase6Lifecycle === null ||
+      !allowedPhase6Statuses.has(phase6Lifecycle)
+    ) {
+      findings.push({
+        level: "error",
+        message: `trace/phase6/status.yaml status is ${phase6Lifecycle ?? "(missing)"}, expected one of ${Array.from(allowedPhase6Statuses).join(", ")}`,
+      });
+    }
+
+    if (phase6Lifecycle === "builder_ready" || phase6Lifecycle === "complete") {
+      requirePath("prompt/PHASE6_KICK_BUILDER.md");
+      requirePath("docs/adr/0016-phase-6-local-cli-export-package-topology.md");
+      const phase6Specs = walkFiles("spec/phase6").filter(
+        (file) =>
+          file.endsWith(".md") && path.basename(file).startsWith("SPEC_"),
+      );
+      if (phase6Specs.length === 0) {
+        findings.push({
+          level: "error",
+          message: "spec/phase6 has no Markdown specs",
+        });
+      }
+      for (const file of phase6Specs) {
+        const text = readText(file);
+        if (!/^Status:\s*CONTRACT_FROZEN$/m.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} is not CONTRACT_FROZEN`,
+          });
+        }
+        if (/Freeze Candidate/i.test(text) || /\*\*FC-ID\*\*:/i.test(text)) {
+          findings.push({
+            level: "error",
+            message: `${file} contains unresolved Freeze Candidate marker`,
+          });
+        }
+      }
+
+      if (
+        exitCriterionStatus(phase6Status, "builder_batches_complete") === "met"
+      ) {
+        checkActivePhaseTraceabilityCoverage("6");
+      }
+
+      if (
+        phase6Lifecycle === "complete" &&
+        exitCriterionStatus(phase6Status, "reviewer_closeout_accepted") !==
+          "met"
+      ) {
+        findings.push({
+          level: "error",
+          message:
+            "trace/phase6/status.yaml status is complete but reviewer_closeout_accepted is not met",
+        });
+      }
+    }
+  }
+}
+
 if (currentPhase === "0") {
   checkPhase0();
 } else if (currentPhase === "1") {
@@ -654,6 +754,8 @@ if (currentPhase === "0") {
   checkPhase4Initial();
 } else if (currentPhase === "5") {
   checkPhase5Initial();
+} else if (currentPhase === "6") {
+  checkPhase6Initial();
 }
 
 const phase1Specs = walkFiles("spec/phase1").filter((file) =>
