@@ -10,7 +10,8 @@ Owner: Architect
 
 This Stage A draft maps Phase 6 requirements to acceptance scenarios Builder
 will consume after Stage B freeze. The matrix is intentionally draft: scenarios
-and batch boundaries may change when Freeze Candidates are resolved.
+and batch boundaries may change during Stage B wording cleanup or freeze
+review.
 
 ## Builder Batch Shape
 
@@ -69,52 +70,57 @@ The Stage A batch shape should keep vertical slices small:
 | TC-CDOC-001 | P0 | DLOD-005, CNFG-006, CDOC-001, CDOC-002, CDOC-004, CDOC-006, CDOC-007, CDOC-008, CDOC-009 | Clean-checkout docs cover install, validate, inspect, web export, MP4 export, prerequisites, trusted local deck modules and config, machine output, non-interactive behavior, minimal config examples, expected evidence fields, and static web compatibility limits. |
 | TC-CDOC-002 | P0 | DBND-005, CDOC-003, CDOC-005, CDOC-008, CDOC-009, CDOC-010 | Docs and evidence avoid prohibited release/hosted/format/Player App claims, avoid generated transcript requirements as a Phase 6 docs contract, and document generated evidence ownership. |
 
-## Stage A Freeze Candidates
+## Resolved Stage A Decision Summary
 
 - `FC-CLIS-01`: CLI topology, with split `@cadenza-dev/cli` plus
-  `@cadenza-dev/export-local` selected as the Stage A recommendation.
-- `FC-CLIS-02`: whether `inspect` is required in Phase 6.
-- `FC-CLIS-03`: first machine-readable CLI output contract.
-- `FC-CLIS-04`: non-interactive CLI behavior.
-- `FC-DLOD-01`: deck selector contract.
-- `FC-DLOD-02`: deck module export contract.
-- `FC-DLOD-03`: local-code trust boundary.
-- `FC-DLOD-04`: selector precedence.
-- `FC-DLOD-05`: canonical deck identity source.
-- `FC-CNFG-01`: whether Phase 6 introduces minimal `cadenza.config.ts`.
-- `FC-CNFG-02`: initial config key surface.
-- `FC-CNFG-03`: CLI/config/default precedence order.
-- `FC-CNFG-04`: whether config aliases can override deck identity.
-- `FC-VINS-01`: validate scope.
-- `FC-VINS-02`: inspect scope.
-- `FC-VINS-03`: manifest/evidence reader ownership.
-- `FC-EXEN-01`: manifest-only versus per-format evidence.
-- `FC-EXEN-02`: default generated output root.
-- `FC-EXEN-03`: stable hash scope.
-- `FC-EXEN-04`: export path registry ownership.
-- `FC-EXEN-05`: manifest and evidence schema-version ownership.
-- `FC-WEBC-01`: static web compatibility adapter posture.
-- `FC-WEBC-02`: browser evidence depth.
-- `FC-WEBC-03`: web compatibility adapter boundary versus Phase 5 helper
-  names.
-- `FC-VIDO-01`: renderer invocation boundary.
-- `FC-VIDO-02`: MP4 support scope.
-- `FC-VIDO-03`: MP4 evidence strength.
-- `FC-VIDO-04`: local rendering prerequisites and cleanup.
-- `FC-DBND-01`: renderer and bundler dependency placement.
-- `FC-DBND-02`: package topology, with monolithic `scripts/cadenza.ts`
-  rejected and split CLI/export-local selected as the Stage A recommendation.
-- `FC-DBND-03`: adapter implementation strategy as private provenance.
-- `FC-CDIA-01`: diagnostic transport.
-- `FC-CDIA-02`: exit-code granularity.
-- `FC-CDIA-03`: repair-routing API boundary.
-- `FC-CDOC-01`: documentation shape.
-- `FC-CDOC-02`: generated command evidence in docs.
-- `FC-CDOC-03`: documentation and evidence overclaim guard mechanism.
+  `@cadenza-dev/export-local`.
+- `FC-CLIS-02`: artifact-only `inspect` is required in Phase 6.
+- `FC-CLIS-03`: human output by default plus stable `--json` summaries.
+- `FC-CLIS-04`: TTY-friendly defaults with no prompts in non-TTY contexts.
+- `FC-DLOD-01`: built-in aliases, direct paths, and minimal config aliases.
+- `FC-DLOD-02`: deck metadata plus authored deck factory or deck value.
+- `FC-DLOD-03`: trusted local deck modules and config; sandboxing deferred.
+- `FC-DLOD-04`: CLI intent, then config aliases, then built-in aliases.
+- `FC-DLOD-05`: canonical deck identity from deck module metadata.
+- `FC-CNFG-01`: minimal `cadenza.config.ts` is introduced in Phase 6.
+- `FC-CNFG-02`: config keys are deck aliases, output root, and default
+  formats.
+- `FC-CNFG-03`: CLI flags override config, which overrides registry defaults.
+- `FC-CNFG-04`: config aliases do not override deck module identity.
+- `FC-VINS-01`: `validate` checks config, selector, metadata, compile, and
+  timeline without export deliverables by default.
+- `FC-VINS-02`: `inspect` reads artifacts only.
+- `FC-VINS-03`: `@cadenza-dev/export-local` owns the shared reader.
+- `FC-EXEN-01`: summary manifest plus per-format evidence files.
+- `FC-EXEN-02`: default output root is
+  `dist/cadenza/<deck-id>/<run-id>/`.
+- `FC-EXEN-03`: stable hash covers deterministic contract fields only.
+- `FC-EXEN-04`: path/config registry owns export defaults and artifact names.
+- `FC-EXEN-05`: manifest and per-format evidence declare `schemaVersion`.
+- `FC-WEBC-01`: static web compatibility adapter with Player App extension
+  point.
+- `FC-WEBC-02`: browser semantic smoke is the required web evidence.
+- `FC-WEBC-03`: web contract uses a compatibility adapter boundary.
+- `FC-VIDO-01`: renderer adapter hides direct API versus subprocess strategy.
+- `FC-VIDO-02`: MP4 support covers decks satisfying the Phase 6 deck contract.
+- `FC-VIDO-03`: MP4 evidence includes renderer provenance and limitations.
+- `FC-VIDO-04`: local prerequisites and cleanup are classified and recorded.
+- `FC-DBND-01`: renderer and bundler dependencies live in export-local or an
+  adapter outside core.
+- `FC-DBND-02`: monolithic `scripts/cadenza.ts` is rejected; split
+  CLI/export-local is selected.
+- `FC-DBND-03`: adapter implementation strategy is private provenance.
+- `FC-CDIA-01`: typed evidence JSON plus optional `--json` summaries.
+- `FC-CDIA-02`: small typed exit-code taxonomy.
+- `FC-CDIA-03`: shared CLI/export diagnostic type outside core.
+- `FC-CDOC-01`: README pointer plus dedicated local export walkthrough.
+- `FC-CDOC-02`: expected command shapes and artifact fields, not generated
+  transcripts.
+- `FC-CDOC-03`: explicit overclaim checks for docs and evidence summaries.
 
 ## Stage A Confirmation Status
 
-After maintainer brainstorming, all Freeze Candidates above have a Stage A
+After maintainer brainstorming, all decision items above have a Stage A
 recommendation and should not be reopened during Stage A unless the maintainer
 explicitly asks to revisit a domain. On 2026-05-30, the maintainer also
 accepted the final two confirmation items:
@@ -126,8 +132,8 @@ accepted the final two confirmation items:
   `dist/cadenza/<deck-id>/<run-id>/`, while still allowing config and CLI
   overrides.
 
-No Phase 6 Stage A Freeze Candidate remains unresolved. This does not freeze
-any contract; Stage B still requires explicit maintainer freeze approval.
+No Phase 6 Stage A decision item remains unresolved. This does not freeze any
+contract; Stage B still requires explicit maintainer freeze approval.
 
 ## WIP Deferrals
 

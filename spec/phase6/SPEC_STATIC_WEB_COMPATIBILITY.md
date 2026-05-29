@@ -116,37 +116,22 @@ making pixel diffing the primary oracle.
 - **Verification**: acceptance scenario `TC-WEBC-002` verifies semantic browser
   checks and rejects a pixel-only compatibility gate.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-WEBC-01
-- **Question**: Should Phase 6 merely preserve Phase 5 static web output or
-  define an explicit compatibility adapter?
-- **Options considered**:
-  1. Preserve Phase 5 static bundle.
-  2. Compatibility adapter with future Player App extension.
-  3. Defer web changes entirely.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-WEBC-01
+- **Decision**: Phase 6 defines a static web compatibility adapter with a
+  future Player App extension point.
+- **Rejected alternatives**: preserving Phase 5 static output as the whole
+  contract and deferring web changes entirely.
 
-- **FC-ID**: FC-WEBC-02
-- **Question**: What is the required browser evidence depth for static web
-  compatibility?
-- **Options considered**:
-  1. Manifest-only checks.
-  2. Browser semantic smoke checks.
-  3. Screenshot or pixel diffing as primary gate.
-- **Leaning**: option 2, with screenshot diffing supplemental only. This is
-  selected as the Stage A recommendation after maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-WEBC-02
+- **Decision**: Browser semantic smoke is the required web compatibility
+  evidence. Screenshot or pixel comparison may be supplemental only.
+- **Rejected alternatives**: manifest-only checks and pixel diffing as the
+  primary gate.
 
-- **FC-ID**: FC-WEBC-03
-- **Question**: Should the Phase 6 web output expose Phase 5 helper names or a
-  stable compatibility adapter boundary?
-- **Options considered**:
-  1. Preserve Phase 5 helper names as the observable contract.
-  2. Define a named static web compatibility adapter boundary.
-  3. Wait for Player App export before defining web evidence boundaries.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-WEBC-03
+- **Decision**: The observable web boundary is the named static compatibility
+  adapter, not Phase 5 helper names.
+- **Rejected alternative**: waiting for Player App export before defining web
+  evidence boundaries.

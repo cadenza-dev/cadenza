@@ -116,38 +116,24 @@ core typed-API concern, and command-local ad hoc parsers would drift quickly.
   passing validate, failing validate, passing inspect, and failing inspect
   fixtures.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-VINS-01
-- **Question**: How far should `cadenza validate` go in Phase 6?
-- **Options considered**:
-  1. Config and selector resolution only.
-  2. Config, selector, metadata, compile, and timeline derivation without export
-     deliverables.
-  3. Full renderer/export preflight.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VINS-01
+- **Decision**: `validate` checks config, selector resolution, deck metadata,
+  compile, and timeline derivation without creating export deliverables by
+  default.
+- **Rejected alternatives**: selector-only validation and full renderer/export
+  preflight in Phase 6.
 
-- **FC-ID**: FC-VINS-02
-- **Question**: Is `cadenza inspect` required in Phase 6, and if so what may it
-  inspect?
-- **Options considered**:
-  1. No inspect command.
-  2. Manifest-only inspection.
-  3. Artifact-only manifest, per-format evidence, diagnostics, limitations, and
-     artifact inventory inspection.
-  4. Source-aware inspection that reloads or recompiles the deck.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VINS-02
+- **Decision**: `inspect` is required in Phase 6 and remains artifact-only:
+  manifests, per-format evidence, diagnostics, limitations, and artifact
+  inventory.
+- **Rejected alternatives**: omitting `inspect`, manifest-only inspection, and
+  source-aware inspection.
 
-- **FC-ID**: FC-VINS-03
-- **Question**: Who owns manifest and evidence reading?
-- **Options considered**:
-  1. Each command parses files directly.
-  2. `@cadenza-dev/export-local` owns a shared reader.
-  3. `@cadenza-dev/core` owns artifact parsing.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VINS-03
+- **Decision**: `@cadenza-dev/export-local` owns the shared manifest and
+  evidence reader used by `inspect`, evidence checks, and acceptance helpers.
+- **Rejected alternatives**: per-command parsers and artifact parsing in
+  `@cadenza-dev/core`.

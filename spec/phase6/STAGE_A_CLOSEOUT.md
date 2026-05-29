@@ -46,7 +46,7 @@ Export Engine:
 - clean-checkout docs with README routing, a dedicated local export
   walkthrough, and overclaim guards.
 
-`SPEC_TEST_MATRIX.md` records that no Phase 6 Stage A Freeze Candidate remains
+`SPEC_TEST_MATRIX.md` records that no Phase 6 Stage A decision item remains
 unresolved after maintainer confirmation on 2026-05-30.
 
 ## Contract Files
@@ -74,7 +74,7 @@ The Stage A contract set is:
 - `SPEC_CLEAN_CHECKOUT_DOCS.md`: install/validate/inspect/export docs,
   prerequisites, config examples, generated-output ownership, and overclaim
   guards.
-- `SPEC_TEST_MATRIX.md`: acceptance scenarios, Freeze Candidate summary, WIP
+- `SPEC_TEST_MATRIX.md`: acceptance scenarios, resolved decision summary, WIP
   deferrals, explicit non-scenarios, and Builder batch shape.
 - `SPEC_TRACEABILITY.md`: requirement-to-test-to-future-location routing.
 
@@ -157,10 +157,10 @@ Before freezing, Stage B should:
    set without reopening domains.
 2. Convert domain specs from `CONTRACT_DRAFT` to `CONTRACT_FROZEN` only after
    explicit maintainer freeze approval.
-3. Replace Freeze Candidate sections with resolved decision summaries or
-   otherwise remove unresolved markers required by `pnpm spec:lint`.
+3. Keep resolved decision summaries synchronized and free of unresolved Stage A
+   markers required by `pnpm spec:lint`.
 4. Keep `SPEC_TEST_MATRIX.md` and `SPEC_TRACEABILITY.md` synchronized.
-5. Decide whether to add a short Proposed ADR for the durable package topology:
+5. Review Proposed ADR 0016 for the durable package topology:
    `@cadenza-dev/cli` plus `@cadenza-dev/export-local`, with root scripts as
    thin wrappers.
 6. Leave `STATUS.yaml.current_phase` unchanged unless the maintainer or Wizard

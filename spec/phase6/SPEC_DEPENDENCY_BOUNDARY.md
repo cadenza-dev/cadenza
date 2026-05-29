@@ -40,8 +40,7 @@ local export engine will be too large and dependency-heavy for a single
 `scripts/cadenza.ts` file. After Stage A brainstorming on 2026-05-29, option 3
 is the recommended topology: `@cadenza-dev/cli` owns command surface and
 process behavior, while `@cadenza-dev/export-local` owns local deck loading,
-export execution, manifest/evidence, and renderer adapters. This remains a
-Freeze Candidate until Stage B approval.
+export execution, manifest/evidence, and renderer adapters.
 
 ## Feasibility Analysis
 
@@ -155,38 +154,25 @@ Stage B public-surface decision may be needed under `DBND-005`.
   dependency declarations, and absence of renderer orchestration outside
   export-local or an explicit adapter package.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-DBND-01
-- **Question**: Where should renderer and bundler dependencies live?
-- **Options considered**:
-  1. CLI-owned dependencies.
-  2. Optional peer dependencies.
-  3. Renderer adapter package outside core.
-- **Leaning**: CLI/export ownership with an explicit adapter outside core,
-  selected as the Stage A recommendation after maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-DBND-01
+- **Decision**: Renderer and bundler dependencies live in the CLI/export layer,
+  with `@cadenza-dev/export-local` owning operational renderer/bundler
+  dependencies behind an adapter outside `@cadenza-dev/core`.
+- **Rejected alternatives**: core-owned renderer dependencies and
+  user-installed peer dependencies as the Phase 6 default.
 
-- **FC-ID**: FC-DBND-03
-- **Question**: Should the adapter implementation strategy be part of the
-  public package boundary?
-- **Options considered**:
-  1. Freeze direct Remotion renderer API as the package boundary.
-  2. Freeze spawned Remotion CLI as the package boundary.
-  3. Freeze only the adapter contract and treat implementation strategy as
-     private renderer provenance.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-DBND-03
+- **Decision**: The public package boundary freezes only the renderer adapter
+  contract. Direct API or subprocess strategy remains private renderer
+  provenance.
+- **Rejected alternatives**: direct Remotion API or spawned Remotion CLI as the
+  public package contract.
 
-- **FC-ID**: FC-DBND-02
-- **Question**: Does Phase 6 need a new package, and if so what owns it?
-- **Options considered**:
-  1. Keep export code under `scripts/`. Rejected as the final topology because
-     it keeps the generic CLI in a monolithic script.
-  2. Add `@cadenza-dev/cli`.
-  3. Add an export-local package plus a root CLI wrapper.
-- **Leaning**: option 3, with `@cadenza-dev/cli` plus
-  `@cadenza-dev/export-local`, selected as the Stage A recommendation after
-  maintainer brainstorming; still requires Stage B freeze approval.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-DBND-02
+- **Decision**: Phase 6 adds `@cadenza-dev/cli` and
+  `@cadenza-dev/export-local`, with any root CLI script remaining a thin
+  wrapper.
+- **Rejected alternatives**: keeping export code in `scripts/` and using one
+  CLI package that owns both command surface and export internals.

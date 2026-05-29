@@ -35,8 +35,7 @@ implementation must not remain a large single file like the Phase 5
 3 is the recommended package topology: keep `pnpm cadenza` as a
 clean-checkout entrypoint if useful, but make the root script a thin wrapper
 over `@cadenza-dev/cli`, and keep export workflow concerns in
-`@cadenza-dev/export-local`. This is still a Stage A Freeze Candidate, not a
-frozen contract.
+`@cadenza-dev/export-local`.
 
 ### Command Architecture
 
@@ -189,54 +188,31 @@ remaining predictable for tests, agents, and clean-checkout automation.
   commands in non-TTY mode and verifies no prompt, deterministic diagnostics,
   and explicit confirmation behavior for overwrite or destructive paths.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-CLIS-01
-- **Question**: Should Phase 6 introduce a dedicated CLI package now, or keep a
-  root script, a single CLI package, or a split CLI plus export-local package?
-- **Options considered**:
-  1. Thin root script. Rejected: it would repeat the Phase 5 proof shape and
-     does not scale to a generic CLI, deck loader, diagnostics model, export
-     engine, and local MP4 renderer.
-  2. Single dedicated `@cadenza-dev/cli` package owning command and export
-     internals.
-  3. Split `@cadenza-dev/cli` and `@cadenza-dev/export-local`, with any root
-     script remaining a thin wrapper.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming; still requires Stage B freeze approval.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CLIS-01
+- **Decision**: Phase 6 uses the split package topology:
+  `@cadenza-dev/cli` owns command surface and `@cadenza-dev/export-local`
+  owns local deck loading, export execution, evidence, and renderer adapters.
+  Any root script remains only a clean-checkout wrapper.
+- **Rejected alternatives**: keeping the generic CLI in `scripts/cadenza.ts`
+  and putting export internals directly inside a single CLI package.
 
-- **FC-ID**: FC-CLIS-02
-- **Question**: Is `inspect` required in Phase 6, or can manifest inspection
-  remain a documentation-only filesystem step?
-- **Options considered**:
-  1. No inspect command.
-  2. Inspect generated manifests only.
-  3. Artifact-only inspect of manifests, per-format evidence, diagnostics,
-     limitations, and artifact inventory.
-  4. Source-aware inspect that reloads or recompiles the deck.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CLIS-02
+- **Decision**: `inspect` is part of Phase 6 and reads artifacts only:
+  manifests, per-format evidence, diagnostics, limitations, and artifact
+  inventory.
+- **Rejected alternatives**: omitting `inspect`, manifest-only inspection, and
+  source-aware inspection that reloads or recompiles the deck.
 
-- **FC-ID**: FC-CLIS-03
-- **Question**: What is the first machine-readable CLI output contract?
-- **Options considered**:
-  1. JSON stdout only on success.
-  2. Human default plus `--json`.
-  3. JSONL diagnostic stream.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming; JSONL is deferred to
+- **Decision ID**: FC-CLIS-03
+- **Decision**: Human output is the default, and `--json` is the first stable
+  machine-readable command summary contract.
+- **Deferred alternative**: JSONL diagnostic streams are tracked in
   `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
-- **Must resolve before**: Stage B freeze.
 
-- **FC-ID**: FC-CLIS-04
-- **Question**: How should Phase 6 behave in non-interactive contexts?
-- **Options considered**:
-  1. Prompt whenever a human-friendly fallback exists.
-  2. Never prompt and require every option explicitly.
-  3. TTY-friendly defaults with deterministic no-prompt behavior for non-TTY,
-     CI, and agent contexts.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CLIS-04
+- **Decision**: Phase 6 uses TTY-friendly defaults while keeping non-TTY, CI,
+  and agent contexts deterministic and prompt-free.
+- **Rejected alternatives**: prompt-heavy fallback behavior and fully explicit
+  no-default command usage.

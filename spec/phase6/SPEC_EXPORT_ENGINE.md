@@ -175,58 +175,35 @@ are not part of the Phase 6 stable hash.
 - **Verification**: acceptance scenarios `TC-VINS-004` and `TC-EXEN-005`
   validate supported and unsupported schema-version fixtures.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-EXEN-01
-- **Question**: Should Phase 6 store all evidence in one manifest or split
-  per-format evidence from the summary manifest?
-- **Options considered**:
-  1. Single manifest with format sections.
-  2. Manifest plus per-format evidence files.
-  3. Append-only event log plus summary manifest.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming; append-only event logs are deferred to
+- **Decision ID**: FC-EXEN-01
+- **Decision**: Export evidence uses a compact summary manifest plus
+  per-format evidence files.
+- **Deferred alternative**: append-only event logs are tracked in
   `wip/future-support/phase-7-plus-export-evidence-candidates.md`.
-- **Must resolve before**: Stage B freeze.
 
-- **FC-ID**: FC-EXEN-04
-- **Question**: Where should export path defaults and artifact names be owned?
-- **Options considered**:
-  1. Each command owns its own path defaults.
-  2. A centralized path/config registry owns defaults and artifact names.
-  3. `cadenza.config.ts` owns every path and artifact name.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming and aligned with `FC-CNFG-01` and `FC-CNFG-02`.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-EXEN-04
+- **Decision**: A centralized path/config registry owns export path defaults
+  and artifact names.
+- **Rejected alternatives**: command-owned path defaults and config-owned
+  artifact naming.
 
-- **FC-ID**: FC-EXEN-02
-- **Question**: What is the default generated output root?
-- **Options considered**:
-  1. `dist/phase6/<deck-id>/<run-id>/`.
-  2. User-selected root with default `dist/cadenza/<deck-id>/<run-id>/`.
-  3. `tmp/` only.
-- **Leaning**: option 2, selected as the Stage A recommendation after final
-  maintainer confirmation on 2026-05-30.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-EXEN-02
+- **Decision**: The default generated output root is
+  `dist/cadenza/<deck-id>/<run-id>/`, while config and CLI flags may override
+  the root.
+- **Rejected alternatives**: `dist/phase6/<deck-id>/<run-id>/` and `tmp/`
+  only.
 
-- **FC-ID**: FC-EXEN-03
-- **Question**: What fields participate in the stable export hash?
-- **Options considered**:
-  1. Every artifact byte.
-  2. Deterministic contract fields only.
-  3. Source deck text only.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming. The hash includes deterministic contract fields
-  only and excludes artifact bytes and volatile machine/run fields.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-EXEN-03
+- **Decision**: Stable export hashes include deterministic contract fields and
+  exclude artifact bytes plus volatile machine and run fields.
+- **Rejected alternatives**: hashing every artifact byte and hashing only
+  source deck text.
 
-- **FC-ID**: FC-EXEN-05
-- **Question**: How should schema versions be represented for export evidence?
-- **Options considered**:
-  1. Manifest only declares `schemaVersion`.
-  2. Manifest and every per-format evidence file declare `schemaVersion`.
-  3. Schema version is inferred from filenames or package version.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming and aligned with shared reader and inspect
-  requirements.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-EXEN-05
+- **Decision**: The manifest and every per-format evidence file declare
+  `schemaVersion`, and the shared reader rejects unsupported versions through
+  diagnostics.
+- **Rejected alternative**: filename or package-version inferred schemas.

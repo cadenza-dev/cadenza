@@ -151,39 +151,21 @@ removing Phase 5-only batch assumptions.
   cleanup/finalization fixtures and verifies that failures keep their expected
   exit code and diagnostic category.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-CDIA-01
-- **Question**: Should the primary machine diagnostic surface be evidence JSON,
-  `--json` stdout, or JSONL streaming?
-- **Options considered**:
-  1. Typed JSON evidence files plus optional `--json`.
-  2. JSON or JSONL stream plus human summary.
-  3. Minimal stderr plus export-only evidence.
-- **Leaning**: option 1, selected as the Stage A recommendation after
-  maintainer brainstorming. JSONL streaming is deferred to
+- **Decision ID**: FC-CDIA-01
+- **Decision**: Typed JSON evidence files are the primary machine diagnostic
+  surface, with `--json` command summaries for CLI automation.
+- **Deferred alternative**: JSONL streaming is tracked in
   `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
-- **Must resolve before**: Stage B freeze.
 
-- **FC-ID**: FC-CDIA-02
-- **Question**: How granular should CLI exit codes be?
-- **Options considered**:
-  1. `0` and `1` only.
-  2. Small typed taxonomy.
-  3. One code per diagnostic category.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming; one exit code per diagnostic category is deferred
-  to `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CDIA-02
+- **Decision**: Phase 6 uses a small typed CLI exit-code taxonomy.
+- **Deferred alternative**: one exit code per diagnostic category is tracked in
+  `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
 
-- **FC-ID**: FC-CDIA-03
-- **Question**: Should repair routing stay a Phase 6 evidence field or become
-  a reusable package API?
-- **Options considered**:
-  1. Evidence field only.
-  2. Shared CLI/export diagnostic type outside core.
-  3. Core validation API extension.
-- **Leaning**: option 2 with the split `@cadenza-dev/cli` and
-  `@cadenza-dev/export-local` topology, selected as the Stage A recommendation
-  after maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CDIA-03
+- **Decision**: Repair routing becomes a shared CLI/export diagnostic type
+  outside `@cadenza-dev/core`.
+- **Rejected alternatives**: evidence-field-only repair routing and extending
+  core validation APIs for Phase 6 CLI diagnostics.

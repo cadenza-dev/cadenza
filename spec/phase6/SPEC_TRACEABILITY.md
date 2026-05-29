@@ -107,6 +107,5 @@ not evidence that any scenario has passed.
 - Generated export artifacts should remain generated outputs under `dist/` or
   `tmp/`; tests may create and inspect them, but Stage B should not make them
   tracked fixtures.
-- Stage B must resolve every Freeze Candidate listed in
-  `SPEC_TEST_MATRIX.md` before any Phase 6 spec can become
-  `CONTRACT_FROZEN`.
+- Stage B must keep the resolved decision summary in `SPEC_TEST_MATRIX.md`
+  synchronized before any Phase 6 spec can become `CONTRACT_FROZEN`.

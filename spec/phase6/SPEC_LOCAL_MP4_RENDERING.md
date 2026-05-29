@@ -164,49 +164,29 @@ hosted or fully portable rendering environment.
 - **Verification**: acceptance scenario `TC-CLIS-006` and `TC-VIDO-003` verify
   JSON output separation for successful and failing MP4 renders.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-VIDO-01
-- **Question**: Should Builder use direct Remotion renderer APIs, spawn the
-  Remotion CLI, or hide both behind a stable adapter interface?
-- **Options considered**:
-  1. Direct Remotion renderer API.
-  2. Spawned Remotion CLI wrapper.
-  3. Renderer adapter interface that can use either implementation.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VIDO-01
+- **Decision**: MP4 rendering goes through a stable renderer adapter interface
+  that may internally use direct Remotion APIs or a subprocess strategy.
+- **Rejected alternatives**: freezing direct Remotion APIs or a spawned
+  Remotion CLI wrapper as the public implementation contract.
 
-- **FC-ID**: FC-VIDO-02
-- **Question**: What is the Phase 6 MP4 support scope?
-- **Options considered**:
-  1. Canonical Phase 5 talk only.
-  2. Any deck satisfying the Phase 6 deck contract.
-  3. Arbitrary project folders and plugin-loaded decks.
-- **Leaning**: option 2, with explicit limitations, selected as the Stage A
-  recommendation after maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VIDO-02
+- **Decision**: Phase 6 MP4 support covers any deck satisfying the Phase 6 deck
+  module contract, with explicit local-rendering limitations.
+- **Rejected alternatives**: canonical Phase 5 talk only and arbitrary project
+  folders or plugin-loaded decks.
 
-- **FC-ID**: FC-VIDO-03
-- **Question**: How strong must MP4 evidence be before Phase 6 can claim local
-  video export support?
-- **Options considered**:
-  1. Non-empty file only.
-  2. File, renderer provenance, metadata, manifest linkage, diagnostics, and
-     limitations.
-  3. Frame-by-frame pixel parity.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VIDO-03
+- **Decision**: MP4 evidence must include file metadata, renderer provenance,
+  manifest linkage, diagnostics, and limitations.
+- **Rejected alternatives**: non-empty-file checks only and frame-by-frame
+  pixel parity as the Phase 6 claim gate.
 
-- **FC-ID**: FC-VIDO-04
-- **Question**: How should Phase 6 handle local rendering prerequisites and
-  cleanup?
-- **Options considered**:
-  1. Let raw renderer failures surface.
-  2. Detect and classify local prerequisites, record evidence, and clean up
-     temporary renderer state on success, failure, and cancellation.
-  3. Require a fully portable bundled renderer environment.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-VIDO-04
+- **Decision**: Phase 6 detects and classifies local prerequisites, records
+  evidence, and cleans temporary renderer state on success, failure, and
+  cancellation.
+- **Rejected alternatives**: raw renderer failures and a fully portable bundled
+  renderer environment.

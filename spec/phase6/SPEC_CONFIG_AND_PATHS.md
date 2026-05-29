@@ -155,47 +155,29 @@ usable.
   do not change canonical deck identity and that diagnostics report alias source
   plus module identity.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-CNFG-01
-- **Question**: Should Phase 6 introduce `cadenza.config.ts` now?
-- **Options considered**:
-  1. Internal registry only.
-  2. Minimal `cadenza.config.ts` plus typed registry and CLI override
-     precedence.
-  3. Full project configuration surface.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming; still requires Stage B freeze approval.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CNFG-01
+- **Decision**: Phase 6 introduces a minimal `cadenza.config.ts` backed by a
+  typed registry and explicit CLI override precedence.
+- **Rejected alternatives**: internal registry only and a broad project config
+  surface.
 
-- **FC-ID**: FC-CNFG-02
-- **Question**: Which config keys belong in the initial Phase 6 surface?
-- **Options considered**:
-  1. Output defaults only.
-  2. Deck aliases, output root, and export default formats.
-  3. Full export, preview, renderer, Player App, hosted, and plugin settings.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CNFG-02
+- **Decision**: The initial config surface is limited to deck aliases, output
+  root, and export default formats.
+- **Deferred alternative**: preview, renderer, Player App, hosted, plugin, and
+  migration settings are tracked in
+  `wip/future-support/phase-7-plus-config-candidates.md`.
 
-- **FC-ID**: FC-CNFG-04
-- **Question**: Can config deck aliases override deck module identity?
-- **Options considered**:
-  1. Yes; config is the project authority for identity.
-  2. No; config aliases only resolve paths, and deck modules own canonical
-     identity.
-  3. Mixed; config can override title but not ID.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CNFG-04
+- **Decision**: Config deck aliases resolve paths only. Deck modules own
+  canonical deck ID, title, and identity.
+- **Rejected alternatives**: config-owned identity and partial config title
+  overrides.
 
-- **FC-ID**: FC-CNFG-03
-- **Question**: What precedence order should govern CLI flags, config, and
-  defaults?
-- **Options considered**:
-  1. Config overrides CLI flags.
-  2. CLI flags override config, which overrides registry defaults.
-  3. Command-specific merge order.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CNFG-03
+- **Decision**: CLI flags override config, and config overrides registry
+  defaults for selector, output root, and format selection.
+- **Rejected alternatives**: config overriding CLI intent and command-specific
+  merge orders.

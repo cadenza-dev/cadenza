@@ -156,59 +156,35 @@ code execution; pretending otherwise would overpromise more than it protects.
   canonical deck contract exports authored deck data and metadata while
   export-local derives compile and timeline evidence.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-DLOD-01
-- **Question**: Which deck selectors become Phase 6 contract surface?
-- **Options considered**:
-  1. Built-in registry only.
-  2. Direct module path only.
-  3. Config-driven discovery.
-  4. Built-in aliases plus direct paths and minimal config aliases.
-- **Leaning**: option 4, selected as the Stage A recommendation after
-  maintainer brainstorming; full discovery config remains deferred outside
-  Phase 6.
-- **Must resolve before**: Stage B freeze.
-
-- **FC-ID**: FC-DLOD-02
-- **Question**: Should a deck module export precompiled timelines or only the
-  authored deck plus metadata?
-- **Options considered**:
-  1. Fixture factory with timelines.
-  2. Deck metadata plus deck factory or deck value.
-  3. Precompiled manifest.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
-
-- **FC-ID**: FC-DLOD-03
-- **Question**: How explicit should the local-code trust boundary be?
-- **Options considered**:
-  1. Trusted local code, documented.
-  2. Sandboxed execution.
-  3. No direct user modules yet.
-- **Leaning**: option 1, selected as the Stage A recommendation after final
-  maintainer confirmation on 2026-05-30. Sandboxing remains deferred to
+- **Decision ID**: FC-DLOD-01
+- **Decision**: Phase 6 supports built-in example aliases, direct local module
+  paths, and minimal config aliases through one selector resolver.
+- **Deferred alternative**: broad discovery config is tracked in
   `wip/future-support/phase-7-plus-deck-loading-candidates.md`.
-- **Must resolve before**: Stage B freeze.
 
-- **FC-ID**: FC-DLOD-04
-- **Question**: What selector precedence should Phase 6 freeze?
-- **Options considered**:
-  1. Built-in aliases always win.
-  2. Config aliases always win.
-  3. Explicit CLI intent first, then project config aliases, then built-in
-     aliases.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-DLOD-02
+- **Decision**: Deck modules export authored deck data plus strict metadata.
+  `@cadenza-dev/export-local` derives compile, timeline, manifest, and
+  renderer evidence.
+- **Rejected alternatives**: fixture factories with precompiled timelines and
+  precompiled manifests as deck module requirements.
 
-- **FC-ID**: FC-DLOD-05
-- **Question**: Where should canonical deck identity come from?
-- **Options considered**:
-  1. Infer identity from filenames or aliases when metadata is missing.
-  2. Require strict deck module metadata.
-  3. Let `cadenza.config.ts` own canonical deck identity.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-DLOD-03
+- **Decision**: Direct deck modules and `cadenza.config.ts` are documented as
+  trusted local code execution in Phase 6.
+- **Deferred alternative**: sandboxing is tracked in
+  `wip/future-support/phase-7-plus-deck-loading-candidates.md`.
+
+- **Decision ID**: FC-DLOD-04
+- **Decision**: Selector precedence is explicit CLI intent first, then project
+  config aliases, then built-in aliases.
+- **Rejected alternatives**: built-in aliases always winning and config aliases
+  always winning.
+
+- **Decision ID**: FC-DLOD-05
+- **Decision**: Canonical deck identity comes from strict deck module metadata.
+  Aliases record selector provenance but never override identity.
+- **Rejected alternatives**: filename or alias identity inference and
+  config-owned canonical identity.

@@ -173,39 +173,23 @@ alpha announcement.
 - **Verification**: acceptance scenario `TC-CDOC-002` scans the documentation
   and generated evidence summaries for prohibited overclaim language.
 
-## Freeze Candidates
+## Resolved Stage A Decisions
 
-- **FC-ID**: FC-CDOC-01
-- **Question**: Should Phase 6 use README-only docs, a dedicated walkthrough,
-  or both?
-- **Options considered**:
-  1. README quickstart only.
-  2. Dedicated local export walkthrough only.
-  3. README pointer plus dedicated walkthrough.
-- **Leaning**: option 3, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CDOC-01
+- **Decision**: Phase 6 uses a README pointer plus a dedicated local export
+  walkthrough.
+- **Rejected alternatives**: README-only docs and a walkthrough with no README
+  routing.
 
-- **FC-ID**: FC-CDOC-02
-- **Question**: Should documentation include generated command evidence or only
-  expected command shapes and artifact fields?
-- **Options considered**:
-  1. Commands only.
-  2. Expected output paths and manifest fields.
-  3. Generated command evidence refreshed by tests.
-- **Leaning**: option 2 for Phase 6, selected as the Stage A recommendation
-  after maintainer brainstorming. Option 3 is deferred unless Builder evidence
-  shows docs drift and is tracked in
-  `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CDOC-02
+- **Decision**: Docs describe expected command shapes, output paths, manifest
+  fields, and evidence fields. Generated command transcripts are not a Phase 6
+  docs contract.
+- **Deferred alternative**: generated command evidence refreshed by tests is
+  tracked in `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
 
-- **FC-ID**: FC-CDOC-03
-- **Question**: Should Phase 6 rely on editorial restraint for release and
-  product claims, or add explicit overclaim checks?
-- **Options considered**:
-  1. Editorial review only.
-  2. Explicit acceptance checks for prohibited claims.
-  3. Defer checks to the alpha announcement process.
-- **Leaning**: option 2, selected as the Stage A recommendation after
-  maintainer brainstorming.
-- **Must resolve before**: Stage B freeze.
+- **Decision ID**: FC-CDOC-03
+- **Decision**: Phase 6 adds explicit overclaim checks for docs and generated
+  evidence summaries.
+- **Rejected alternatives**: editorial review only and deferring checks to the
+  alpha announcement process.
