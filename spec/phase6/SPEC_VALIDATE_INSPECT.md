@@ -148,5 +148,6 @@ core typed-API concern, and command-local ad hoc parsers would drift quickly.
   1. Each command parses files directly.
   2. `@cadenza-dev/export-local` owns a shared reader.
   3. `@cadenza-dev/core` owns artifact parsing.
-- **Leaning**: option 2.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.

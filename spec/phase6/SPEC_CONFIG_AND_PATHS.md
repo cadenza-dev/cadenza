@@ -174,7 +174,8 @@ usable.
   1. Output defaults only.
   2. Deck aliases, output root, and export default formats.
   3. Full export, preview, renderer, Player App, hosted, and plugin settings.
-- **Leaning**: option 2.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-CNFG-04
@@ -195,5 +196,6 @@ usable.
   1. Config overrides CLI flags.
   2. CLI flags override config, which overrides registry defaults.
   3. Command-specific merge order.
-- **Leaning**: option 2.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.

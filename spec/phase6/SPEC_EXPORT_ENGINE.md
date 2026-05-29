@@ -195,7 +195,8 @@ are not part of the Phase 6 stable hash.
   1. Each command owns its own path defaults.
   2. A centralized path/config registry owns defaults and artifact names.
   3. `cadenza.config.ts` owns every path and artifact name.
-- **Leaning**: option 2, aligned with `FC-CNFG-01` and `FC-CNFG-02`.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming and aligned with `FC-CNFG-01` and `FC-CNFG-02`.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-EXEN-02
@@ -204,7 +205,8 @@ are not part of the Phase 6 stable hash.
   1. `dist/phase6/<deck-id>/<run-id>/`.
   2. User-selected root with default `dist/cadenza/<deck-id>/<run-id>/`.
   3. `tmp/` only.
-- **Leaning**: option 2.
+- **Leaning**: option 2, selected as the Stage A recommendation after final
+  maintainer confirmation on 2026-05-30.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-EXEN-03
@@ -224,5 +226,7 @@ are not part of the Phase 6 stable hash.
   1. Manifest only declares `schemaVersion`.
   2. Manifest and every per-format evidence file declare `schemaVersion`.
   3. Schema version is inferred from filenames or package version.
-- **Leaning**: option 2, aligned with shared reader and inspect requirements.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming and aligned with shared reader and inspect
+  requirements.
 - **Must resolve before**: Stage B freeze.

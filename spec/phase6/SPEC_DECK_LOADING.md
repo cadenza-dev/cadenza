@@ -187,7 +187,9 @@ code execution; pretending otherwise would overpromise more than it protects.
   1. Trusted local code, documented.
   2. Sandboxed execution.
   3. No direct user modules yet.
-- **Leaning**: option 1.
+- **Leaning**: option 1, selected as the Stage A recommendation after final
+  maintainer confirmation on 2026-05-30. Sandboxing remains deferred to
+  `wip/future-support/phase-7-plus-deck-loading-candidates.md`.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-DLOD-04

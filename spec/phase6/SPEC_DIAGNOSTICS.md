@@ -160,7 +160,9 @@ removing Phase 5-only batch assumptions.
   1. Typed JSON evidence files plus optional `--json`.
   2. JSON or JSONL stream plus human summary.
   3. Minimal stderr plus export-only evidence.
-- **Leaning**: option 1.
+- **Leaning**: option 1, selected as the Stage A recommendation after
+  maintainer brainstorming. JSONL streaming is deferred to
+  `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-CDIA-02
@@ -182,5 +184,6 @@ removing Phase 5-only batch assumptions.
   2. Shared CLI/export diagnostic type outside core.
   3. Core validation API extension.
 - **Leaning**: option 2 with the split `@cadenza-dev/cli` and
-  `@cadenza-dev/export-local` topology selected during Stage A brainstorming.
+  `@cadenza-dev/export-local` topology, selected as the Stage A recommendation
+  after maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.

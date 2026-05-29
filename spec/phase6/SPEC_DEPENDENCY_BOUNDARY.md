@@ -163,7 +163,8 @@ Stage B public-surface decision may be needed under `DBND-005`.
   1. CLI-owned dependencies.
   2. Optional peer dependencies.
   3. Renderer adapter package outside core.
-- **Leaning**: CLI/export ownership with an explicit adapter outside core.
+- **Leaning**: CLI/export ownership with an explicit adapter outside core,
+  selected as the Stage A recommendation after maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-DBND-03

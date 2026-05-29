@@ -193,8 +193,9 @@ alpha announcement.
   1. Commands only.
   2. Expected output paths and manifest fields.
   3. Generated command evidence refreshed by tests.
-- **Leaning**: option 2 for Phase 6, with option 3 deferred unless Builder
-  evidence shows docs drift. Option 3 is tracked in
+- **Leaning**: option 2 for Phase 6, selected as the Stage A recommendation
+  after maintainer brainstorming. Option 3 is deferred unless Builder evidence
+  shows docs drift and is tracked in
   `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
 - **Must resolve before**: Stage B freeze.
 

@@ -183,7 +183,8 @@ hosted or fully portable rendering environment.
   1. Canonical Phase 5 talk only.
   2. Any deck satisfying the Phase 6 deck contract.
   3. Arbitrary project folders and plugin-loaded decks.
-- **Leaning**: option 2, with explicit limitations.
+- **Leaning**: option 2, with explicit limitations, selected as the Stage A
+  recommendation after maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-VIDO-03
@@ -194,7 +195,8 @@ hosted or fully portable rendering environment.
   2. File, renderer provenance, metadata, manifest linkage, diagnostics, and
      limitations.
   3. Frame-by-frame pixel parity.
-- **Leaning**: option 2.
+- **Leaning**: option 2, selected as the Stage A recommendation after
+  maintainer brainstorming.
 - **Must resolve before**: Stage B freeze.
 
 - **FC-ID**: FC-VIDO-04

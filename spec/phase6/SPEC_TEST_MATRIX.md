@@ -112,6 +112,23 @@ The Stage A batch shape should keep vertical slices small:
 - `FC-CDOC-02`: generated command evidence in docs.
 - `FC-CDOC-03`: documentation and evidence overclaim guard mechanism.
 
+## Stage A Confirmation Status
+
+After maintainer brainstorming, all Freeze Candidates above have a Stage A
+recommendation and should not be reopened during Stage A unless the maintainer
+explicitly asks to revisit a domain. On 2026-05-30, the maintainer also
+accepted the final two confirmation items:
+
+- `FC-DLOD-03`: whether Phase 6 formally accepts trusted local deck modules
+  and `cadenza.config.ts` as documented local code execution, with sandboxing
+  deferred to Phase 7+.
+- `FC-EXEN-02`: whether the default generated output root should be
+  `dist/cadenza/<deck-id>/<run-id>/`, while still allowing config and CLI
+  overrides.
+
+No Phase 6 Stage A Freeze Candidate remains unresolved. This does not freeze
+any contract; Stage B still requires explicit maintainer freeze approval.
+
 ## WIP Deferrals
 
 Stage A candidates that are intentionally not recommended for Phase 6 are
