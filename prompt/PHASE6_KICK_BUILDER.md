@@ -127,7 +127,7 @@ maintainer approval. In that mode, preserve the same batch boundaries:
 4. Run the relevant focused checks before moving on, and run the full
    verification stack before any phase-closeout, commit, push, or completion
    claim.
-5. Re-check hard constraints, non-goals, and worktree scope at every batch
+5. Re-check hard constraints, non-goals, and repository scope at every batch
    boundary.
 
 Even in goal mode, stop and ask the maintainer before changing frozen specs,
