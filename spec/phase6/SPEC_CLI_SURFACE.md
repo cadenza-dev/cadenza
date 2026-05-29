@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the local command surface for Phase 6. Phase 6 turns
+This frozen contract defines the local command surface for Phase 6. Phase 6 turns
 the narrow Phase 5 `cadenza export <deck>` proof into a stable local developer
 workflow for export, inspection, validation, help, and version reporting.
 
@@ -16,7 +16,7 @@ The CLI is local-only. It must not imply npm publication, hosted rendering,
 Remotion Lambda, Player App export, cloud queues, accounts, credentials, or a
 public release.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### CLI Topology
 
@@ -29,9 +29,9 @@ public release.
    manifest/evidence, and renderer adapters, with any root script acting only
    as a clean-checkout wrapper.
 
-**Stage A correction**: option 1 is rejected. The final Phase 6 CLI/export
+**Decision**: option 1 is rejected. The final Phase 6 CLI/export
 implementation must not remain a large single file like the Phase 5
-`scripts/cadenza.ts` proof. After Stage A brainstorming on 2026-05-29, option
+`scripts/cadenza.ts` proof. After maintainer brainstorming on 2026-05-29, option
 3 is the recommended package topology: keep `pnpm cadenza` as a
 clean-checkout entrypoint if useful, but make the root script a thin wrapper
 over `@cadenza-dev/cli`, and keep export workflow concerns in
@@ -45,7 +45,7 @@ over `@cadenza-dev/cli`, and keep export workflow concerns in
 3. A third-party CLI framework that owns parsing, dispatch, help, and command
    lifecycle.
 
-**Stage A leaning**: option 2. Remotion CLI and `skills.sh` both use thin bin
+**Decision**: option 2. Remotion CLI and `skills.sh` both use thin bin
 entrypoints plus explicit source-level dispatch and command modules. Cadenza
 should keep that simplicity, but a typed registry gives Builder a better
 spec/test target than an open-ended switch statement and prevents root-entry
@@ -57,9 +57,9 @@ growth like the Phase 5 proof.
 2. Export plus inspect and validate.
 3. Export, inspect, validate, help, and version.
 
-**Stage A leaning**: option 3, with all commands local-only and scoped to the
+**Decision**: option 3, with all commands local-only and scoped to the
 Phase 6 deck contract. `inspect` and `validate` make export evidence reviewable
-without re-rendering. After Stage A brainstorming on 2026-05-30, `validate` is
+without re-rendering. After maintainer brainstorming on 2026-05-30, `validate` is
 recommended as a deck/config/compile/timeline check that writes no export
 deliverables by default, and `inspect` is recommended as artifact-only manifest
 and evidence inspection.
@@ -70,12 +70,12 @@ and evidence inspection.
 2. Human stdout by default, with `--json` for machine-readable output.
 3. JSONL diagnostic stream for every command.
 
-**Stage A leaning**: option 2 for the first stable CLI, approved as the Stage A
-recommendation on 2026-05-29. JSON stdout is the machine contract for command
-summaries; human progress, warnings, and spinner output must not pollute JSON
-stdout. JSONL may be useful for future hosted or Player App workflows, but Phase
-6 can keep the command surface smaller by writing structured diagnostic
-artifacts and offering `--json`.
+**Decision**: option 2 for the first stable CLI, approved by the maintainer on
+2026-05-29. JSON stdout is the machine contract for command summaries; human
+progress, warnings, and spinner output must not pollute JSON stdout. JSONL may
+be useful for future hosted or Player App workflows, but Phase 6 can keep the
+command surface smaller by writing structured diagnostic artifacts and offering
+`--json`.
 
 ### Non-Interactive Behavior
 
@@ -84,7 +84,7 @@ artifacts and offering `--json`.
 3. Human-friendly defaults for TTY use, deterministic no-prompt behavior for
    non-TTY, CI, and agent contexts.
 
-**Stage A leaning**: option 3. Phase 6 should be pleasant in a terminal while
+**Decision**: option 3. Phase 6 should be pleasant in a terminal while
 remaining predictable for tests, agents, and clean-checkout automation.
 
 ## Requirements
@@ -188,7 +188,7 @@ remaining predictable for tests, agents, and clean-checkout automation.
   commands in non-TTY mode and verifies no prompt, deterministic diagnostics,
   and explicit confirmation behavior for overwrite or destructive paths.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-CLIS-01
 - **Decision**: Phase 6 uses the split package topology:

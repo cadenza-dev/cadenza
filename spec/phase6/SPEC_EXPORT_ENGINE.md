@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the reusable local export engine contract:
+This frozen contract defines the reusable local export engine contract:
 artifact layout, manifest schema, format capability declarations, evidence
 files, deterministic fields, and known limitations.
 
@@ -17,7 +17,7 @@ gravity. It may inherit useful Phase 5 fields, but it must not keep Phase
 5-only batch identifiers, hard-coded deck IDs, base64 video artifacts, or
 single-run fixture assumptions as the universal engine contract.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Evidence Shape
 
@@ -25,9 +25,9 @@ single-run fixture assumptions as the universal engine contract.
 2. Manifest plus per-format evidence files.
 3. Append-only event log plus summary manifest.
 
-**Stage A leaning**: option 2. A manifest should stay compact and deterministic
+**Decision**: option 2. A manifest should stay compact and deterministic
 while per-format evidence can grow without turning every export into one huge
-JSON object. After Stage A brainstorming on 2026-05-30, this is the approved
+JSON object. After maintainer brainstorming on 2026-05-30, this is the approved
 recommendation: the manifest is the summary inventory, and each enabled format
 owns its own evidence file.
 
@@ -37,7 +37,7 @@ owns its own evidence file.
 2. User-selected output root with a default under `dist/cadenza/`.
 3. `tmp/` only, with trace summaries.
 
-**Stage A leaning**: option 2. Phase 6 should feel less phase-bound than Phase
+**Decision**: option 2. Phase 6 should feel less phase-bound than Phase
 5 while still keeping generated output out of tracked fixtures. The default
 root should come from the Phase 6 path/config registry, may be overridden by
 minimal `cadenza.config.ts`, and must remain overrideable by CLI flags.
@@ -48,9 +48,9 @@ minimal `cadenza.config.ts`, and must remain overrideable by CLI flags.
 2. Hash deterministic contract fields only.
 3. Hash source deck text.
 
-**Stage A leaning**: option 2. Timestamps, absolute paths, selector alias
+**Decision**: option 2. Timestamps, absolute paths, selector alias
 provenance, and renderer metadata can vary by machine; the stable hash should
-anchor deterministic contract fields only. After Stage A brainstorming on
+anchor deterministic contract fields only. After maintainer brainstorming on
 2026-05-30, this means canonical deck identity, compiled timeline digest,
 format selection, relevant config defaults, and format capability
 declarations. Artifact bytes are recorded as artifact metadata when useful but
@@ -175,7 +175,7 @@ are not part of the Phase 6 stable hash.
 - **Verification**: acceptance scenarios `TC-VINS-004` and `TC-EXEN-005`
   validate supported and unsupported schema-version fixtures.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-EXEN-01
 - **Decision**: Export evidence uses a compact summary manifest plus

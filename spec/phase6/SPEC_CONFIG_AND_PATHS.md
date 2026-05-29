@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the Phase 6 project configuration and path registry
+This frozen contract defines the Phase 6 project configuration and path registry
 contract. Phase 6 needs enough configuration to support Phase 7 Player App and
 alpha-launch workflows without freezing a broad configuration language too
 early.
@@ -17,7 +17,7 @@ The goal is a small, versioned `cadenza.config.ts` surface for project defaults,
 backed by a typed internal registry for paths, artifact names, deck aliases,
 format defaults, temporary directories, and generated-output safety checks.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Config Posture
 
@@ -27,7 +27,7 @@ format defaults, temporary directories, and generated-output safety checks.
 3. Full project configuration surface for deck discovery, output, preview,
    export, renderer, Player App, hosted, and plugin settings.
 
-**Stage A leaning**: option 2, approved as the Stage A recommendation on
+**Decision**: option 2, approved by the maintainer on
 2026-05-30. Phase 6 is a direct prerequisite for Phase 7 Player App and alpha
 launch work, so deferring every config-file concept would push migration cost
 into the alpha-prep window. A full configuration surface is still too early.
@@ -39,7 +39,7 @@ into the alpha-prep window. A full configuration surface is still too early.
 3. Deck aliases, output defaults, export defaults, preview defaults, renderer
    options, web-app options, and future hosted options.
 
-**Stage A leaning**: option 2. These fields map to stable Phase 6 concepts and
+**Decision**: option 2. These fields map to stable Phase 6 concepts and
 give Phase 7 a place to add namespaced Player App settings later without
 renaming the local export defaults.
 
@@ -70,7 +70,7 @@ export default defineConfig({
 2. CLI flags override config file, which overrides registry defaults.
 3. Merge order varies by command.
 
-**Stage A leaning**: option 2. CLI flags are the explicit command invocation;
+**Decision**: option 2. CLI flags are the explicit command invocation;
 config supplies project defaults; registry defaults keep clean-checkout commands
 usable.
 
@@ -95,9 +95,10 @@ usable.
 - **Statement**: Phase 6 MUST support an optional project-root
   `cadenza.config.ts` loaded through a typed `defineConfig` helper. The Phase 6
   config surface MUST be limited to `decks`, `output.root`, and
-  `export.defaultFormats` unless Stage B explicitly adds another minimal field.
-  The config file supplies project defaults and deck alias shortcuts and MUST
-  NOT be required for clean-checkout example commands.
+  `export.defaultFormats` unless a later approved freeze override or
+  superseding ADR adds another minimal field. The config file supplies project
+  defaults and deck alias shortcuts and MUST NOT be required for clean-checkout
+  example commands.
 - **Verification**: acceptance scenario `TC-CNFG-002` runs export and validate
   with no config file, then with a minimal config file defining a deck alias,
   output root, and default formats.
@@ -155,7 +156,7 @@ usable.
   do not change canonical deck identity and that diagnostics report alias source
   plus module identity.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-CNFG-01
 - **Decision**: Phase 6 introduces a minimal `cadenza.config.ts` backed by a

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines structured diagnostics, exit codes, human messages,
+This frozen contract defines structured diagnostics, exit codes, human messages,
 machine-readable failure evidence, and repair routing for Phase 6 CLI and
 export workflows.
 
@@ -17,7 +17,7 @@ alpha readiness, hosted readiness, public API stability, or broad format parity
 unless another frozen contract and evidence file explicitly supports that
 claim.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Diagnostic Transport
 
@@ -25,9 +25,9 @@ claim.
 2. JSON or JSONL diagnostic stream plus human summary.
 3. Minimal stderr with machine-readable evidence only on export.
 
-**Stage A leaning**: option 1 plus optional `--json` command output. JSONL can
+**Decision**: option 1 plus optional `--json` command output. JSONL can
 wait until streaming diagnostics are needed by a Player App or hosted runner.
-After Stage A brainstorming on 2026-05-29, this means human output by default,
+After maintainer brainstorming on 2026-05-29, this means human output by default,
 stable JSON command summaries with `--json`, and structured diagnostic evidence
 files for export artifacts.
 
@@ -38,7 +38,7 @@ files for export artifacts.
    internal.
 3. One exit code per diagnostic category.
 
-**Stage A leaning**: option 2. It is useful for agents and docs without
+**Decision**: option 2. It is useful for agents and docs without
 creating a brittle shell API. Deep command internals must not call
 `process.exit()`, and top-level cleanup must not mask failure with a final
 successful exit.
@@ -49,7 +49,7 @@ successful exit.
 2. Structured categories with repair route hints.
 3. Full issue-tracker records.
 
-**Stage A leaning**: option 2, following Phase 5 repair-routing evidence while
+**Decision**: option 2, following Phase 5 repair-routing evidence while
 removing Phase 5-only batch assumptions.
 
 ## Requirements
@@ -151,7 +151,7 @@ removing Phase 5-only batch assumptions.
   cleanup/finalization fixtures and verifies that failures keep their expected
   exit code and diagnostic category.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-CDIA-01
 - **Decision**: Typed JSON evidence files are the primary machine diagnostic

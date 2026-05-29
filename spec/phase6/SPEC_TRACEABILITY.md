@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft maps Phase 6 requirements to acceptance scenarios and
+This frozen contract maps Phase 6 requirements to acceptance scenarios and
 future implementation or evidence locations. It is a routing map for Builder,
 not evidence that any scenario has passed.
 
@@ -75,7 +75,7 @@ not evidence that any scenario has passed.
 | DBND-002 | TC-DBND-001, TC-DBND-004 | `@cadenza-dev/export-local` or adapter package dependency declarations |
 | DBND-003 | TC-DBND-002 | preview package boundary, renderer adapter route, absence of Player App shell dependency |
 | DBND-004 | TC-DBND-002 | renderer adapter interface and adapter-facing evidence |
-| DBND-005 | TC-CDOC-002 | Stage B package topology notes or Proposed ADR if public package posture changes |
+| DBND-005 | TC-CDOC-002 | Accepted ADR 0016, Stage B package topology notes, and public-posture non-claim checks |
 | DBND-006 | TC-DBND-003 | `@cadenza-dev/cli`, `@cadenza-dev/export-local`, root script wrapper boundary |
 | DBND-007 | TC-CLIS-005, TC-DBND-004 | CLI command package imports, export-local workflow package imports, Remotion dependency declarations |
 | DBND-008 | TC-DBND-005 | renderer adapter import boundary, subprocess/API isolation, raw renderer log boundary |
@@ -99,7 +99,7 @@ not evidence that any scenario has passed.
 | CDOC-009 | TC-CDOC-001, TC-CDOC-002 | local export walkthrough expected command shapes, output paths, manifest and evidence field docs |
 | CDOC-010 | TC-CDOC-002 | prohibited-claim scan fixtures for docs and generated evidence summaries |
 
-## Draft Notes
+## Frozen Notes
 
 - Future locations are not permission to edit `CONTRACT_FROZEN` specs,
   Accepted ADRs, `packages/**/src/**` as Architect, or
@@ -107,5 +107,5 @@ not evidence that any scenario has passed.
 - Generated export artifacts should remain generated outputs under `dist/` or
   `tmp/`; tests may create and inspect them, but Stage B should not make them
   tracked fixtures.
-- Stage B must keep the resolved decision summary in `SPEC_TEST_MATRIX.md`
-  synchronized before any Phase 6 spec can become `CONTRACT_FROZEN`.
+- The approved decision summary in `SPEC_TEST_MATRIX.md` is part of the frozen
+  Stage B routing record.

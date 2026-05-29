@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,17 +8,17 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft preserves Phase 5's static web bundle as a supported
+This frozen contract preserves Phase 5's static web bundle as a supported
 compatibility output while reserving a future extension point for a Player
 App-based web export. Phase 6 must not silently convert static web
 compatibility into a polished Player App product shell.
 
-After Stage A brainstorming on 2026-05-30, the approved recommendation is to
+After maintainer brainstorming on 2026-05-30, the approved recommendation is to
 freeze static web as a compatibility export with a named adapter boundary,
 format evidence, and browser-observable semantic checks. The future Player App
 web export remains a Phase 7+ candidate, not a Phase 6 claim.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Web Compatibility Posture
 
@@ -27,7 +27,7 @@ web export remains a Phase 7+ candidate, not a Phase 6 claim.
    export.
 3. Defer all web changes and focus only on MP4.
 
-**Stage A leaning**: option 2, selected as the Stage A recommendation after
+**Decision**: option 2, approved by the maintainer after
 maintainer brainstorming. It keeps the current web proof working while making
 the future Player App replacement explicit.
 
@@ -37,7 +37,7 @@ the future Player App replacement explicit.
 2. Browser-observable semantic smoke checks.
 3. Screenshot or pixel diffing as the primary gate.
 
-**Stage A leaning**: option 2, selected as the Stage A recommendation after
+**Decision**: option 2, approved by the maintainer after
 maintainer brainstorming. Phase 5.5 already strengthened browser smoke without
 making pixel diffing the primary oracle.
 
@@ -116,7 +116,7 @@ making pixel diffing the primary oracle.
 - **Verification**: acceptance scenario `TC-WEBC-002` verifies semantic browser
   checks and rejects a pixel-only compatibility gate.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-WEBC-01
 - **Decision**: Phase 6 defines a static web compatibility adapter with a

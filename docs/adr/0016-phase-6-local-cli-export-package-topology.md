@@ -1,6 +1,6 @@
 # ADR 0016: Phase 6 local CLI and export package topology
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Date**: 2026-05-30
 - **Deciders**: @DrEden33773
 - **References**:
@@ -23,8 +23,8 @@ public package stability.
 
 ## Decision
 
-If the current Phase 6 Stage B recommendation is frozen, Cadenza will implement
-local CLI/export work through two workspace packages:
+Cadenza will implement Phase 6 local CLI/export work through two workspace
+packages:
 
 - `@cadenza-dev/cli` owns command registration, argument parsing, help/version,
   stdout/stderr behavior, exit-code mapping, and command adapters.
@@ -56,8 +56,6 @@ local CLI/export work through two workspace packages:
 
 ### Open
 
-- Whether Stage B accepts this ADR alongside the frozen Phase 6 specs or keeps
-  it Proposed until Builder proves the topology.
 - Whether a future hosted export package should share the local export adapter
   interfaces or define its own package boundary.
 

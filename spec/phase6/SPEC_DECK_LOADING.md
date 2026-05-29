@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines how Phase 6 commands discover and load decks. The
+This frozen contract defines how Phase 6 commands discover and load decks. The
 goal is to replace the Phase 5 single registry path with a documented deck
 module contract for public examples and future user decks while preserving the
 TSX-first, typed-API-first architecture.
@@ -16,7 +16,7 @@ TSX-first, typed-API-first architecture.
 Deck loading is a local developer workflow. It does not promise arbitrary
 plugin isolation, sandboxed execution, remote loading, or non-code authoring.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Deck Selector Model
 
@@ -26,10 +26,10 @@ plugin isolation, sandboxed execution, remote loading, or non-code authoring.
 4. Constrained combination: built-in example aliases plus direct local module
    paths, with minimal `cadenza.config.ts` aliases as project defaults.
 
-**Stage A leaning**: option 4. Built-in aliases keep examples ergonomic, while
-direct paths are the smallest useful user-deck boundary. After Stage A
-brainstorming on 2026-05-30, Phase 6 should add minimal config-file aliases so
-Phase 7 and alpha-prep work do not need to retrofit deck discovery later.
+**Decision**: option 4. Built-in aliases keep examples ergonomic, while
+direct paths are the smallest useful user-deck boundary. After maintainer
+brainstorming on 2026-05-30, Phase 6 adds minimal config-file aliases so Phase
+7 and alpha-prep work do not need to retrofit deck discovery later.
 
 ### Selector Precedence
 
@@ -38,7 +38,7 @@ Phase 7 and alpha-prep work do not need to retrofit deck discovery later.
 3. Explicit CLI selector or path wins over default config, and project config
    aliases win over built-in aliases when the same alias string is used.
 
-**Stage A leaning**: option 3, approved as the Stage A recommendation on
+**Decision**: option 3, approved by the maintainer on
 2026-05-30. A command-line selector is the user's immediate intent; project
 aliases are closer to the local project than built-in examples; built-in aliases
 remain the fallback for clean-checkout examples.
@@ -50,9 +50,9 @@ remain the fallback for clean-checkout examples.
    derivation.
 3. Export a precompiled manifest.
 
-**Stage A leaning**: option 2. Phase 6 should stop depending on fixture-shaped
+**Decision**: option 2. Phase 6 should stop depending on fixture-shaped
 exports and make CLI/export own validation, compile, preview/offline timing,
-and renderer evidence. After Stage A brainstorming on 2026-05-30, this means a
+and renderer evidence. After maintainer brainstorming on 2026-05-30, this means a
 strict metadata contract: every deck module must declare a canonical stable deck
 ID and title or label. Direct paths must not invent public deck identity from
 filenames.
@@ -63,7 +63,7 @@ filenames.
 2. Attempt sandboxing inside Phase 6.
 3. Avoid user module paths until a sandbox exists.
 
-**Stage A leaning**: option 1 with explicit documentation. TSX authoring is
+**Decision**: option 1 with explicit documentation. TSX authoring is
 code execution; pretending otherwise would overpromise more than it protects.
 
 ## Requirements
@@ -156,7 +156,7 @@ code execution; pretending otherwise would overpromise more than it protects.
   canonical deck contract exports authored deck data and metadata while
   export-local derives compile and timeline evidence.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-DLOD-01
 - **Decision**: Phase 6 supports built-in example aliases, direct local module

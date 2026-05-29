@@ -1,5 +1,5 @@
 ---
-Status: CONTRACT_DRAFT
+Status: DEPRECATED
 Stage: A
 Owner: Architect
 ---
@@ -8,12 +8,15 @@ Owner: Architect
 
 ## Purpose
 
-This packet summarizes the Phase 6 Stage A contract set for maintainer review
-before Stage B freeze work. It is an index and closeout aid, not a replacement
-for the domain specs, `SPEC_TEST_MATRIX.md`, or `SPEC_TRACEABILITY.md`.
+This deprecated packet summarizes the Phase 6 Stage A contract set that was
+reviewed before Stage B freeze. It is a historical index and closeout aid, not
+a replacement for the frozen domain specs, `SPEC_TEST_MATRIX.md`, or
+`SPEC_TRACEABILITY.md`.
 
-All Phase 6 files remain `CONTRACT_DRAFT`. Nothing in this packet freezes a
-contract; Stage B still requires explicit maintainer freeze approval.
+Deprecated by Stage B freeze on 2026-05-30. Replacement: the frozen Phase 6
+domain specs, [SPEC_TEST_MATRIX.md](./SPEC_TEST_MATRIX.md),
+[SPEC_TRACEABILITY.md](./SPEC_TRACEABILITY.md), and Accepted
+[ADR 0016](../../docs/adr/0016-phase-6-local-cli-export-package-topology.md).
 
 Root `STATUS.yaml` still points at Phase 5. The maintainer explicitly
 authorized Phase 6 Architect planning before the root phase pointer moves, so
@@ -49,9 +52,9 @@ Export Engine:
 `SPEC_TEST_MATRIX.md` records that no Phase 6 Stage A decision item remains
 unresolved after maintainer confirmation on 2026-05-30.
 
-## Contract Files
+## Frozen Replacement Files
 
-The Stage A contract set is:
+The frozen replacement contract set is:
 
 - `SPEC_CLI_SURFACE.md`: local CLI entrypoint, command inventory, command
   adapters, JSON output, and non-interactive behavior.
@@ -149,24 +152,20 @@ Builder should route from `SPEC_TEST_MATRIX.md`, keep tests in the Phase 5.5
 taxonomy locations, and update `trace/phase6/tracker.md` only after Phase 6 is
 opened or the maintainer explicitly authorizes pre-open trace scaffolding.
 
-## Stage B Preparation
+## Stage B Outcome
 
-Before freezing, Stage B should:
+The maintainer approved Stage B freeze on 2026-05-30. Stage B resolved this
+packet as follows:
 
-1. Confirm the maintainer wants to freeze the current Stage A recommendation
-   set without reopening domains.
-2. Convert domain specs from `CONTRACT_DRAFT` to `CONTRACT_FROZEN` only after
-   explicit maintainer freeze approval.
-3. Keep resolved decision summaries synchronized and free of unresolved Stage A
-   markers required by `pnpm spec:lint`.
-4. Keep `SPEC_TEST_MATRIX.md` and `SPEC_TRACEABILITY.md` synchronized.
-5. Review Proposed ADR 0016 for the durable package topology:
+1. Domain specs, `SPEC_TEST_MATRIX.md`, and `SPEC_TRACEABILITY.md` are frozen.
+2. ADR 0016 is accepted for the durable package topology:
    `@cadenza-dev/cli` plus `@cadenza-dev/export-local`, with root scripts as
    thin wrappers.
-6. Leave `STATUS.yaml.current_phase` unchanged unless the maintainer or Wizard
-   explicitly opens Phase 6.
-7. Prepare `prompt/PHASE6_KICK_BUILDER.md` only after the frozen contract set is
-   coherent.
+3. `STATUS.yaml.current_phase` remains unchanged until the maintainer or Wizard
+   opens Phase 6 routing.
+4. `trace/phase6/` remains absent until Phase 6 routing is opened or the
+   maintainer explicitly authorizes pre-open trace scaffolding.
+5. `prompt/PHASE6_KICK_BUILDER.md` is the downstream Builder handoff.
 
 ## Verification Snapshot
 
@@ -174,5 +173,5 @@ The Stage A recommendation cleanup that precedes this packet passed local
 verification and GitHub CI on `main` at commit
 `5b20177294a64e55c43d78e0bd8e0f744fac6561`.
 
-This packet itself must pass the normal repository verification gates before it
-is reported as ready.
+The Stage B freeze commit must pass the normal repository verification gates
+before it is reported as ready.

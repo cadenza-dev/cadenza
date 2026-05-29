@@ -41,4 +41,4 @@ See [`template.md`](./template.md).
 | [0013](./0013-bootstrap-wizard-scout-architect-handoff.md) | Bootstrap Wizard for Scout-to-Architect Handoff | Accepted | 2026-04-28 |
 | [0014](./0014-cadenza-best-practices-mono-skill.md) | Cadenza Best Practices Mono-Skill | Accepted | 2026-04-28 |
 | [0015](./0015-operational-role-skills.md) | Operational Role Skills for Architect and Builder | Accepted | 2026-04-29 |
-| [0016](./0016-phase-6-local-cli-export-package-topology.md) | Phase 6 local CLI and export package topology | Proposed | 2026-05-30 |
+| [0016](./0016-phase-6-local-cli-export-package-topology.md) | Phase 6 local CLI and export package topology | Accepted | 2026-05-30 |

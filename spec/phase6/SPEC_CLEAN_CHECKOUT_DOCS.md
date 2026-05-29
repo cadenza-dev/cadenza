@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the clean-checkout documentation boundary for Phase
+This frozen contract defines the clean-checkout documentation boundary for Phase
 6. The docs must let a developer install, validate, inspect, export static web,
 and export local MP4 from a fresh checkout while stating prerequisites,
 supported formats, and limitations honestly.
@@ -16,14 +16,14 @@ supported formats, and limitations honestly.
 This is documentation for a local developer workflow, not an alpha launch
 announcement or publication plan.
 
-After Stage A brainstorming on 2026-05-30, the approved recommendation is to
+After maintainer brainstorming on 2026-05-30, the approved recommendation is to
 use the README as a short entrypoint, put the full clean-checkout local export
 workflow in a dedicated walkthrough, and make overclaim checks part of the
 acceptance matrix. Phase 6 documentation should describe expected commands,
 output paths, manifest fields, evidence fields, and limitations; generated
 command transcripts or long refreshed logs are deferred.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Documentation Shape
 
@@ -31,7 +31,7 @@ command transcripts or long refreshed logs are deferred.
 2. Dedicated local export walkthrough only.
 3. README pointer plus dedicated local export walkthrough.
 
-**Stage A leaning**: option 3, selected as the Stage A recommendation after
+**Decision**: option 3, approved by the maintainer after
 maintainer brainstorming. The README should stay high-level; a dedicated
 walkthrough can carry prerequisites, failure modes, and artifact inspection.
 
@@ -41,10 +41,10 @@ walkthrough can carry prerequisites, failure modes, and artifact inspection.
 2. Docs include expected output paths and manifest fields.
 3. Docs include generated command evidence refreshed by tests.
 
-**Stage A leaning**: option 2 for Stage B, selected as the Stage A
-recommendation after maintainer brainstorming. Generated command evidence may
-be valuable later, but Phase 6 can keep docs stable by testing command behavior
-and documenting expected evidence fields.
+**Decision**: option 2 for Phase 6, approved by the maintainer after
+brainstorming. Generated command evidence may be valuable later, but Phase 6
+can keep docs stable by testing command behavior and documenting expected
+evidence fields.
 
 ### Overclaim Guard
 
@@ -53,7 +53,7 @@ and documenting expected evidence fields.
    and unsupported-format claims.
 3. Defer overclaim checks to the alpha announcement process.
 
-**Stage A leaning**: option 2, selected as the Stage A recommendation after
+**Decision**: option 2, approved by the maintainer after
 maintainer brainstorming. Phase 6 is alpha-enabling infrastructure, not an
 alpha announcement.
 
@@ -173,7 +173,7 @@ alpha announcement.
 - **Verification**: acceptance scenario `TC-CDOC-002` scans the documentation
   and generated evidence summaries for prohibited overclaim language.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-CDOC-01
 - **Decision**: Phase 6 uses a README pointer plus a dedicated local export

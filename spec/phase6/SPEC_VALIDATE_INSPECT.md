@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the `cadenza validate` and `cadenza inspect`
+This frozen contract defines the `cadenza validate` and `cadenza inspect`
 contracts. These commands make Phase 6 local export evidence reviewable without
 turning every check into another render.
 
@@ -17,7 +17,7 @@ turning every check into another render.
 diagnostics, JSON output behavior, and manifest/evidence types, but they do not
 perform the same work.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Validate Scope
 
@@ -26,7 +26,7 @@ perform the same work.
    export deliverables.
 3. Full export preflight including renderer prerequisites and artifact writes.
 
-**Stage A leaning**: option 2, approved as the Stage A recommendation on
+**Decision**: option 2, approved by the maintainer on
 2026-05-30. This catches the important deck-contract failures before export,
 while keeping validation cheap and side-effect-light.
 
@@ -39,7 +39,7 @@ while keeping validation cheap and side-effect-light.
 4. Source-aware inspection that reloads or recompiles the deck and compares it
    to prior export evidence.
 
-**Stage A leaning**: option 3, approved as the Stage A recommendation on
+**Decision**: option 3, approved by the maintainer on
 2026-05-30. Inspect should summarize generated evidence, not become a second
 export or validation command.
 
@@ -50,7 +50,7 @@ export or validation command.
    inspect, tests, and future Player App handoff.
 3. Manifest and evidence parsing belongs in `@cadenza-dev/core`.
 
-**Stage A leaning**: option 2. The reader is an export artifact concern, not a
+**Decision**: option 2. The reader is an export artifact concern, not a
 core typed-API concern, and command-local ad hoc parsers would drift quickly.
 
 ## Requirements
@@ -116,7 +116,7 @@ core typed-API concern, and command-local ad hoc parsers would drift quickly.
   passing validate, failing validate, passing inspect, and failing inspect
   fixtures.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-VINS-01
 - **Decision**: `validate` checks config, selector resolution, deck metadata,

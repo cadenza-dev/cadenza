@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,12 +8,12 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines where renderer and bundler dependencies may live.
+This frozen contract defines where renderer and bundler dependencies may live.
 Phase 6 must isolate Remotion rendering and bundling concerns in the
 CLI/export layer and keep `@cadenza-dev/core` focused on typed API, compiler,
 runtime intent, render-safe metadata, and validation contracts.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Dependency Placement
 
@@ -21,7 +21,7 @@ runtime intent, render-safe metadata, and validation contracts.
 2. Optional peer dependencies that users install separately.
 3. Renderer adapter package outside `@cadenza-dev/core`.
 
-**Stage A leaning**: a constrained combination of options 1 and 3.
+**Decision**: a constrained combination of options 1 and 3.
 `@cadenza-dev/export-local` should own the operational renderer/bundler
 dependencies, with a small renderer adapter boundary that keeps core clean,
 keeps `@cadenza-dev/cli` focused on command I/O, and leaves future hosted
@@ -34,10 +34,10 @@ rendering replaceable.
 3. Add `@cadenza-dev/export` or `@cadenza-dev/export-local` plus a root CLI
    wrapper.
 
-**Stage A correction**: option 1 is rejected as the final Phase 6 topology.
+**Decision**: option 1 is rejected as the final Phase 6 topology.
 The Phase 5 root script was acceptable as a narrow proof, but a generic CLI and
 local export engine will be too large and dependency-heavy for a single
-`scripts/cadenza.ts` file. After Stage A brainstorming on 2026-05-29, option 3
+`scripts/cadenza.ts` file. After maintainer brainstorming on 2026-05-29, option 3
 is the recommended topology: `@cadenza-dev/cli` owns command surface and
 process behavior, while `@cadenza-dev/export-local` owns local deck loading,
 export execution, manifest/evidence, and renderer adapters.
@@ -60,9 +60,9 @@ the current repository shape:
   and `@cadenza-dev/cli` when they are owned by the export-local package
   boundary.
 
-This move does not by itself require a public package or npm publication. If
-Stage B turns the new package into a public launch surface, an ADR or explicit
-Stage B public-surface decision may be needed under `DBND-005`.
+This move does not by itself require a public package or npm publication. ADR
+0016 records the durable workspace package topology while preserving local-only
+and no-publication boundaries.
 
 ## Requirements
 
@@ -110,10 +110,11 @@ Stage B public-surface decision may be needed under `DBND-005`.
 - **Priority**: P1
 - **Owner**: Architect -> Builder
 - **Statement**: Any package topology that changes public package posture
-  SHOULD be routed through Stage B review and MAY require a Proposed ADR if it
-  affects long-term packaging, licensing, or public API stability.
-- **Verification**: acceptance scenario `TC-CDOC-002` checks Stage B notes or
-  ADR routing if a new public package boundary is frozen.
+  SHOULD be routed through Stage B review and SHOULD have an ADR when it
+  affects long-term packaging, licensing, or public API stability. Phase 6
+  package topology is recorded in Accepted ADR 0016.
+- **Verification**: acceptance scenario `TC-CDOC-002` checks ADR routing and
+  public-posture non-claims for the frozen Phase 6 package boundary.
 
 - **ID**: DBND-006
 - **Priority**: P0
@@ -154,7 +155,7 @@ Stage B public-surface decision may be needed under `DBND-005`.
   dependency declarations, and absence of renderer orchestration outside
   export-local or an explicit adapter package.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-DBND-01
 - **Decision**: Renderer and bundler dependencies live in the CLI/export layer,

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,7 +8,7 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft defines the local MP4 export contract. Phase 6 must replace
+This frozen contract defines the local MP4 export contract. Phase 6 must replace
 the Phase 5 canonical MP4 smoke artifact with a real local Remotion render path
 for decks that satisfy the declared deck module contract.
 
@@ -16,7 +16,7 @@ This contract is local-only. It does not claim hosted rendering, Remotion
 Lambda production readiness, arbitrary cloud execution, full pixel parity
 across machines, or broad support for every future deck shape.
 
-## Stage A Options
+## Approved Design Decisions
 
 ### Renderer Invocation
 
@@ -24,9 +24,9 @@ across machines, or broad support for every future deck shape.
 2. Spawn the Remotion CLI as a subprocess.
 3. Hide both behind a stable renderer adapter interface.
 
-**Stage A leaning**: option 3. The public export engine should not care whether
+**Decision**: option 3. The public export engine should not care whether
 Builder chooses direct APIs or a CLI subprocess first, and future hosted work
-should reuse the adapter boundary. After Stage A brainstorming on 2026-05-30,
+should reuse the adapter boundary. After maintainer brainstorming on 2026-05-30,
 this is the approved recommendation: freeze the adapter contract, not the
 internal Remotion invocation strategy.
 
@@ -37,7 +37,7 @@ internal Remotion invocation strategy.
    prerequisite limitations.
 3. Arbitrary project folders and plugin-loaded decks.
 
-**Stage A leaning**: option 2. Phase 6 should be more universal than Phase 5
+**Decision**: option 2. Phase 6 should be more universal than Phase 5
 without pretending to support plugin systems or unbounded project layouts.
 
 ### Video Evidence
@@ -47,8 +47,8 @@ without pretending to support plugin systems or unbounded project layouts.
    and manifest linkage.
 3. Require frame-by-frame pixel parity against preview.
 
-**Stage A leaning**: option 2. Real MP4 rendering needs stronger evidence than
-non-empty bytes, but frame-perfect pixel parity is too brittle for Stage A.
+**Decision**: option 2. Real MP4 rendering needs stronger evidence than
+non-empty bytes, but frame-perfect pixel parity is too brittle for Phase 6.
 
 ### Prerequisites and Cleanup
 
@@ -56,7 +56,7 @@ non-empty bytes, but frame-perfect pixel parity is too brittle for Stage A.
 2. Detect and classify local prerequisites, then record them in evidence.
 3. Require a fully portable bundled renderer environment.
 
-**Stage A leaning**: option 2. Phase 6 should be honest about local browser,
+**Decision**: option 2. Phase 6 should be honest about local browser,
 renderer, codec, and media-tool requirements without pretending to provide a
 hosted or fully portable rendering environment.
 
@@ -164,7 +164,7 @@ hosted or fully portable rendering environment.
 - **Verification**: acceptance scenario `TC-CLIS-006` and `TC-VIDO-003` verify
   JSON output separation for successful and failing MP4 renders.
 
-## Resolved Stage A Decisions
+## Approved Decision Summary
 
 - **Decision ID**: FC-VIDO-01
 - **Decision**: MP4 rendering goes through a stable renderer adapter interface

@@ -1,6 +1,6 @@
 ---
-Status: CONTRACT_DRAFT
-Stage: A
+Status: CONTRACT_FROZEN
+Stage: B
 Owner: Architect
 ---
 
@@ -8,14 +8,13 @@ Owner: Architect
 
 ## Purpose
 
-This Stage A draft maps Phase 6 requirements to acceptance scenarios Builder
-will consume after Stage B freeze. The matrix is intentionally draft: scenarios
-and batch boundaries may change during Stage B wording cleanup or freeze
-review.
+This frozen contract maps Phase 6 requirements to acceptance scenarios Builder
+will consume during implementation. Scenario IDs and requirement references are
+binding unless a later approved freeze override supersedes this matrix.
 
 ## Builder Batch Shape
 
-The Stage A batch shape should keep vertical slices small:
+The Builder batch shape should keep vertical slices small:
 
 1. CLI/export-local package topology, help/version, and deck loading.
 2. Export engine manifest, artifact layout, and diagnostics.
@@ -70,7 +69,7 @@ The Stage A batch shape should keep vertical slices small:
 | TC-CDOC-001 | P0 | DLOD-005, CNFG-006, CDOC-001, CDOC-002, CDOC-004, CDOC-006, CDOC-007, CDOC-008, CDOC-009 | Clean-checkout docs cover install, validate, inspect, web export, MP4 export, prerequisites, trusted local deck modules and config, machine output, non-interactive behavior, minimal config examples, expected evidence fields, and static web compatibility limits. |
 | TC-CDOC-002 | P0 | DBND-005, CDOC-003, CDOC-005, CDOC-008, CDOC-009, CDOC-010 | Docs and evidence avoid prohibited release/hosted/format/Player App claims, avoid generated transcript requirements as a Phase 6 docs contract, and document generated evidence ownership. |
 
-## Resolved Stage A Decision Summary
+## Approved Decision Summary
 
 - `FC-CLIS-01`: CLI topology, with split `@cadenza-dev/cli` plus
   `@cadenza-dev/export-local`.
@@ -118,12 +117,12 @@ The Stage A batch shape should keep vertical slices small:
   transcripts.
 - `FC-CDOC-03`: explicit overclaim checks for docs and evidence summaries.
 
-## Stage A Confirmation Status
+## Freeze Approval Status
 
-After maintainer brainstorming, all decision items above have a Stage A
-recommendation and should not be reopened during Stage A unless the maintainer
-explicitly asks to revisit a domain. On 2026-05-30, the maintainer also
-accepted the final two confirmation items:
+After maintainer brainstorming, all decision items above have an approved
+recommendation and should not be reopened unless the maintainer explicitly
+asks to revisit a domain through Stage B override or a later superseding ADR.
+On 2026-05-30, the maintainer also accepted the final two confirmation items:
 
 - `FC-DLOD-03`: whether Phase 6 formally accepts trusted local deck modules
   and `cadenza.config.ts` as documented local code execution, with sandboxing
@@ -132,13 +131,14 @@ accepted the final two confirmation items:
   `dist/cadenza/<deck-id>/<run-id>/`, while still allowing config and CLI
   overrides.
 
-No Phase 6 Stage A decision item remains unresolved. This does not freeze any
-contract; Stage B still requires explicit maintainer freeze approval.
+No Phase 6 decision item remains unresolved. The maintainer approved Stage B
+freeze on 2026-05-30.
 
 ## WIP Deferrals
 
-Stage A candidates that are intentionally not recommended for Phase 6 are
-tracked in `wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
+Rejected or deferred candidates that are intentionally not recommended for
+Phase 6 are tracked in
+`wip/future-support/phase-7-plus-cli-diagnostics-candidates.md`.
 These notes are not contracts and must be promoted through a future Architect
 pass before Builder treats them as requirements.
 
