@@ -20,6 +20,22 @@ Load and follow the local `cadenza-builder` skill for cross-phase Builder
 discipline. Before implementation work, also load and follow the local `tdd`
 skill.
 
+If the maintainer launches this prompt as a Codex goal that explicitly
+authorizes completing Phase 6 across multiple Builder batches, also load the
+goal-supporting Superpowers skills that fit the moment:
+
+- `superpowers:executing-plans` for long-running checklist execution across
+  the frozen Builder batch sequence.
+- `superpowers:verification-before-completion` before claiming a batch, phase,
+  commit, or CI state is complete.
+- `superpowers:systematic-debugging` before fixing any failing test, CI job,
+  browser run, renderer failure, or unexpected behavior.
+
+These skills support the execution loop only. They do not override Cadenza
+authority order, frozen specs, TDD, trace updates, verification gates, reviewer
+handoff, or hard constraints. Do not reopen Architect decisions through generic
+brainstorming during Builder execution.
+
 ---
 
 ## 2. Context
@@ -92,10 +108,33 @@ Before implementation work, load and follow the local `tdd` skill. Use
 one-test-at-a-time vertical slices through public interfaces. Do not write a
 horizontal batch of tests before implementation.
 
-Complete at most one Builder batch per session turn. After that batch is green,
-update trace only when Phase 6 routing or pre-open trace scaffolding has been
-approved, stop, report the changes and verification results to the maintainer,
-and wait for explicit approval before starting the next batch.
+Default session rule: complete at most one Builder batch per session turn. After
+that batch is green, update trace only when Phase 6 routing or pre-open trace
+scaffolding has been approved, stop, report the changes and verification
+results to the maintainer, and wait for explicit approval before starting the
+next batch.
+
+Goal-mode exception: if the maintainer explicitly launches a Codex goal to
+complete Phase 6 Builder work across batches, the agent may continue from one
+Builder batch to the next without waiting for a new prompt or per-batch
+maintainer approval. In that mode, preserve the same batch boundaries:
+
+1. Select the next batch from `trace/phase6/status.yaml` and
+   `SPEC_TEST_MATRIX.md`.
+2. Use one-test-at-a-time RED -> GREEN -> REFACTOR within that batch.
+3. Update `trace/phase6/status.yaml` and `trace/phase6/tracker.md` after each
+   completed batch.
+4. Run the relevant focused checks before moving on, and run the full
+   verification stack before any phase-closeout, commit, push, or completion
+   claim.
+5. Re-check hard constraints, non-goals, and worktree scope at every batch
+   boundary.
+
+Even in goal mode, stop and ask the maintainer before changing frozen specs,
+Accepted ADRs, root phase routing, release/publication state, npm publishing,
+external PRs, hosted/cloud behavior, or any contract whose meaning is unclear.
+Also stop if repeated verification failures indicate a real blocker rather than
+ordinary TDD progress.
 
 ### B6.1 CLI package topology, help/version, config, and deck loading
 
