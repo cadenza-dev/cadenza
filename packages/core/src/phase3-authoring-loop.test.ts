@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPhase3AcceptanceFixture,
   createPhase3InvalidCompileReport,
-} from "../../../examples/phase3/acceptance-deck.js";
+} from "../../../examples/phase3/acceptance-deck.tsx";
 
 describe("B3.1 Phase 3 authoring deck and compile repair surface", () => {
   it("proves the canonical technical deck uses public surfaces and compile diagnostics become an ordered repair queue", () => {

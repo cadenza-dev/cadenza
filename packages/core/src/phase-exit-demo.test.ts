@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { createPhaseExitDemoHandoff } from "./fixtures/phaseExitDemo.js";
+import { createPhaseExitDemoHandoff } from "./fixtures/phaseExitDemo.ts";
 
 describe("B1.4-C phase exit demo handoff", () => {
   it("proves deterministic TimelineMap output and documents the current export boundary", () => {

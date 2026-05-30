@@ -18,6 +18,11 @@ import {
   type Phase6Diagnostic,
   phase6Error,
 } from "./diagnostics.ts";
+import {
+  LocalMp4RendererError,
+  type LocalMp4RendererResult,
+  renderLocalMp4,
+} from "./mp4Renderer.ts";
 import { createSha256, createStableHash } from "./stableJson.ts";
 import {
   renderStaticWebCompatibility,
@@ -51,13 +56,18 @@ export type Phase6FormatEvidence = {
   artifacts: Phase6ArtifactRecord[];
   browserSmoke?: StaticWebCompatibilityAdapterResult["browserSmoke"];
   capability: Phase6FormatCapability;
+  cleanup?: LocalMp4RendererResult["cleanup"];
   compatibilityMode?: StaticWebCompatibilityAdapterResult["compatibilityMode"];
+  composition?: LocalMp4RendererResult["composition"];
+  containerMetadata?: LocalMp4RendererResult["containerMetadata"];
   diagnostics: Phase6Diagnostic[];
   entrypointPath?: StaticWebCompatibilityAdapterResult["entrypointPath"];
   format: CadenzaExportFormat;
   knownLimitations: string[];
+  localPrerequisites?: LocalMp4RendererResult["localPrerequisites"];
   manifestReference?: StaticWebCompatibilityAdapterResult["manifestReference"];
   notesBoundary?: StaticWebCompatibilityAdapterResult["notesBoundary"];
+  rendererProvenance?: LocalMp4RendererResult["rendererProvenance"];
   schemaVersion: number;
   semanticAnchors?: StaticWebCompatibilityAdapterResult["semanticAnchors"];
   status: Phase6CapabilityStatus;
@@ -208,6 +218,7 @@ export async function exportDeckLocal(
   const timelineDigest = createStableHash(deterministicTimeline);
   const evidencePaths: Partial<Record<CadenzaExportFormat, string>> = {};
   const evidenceReferences: Partial<Record<CadenzaExportFormat, string>> = {};
+  const renderedArtifacts: Phase6ArtifactRecord[] = [];
 
   if (formats.includes("web")) {
     const webCompatibility = await renderStaticWebCompatibility({
@@ -250,30 +261,71 @@ export async function exportDeckLocal(
   }
 
   if (formats.includes("mp4")) {
-    const mp4Evidence: Phase6FormatEvidence = {
-      artifacts: [],
-      capability: capabilities.mp4 ?? mp4Capability(),
-      diagnostics: [],
-      format: "mp4",
-      knownLimitations: [
-        "B6.4 renderer adapter produces the MP4 media artifact; B6.2 records the selected MP4 capability without claiming renderer completion.",
-      ],
-      schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
-      status: "limited",
-    };
     const evidencePath = path.join(
       outputDirectory,
       PHASE6_ARTIFACT_FILENAMES.mp4Evidence,
     );
-    await writeJson(evidencePath, mp4Evidence);
-    evidencePaths.mp4 = evidencePath;
-    evidenceReferences.mp4 = PHASE6_ARTIFACT_FILENAMES.mp4Evidence;
+
+    try {
+      const mp4Render = await renderLocalMp4({
+        metadata: loaded.metadata,
+        outputDirectory,
+        rendererTempRoot: runtime.rendererTempRoot,
+        runId,
+        timeline: loaded.timeline,
+        workspaceRoot,
+      });
+      capabilities.mp4 = mp4CapabilityWithStatus("supported");
+      const mp4Artifact = await artifactRecord({
+        format: "mp4",
+        outputDirectory,
+        relativePath: mp4Render.relativePath,
+        role: "mp4-render",
+      });
+      renderedArtifacts.push(mp4Artifact);
+      const mp4Evidence: Phase6FormatEvidence = {
+        artifacts: [mp4Artifact],
+        capability: capabilities.mp4,
+        cleanup: mp4Render.cleanup,
+        composition: mp4Render.composition,
+        containerMetadata: mp4Render.containerMetadata,
+        diagnostics: mp4Render.diagnostics,
+        format: "mp4",
+        knownLimitations: mp4Render.knownLimitations,
+        localPrerequisites: mp4Render.localPrerequisites,
+        rendererProvenance: mp4Render.rendererProvenance,
+        schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+        status: "supported",
+      };
+      await writeJson(evidencePath, mp4Evidence);
+      evidencePaths.mp4 = evidencePath;
+      evidenceReferences.mp4 = PHASE6_ARTIFACT_FILENAMES.mp4Evidence;
+    } catch (error) {
+      if (error instanceof LocalMp4RendererError) {
+        capabilities.mp4 = mp4CapabilityWithStatus("unsupported");
+        await writeJson(evidencePath, {
+          artifacts: [],
+          capability: capabilities.mp4,
+          cleanup: error.failureEvidence.cleanup,
+          diagnostics: error.failureEvidence.diagnostics,
+          format: "mp4",
+          knownLimitations: error.failureEvidence.knownLimitations,
+          localPrerequisites: error.failureEvidence.localPrerequisites,
+          rendererProvenance: error.failureEvidence.rendererProvenance,
+          schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+          status: "unsupported",
+        } satisfies Phase6FormatEvidence);
+      }
+
+      throw error;
+    }
   }
 
   const artifactInventory = await collectArtifactInventory({
     evidenceReferences,
     formats,
     outputDirectory,
+    renderedArtifacts,
   });
   const manifestWithoutHash = createManifestWithoutHash({
     capabilities,
@@ -535,12 +587,14 @@ async function collectArtifactInventory({
   evidenceReferences,
   formats,
   outputDirectory,
+  renderedArtifacts,
 }: {
   evidenceReferences: Partial<Record<CadenzaExportFormat, string>>;
   formats: CadenzaExportFormat[];
   outputDirectory: string;
+  renderedArtifacts: Phase6ArtifactRecord[];
 }): Promise<Phase6ArtifactRecord[]> {
-  const artifacts: Phase6ArtifactRecord[] = [];
+  const artifacts: Phase6ArtifactRecord[] = [...renderedArtifacts];
 
   if (formats.includes("web")) {
     artifacts.push(
@@ -624,16 +678,29 @@ function webCapability(): Phase6FormatCapability {
 }
 
 function mp4Capability(): Phase6FormatCapability {
+  return mp4CapabilityWithStatus("limited");
+}
+
+function mp4CapabilityWithStatus(
+  status: Extract<
+    Phase6CapabilityStatus,
+    "limited" | "supported" | "unsupported"
+  >,
+): Phase6FormatCapability {
   return {
     description:
-      "Local MP4 renderer capability selected for Phase 6, with media rendering completed by the B6.4 renderer adapter.",
+      status === "unsupported"
+        ? "Local MP4 renderer capability was selected but the local renderer prerequisites or render stage failed."
+        : status === "supported"
+          ? "Local MP4 renderer capability produced through the Phase 6 renderer adapter."
+          : "Local MP4 renderer capability selected for Phase 6, with media rendering completed by the B6.4 renderer adapter.",
     futureReusableConcepts: [
       "renderer provenance",
       "media artifact metadata",
       "diagnostic records",
       "format capability status",
     ],
-    status: "limited",
+    status,
   };
 }
 

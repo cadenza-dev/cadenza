@@ -1,4 +1,4 @@
-import type { ResourceReadinessRegistry } from "./readiness.js";
+import type { ResourceReadinessRegistry } from "./readiness.ts";
 
 export type RenderSafeDomAdapterOptions = {
   readiness: ResourceReadinessRegistry;

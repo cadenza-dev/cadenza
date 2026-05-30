@@ -16,7 +16,7 @@ import {
   Transition,
   TypographyBox,
   validatePreviewLayout,
-} from "../index.js";
+} from "../index.ts";
 
 export const REQUIRED_ALL_DOMAIN_MVP_SKILLS = [
   "cadenza-best-practices",

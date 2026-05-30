@@ -1,8 +1,8 @@
-import type { CadenzaDiagnostic } from "../diagnostics/types.js";
+import type { CadenzaDiagnostic } from "../diagnostics/types.ts";
 import {
   isRenderSafeResourceNode,
   type ResourceKind,
-} from "../render-safe/resources.js";
+} from "../render-safe/resources.ts";
 import type {
   DeckNode,
   DurationToken,
@@ -14,9 +14,9 @@ import type {
   ThemeTokens,
   TransitionKind,
   TransitionNode,
-} from "../typed-api/primitives.js";
-import { CadenzaValidationError } from "../validation/errors.js";
-import { validateDeck } from "../validation/static.js";
+} from "../typed-api/primitives.ts";
+import { CadenzaValidationError } from "../validation/errors.ts";
+import { validateDeck } from "../validation/static.ts";
 
 export type FrameSegment = [number, number];
 

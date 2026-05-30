@@ -1,7 +1,7 @@
 import type {
   ReadableDensityBudgets,
   RenderSafeNode,
-} from "../render-safe/resources.js";
+} from "../render-safe/resources.ts";
 
 export type DurationToken = number | `${number}ms` | `${number}s`;
 

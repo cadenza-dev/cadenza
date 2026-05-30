@@ -11,6 +11,11 @@
   },
   "dependencies": {
     "@cadenza-dev/core": "workspace:*",
-    "esbuild": "^0.28.0"
+    "@remotion/bundler": "4.0.454",
+    "@remotion/renderer": "4.0.454",
+    "esbuild": "^0.28.0",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "remotion": "4.0.454"
   }
 }

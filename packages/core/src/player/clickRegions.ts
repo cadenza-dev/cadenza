@@ -1,4 +1,4 @@
-import type { CadenzaRuntime } from "../runtime/createRuntime.js";
+import type { CadenzaRuntime } from "../runtime/createRuntime.ts";
 
 export type ClickRegionAction =
   | "next"

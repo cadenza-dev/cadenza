@@ -1,4 +1,4 @@
-import type { CadenzaNode } from "./typed-api/primitives.js";
+import type { CadenzaNode } from "./typed-api/primitives.ts";
 
 export type CadenzaJsxElement = CadenzaNode;
 

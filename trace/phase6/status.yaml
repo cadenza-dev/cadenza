@@ -89,39 +89,91 @@ builder_progress:
   status: in_progress
   active_role: builder
   next_batch:
-    id: B6.4
+    id: B6.5
     scenarios:
-      - TC-VIDO-001
-      - TC-VIDO-002
-      - TC-VIDO-003
-      - TC-VIDO-004
-      - TC-DBND-001
-      - TC-DBND-002
-      - TC-DBND-003
-      - TC-DBND-004
-      - TC-DBND-005
+      - TC-CDOC-001
+      - TC-CDOC-002
     requirements:
-      - VIDO-001
-      - VIDO-002
-      - VIDO-003
-      - VIDO-004
-      - VIDO-005
-      - VIDO-006
-      - VIDO-007
-      - VIDO-008
-      - VIDO-009
-      - DBND-001
-      - DBND-002
-      - DBND-003
-      - DBND-004
+      - DLOD-005
+      - CNFG-006
       - DBND-005
-      - DBND-006
-      - DBND-007
-      - DBND-008
-      - CDIA-009
+      - CDOC-001
+      - CDOC-002
+      - CDOC-003
+      - CDOC-004
+      - CDOC-005
+      - CDOC-006
+      - CDOC-007
+      - CDOC-008
+      - CDOC-009
+      - CDOC-010
     status: ready
-    summary: "Implement local MP4 rendering through the export-local renderer adapter, dependency boundaries, renderer provenance, artifact metadata, prerequisite diagnostics, and cleanup evidence."
+    summary: "Update clean-checkout docs, local export walkthrough, prerequisite guidance, trusted local code warnings, generated evidence ownership, machine-output examples, and overclaim guards."
   completed_batches:
+    - id: B6.4
+      completed_at: "2026-05-30 09:22 +0800"
+      scenarios:
+        - TC-VIDO-001
+        - TC-VIDO-002
+        - TC-VIDO-003
+        - TC-VIDO-004
+        - TC-DBND-001
+        - TC-DBND-002
+        - TC-DBND-003
+        - TC-DBND-004
+        - TC-DBND-005
+      requirements:
+        - VIDO-001
+        - VIDO-002
+        - VIDO-003
+        - VIDO-004
+        - VIDO-005
+        - VIDO-006
+        - VIDO-007
+        - VIDO-008
+        - VIDO-009
+        - DBND-001
+        - DBND-002
+        - DBND-003
+        - DBND-004
+        - DBND-005
+        - DBND-006
+        - DBND-007
+        - DBND-008
+        - CDIA-009
+      tests:
+        - tests/acceptance/phase6-mp4-rendering.test.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+        - tests/acceptance/phase6-cli.test.ts
+      code:
+        - packages/export-local/src/mp4Renderer.ts
+        - packages/export-local/src/artifacts.ts
+        - packages/export-local/src/diagnostics.ts
+        - packages/export-local/src/index.ts
+        - packages/export-local/package.json
+        - packages/cli/src/config.ts
+        - packages/core/src/
+        - pnpm-lock.yaml
+      verification:
+        - "pnpm exec vitest run tests/acceptance/phase6-mp4-rendering.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-export-validate-inspect.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-cli.test.ts"
+        - "node --experimental-strip-types scripts/cadenza.ts --help"
+        - "node --experimental-strip-types scripts/cadenza.ts validate phase5-alpha-readiness-talk --json"
+        - "node --experimental-strip-types scripts/cadenza.ts export phase5-alpha-readiness-talk --run-id b6-4-root-cli --output /tmp/cadenza-b6-4-root-cli --format mp4 --json"
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "pnpm test:browser"
+        - "git diff --check"
+      boundary: "No frozen specs, Accepted ADRs, STATUS.yaml.current_phase, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, or PR work was changed. Maintainer-authorized commit/push/CI monitoring applies after batch verification. MP4 output remains local-only and records renderer provenance instead of freezing direct Remotion API strategy as a public contract."
     - id: B6.3
       completed_at: "2026-05-30 08:46 +0800"
       scenarios:

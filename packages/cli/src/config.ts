@@ -1,1 +1,1 @@
-export { defineConfig } from "../../export-local/src/index.ts";
+export { defineConfig } from "../../export-local/src/config.ts";

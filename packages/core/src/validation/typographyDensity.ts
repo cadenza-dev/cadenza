@@ -3,8 +3,8 @@ import type {
   ContentReadability,
   ReadableDensityBudget,
   TypographyBoxNode,
-} from "../render-safe/resources.js";
-import type { ThemeDefinition } from "../typed-api/primitives.js";
+} from "../render-safe/resources.ts";
+import type { ThemeDefinition } from "../typed-api/primitives.ts";
 
 export type TypographyFontReadinessState = "pending" | "ready";
 

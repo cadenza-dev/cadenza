@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPhase4TechnicalTalkStarterFixtures,
   phase4TechnicalTalkStarters,
-} from "../../../examples/phase4/technical-talk-starters.js";
+} from "../../../examples/phase4/technical-talk-starters.tsx";
 
 type SkillEval = {
   expected_output: string;

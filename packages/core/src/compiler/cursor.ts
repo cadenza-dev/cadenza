@@ -1,4 +1,4 @@
-import type { TimelineMap, TransitionSegment } from "./compile.js";
+import type { TimelineMap, TransitionSegment } from "./compile.ts";
 
 export type Cursor =
   | { kind: "at-step"; slideId: string; stepIndex: number }

@@ -1,7 +1,7 @@
 import type {
   CadenzaDiagnostic,
   DiagnosticSeverity,
-} from "../diagnostics/types.js";
+} from "../diagnostics/types.ts";
 
 export type ValidationReportSummary = {
   fatal: number;

@@ -5,45 +5,45 @@ export type {
   TimelineSlide,
   TimelineStep,
   TransitionSegment,
-} from "./compiler/compile.js";
-export { compile } from "./compiler/compile.js";
-export type { Cursor } from "./compiler/cursor.js";
-export { cursorAtFrame } from "./compiler/cursor.js";
+} from "./compiler/compile.ts";
+export { compile } from "./compiler/compile.ts";
+export type { Cursor } from "./compiler/cursor.ts";
+export { cursorAtFrame } from "./compiler/cursor.ts";
 export type {
   CadenzaDiagnostic,
   DiagnosticSeverity,
-} from "./diagnostics/types.js";
+} from "./diagnostics/types.ts";
 export type {
   ClickRegion,
   ClickRegionAction,
   ClickRegionEvent,
   ClickRegionRect,
   ClickRegionTarget,
-} from "./player/clickRegions.js";
-export { bindClickRegions } from "./player/clickRegions.js";
+} from "./player/clickRegions.ts";
+export { bindClickRegions } from "./player/clickRegions.ts";
 export type {
   FullscreenControls,
   FullscreenPlayer,
-} from "./player/fullscreen.js";
-export { createFullscreenControls } from "./player/fullscreen.js";
+} from "./player/fullscreen.ts";
+export { createFullscreenControls } from "./player/fullscreen.ts";
 export type {
   KeyboardNavigationEvent,
   KeyboardNavigationMap,
   KeyboardNavigationTarget,
-} from "./player/keyboard.js";
-export { bindKeyboardNavigation } from "./player/keyboard.js";
+} from "./player/keyboard.ts";
+export { bindKeyboardNavigation } from "./player/keyboard.ts";
 export type {
   FontVisibilityBinding,
   RenderSafeDomAdapter,
   RenderSafeDomAdapterOptions,
   VideoMetadataReadinessBinding,
-} from "./render-safe/domAdapter.js";
-export { createRenderSafeDomAdapter } from "./render-safe/domAdapter.js";
+} from "./render-safe/domAdapter.ts";
+export { createRenderSafeDomAdapter } from "./render-safe/domAdapter.ts";
 export type {
   ResourceReadiness,
   ResourceReadinessRegistry,
-} from "./render-safe/readiness.js";
-export { createResourceReadiness } from "./render-safe/readiness.js";
+} from "./render-safe/readiness.ts";
+export { createResourceReadiness } from "./render-safe/readiness.ts";
 export type {
   ContentDensity,
   ContentReadability,
@@ -64,7 +64,7 @@ export type {
   TypographyAutoFitConfig,
   TypographyBoxNode,
   TypographyBoxProps,
-} from "./render-safe/resources.js";
+} from "./render-safe/resources.ts";
 export {
   ContentSlot,
   MediaFrame,
@@ -72,15 +72,15 @@ export {
   SafeImage,
   SafeVideo,
   TypographyBox,
-} from "./render-safe/resources.js";
+} from "./render-safe/resources.ts";
 export type {
   CadenzaRuntime,
   CadenzaRuntimeOptions,
   PresenterMetadata,
   RuntimeClock,
   SeekPlayer,
-} from "./runtime/createRuntime.js";
-export { createRuntime } from "./runtime/createRuntime.js";
+} from "./runtime/createRuntime.ts";
+export { createRuntime } from "./runtime/createRuntime.ts";
 export type {
   CadenzaNode,
   DeckNode,
@@ -108,7 +108,7 @@ export type {
   TransitionKind,
   TransitionNode,
   TransitionProps,
-} from "./typed-api/primitives.js";
+} from "./typed-api/primitives.ts";
 export {
   Deck,
   Notes,
@@ -117,35 +117,35 @@ export {
   Step,
   Theme,
   Transition,
-} from "./typed-api/primitives.js";
+} from "./typed-api/primitives.ts";
 export type {
   Phase3BoundaryArtifact,
   RawRemotionUsageOptions,
-} from "./validation/aiBoundaries.js";
+} from "./validation/aiBoundaries.ts";
 export {
   validatePhase3BoundaryClaims,
   validatePhase3DeferredScopeClaims,
   validateRawRemotionUsage,
-} from "./validation/aiBoundaries.js";
+} from "./validation/aiBoundaries.ts";
 export type {
   MediaFrameMeasurement,
   PreviewLayoutMeasurement,
   TypographyBoxMeasurement,
-} from "./validation/browser.js";
-export { validatePreviewLayout } from "./validation/browser.js";
-export { CadenzaValidationError } from "./validation/errors.js";
+} from "./validation/browser.ts";
+export { validatePreviewLayout } from "./validation/browser.ts";
+export { CadenzaValidationError } from "./validation/errors.ts";
 export type {
   Phase3RepairEvidence,
   Phase3RepairEvidenceFinding,
-} from "./validation/repairEvidence.js";
-export { validatePhase3RepairEvidence } from "./validation/repairEvidence.js";
+} from "./validation/repairEvidence.ts";
+export { validatePhase3RepairEvidence } from "./validation/repairEvidence.ts";
 export type {
   CadenzaValidationReport,
   ValidationRepairQueueItem,
   ValidationReportSummary,
-} from "./validation/report.js";
-export { createValidationReport } from "./validation/report.js";
-export { validateDeck } from "./validation/static.js";
+} from "./validation/report.ts";
+export { createValidationReport } from "./validation/report.ts";
+export { validateDeck } from "./validation/static.ts";
 export type {
   TypographyDensityCategory,
   TypographyDensityDiagnostic,
@@ -159,12 +159,12 @@ export type {
   TypographyFitResult,
   TypographyFitResultStatus,
   TypographyFontReadinessState,
-} from "./validation/typographyDensity.js";
+} from "./validation/typographyDensity.ts";
 export {
   fitTypographyBox,
   resolveReadableDensityBudget,
   validateTypographyDensity,
-} from "./validation/typographyDensity.js";
+} from "./validation/typographyDensity.ts";
 export type {
   Phase4OptionalVisualArtifact,
   Phase4VisualAcceptanceEvidence,
@@ -173,8 +173,8 @@ export type {
   Phase4VisualEvidenceReference,
   Phase4VisualFinding,
   Phase4VisualFindingCategory,
-} from "./validation/visualAcceptanceEvidence.js";
+} from "./validation/visualAcceptanceEvidence.ts";
 export {
   validatePhase4VisualAcceptanceEvidence,
   validatePhase4VisualCloseoutEvidence,
-} from "./validation/visualAcceptanceEvidence.js";
+} from "./validation/visualAcceptanceEvidence.ts";

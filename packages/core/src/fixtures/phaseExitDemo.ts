@@ -3,8 +3,8 @@ import {
   createValidationReport,
   type StepKind,
   type TimelineMap,
-} from "../index.js";
-import { createAllDomainMvpFixture } from "./allDomainMvp.js";
+} from "../index.ts";
+import { createAllDomainMvpFixture } from "./allDomainMvp.ts";
 
 export type TimelineStepSignature = {
   stepIndex: number;

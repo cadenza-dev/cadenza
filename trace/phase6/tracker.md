@@ -1,5 +1,51 @@
 # Phase 6 Tracker
 
+## 2026-05-30 09:22 +0800 - B6.4 local MP4 renderer and dependency boundary
+
+- Scope: completed B6.4 for `TC-VIDO-001` through `TC-VIDO-004` and
+  `TC-DBND-001` through `TC-DBND-005`.
+- Implementation: added the export-local `LocalMp4RendererAdapter` path in
+  `packages/export-local/src/mp4Renderer.ts`, using a real local Remotion
+  renderer/bundler pipeline to produce the canonical Phase 5 talk MP4 artifact
+  under the Phase 6 export manifest. The adapter records composition metadata,
+  container metadata, local prerequisite evidence, renderer provenance,
+  known local-only limitations, and cleanup status.
+- Failure routing: missing configured browser prerequisites now fail with
+  structured `environment` diagnostics, write `mp4-evidence.json` failure
+  evidence when an output directory exists, and preserve cleanup evidence
+  instead of surfacing raw Remotion errors as the only contract.
+- Dependency boundary: renderer/bundler dependencies live in
+  `@cadenza-dev/export-local`; acceptance coverage scans package declarations
+  and source boundaries so `@cadenza-dev/core`, `@cadenza-dev/cli`, and
+  `@cadenza-dev/preview-remotion` do not orchestrate MP4 renderer internals.
+  `packages/cli/src/config.ts` was narrowed to re-export only config helpers,
+  and core internal TS source imports were aligned to `.ts`/`.tsx` so the root
+  `node --experimental-strip-types scripts/cadenza.ts` wrapper works outside
+  Vitest's resolver.
+- Verification: `pnpm exec vitest run
+  tests/acceptance/phase6-mp4-rendering.test.ts` passed with 1 file / 3
+  tests; `pnpm exec vitest run
+  tests/acceptance/phase6-export-validate-inspect.test.ts` passed with 1 file
+  / 5 tests; `pnpm exec vitest run tests/acceptance/phase6-cli.test.ts` passed
+  with 1 file / 2 tests; `node --experimental-strip-types scripts/cadenza.ts
+  --help` and `node --experimental-strip-types scripts/cadenza.ts validate
+  phase5-alpha-readiness-talk --json` passed; `node
+  --experimental-strip-types scripts/cadenza.ts export
+  phase5-alpha-readiness-talk --run-id b6-4-root-cli --output
+  /tmp/cadenza-b6-4-root-cli --format mp4 --json` passed; `pnpm typecheck`,
+  `pnpm test`, `pnpm lint`, `pnpm format:check`, Markdown lint, shell
+  formatting check, `pnpm spec:lint`, `pnpm phase:check`,
+  `pnpm check:harness`, `pnpm check:memory`, `git diff --check`, and the
+  supplemental `pnpm test:browser` suite passed.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App
+  implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin loading,
+  sandboxing, external release, npm publication, release tag, or PR work was
+  changed.
+- Next batch: B6.5 starts with clean-checkout docs, local export walkthrough,
+  prerequisites, trusted local code warnings, generated evidence ownership,
+  `--json` behavior, and docs/evidence overclaim guards.
+
 ## 2026-05-30 08:46 +0800 - B6.3 static web compatibility and browser evidence
 
 - Scope: completed B6.3 for `TC-WEBC-001` and `TC-WEBC-002`.

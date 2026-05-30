@@ -11,7 +11,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createAllDomainMvpFixture,
   REQUIRED_ALL_DOMAIN_MVP_SKILLS,
-} from "./fixtures/allDomainMvp.js";
+} from "./fixtures/allDomainMvp.ts";
 
 describe("B1.4-B3 all-domain MVP fixture", () => {
   it("spans typed API, compiler, render-safe, runtime, validation, and skills for an agent-authored technical talk", () => {

@@ -1,8 +1,8 @@
-import type { TimelineMap, TimelineResource } from "../compiler/compile.js";
-import { type Cursor, cursorAtFrame } from "../compiler/cursor.js";
-import type { CadenzaDiagnostic } from "../diagnostics/types.js";
-import type { ResourceReadiness } from "../render-safe/readiness.js";
-import type { DurationToken } from "../typed-api/primitives.js";
+import type { TimelineMap, TimelineResource } from "../compiler/compile.ts";
+import { type Cursor, cursorAtFrame } from "../compiler/cursor.ts";
+import type { CadenzaDiagnostic } from "../diagnostics/types.ts";
+import type { ResourceReadiness } from "../render-safe/readiness.ts";
+import type { DurationToken } from "../typed-api/primitives.ts";
 
 export type SeekPlayer = {
   getCurrentFrame?(): number;

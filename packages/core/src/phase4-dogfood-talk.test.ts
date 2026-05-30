@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   createPhase4DogfoodTalkFixture,
   phase4DogfoodTalkMetadata,
-} from "../../../examples/phase4/dogfood-talk.js";
+} from "../../../examples/phase4/dogfood-talk.tsx";
 
 describe("B4.1 Phase 4 dogfood technical talk", () => {
   it("TC-DOGF-001 uses public Cadenza TSX, render-safe surfaces, notes, chapters, and previewable transitions", () => {

@@ -7,7 +7,7 @@ import {
   validateTypographyDensity,
 } from "@cadenza-dev/core";
 import { describe, expect, it } from "vitest";
-import { createPhase4TypographyDiagnostics } from "../../../examples/phase4/preview.js";
+import { createPhase4TypographyDiagnostics } from "../../../examples/phase4/preview.ts";
 
 describe("B4.4 typography auto-fit and density diagnostics", () => {
   it("TC-TYPO-001 produces deterministic bounded auto-fit and overflow fallback diagnostics", () => {

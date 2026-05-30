@@ -1,9 +1,9 @@
-import type { CadenzaDiagnostic } from "../diagnostics/types.js";
+import type { CadenzaDiagnostic } from "../diagnostics/types.ts";
 import type {
   CadenzaNode,
   DeckNode,
   SlideNode,
-} from "../typed-api/primitives.js";
+} from "../typed-api/primitives.ts";
 
 const STEP_KINDS = new Set(["fixed", "wait-for-event", "computed"]);
 

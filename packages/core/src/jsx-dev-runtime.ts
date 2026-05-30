@@ -1,7 +1,7 @@
-import type { CadenzaJsxElement } from "./jsx-runtime.js";
-import { jsx } from "./jsx-runtime.js";
+import type { CadenzaJsxElement } from "./jsx-runtime.ts";
+import { jsx } from "./jsx-runtime.ts";
 
-export { Fragment, jsx, jsxs } from "./jsx-runtime.js";
+export { Fragment, jsx, jsxs } from "./jsx-runtime.ts";
 
 type Component<Props> = (props: Props) => CadenzaJsxElement;
 

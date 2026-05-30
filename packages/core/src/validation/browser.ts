@@ -1,4 +1,4 @@
-import type { CadenzaDiagnostic } from "../diagnostics/types.js";
+import type { CadenzaDiagnostic } from "../diagnostics/types.ts";
 
 export type TypographyBoxMeasurement = {
   kind: "typography-box";

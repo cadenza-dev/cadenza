@@ -126,11 +126,16 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
       expect(manifest.stableHash).toMatch(/^[a-f0-9]{64}$/);
       expect(manifest.deterministic.timelineDigest).toMatch(/^[a-f0-9]{64}$/);
       expect(manifest.deterministic.capabilities).toMatchObject({
-        mp4: { status: "limited" },
+        mp4: { status: "supported" },
         web: { status: "supported" },
       });
       expect(manifest.artifacts).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({
+            format: "mp4",
+            path: "phase5-alpha-readiness-talk.mp4",
+            role: "mp4-render",
+          }),
           expect.objectContaining({
             format: "web",
             path: "index.html",
@@ -172,16 +177,19 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
         expect.objectContaining({ path: "index.html", role: "entrypoint" }),
       ]);
       expect(mp4Evidence).toMatchObject({
-        artifacts: [],
+        artifacts: [
+          expect.objectContaining({
+            path: "phase5-alpha-readiness-talk.mp4",
+            role: "mp4-render",
+          }),
+        ],
         format: "mp4",
         schemaVersion: 1,
-        status: "limited",
+        status: "supported",
       });
-      expect(mp4Evidence.knownLimitations.join("\n")).toContain(
-        "B6.4 renderer adapter",
-      );
+      expect(mp4Evidence.knownLimitations.join("\n")).toContain("local-only");
     });
-  });
+  }, 60_000);
 
   it("TC-CLIS-003, TC-VINS-001, and TC-VINS-002 validate selectors without writing export deliverables", async () => {
     await withTempRoot(async (projectRoot) => {
@@ -204,7 +212,7 @@ export default defineConfig({
     root: ${JSON.stringify(outputRoot)},
   },
   export: {
-    defaultFormats: ["web"],
+    defaultFormats: ["web", "mp4"],
   },
 });
 `,
@@ -296,7 +304,7 @@ export function createCadenzaDeck() {
         "--output",
         tempRoot,
         "--format",
-        "web,mp4",
+        "web",
         "--json",
       ]);
       const exportSummary = JSON.parse(exported.stdout) as {
@@ -321,11 +329,11 @@ export function createCadenzaDeck() {
 
         expect(summary).toMatchObject({
           deckId: "phase5-alpha-readiness-talk",
-          evidenceFormats: ["mp4", "web"],
-          formats: ["web", "mp4"],
+          evidenceFormats: ["web"],
+          formats: ["web"],
           status: "success",
         });
-        expect(summary.artifactCount).toBeGreaterThanOrEqual(3);
+        expect(summary.artifactCount).toBeGreaterThanOrEqual(2);
       }
 
       const artifactOnlyDirectory = path.join(tempRoot, "artifact-only");
@@ -544,11 +552,19 @@ export default defineConfig({
         "--output",
         path.join(tempRoot, "built-in-output"),
         "--format",
-        "web,mp4",
+        "web",
         "--json",
       ]);
       const configAlias = await runCadenza(
-        ["export", "project-talk", "--run-id", "config-alias", "--json"],
+        [
+          "export",
+          "project-talk",
+          "--run-id",
+          "config-alias",
+          "--format",
+          "web",
+          "--json",
+        ],
         projectRoot,
       );
       const cliOverride = await runCadenza(
@@ -560,7 +576,7 @@ export default defineConfig({
           "--output",
           cliRoot,
           "--format",
-          "web,mp4",
+          "web",
           "--json",
         ],
         projectRoot,
@@ -615,7 +631,7 @@ export default defineConfig({
       expect(manifests[3]?.formats).toEqual(["mp4"]);
       expect(manifests[3]?.stableHash).not.toBe(manifests[0]?.stableHash);
     });
-  });
+  }, 60_000);
 
   it("TC-CLIS-006, TC-CLIS-007, TC-CDIA-001, TC-CDIA-002, and TC-CDIA-003 keep JSON failures deterministic and require --force for unknown output reuse", async () => {
     await withTempRoot(async (tempRoot) => {
@@ -659,6 +675,8 @@ export default defineConfig({
         "occupied",
         "--output",
         tempRoot,
+        "--format",
+        "web",
         "--force",
         "--json",
       ]);

@@ -5,6 +5,7 @@ export type Phase6DiagnosticCategory =
   | "export"
   | "inspect"
   | "internal"
+  | "renderer"
   | "usage"
   | "validation";
 

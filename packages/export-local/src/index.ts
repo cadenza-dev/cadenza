@@ -65,6 +65,13 @@ export type {
 } from "./legacyPhase5.ts";
 export { runCadenzaCli as runPhase5CadenzaCli } from "./legacyPhase5.ts";
 export type {
+  LocalMp4Prerequisite,
+  LocalMp4RendererInput,
+  LocalMp4RendererProvenance,
+  LocalMp4RendererResult,
+} from "./mp4Renderer.ts";
+export { renderLocalMp4 } from "./mp4Renderer.ts";
+export type {
   StaticWebCompatibilityAdapterInput,
   StaticWebCompatibilityAdapterResult,
   StaticWebNotesBoundary,
