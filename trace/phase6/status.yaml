@@ -86,19 +86,50 @@ builder_handoff:
   boundary: "Routing init only; no Builder implementation, tests, docs, frozen specs, Accepted ADRs, production code, export artifacts, hosted rendering, Player App, MP4 renderer, npm publication, release tag, external launch, or alpha-readiness claim was performed."
 
 builder_progress:
-  status: in_progress
+  status: builder_complete
   active_role: builder
   next_batch:
-    id: B6.6
+    id: reviewer-closeout
     scenarios:
-      - phase-closeout
+      - reviewer-closeout
     requirements:
-      - "All Phase 6 acceptance scenarios green or explicitly waived"
-      - "Trace closeout evidence"
-      - "Full verification stack"
-    status: ready
-    summary: "Run Phase 6 closeout verification, mark Builder batch completion evidence, and stop for Reviewer closeout."
+      - "Reviewer closeout acceptance"
+    status: waiting_for_reviewer
+    summary: "Phase 6 Builder batches are complete; stop for independent Reviewer closeout."
   completed_batches:
+    - id: B6.6
+      completed_at: "2026-05-30 09:43 +0800"
+      scenarios:
+        - phase-closeout
+      requirements:
+        - "All Phase 6 acceptance scenarios green or explicitly waived"
+        - "Trace closeout evidence"
+        - "Full verification stack"
+      tests:
+        - tests/acceptance/phase6-cli.test.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+        - tests/acceptance/phase6-web-compatibility.test.ts
+        - tests/acceptance/phase6-mp4-rendering.test.ts
+        - tests/acceptance/phase6-clean-checkout-docs.test.ts
+        - tests/browser/phase6-static-web-compatibility.spec.ts
+      code:
+        - packages/export-local/src/deck-loading.test.ts
+        - tests/acceptance/phase6-mp4-rendering.test.ts
+        - trace/phase6/status.yaml
+        - trace/phase6/tracker.md
+      verification:
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "No frozen specs, Accepted ADRs, STATUS.yaml.current_phase, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, alpha announcement, PR work, or Reviewer artifact was changed. Maintainer-authorized commit/push/CI monitoring applies after batch verification."
     - id: B6.5
       completed_at: "2026-05-30 09:36 +0800"
       scenarios:
@@ -385,11 +416,12 @@ builder_progress:
 
 exit_criteria:
   builder_batches_complete:
-    status: pending
+    status: met
     artifact: trace/phase6/tracker.md
   full_verification_stack:
-    status: pending
-    note: "Pending Phase 6 Builder implementation and closeout."
+    status: met
+    artifact: trace/phase6/tracker.md
+    note: "Full Builder verification stack passed locally before B6.6 commit/push; GitHub CI monitoring is required for the pushed closeout commit."
   reviewer_closeout_accepted:
     status: pending
     artifact: trace/phase6/review-phase6-closeout.md

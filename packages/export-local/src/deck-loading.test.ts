@@ -40,7 +40,7 @@ describe("B6.1 Phase 6 deck loading", () => {
     expect(loaded.timeline.totalFrames).toBeGreaterThan(0);
   });
 
-  it("TC-DLOD-002 resolves built-in aliases, config aliases, config defaults, and direct module paths through the same loader", async () => {
+  it("TC-DLOD-002 and TC-DLOD-005 resolve selectors through the same loader while preserving canonical deck identity", async () => {
     const workspaceRoot = process.cwd();
     const projectRoot = await mkdtemp(
       path.join(os.tmpdir(), "cadenza-config-project-"),

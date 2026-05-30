@@ -261,7 +261,7 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
     });
   });
 
-  it("TC-DBND-001 through TC-DBND-005 isolate renderer dependencies behind export-local adapter code", async () => {
+  it("TC-DBND-001, TC-DBND-002, TC-DBND-003, TC-DBND-004, and TC-DBND-005 isolate renderer dependencies behind export-local adapter code", async () => {
     const coreManifest = await readRepoJson<{
       dependencies?: Record<string, string>;
       peerDependencies?: Record<string, string>;

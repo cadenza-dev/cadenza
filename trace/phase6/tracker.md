@@ -1,5 +1,35 @@
 # Phase 6 Tracker
 
+## 2026-05-30 09:43 +0800 - B6.6 Builder closeout and Reviewer handoff
+
+- Scope: completed B6.6 Phase closeout after all Phase 6 acceptance scenarios
+  were implemented and verified through B6.1 through B6.5.
+- Closeout state: `trace/phase6/status.yaml` now records Builder batches as
+  complete, keeps Reviewer closeout pending, and routes the next action to
+  independent Reviewer closeout. Root `STATUS.yaml.current_phase` was not
+  changed.
+- Acceptance coverage: Phase 6 Builder evidence covers CLI topology and
+  command registry, trusted deck loading and config, `export`/`validate`/
+  `inspect`, manifest/evidence readers, diagnostics, static web compatibility
+  and browser semantic smoke, local MP4 rendering and dependency boundaries,
+  clean-checkout docs, generated evidence ownership, and overclaim guards.
+  Closeout also aligned exact traceability Test ID strings for `TC-DLOD-005`,
+  `TC-DBND-002`, `TC-DBND-003`, and `TC-DBND-004` so active-phase
+  traceability coverage recognizes the already-implemented acceptance
+  evidence.
+- Verification: full B6.6 stack passed locally before closeout commit:
+  `pnpm typecheck`, `pnpm test` (39 files / 118 tests), `pnpm lint`,
+  `pnpm format:check`, Markdown lint, shell formatting check,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App
+  implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin loading,
+  sandboxing, external release, npm publication, release tag, alpha
+  announcement, PR work, or Reviewer artifact was changed.
+- Next step: stop for independent Phase 6 Reviewer closeout after the
+  maintainer-authorized closeout commit is pushed and CI is green.
+
 ## 2026-05-30 09:36 +0800 - B6.5 clean-checkout docs and overclaim guards
 
 - Scope: completed B6.5 for `TC-CDOC-001` and `TC-CDOC-002`.
