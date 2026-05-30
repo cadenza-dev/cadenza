@@ -202,6 +202,63 @@ Tradeoffs:
 请作为 Cadenza Builder remediation，读取 trace/phase6/review-phase6-closeout.md，只处理 REV-P6-002-R1；采用收束版方案 2：仅重构 @cadenza-dev/export-local 内部 MP4 renderer pipeline 以补齐 codec/media tool、output write、cancellation、cleanup 等 stage diagnostics 与测试；不得修改 CONTRACT_FROZEN specs、Accepted ADRs 或 CLI public surface；用 TDD 修复并更新 trace 后停止。
 ```
 
+## Reviewer Recheck of Commit `4019314`
+
+Reviewer rechecked only commit
+`4019314b11af496543ca335ac5d48df0dc750695` against follow-up finding
+`REV-P6-002-R1`, `CDIA-009`, `VIDO-007`, `VIDO-008`, and Phase 6 closeout
+evidence.
+
+Review timestamp: `2026-05-30 21:07 +0800`.
+
+Hosted CI evidence:
+
+- GitHub Actions `CI` run `26684428945`.
+- Head SHA: `4019314b11af496543ca335ac5d48df0dc750695`.
+- Display title: `Remediate MP4 renderer stage diagnostics`.
+- Result: `completed` / `success`.
+- Successful jobs observed included cross-platform TypeScript/Vitest, Biome
+  lint/format, governance checks, Markdown lint, whitespace check, browser
+  preview, and CI summary. Shell format check was skipped because this commit
+  did not change shell-script paths.
+
+Severity-ranked findings:
+
+- None.
+
+Recheck outcome:
+
+- `REV-P6-002-R1`: accepted. The renderer stage taxonomy now includes
+  `renderer-invocation`, `codec-media-tool`, `output-write`, and
+  `cancellation`, while preserving bundle, composition, container metadata,
+  cleanup, prerequisite detection, and unexpected internal failure routes.
+- `CDIA-009`: accepted. Stable renderer diagnostics now preserve Cadenza
+  diagnostic code, category, repair hint, renderer provenance, and
+  `rendererStage` for the follow-up stage set.
+- `VIDO-007`: accepted for the selected remediation scope. Codec/media-tool and
+  output-write failures now route through renderer diagnostics and failure
+  evidence instead of collapsing into a generic renderer invocation failure.
+- `VIDO-008`: accepted. Failure and cancellation paths still attempt cleanup,
+  cleanup failure emits `VIDO_CLEANUP_FAILED`, and cancellation cleanup evidence
+  is covered by focused renderer tests.
+- Phase 6 closeout: accepted for this follow-up scope. Commit `4019314` touched
+  only `packages/export-local/src/mp4Renderer.ts`,
+  `packages/export-local/src/mp4Renderer.test.ts`,
+  `trace/phase6/status.yaml`, and `trace/phase6/tracker.md`; no
+  `CONTRACT_FROZEN` spec, Accepted ADR, CLI public surface, hosted/cloud
+  rendering, Player App path, release, npm publication, or unselected Reviewer
+  finding was changed.
+
+Residual risk:
+
+- The follow-up stage coverage is primarily package-local focused coverage,
+  which is appropriate for the internal `@cadenza-dev/export-local` renderer
+  pipeline under the testing taxonomy. The command-level acceptance tests still
+  cover the generic failure-evidence writer through representative MP4 failure
+  paths, not every individual injected renderer stage.
+- `trace/phase6/status.yaml` still records `reviewer_closeout_accepted` as
+  `pending`; Reviewer did not flip phase status or root phase pointers.
+
 ## Memory Candidate
 
 When Reviewer emits a Builder remediation launch phrase that references a
