@@ -410,7 +410,15 @@ function walkFiles(repoRoot: string, target: string): string[] {
 
     const child = path.join(absolute, entry);
     const childRelative = path.relative(repoRoot, child);
-    const childStats = statSync(child);
+    let childStats: ReturnType<typeof statSync>;
+    try {
+      childStats = statSync(child);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        continue;
+      }
+      throw error;
+    }
     if (childStats.isDirectory()) {
       files.push(...walkFiles(repoRoot, toRepoPath(childRelative)));
     } else {

@@ -33,6 +33,14 @@ export default defineConfig({
           "packages/preview-remotion/src/index.ts",
         ),
       },
+      {
+        find: "@cadenza-dev/cli",
+        replacement: path.join(rootDir, "packages/cli/src/index.ts"),
+      },
+      {
+        find: "@cadenza-dev/export-local",
+        replacement: path.join(rootDir, "packages/export-local/src/index.ts"),
+      },
     ],
   },
   test: {

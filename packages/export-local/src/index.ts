@@ -1,0 +1,41 @@
+export type {
+  CadenzaExportFormat,
+  CadenzaProjectConfig,
+  EnsureGeneratedOutputSafetyOptions,
+  GeneratedOutputSafetyResult,
+  Phase6RuntimeConfig,
+  ResolvePhase6RuntimeConfigOptions,
+} from "./config.ts";
+export {
+  defineConfig,
+  ensureGeneratedOutputSafety,
+  PHASE6_ARTIFACT_FILENAMES,
+  PHASE6_DEFAULT_FORMATS,
+  PHASE6_DEFAULT_OUTPUT_ROOT,
+  PHASE6_RENDERER_TEMP_ROOT,
+  resolvePhase6RuntimeConfig,
+  validateProjectConfig,
+} from "./config.ts";
+export type {
+  DeckSelectorSource,
+  LoadDeckModuleOptions,
+  LoadedDeckModule,
+  LoadedDeckSelector,
+  Phase6DeckMetadata,
+} from "./deckLoader.ts";
+export { loadDeckModule } from "./deckLoader.ts";
+export type {
+  Phase6Diagnostic,
+  Phase6DiagnosticCategory,
+  Phase6DiagnosticSeverity,
+} from "./diagnostics.ts";
+export { CadenzaPhase6Error, phase6Error } from "./diagnostics.ts";
+export type {
+  Phase5AlphaReadinessEvidence,
+  Phase5BoundaryEvaluationEvidence,
+  Phase5ExportEvidence,
+  Phase5FormatScopeEvidence,
+  Phase5LocalWebExportManifest,
+  Phase5RepairRoutingEvidence,
+} from "./legacyPhase5.ts";
+export { runCadenzaCli as runPhase5CadenzaCli } from "./legacyPhase5.ts";

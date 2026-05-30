@@ -6,6 +6,7 @@
     "moduleResolution": "NodeNext",
     "jsx": "react-jsx",
     "jsxImportSource": "@cadenza-dev/core",
+    "allowImportingTsExtensions": true,
     "paths": {
       "@cadenza-dev/core": ["./packages/core/src/index.ts"],
       "@cadenza-dev/core/fixtures/allDomainMvp": [
@@ -17,7 +18,9 @@
       "@cadenza-dev/core/jsx-runtime": ["./packages/core/src/jsx-runtime.ts"],
       "@cadenza-dev/preview-remotion": [
         "./packages/preview-remotion/src/index.ts"
-      ]
+      ],
+      "@cadenza-dev/cli": ["./packages/cli/src/index.ts"],
+      "@cadenza-dev/export-local": ["./packages/export-local/src/index.ts"]
     },
     "strict": true,
     "noEmit": true,

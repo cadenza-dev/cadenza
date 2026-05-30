@@ -198,6 +198,8 @@ export const phase5AlphaReadinessTalkMetadata = {
   title: "Cadenza Phase 5 Alpha Readiness Talk",
 } satisfies Phase5AlphaReadinessTalkMetadata;
 
+export const cadenzaDeckMetadata = phase5AlphaReadinessTalkMetadata;
+
 const phase5AlphaReadinessTalk = (
   <Deck
     fps={24}
@@ -362,6 +364,10 @@ const phase5AlphaReadinessTalk = (
     </Slide>
   </Deck>
 ) as DeckNode;
+
+export function createCadenzaDeck(): DeckNode {
+  return phase5AlphaReadinessTalk;
+}
 
 export function createPhase5AlphaReadinessTalkFixture(): Phase5AlphaReadinessTalkFixture {
   return {
