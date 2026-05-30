@@ -89,27 +89,58 @@ builder_progress:
   status: in_progress
   active_role: builder
   next_batch:
-    id: B6.5
+    id: B6.6
     scenarios:
-      - TC-CDOC-001
-      - TC-CDOC-002
+      - phase-closeout
     requirements:
-      - DLOD-005
-      - CNFG-006
-      - DBND-005
-      - CDOC-001
-      - CDOC-002
-      - CDOC-003
-      - CDOC-004
-      - CDOC-005
-      - CDOC-006
-      - CDOC-007
-      - CDOC-008
-      - CDOC-009
-      - CDOC-010
+      - "All Phase 6 acceptance scenarios green or explicitly waived"
+      - "Trace closeout evidence"
+      - "Full verification stack"
     status: ready
-    summary: "Update clean-checkout docs, local export walkthrough, prerequisite guidance, trusted local code warnings, generated evidence ownership, machine-output examples, and overclaim guards."
+    summary: "Run Phase 6 closeout verification, mark Builder batch completion evidence, and stop for Reviewer closeout."
   completed_batches:
+    - id: B6.5
+      completed_at: "2026-05-30 09:36 +0800"
+      scenarios:
+        - TC-CDOC-001
+        - TC-CDOC-002
+      requirements:
+        - DLOD-005
+        - CNFG-006
+        - DBND-005
+        - CDOC-001
+        - CDOC-002
+        - CDOC-003
+        - CDOC-004
+        - CDOC-005
+        - CDOC-006
+        - CDOC-007
+        - CDOC-008
+        - CDOC-009
+        - CDOC-010
+      tests:
+        - tests/acceptance/phase6-clean-checkout-docs.test.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+      code:
+        - README.md
+        - docs/phase6-local-export.md
+        - packages/export-local/src/overclaimGuard.ts
+        - packages/export-local/src/index.ts
+      verification:
+        - "pnpm exec vitest run tests/acceptance/phase6-clean-checkout-docs.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-clean-checkout-docs.test.ts tests/acceptance/phase6-export-validate-inspect.test.ts"
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "No frozen specs, Accepted ADRs, STATUS.yaml.current_phase, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, alpha announcement, or PR work was changed. Maintainer-authorized commit/push/CI monitoring applies after batch verification."
     - id: B6.4
       completed_at: "2026-05-30 09:22 +0800"
       scenarios:

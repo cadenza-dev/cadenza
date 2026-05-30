@@ -10,7 +10,7 @@ It is not a Gamma replacement. It is not a WYSIWYG slide editor. It is a develop
 
 ## Status
 
-**Pre-alpha. Current routing phase: Phase 5 Builder-ready, Export + `0.1 Alpha Readiness`.**
+**Pre-alpha. Current routing phase: Phase 6 Builder, Universal CLI and Local Export Engine.**
 
 Phase 1 produced the semantic core: the typed TSX API surface,
 state-to-timeline compiler, runtime intent/navigation layer, render-safe
@@ -42,16 +42,20 @@ including maintainer visual sign-off for the dogfood preview. MP4/PDF export,
 hosted rendering, Remotion Lambda, external alpha claims, tool-based MCP, and
 multi-device presenter console work were explicitly left out of Phase 4.
 
-Phase 5 is now open for Builder work from the frozen
-[`spec/phase5/`](./spec/phase5/) contracts. The active trace is
-[`trace/phase5/`](./trace/phase5/), and current Builder evidence covers the
-canonical longer technical talk, local `cadenza export <deck>` web bundle,
-preview/export parity, export diagnostics, repair routing, scoped MP4 proof,
-PDF waiver, and the public launch-candidate surface. The clean-checkout
-developer-preview path is documented in
-[`docs/alpha-readiness.md`](./docs/alpha-readiness.md). `0.1 alpha readiness`
-is not claimed yet; it requires Builder completion, evidence, and Reviewer
-acceptance.
+Phase 5 closeout is accepted in
+[`trace/phase5/review-phase5-closeout.md`](./trace/phase5/review-phase5-closeout.md).
+It produced the canonical longer technical talk, local export evidence, repair
+routing, scoped MP4 proof, PDF waiver, and public-surface docs needed before
+the next local CLI/export pass.
+
+Phase 6 is now open for Builder work from the frozen
+[`spec/phase6/`](./spec/phase6/) contracts. The active trace is
+[`trace/phase6/`](./trace/phase6/). Phase 6 local export work is focused on a
+clean-checkout CLI, local static web compatibility output, local MP4 rendering,
+artifact inspection, and evidence boundaries. The clean-checkout walkthrough is
+[`docs/phase6-local-export.md`](./docs/phase6-local-export.md). This is local
+developer infrastructure, not an alpha announcement, npm publication, hosted
+rendering path, Player App export, or unsupported-format claim.
 
 The current roadmap is [`ROADMAP.md`](./ROADMAP.md). Earlier strategic analysis
 that led to the project lives in
@@ -164,6 +168,7 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 | **3** | AI Authoring Strengthening | Agent-authored decks can be generated, previewed, diagnosed, and repaired through the local validation loop |
 | **4** | Presentation Product Layer *(pruned)* | Maintainer dogfoods a production-adjacent technical talk through local Remotion Player preview and presenter workflows |
 | **5** | Export + 0.1 Alpha Readiness | A longer technical talk exports through the supported local pipeline with traceable web/format evidence, public-surface docs, and Reviewer acceptance before alpha readiness is claimed |
+| **6** | Universal CLI and Local Export Engine | Clean-checkout local CLI, validate/inspect/export commands, static web compatibility output, local MP4 rendering, and docs/evidence overclaim guards |
 
 Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 
@@ -174,11 +179,11 @@ Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 Pre-alpha contributions are currently limited to:
 
 - Review feedback on [`ROADMAP.md`](./ROADMAP.md), completed phase traces, and
-  Phase 5 frozen contracts and active trace routing
+  Phase 6 frozen contracts and active trace routing
 - Discussion of architectural decisions in [`docs/adr/`](./docs/adr/)
 - Focused issues that respect [`goals-non-goals.md`](./goals-non-goals.md)
 
-Broader code contributions should wait until Phase 5 Builder work opens a
+Broader code contributions should wait until Phase 6 Builder work opens a
 specific contribution surface and `CONTRIBUTING.md` lands.
 
 ---

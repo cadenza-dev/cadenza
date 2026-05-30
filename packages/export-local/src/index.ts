@@ -71,6 +71,8 @@ export type {
   LocalMp4RendererResult,
 } from "./mp4Renderer.ts";
 export { renderLocalMp4 } from "./mp4Renderer.ts";
+export type { Phase6OverclaimViolation } from "./overclaimGuard.ts";
+export { findPhase6OverclaimViolations } from "./overclaimGuard.ts";
 export type {
   StaticWebCompatibilityAdapterInput,
   StaticWebCompatibilityAdapterResult,

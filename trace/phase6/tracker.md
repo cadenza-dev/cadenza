@@ -1,5 +1,44 @@
 # Phase 6 Tracker
 
+## 2026-05-30 09:36 +0800 - B6.5 clean-checkout docs and overclaim guards
+
+- Scope: completed B6.5 for `TC-CDOC-001` and `TC-CDOC-002`.
+- Documentation: updated the README Phase 6 routing note and added
+  `docs/phase6-local-export.md` as the dedicated clean-checkout walkthrough.
+  The walkthrough covers install/discovery, `validate`, static web export, MP4
+  export, artifact inspection, local prerequisites, trusted local deck modules
+  and `cadenza.config.ts`, non-interactive `--json`/`--force` behavior,
+  minimal config, generated output ownership, manifest/evidence fields, stable
+  hash scope, failure-routing categories, and static web compatibility limits.
+- Overclaim guard: added
+  `packages/export-local/src/overclaimGuard.ts` and acceptance coverage that
+  scans README, the Phase 6 walkthrough, a generated manifest, and generated
+  web evidence summaries for prohibited hosted rendering, npm publication,
+  unsupported format, Player App export, plugin loading, release tag, public
+  API stability, and final alpha-readiness claims.
+- Evidence ownership: documented that generated `dist/` and `tmp/` outputs are
+  live generated artifacts rather than tracked fixtures, linked the testing
+  taxonomy, and kept generated command transcripts out of the Phase 6 docs
+  contract.
+- Verification: `pnpm exec vitest run
+  tests/acceptance/phase6-clean-checkout-docs.test.ts` passed with 1 file / 2
+  tests; `pnpm exec vitest run
+  tests/acceptance/phase6-clean-checkout-docs.test.ts
+  tests/acceptance/phase6-export-validate-inspect.test.ts` passed outside the
+  filesystem sandbox with 2 files / 7 tests after confirming sandbox-only MP4
+  renderer access caused the non-escalated failure. The full B6.5 verification
+  stack also passed: `pnpm typecheck`, `pnpm test` (39 files / 118 tests),
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting check,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App
+  implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin loading,
+  sandboxing, external release, npm publication, release tag, alpha
+  announcement, or PR work was changed.
+- Next batch: B6.6 starts Phase 6 Builder closeout with full verification,
+  exit-criteria trace evidence, and Reviewer handoff readiness.
+
 ## 2026-05-30 09:22 +0800 - B6.4 local MP4 renderer and dependency boundary
 
 - Scope: completed B6.4 for `TC-VIDO-001` through `TC-VIDO-004` and
