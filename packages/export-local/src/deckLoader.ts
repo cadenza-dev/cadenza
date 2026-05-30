@@ -77,7 +77,7 @@ export async function loadDeckModule({
     const deck = readDeckValue(bundled, resolved.resolvedPath);
 
     return {
-      contractExports: ["cadenzaDeckMetadata", "createCadenzaDeck"],
+      contractExports: readContractExports(bundled),
       deck,
       metadata,
       selector: resolved,
@@ -338,21 +338,32 @@ function readDeckValue(
   resolvedPath: string,
 ): DeckNode {
   const createDeck = moduleExports.createCadenzaDeck;
+  const deckValue = moduleExports.cadenzaDeck;
 
-  if (typeof createDeck !== "function") {
-    throw phase6Error(3, {
-      category: "deck-loading",
-      code: "DLOD_MISSING_CREATE_DECK",
-      locator: resolvedPath,
-      message: `Deck module ${resolvedPath} must export createCadenzaDeck().`,
-      relatedRequirements: ["DLOD-001", "DLOD-003", "VINS-002"],
-      repairHint:
-        "Export a createCadenzaDeck function that returns a typed Cadenza Deck node.",
-      severity: "error",
-    });
+  if (typeof createDeck === "function") {
+    return createDeck() as DeckNode;
   }
 
-  return createDeck() as DeckNode;
+  if (deckValue !== undefined) {
+    return deckValue as DeckNode;
+  }
+
+  throw phase6Error(3, {
+    category: "deck-loading",
+    code: "DLOD_MISSING_DECK_EXPORT",
+    locator: resolvedPath,
+    message: `Deck module ${resolvedPath} must export createCadenzaDeck() or cadenzaDeck.`,
+    relatedRequirements: ["DLOD-001", "DLOD-003", "VINS-002"],
+    repairHint:
+      "Export a createCadenzaDeck function or a cadenzaDeck value that provides a typed Cadenza Deck node.",
+    severity: "error",
+  });
+}
+
+function readContractExports(moduleExports: Record<string, unknown>): string[] {
+  return ["cadenzaDeckMetadata", "createCadenzaDeck", "cadenzaDeck"].filter(
+    (exportName) => exportName in moduleExports,
+  );
 }
 
 function mapDeckContractError(error: unknown, resolvedPath: string): Error {
@@ -380,7 +391,7 @@ function mapDeckContractError(error: unknown, resolvedPath: string): Error {
     message: error instanceof Error ? error.message : "Deck module failed.",
     relatedRequirements: ["DLOD-003", "VINS-002", "CDIA-008"],
     repairHint:
-      "Check the deck module exports and ensure createCadenzaDeck returns a valid Deck.",
+      "Check the deck module exports and ensure createCadenzaDeck or cadenzaDeck provides a valid Deck.",
     severity: "error",
   });
 }

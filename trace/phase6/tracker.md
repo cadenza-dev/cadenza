@@ -1,5 +1,49 @@
 # Phase 6 Tracker
 
+## 2026-05-30 19:50 +0800 - Reviewer-selected remediation for REV-P6-001, REV-P6-002, and REV-P6-003
+
+- Scope: remediated only the maintainer-selected Phase 6 Reviewer findings
+  `REV-P6-001`, `REV-P6-002`, and `REV-P6-003` from
+  `trace/phase6/review-phase6-closeout.md`.
+- `REV-P6-001`: added a RED fixture for a module exporting
+  `cadenzaDeckMetadata` plus an authored `cadenzaDeck` value, then updated the
+  deck loader to accept either `createCadenzaDeck()` or `cadenzaDeck`. When
+  both exports are present, `createCadenzaDeck()` remains the deterministic
+  loader path, while `contractExports` records the actual stable export names.
+- `REV-P6-002`: added renderer-adapter coverage for a non-browser bundle
+  failure plus cleanup failure, then split local MP4 diagnostics into stable
+  renderer stages including prerequisite detection, bundle, composition,
+  renderer invocation, container metadata, cleanup, and unexpected internal
+  failure. Cleanup failures now emit `VIDO_CLEANUP_FAILED` diagnostics instead
+  of being represented only by `cleanup.status`.
+- `REV-P6-003`: updated the README Remotion licensing/package posture to
+  distinguish preview adapter peer dependencies from Phase 6
+  `@cadenza-dev/export-local` direct local renderer dependencies, and added a
+  clean-checkout docs guard preventing the old blanket peer-dependency claim
+  from returning.
+- Verification: focused RED/GREEN checks passed for
+  `packages/export-local/src/deck-loading.test.ts`,
+  `packages/export-local/src/mp4Renderer.test.ts`, and
+  `tests/acceptance/phase6-clean-checkout-docs.test.ts`. The combined
+  reviewer-remediation focused suite also passed outside the filesystem
+  sandbox after the sandbox-only Remotion/Chromium composition path failed
+  with `uv_interface_addresses`: `pnpm exec vitest run
+  packages/export-local/src/deck-loading.test.ts
+  packages/export-local/src/mp4Renderer.test.ts
+  tests/acceptance/phase6-export-validate-inspect.test.ts
+  tests/acceptance/phase6-mp4-rendering.test.ts
+  tests/acceptance/phase6-clean-checkout-docs.test.ts` (5 files / 16 tests).
+  Full remediation verification then passed: `pnpm typecheck`; `pnpm test`
+  outside the filesystem sandbox (40 files / 120 tests); `pnpm lint`;
+  `pnpm format:check`; Markdown lint; shell formatting check;
+  `pnpm spec:lint`; `pnpm phase:check`; `pnpm check:harness`;
+  `pnpm check:memory`; and `git diff --check`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App
+  implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin loading,
+  sandboxing, external release, npm publication, release tag, alpha
+  announcement, PR work, or unselected Reviewer finding was changed.
+
 ## 2026-05-30 09:43 +0800 - B6.6 Builder closeout and Reviewer handoff
 
 - Scope: completed B6.6 Phase closeout after all Phase 6 acceptance scenarios

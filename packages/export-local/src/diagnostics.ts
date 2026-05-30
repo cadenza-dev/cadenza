@@ -25,6 +25,7 @@ export type Phase6Diagnostic = {
   code: string;
   locator?: string;
   message: string;
+  rendererStage?: string;
   relatedRequirements: string[];
   repairHint: string;
   severity: Phase6DiagnosticSeverity;

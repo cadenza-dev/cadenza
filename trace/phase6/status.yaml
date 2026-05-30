@@ -95,8 +95,60 @@ builder_progress:
     requirements:
       - "Reviewer closeout acceptance"
     status: waiting_for_reviewer
-    summary: "Phase 6 Builder batches are complete; stop for independent Reviewer closeout."
+    summary: "Phase 6 Builder batches and maintainer-selected Reviewer remediation are complete; stop for independent Reviewer or maintainer acceptance."
   completed_batches:
+    - id: reviewer-remediation
+      completed_at: "2026-05-30 19:50 +0800"
+      scenarios:
+        - REV-P6-001
+        - REV-P6-002
+        - REV-P6-003
+      requirements:
+        - DLOD-001
+        - DLOD-003
+        - DLOD-008
+        - VIDO-004
+        - VIDO-007
+        - VIDO-008
+        - CDIA-007
+        - CDIA-009
+        - DBND-005
+        - CDOC-001
+        - CDOC-002
+        - CDOC-003
+      tests:
+        - packages/export-local/src/deck-loading.test.ts
+        - packages/export-local/src/mp4Renderer.test.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+        - tests/acceptance/phase6-mp4-rendering.test.ts
+        - tests/acceptance/phase6-clean-checkout-docs.test.ts
+      code:
+        - packages/export-local/src/deckLoader.ts
+        - packages/export-local/src/deck-loading.test.ts
+        - packages/export-local/src/diagnostics.ts
+        - packages/export-local/src/mp4Renderer.ts
+        - packages/export-local/src/mp4Renderer.test.ts
+        - README.md
+        - tests/acceptance/phase6-clean-checkout-docs.test.ts
+        - trace/phase6/status.yaml
+        - trace/phase6/tracker.md
+      verification:
+        - "pnpm exec vitest run packages/export-local/src/deck-loading.test.ts"
+        - "pnpm exec vitest run packages/export-local/src/mp4Renderer.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-clean-checkout-docs.test.ts"
+        - "pnpm exec vitest run packages/export-local/src/deck-loading.test.ts packages/export-local/src/mp4Renderer.test.ts tests/acceptance/phase6-export-validate-inspect.test.ts tests/acceptance/phase6-mp4-rendering.test.ts tests/acceptance/phase6-clean-checkout-docs.test.ts"
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "Only maintainer-selected Reviewer findings REV-P6-001, REV-P6-002, and REV-P6-003 were remediated. No CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, alpha announcement, PR work, or unselected Reviewer finding was changed."
     - id: B6.6
       completed_at: "2026-05-30 09:43 +0800"
       scenarios:

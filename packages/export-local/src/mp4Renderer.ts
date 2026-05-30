@@ -41,6 +41,15 @@ export type LocalMp4RendererProvenance = {
   publicContract: "LocalMp4RendererAdapter";
 };
 
+export type LocalMp4RendererStage =
+  | "bundle"
+  | "cleanup"
+  | "composition"
+  | "container-metadata"
+  | "prerequisite-detection"
+  | "renderer-invocation"
+  | "unexpected-internal";
+
 export type LocalMp4RendererResult = {
   cleanup: {
     status: "completed" | "failed";
@@ -88,6 +97,18 @@ export class LocalMp4RendererError extends CadenzaPhase6Error {
     super(exitCode, diagnostics);
     this.name = "LocalMp4RendererError";
     this.failureEvidence = failureEvidence;
+  }
+}
+
+class RendererStageError extends Error {
+  readonly diagnostic: Phase6Diagnostic;
+  readonly exitCode: number;
+
+  constructor(exitCode: number, diagnostic: Phase6Diagnostic) {
+    super(diagnostic.message);
+    this.name = "RendererStageError";
+    this.diagnostic = diagnostic;
+    this.exitCode = exitCode;
   }
 }
 
@@ -143,50 +164,89 @@ export async function renderLocalMp4(
   }
 
   try {
-    await writeFile(entryPoint, createRemotionEntry(input));
-    const serveUrl = await bundle({
-      entryPoint,
-      enableCaching: false,
-      onProgress: () => {},
-      outDir: bundleDirectory,
-      rootDir: input.workspaceRoot,
+    await runRendererStage({
+      action: () => writeFile(entryPoint, createRemotionEntry(input)),
+      code: "VIDO_BUNDLE_FAILED",
+      locator: entryPoint,
+      repairHint:
+        "Check that the generated Remotion entrypoint can be written and bundled from the current workspace.",
+      stage: "bundle",
     });
-    const composition = await selectComposition({
-      browserExecutable: browser.executable,
-      chromeMode: "headless-shell",
-      chromiumOptions: {
-        enableMultiProcessOnLinux: false,
-        gl: "swangle",
-      },
-      id: COMPOSITION_ID,
-      logLevel: "error",
-      serveUrl,
+    const serveUrl = await runRendererStage({
+      action: () =>
+        bundle({
+          entryPoint,
+          enableCaching: false,
+          onProgress: () => {},
+          outDir: bundleDirectory,
+          rootDir: input.workspaceRoot,
+        }),
+      code: "VIDO_BUNDLE_FAILED",
+      locator: entryPoint,
+      repairHint:
+        "Check local Remotion bundler dependencies and rerun the export from the workspace root.",
+      stage: "bundle",
+    });
+    const composition = await runRendererStage({
+      action: () =>
+        selectComposition({
+          browserExecutable: browser.executable,
+          chromeMode: "headless-shell",
+          chromiumOptions: {
+            enableMultiProcessOnLinux: false,
+            gl: "swangle",
+          },
+          id: COMPOSITION_ID,
+          logLevel: "error",
+          serveUrl,
+        }),
+      code: "VIDO_COMPOSITION_FAILED",
+      locator: COMPOSITION_ID,
+      repairHint:
+        "Check the generated Remotion composition and local browser prerequisites.",
+      stage: "composition",
     });
 
-    await renderMedia({
-      browserExecutable: browser.executable,
-      chromeMode: "headless-shell",
-      chromiumOptions: {
-        enableMultiProcessOnLinux: false,
-        gl: "swangle",
-      },
-      codec: "h264",
-      composition,
-      concurrency: 1,
-      crf: 28,
-      everyNthFrame: RENDER_EVERY_NTH_FRAME,
-      imageFormat: "jpeg",
-      jpegQuality: 70,
-      logLevel: "error",
-      muted: true,
-      outputLocation: outputPath,
-      overwrite: true,
-      serveUrl,
-      x264Preset: "ultrafast",
+    await runRendererStage({
+      action: () =>
+        renderMedia({
+          browserExecutable: browser.executable,
+          chromeMode: "headless-shell",
+          chromiumOptions: {
+            enableMultiProcessOnLinux: false,
+            gl: "swangle",
+          },
+          codec: "h264",
+          composition,
+          concurrency: 1,
+          crf: 28,
+          everyNthFrame: RENDER_EVERY_NTH_FRAME,
+          imageFormat: "jpeg",
+          jpegQuality: 70,
+          logLevel: "error",
+          muted: true,
+          outputLocation: outputPath,
+          overwrite: true,
+          serveUrl,
+          x264Preset: "ultrafast",
+        }),
+      code: "VIDO_RENDER_INVOCATION_FAILED",
+      locator: outputPath,
+      repairHint:
+        "Check local renderer, browser, codec, media-tool, and output path prerequisites.",
+      stage: "renderer-invocation",
     });
 
-    const metadata = await getVideoMetadata(outputPath, { logLevel: "error" });
+    const metadata = await runRendererStage({
+      action: () => getVideoMetadata(outputPath, { logLevel: "error" }),
+      code: "VIDO_CONTAINER_METADATA_FAILED",
+      locator: outputPath,
+      repairHint:
+        "Check that the rendered MP4 exists and can be read by the local media metadata tool.",
+      stage: "container-metadata",
+    });
     const cleanup = await cleanupTempDirectory(tempDirectory, tempDirectories);
+    const cleanupDiagnostics = createCleanupDiagnostics(cleanup);
 
     return {
       cleanup,
@@ -204,7 +264,7 @@ export async function renderLocalMp4(
         height: metadata.height,
         width: metadata.width,
       },
-      diagnostics: [],
+      diagnostics: cleanupDiagnostics,
       knownLimitations: createKnownLimitations(),
       localPrerequisites,
       outputPath,
@@ -216,16 +276,52 @@ export async function renderLocalMp4(
       throw error;
     }
 
-    const diagnostic = rendererFailureDiagnostic(error, outputPath);
+    const stageError =
+      error instanceof RendererStageError
+        ? error
+        : createUnexpectedRendererStageError(error, outputPath);
     const cleanup = await cleanupTempDirectory(tempDirectory, tempDirectories);
+    const diagnostics = [
+      stageError.diagnostic,
+      ...createCleanupDiagnostics(cleanup),
+    ];
 
-    throw new LocalMp4RendererError(PHASE6_EXIT_CODES.export, [diagnostic], {
+    throw new LocalMp4RendererError(stageError.exitCode, diagnostics, {
       cleanup,
-      diagnostics: [diagnostic],
+      diagnostics,
       knownLimitations: createKnownLimitations(),
       localPrerequisites,
       rendererProvenance,
     });
+  }
+}
+
+async function runRendererStage<T>({
+  action,
+  code,
+  locator,
+  repairHint,
+  stage,
+}: {
+  action: () => Promise<T>;
+  code: string;
+  locator: string;
+  repairHint: string;
+  stage: LocalMp4RendererStage;
+}): Promise<T> {
+  try {
+    return await action();
+  } catch (error) {
+    throw new RendererStageError(
+      PHASE6_EXIT_CODES.export,
+      rendererStageDiagnostic({
+        code,
+        error,
+        locator,
+        repairHint,
+        stage,
+      }),
+    );
   }
 }
 
@@ -373,6 +469,7 @@ function missingBrowserDiagnostic(
     locator: browserPrerequisite.detail,
     message:
       "The configured local browser executable for MP4 rendering is not available.",
+    rendererStage: "prerequisite-detection",
     relatedRequirements: ["VIDO-004", "VIDO-007", "VIDO-008", "CDIA-009"],
     repairHint:
       "Install a local Chromium/Chrome executable or point CADENZA_REMOTION_BROWSER_EXECUTABLE at an existing browser path.",
@@ -380,23 +477,74 @@ function missingBrowserDiagnostic(
   };
 }
 
-function rendererFailureDiagnostic(
+function createCleanupDiagnostics({
+  status,
+  tempDirectories,
+}: LocalMp4RendererResult["cleanup"]): Phase6Diagnostic[] {
+  if (status !== "failed") {
+    return [];
+  }
+
+  return [
+    {
+      category: "renderer",
+      code: "VIDO_CLEANUP_FAILED",
+      locator: tempDirectories.join(", "),
+      message:
+        "The local MP4 renderer could not clean up temporary render state.",
+      rendererStage: "cleanup",
+      relatedRequirements: ["VIDO-004", "VIDO-008", "CDIA-007", "CDIA-009"],
+      repairHint:
+        "Inspect and remove the listed renderer temporary directories before rerunning the export.",
+      severity: "error",
+    },
+  ];
+}
+
+function createUnexpectedRendererStageError(
   error: unknown,
   outputPath: string,
-): Phase6Diagnostic {
+): RendererStageError {
+  return new RendererStageError(
+    PHASE6_EXIT_CODES.export,
+    rendererStageDiagnostic({
+      code: "VIDO_UNEXPECTED_RENDERER_FAILURE",
+      error,
+      locator: outputPath,
+      repairHint:
+        "Check local browser, codec, and media-tool prerequisites, then rerun the export with the same selector and output root.",
+      stage: "unexpected-internal",
+    }),
+  );
+}
+
+function rendererStageDiagnostic({
+  code,
+  error,
+  locator,
+  repairHint,
+  stage,
+}: {
+  code: string;
+  error: unknown;
+  locator: string;
+  repairHint: string;
+  stage: LocalMp4RendererStage;
+}): Phase6Diagnostic {
   return {
     category: "renderer",
-    code: "VIDO_RENDERER_FAILURE",
-    locator: outputPath,
-    message:
-      error instanceof Error
-        ? `The local MP4 renderer failed: ${error.message}`
-        : "The local MP4 renderer failed.",
+    code,
+    locator,
+    message: `The local MP4 renderer failed during ${stage}: ${errorMessage(error)}`,
+    rendererStage: stage,
     relatedRequirements: ["VIDO-004", "VIDO-007", "VIDO-008", "CDIA-009"],
-    repairHint:
-      "Check local browser, codec, and media-tool prerequisites, then rerun the export with the same selector and output root.",
+    repairHint,
     severity: "error",
   };
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "Unknown renderer error.";
 }
 
 function createRemotionEntry(input: LocalMp4RendererInput): string {

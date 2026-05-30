@@ -146,7 +146,13 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 - Companies above a specified employee threshold require a commercial Remotion license.
 - Remotion Lambda (cloud rendering) is a paid service.
 
-**Using Cadenza does not exempt you from Remotion's license requirements.** If your organization is subject to Remotion's commercial licensing, you must obtain that license directly from Remotion. Cadenza does not redistribute Remotion; it depends on it as a peer dependency.
+**Using Cadenza does not exempt you from Remotion's license requirements.** If
+your organization is subject to Remotion's commercial licensing, you must obtain
+that license directly from Remotion. Cadenza does not vendor or relicense
+Remotion. The preview adapter keeps Remotion Player integration behind peer
+dependencies. Phase 6 `@cadenza-dev/export-local` declares direct local
+renderer dependencies on Remotion renderer and bundler packages because local
+MP4 export is an operational renderer adapter.
 
 ---
 

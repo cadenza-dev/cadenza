@@ -30,6 +30,15 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
     expect(readme).not.toContain(
       "docs/phase6-local-export.md#generated-transcript",
     );
+    expect(readme).toMatch(
+      /The preview adapter keeps Remotion Player integration behind peer\s+dependencies\./,
+    );
+    expect(readme).toMatch(
+      /`@cadenza-dev\/export-local` declares direct local\s+renderer dependencies/,
+    );
+    expect(readme).not.toContain(
+      "Cadenza does not redistribute Remotion; it depends on it as a peer dependency.",
+    );
 
     expectAll(walkthrough, [
       "# Phase 6 Local Export Walkthrough",

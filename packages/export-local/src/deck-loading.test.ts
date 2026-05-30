@@ -40,6 +40,50 @@ describe("B6.1 Phase 6 deck loading", () => {
     expect(loaded.timeline.totalFrames).toBeGreaterThan(0);
   });
 
+  it("REV-P6-001 accepts an authored deck value export through the Phase 6 deck module contract", async () => {
+    const workspaceRoot = process.cwd();
+    const projectRoot = await mkdtemp(
+      path.join(os.tmpdir(), "cadenza-value-deck-project-"),
+    );
+    tempProjects.push(projectRoot);
+
+    await writeFile(
+      path.join(projectRoot, "value.deck.tsx"),
+      `import { Deck, Slide, Step } from "@cadenza-dev/core";
+
+export const cadenzaDeckMetadata = {
+  deckId: "value-export-talk",
+  outline: [{ slideId: "value", title: "Value Export", summary: "Deck value export works." }],
+  sourcePath: "value.deck.tsx",
+  title: "Value Export Talk",
+};
+
+export const cadenzaDeck = (
+  <Deck fps={24} navigationPolicy="queue-next">
+    <Slide id="value">
+      <Step duration="1s">Deck value export works.</Step>
+    </Slide>
+  </Deck>
+);
+`,
+    );
+
+    const loaded = await loadDeckModule({
+      cwd: projectRoot,
+      selector: "./value.deck.tsx",
+      workspaceRoot,
+    });
+
+    expect(loaded.contractExports).toEqual([
+      "cadenzaDeckMetadata",
+      "cadenzaDeck",
+    ]);
+    expect(loaded.metadata.deckId).toBe("value-export-talk");
+    expect(loaded.timeline.slides.map((slide) => slide.slideId)).toEqual([
+      "value",
+    ]);
+  });
+
   it("TC-DLOD-002 and TC-DLOD-005 resolve selectors through the same loader while preserving canonical deck identity", async () => {
     const workspaceRoot = process.cwd();
     const projectRoot = await mkdtemp(
