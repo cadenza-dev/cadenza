@@ -64,3 +64,11 @@ export type {
   Phase5RepairRoutingEvidence,
 } from "./legacyPhase5.ts";
 export { runCadenzaCli as runPhase5CadenzaCli } from "./legacyPhase5.ts";
+export type {
+  StaticWebCompatibilityAdapterInput,
+  StaticWebCompatibilityAdapterResult,
+  StaticWebNotesBoundary,
+  StaticWebSemanticAnchor,
+  StaticWebTimingEvidence,
+} from "./staticWebCompatibility.ts";
+export { renderStaticWebCompatibility } from "./staticWebCompatibility.ts";

@@ -19,6 +19,10 @@ import {
   phase6Error,
 } from "./diagnostics.ts";
 import { createSha256, createStableHash } from "./stableJson.ts";
+import {
+  renderStaticWebCompatibility,
+  type StaticWebCompatibilityAdapterResult,
+} from "./staticWebCompatibility.ts";
 
 export const PHASE6_EXPORT_SCHEMA_VERSION = 1;
 
@@ -43,13 +47,21 @@ export type Phase6ArtifactRecord = {
 };
 
 export type Phase6FormatEvidence = {
+  adapterProvenance?: StaticWebCompatibilityAdapterResult["adapterProvenance"];
   artifacts: Phase6ArtifactRecord[];
+  browserSmoke?: StaticWebCompatibilityAdapterResult["browserSmoke"];
   capability: Phase6FormatCapability;
+  compatibilityMode?: StaticWebCompatibilityAdapterResult["compatibilityMode"];
   diagnostics: Phase6Diagnostic[];
+  entrypointPath?: StaticWebCompatibilityAdapterResult["entrypointPath"];
   format: CadenzaExportFormat;
   knownLimitations: string[];
+  manifestReference?: StaticWebCompatibilityAdapterResult["manifestReference"];
+  notesBoundary?: StaticWebCompatibilityAdapterResult["notesBoundary"];
   schemaVersion: number;
+  semanticAnchors?: StaticWebCompatibilityAdapterResult["semanticAnchors"];
   status: Phase6CapabilityStatus;
+  timingEvidence?: StaticWebCompatibilityAdapterResult["timingEvidence"];
 };
 
 export type Phase6ExportManifest = {
@@ -198,21 +210,35 @@ export async function exportDeckLocal(
   const evidenceReferences: Partial<Record<CadenzaExportFormat, string>> = {};
 
   if (formats.includes("web")) {
-    const webArtifact = await writeStaticWebEntrypoint({
-      loaded,
+    const webCompatibility = await renderStaticWebCompatibility({
+      manifestReferencePath: PHASE6_ARTIFACT_FILENAMES.manifest,
+      metadata: loaded.metadata,
       outputDirectory,
       runId,
+      timeline: loaded.timeline,
+    });
+    const webArtifact = await artifactRecord({
+      format: "web",
+      outputDirectory,
+      relativePath: webCompatibility.entrypointPath,
+      role: "entrypoint",
     });
     const webEvidence: Phase6FormatEvidence = {
+      adapterProvenance: webCompatibility.adapterProvenance,
       artifacts: [webArtifact],
+      browserSmoke: webCompatibility.browserSmoke,
       capability: capabilities.web ?? webCapability(),
+      compatibilityMode: webCompatibility.compatibilityMode,
       diagnostics: [],
+      entrypointPath: webCompatibility.entrypointPath,
       format: "web",
-      knownLimitations: [
-        "Static web compatibility evidence is not a Player App shell claim.",
-      ],
+      knownLimitations: webCompatibility.knownLimitations,
+      manifestReference: webCompatibility.manifestReference,
+      notesBoundary: webCompatibility.notesBoundary,
       schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+      semanticAnchors: webCompatibility.semanticAnchors,
       status: "supported",
+      timingEvidence: webCompatibility.timingEvidence,
     };
     const evidencePath = path.join(
       outputDirectory,
@@ -505,42 +531,6 @@ function createManifestWithoutHash({
   };
 }
 
-async function writeStaticWebEntrypoint({
-  loaded,
-  outputDirectory,
-  runId,
-}: {
-  loaded: LoadedDeckModule;
-  outputDirectory: string;
-  runId: string;
-}): Promise<Phase6ArtifactRecord> {
-  const html = `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${escapeHtml(loaded.metadata.title)}</title>
-  </head>
-  <body data-cadenza-export="phase6-static-web-compatibility">
-    <main>
-      <h1>${escapeHtml(loaded.metadata.title)}</h1>
-      <p data-cadenza-deck-id="${escapeHtml(loaded.metadata.deckId)}">Local Phase 6 static web compatibility export.</p>
-      <p data-cadenza-run-id="${escapeHtml(runId)}">Run ${escapeHtml(runId)}</p>
-    </main>
-  </body>
-</html>
-`;
-  const filePath = path.join(outputDirectory, "index.html");
-  await writeFile(filePath, html);
-
-  return artifactRecord({
-    format: "web",
-    outputDirectory,
-    relativePath: "index.html",
-    role: "entrypoint",
-  });
-}
-
 async function collectArtifactInventory({
   evidenceReferences,
   formats,
@@ -830,12 +820,4 @@ function defaultRunId(): string {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

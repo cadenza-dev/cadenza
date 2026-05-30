@@ -89,21 +89,77 @@ builder_progress:
   status: in_progress
   active_role: builder
   next_batch:
-    id: B6.3
+    id: B6.4
     scenarios:
-      - TC-WEBC-001
-      - TC-WEBC-002
+      - TC-VIDO-001
+      - TC-VIDO-002
+      - TC-VIDO-003
+      - TC-VIDO-004
+      - TC-DBND-001
+      - TC-DBND-002
+      - TC-DBND-003
+      - TC-DBND-004
+      - TC-DBND-005
     requirements:
-      - WEBC-001
-      - WEBC-002
-      - WEBC-003
-      - WEBC-004
-      - WEBC-005
-      - WEBC-006
-      - WEBC-007
+      - VIDO-001
+      - VIDO-002
+      - VIDO-003
+      - VIDO-004
+      - VIDO-005
+      - VIDO-006
+      - VIDO-007
+      - VIDO-008
+      - VIDO-009
+      - DBND-001
+      - DBND-002
+      - DBND-003
+      - DBND-004
+      - DBND-005
+      - DBND-006
+      - DBND-007
+      - DBND-008
+      - CDIA-009
     status: ready
-    summary: "Implement static web compatibility output, adapter provenance, semantic anchors, web evidence limitations, and browser-only semantic smoke checks."
+    summary: "Implement local MP4 rendering through the export-local renderer adapter, dependency boundaries, renderer provenance, artifact metadata, prerequisite diagnostics, and cleanup evidence."
   completed_batches:
+    - id: B6.3
+      completed_at: "2026-05-30 08:46 +0800"
+      scenarios:
+        - TC-WEBC-001
+        - TC-WEBC-002
+      requirements:
+        - WEBC-001
+        - WEBC-002
+        - WEBC-003
+        - WEBC-004
+        - WEBC-005
+        - WEBC-006
+        - WEBC-007
+      tests:
+        - tests/acceptance/phase6-web-compatibility.test.ts
+        - tests/browser/phase6-static-web-compatibility.spec.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+      code:
+        - packages/export-local/src/staticWebCompatibility.ts
+        - packages/export-local/src/artifacts.ts
+        - packages/export-local/src/index.ts
+      verification:
+        - "pnpm exec vitest run tests/acceptance/phase6-web-compatibility.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-web-compatibility.test.ts tests/acceptance/phase6-export-validate-inspect.test.ts"
+        - "pnpm exec playwright test tests/browser/phase6-static-web-compatibility.spec.ts"
+        - "pnpm test:browser"
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "No frozen specs, Accepted ADRs, STATUS.yaml.current_phase, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, or PR work was changed. Static web evidence explicitly remains a local compatibility output, not a Player App or hosted bundle claim."
     - id: B6.2
       completed_at: "2026-05-30 08:34 +0800"
       scenarios:

@@ -1,5 +1,46 @@
 # Phase 6 Tracker
 
+## 2026-05-30 08:46 +0800 - B6.3 static web compatibility and browser evidence
+
+- Scope: completed B6.3 for `TC-WEBC-001` and `TC-WEBC-002`.
+- Implementation: added the export-local
+  `StaticWebCompatibilityAdapter` boundary and routed web exports through it.
+  The adapter writes the static compatibility `index.html`, manifest
+  reference, browser-visible semantic status, semantic slide anchors, notes
+  exclusion markers, timing evidence, adapter provenance, and limitations.
+- Evidence: `web-evidence.json` now records `compatibilityMode`,
+  `entrypointPath`, `manifestReference`, `semanticAnchors`, `notesBoundary`,
+  `timingEvidence`, `browserSmoke`, `adapterProvenance`, artifact inventory,
+  diagnostics, and explicit limitations that the output is local static
+  compatibility, not a future Player App export, not hosted, and not a
+  polished app shell.
+- Browser checks: added
+  `tests/browser/phase6-static-web-compatibility.spec.ts` under the required
+  browser-only test route. The Playwright smoke uses semantic anchors and
+  browser-visible status as the primary oracle, confirms notes text is excluded
+  from the visible surface, and treats screenshot or pixel evidence as
+  supplemental only.
+- Verification: `pnpm exec vitest run
+  tests/acceptance/phase6-web-compatibility.test.ts` passed with 1 file / 1
+  test; `pnpm exec vitest run
+  tests/acceptance/phase6-web-compatibility.test.ts
+  tests/acceptance/phase6-export-validate-inspect.test.ts` passed with 2 files
+  / 6 tests; `pnpm exec playwright test
+  tests/browser/phase6-static-web-compatibility.spec.ts` passed with 1 browser
+  test when run outside the filesystem sandbox; `pnpm test:browser` passed with
+  20 browser tests; `pnpm typecheck`, `pnpm test`, `pnpm lint`,
+  `pnpm format:check`, Markdown lint, shell formatting check,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App
+  implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin loading,
+  sandboxing, external release, npm publication, release tag, or PR work was
+  changed.
+- Next batch: B6.4 starts with local MP4 rendering through the export-local
+  renderer adapter, dependency boundaries, renderer provenance, artifact
+  metadata, prerequisite diagnostics, and cleanup evidence.
+
 ## 2026-05-30 08:34 +0800 - B6.2 export, validate, inspect, and evidence reader
 
 - Scope: completed B6.2 for `TC-CLIS-002` through `TC-CLIS-004`,
