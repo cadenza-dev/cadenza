@@ -1,4 +1,4 @@
-import { access, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { bundle } from "@remotion/bundler";
 import {
@@ -15,6 +15,7 @@ import {
 } from "./diagnostics.ts";
 
 export type LocalMp4RendererInput = {
+  cancelSignal?: (callback: () => void) => void;
   metadata: Phase6DeckMetadata;
   outputDirectory: string;
   rendererTempRoot: string;
@@ -44,8 +45,11 @@ export type LocalMp4RendererProvenance = {
 export type LocalMp4RendererStage =
   | "bundle"
   | "cleanup"
+  | "cancellation"
+  | "codec-media-tool"
   | "composition"
   | "container-metadata"
+  | "output-write"
   | "prerequisite-detection"
   | "renderer-invocation"
   | "unexpected-internal";
@@ -207,34 +211,40 @@ export async function renderLocalMp4(
       stage: "composition",
     });
 
+    try {
+      await renderMedia({
+        browserExecutable: browser.executable,
+        chromeMode: "headless-shell",
+        chromiumOptions: {
+          enableMultiProcessOnLinux: false,
+          gl: "swangle",
+        },
+        cancelSignal: input.cancelSignal,
+        codec: "h264",
+        composition,
+        concurrency: 1,
+        crf: 28,
+        everyNthFrame: RENDER_EVERY_NTH_FRAME,
+        imageFormat: "jpeg",
+        jpegQuality: 70,
+        logLevel: "error",
+        muted: true,
+        outputLocation: outputPath,
+        overwrite: true,
+        serveUrl,
+        x264Preset: "ultrafast",
+      });
+    } catch (error) {
+      throw createRenderMediaStageError(error, outputPath);
+    }
+
     await runRendererStage({
-      action: () =>
-        renderMedia({
-          browserExecutable: browser.executable,
-          chromeMode: "headless-shell",
-          chromiumOptions: {
-            enableMultiProcessOnLinux: false,
-            gl: "swangle",
-          },
-          codec: "h264",
-          composition,
-          concurrency: 1,
-          crf: 28,
-          everyNthFrame: RENDER_EVERY_NTH_FRAME,
-          imageFormat: "jpeg",
-          jpegQuality: 70,
-          logLevel: "error",
-          muted: true,
-          outputLocation: outputPath,
-          overwrite: true,
-          serveUrl,
-          x264Preset: "ultrafast",
-        }),
-      code: "VIDO_RENDER_INVOCATION_FAILED",
+      action: () => verifyOutputArtifact(outputPath),
+      code: "VIDO_OUTPUT_WRITE_FAILED",
       locator: outputPath,
       repairHint:
-        "Check local renderer, browser, codec, media-tool, and output path prerequisites.",
-      stage: "renderer-invocation",
+        "Check output directory permissions and local renderer write access before rerunning MP4 export.",
+      stage: "output-write",
     });
 
     const metadata = await runRendererStage({
@@ -516,6 +526,89 @@ function createUnexpectedRendererStageError(
       stage: "unexpected-internal",
     }),
   );
+}
+
+function createRenderMediaStageError(
+  error: unknown,
+  outputPath: string,
+): RendererStageError {
+  if (isCancellationError(error)) {
+    return new RendererStageError(
+      PHASE6_EXIT_CODES.export,
+      rendererStageDiagnostic({
+        code: "VIDO_RENDER_CANCELLED",
+        error,
+        locator: outputPath,
+        repairHint:
+          "Rerun the export if cancellation was accidental; cleanup evidence records renderer temporary directory handling.",
+        stage: "cancellation",
+      }),
+    );
+  }
+
+  if (isOutputWriteError(error)) {
+    return new RendererStageError(
+      PHASE6_EXIT_CODES.export,
+      rendererStageDiagnostic({
+        code: "VIDO_OUTPUT_WRITE_FAILED",
+        error,
+        locator: outputPath,
+        repairHint:
+          "Check output directory permissions and local renderer write access before rerunning MP4 export.",
+        stage: "output-write",
+      }),
+    );
+  }
+
+  if (isCodecOrMediaToolError(error)) {
+    return new RendererStageError(
+      PHASE6_EXIT_CODES.export,
+      rendererStageDiagnostic({
+        code: "VIDO_CODEC_MEDIA_TOOL_FAILED",
+        error,
+        locator: outputPath,
+        repairHint:
+          "Check local ffmpeg, codec, and media-tool prerequisites before rerunning MP4 export.",
+        stage: "codec-media-tool",
+      }),
+    );
+  }
+
+  return new RendererStageError(
+    PHASE6_EXIT_CODES.export,
+    rendererStageDiagnostic({
+      code: "VIDO_RENDER_INVOCATION_FAILED",
+      error,
+      locator: outputPath,
+      repairHint:
+        "Check local renderer and browser prerequisites before rerunning MP4 export.",
+      stage: "renderer-invocation",
+    }),
+  );
+}
+
+function isCancellationError(error: unknown): boolean {
+  return /abort|cancelled|canceled/i.test(errorMessage(error));
+}
+
+function isOutputWriteError(error: unknown): boolean {
+  return /\b(EACCES|ENOENT|EPERM|outputLocation|output path|permission denied|write)\b/i.test(
+    errorMessage(error),
+  );
+}
+
+function isCodecOrMediaToolError(error: unknown): boolean {
+  return /\b(codec|encode|encoding|ffmpeg|ffprobe|h264|media tool|mux|x264)\b/i.test(
+    errorMessage(error),
+  );
+}
+
+async function verifyOutputArtifact(outputPath: string): Promise<void> {
+  const output = await stat(outputPath);
+
+  if (!output.isFile() || output.size <= 0) {
+    throw new Error(`No non-empty MP4 output was written at ${outputPath}.`);
+  }
 }
 
 function rendererStageDiagnostic({

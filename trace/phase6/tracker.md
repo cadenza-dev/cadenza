@@ -1,5 +1,49 @@
 # Phase 6 Tracker
 
+## 2026-05-30 20:49 +0800 - Follow-up remediation for REV-P6-002-R1 MP4 renderer stages
+
+- Scope: remediated only `REV-P6-002-R1` from
+  `trace/phase6/review-phase6-closeout.md`, using the maintainer-selected
+  narrowed approach for the internal `@cadenza-dev/export-local` MP4 renderer
+  pipeline. Startup Protocol identity was approved by the maintainer as
+  `GPT-5/codex` for the Phase 6 Builder role before writes.
+- Renderer stages: split `renderMedia()` failures into stable
+  `renderer-invocation`, `codec-media-tool`, `output-write`, and
+  `cancellation` diagnostics while preserving existing bundle, composition,
+  container metadata, cleanup, prerequisite detection, and unexpected internal
+  failure stages. `renderLocalMp4()` remains the public entrypoint and CLI
+  command behavior was not changed.
+- Cancellation and output evidence: added an optional package-local
+  cancellation signal path into `renderMedia()`, preserved cleanup evidence for
+  cancellation failures, and added a post-render non-empty MP4 output
+  verification stage so a renderer return without an artifact becomes
+  `VIDO_OUTPUT_WRITE_FAILED` instead of a partial success.
+- Tests: extended `packages/export-local/src/mp4Renderer.test.ts` with focused
+  fixtures for composition, renderer invocation, codec/media tooling, output
+  write, cancellation signal propagation, cancellation cleanup evidence, and
+  cleanup failure evidence.
+- Verification: focused RED/GREEN checks passed for
+  `packages/export-local/src/mp4Renderer.test.ts`. The real MP4 acceptance
+  checks first reproduced the known sandbox-only Remotion/Chromium
+  `uv_interface_addresses` failure, then passed outside the filesystem
+  sandbox: `pnpm exec vitest run tests/acceptance/phase6-mp4-rendering.test.ts`
+  (1 file / 3 tests) and `pnpm exec vitest run
+  tests/acceptance/phase6-export-validate-inspect.test.ts` (1 file / 5 tests).
+  The combined focused remediation suite also passed outside the filesystem
+  sandbox: `pnpm exec vitest run packages/export-local/src/mp4Renderer.test.ts
+  tests/acceptance/phase6-mp4-rendering.test.ts
+  tests/acceptance/phase6-export-validate-inspect.test.ts` (3 files / 13
+  tests). Full remediation verification then passed: `pnpm typecheck`;
+  `pnpm test` outside the filesystem sandbox (40 files / 124 tests);
+  `pnpm lint`; `pnpm format:check`; Markdown lint; shell formatting check;
+  `pnpm spec:lint`; `pnpm phase:check`; `pnpm check:harness`;
+  `pnpm check:memory`; and `git diff --check`.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, CLI public surface, hosted/cloud rendering,
+  Player App implementation, PDF/PPTX, cross-format IR, editor, MCP, plugin
+  loading, sandboxing, external release, npm publication, release tag, alpha
+  announcement, PR work, or unselected Reviewer finding was changed.
+
 ## 2026-05-30 19:50 +0800 - Reviewer-selected remediation for REV-P6-001, REV-P6-002, and REV-P6-003
 
 - Scope: remediated only the maintainer-selected Phase 6 Reviewer findings

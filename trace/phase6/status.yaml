@@ -97,6 +97,43 @@ builder_progress:
     status: waiting_for_reviewer
     summary: "Phase 6 Builder batches and maintainer-selected Reviewer remediation are complete; stop for independent Reviewer or maintainer acceptance."
   completed_batches:
+    - id: reviewer-followup-rev-p6-002-r1
+      completed_at: "2026-05-30 20:49 +0800"
+      scenarios:
+        - REV-P6-002-R1
+      requirements:
+        - VIDO-004
+        - VIDO-007
+        - VIDO-008
+        - CDIA-009
+      tests:
+        - packages/export-local/src/mp4Renderer.test.ts
+        - tests/acceptance/phase6-mp4-rendering.test.ts
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+      code:
+        - packages/export-local/src/mp4Renderer.ts
+        - packages/export-local/src/mp4Renderer.test.ts
+        - trace/phase6/status.yaml
+        - trace/phase6/tracker.md
+      verification:
+        - "pnpm exec vitest run packages/export-local/src/mp4Renderer.test.ts"
+        - "pnpm exec vitest run tests/acceptance/phase6-mp4-rendering.test.ts (failed inside filesystem sandbox with known Remotion/Chromium uv_interface_addresses issue)"
+        - "pnpm exec vitest run tests/acceptance/phase6-export-validate-inspect.test.ts (failed inside filesystem sandbox because MP4 render path hit the same known Remotion/Chromium uv_interface_addresses issue)"
+        - "pnpm exec vitest run tests/acceptance/phase6-mp4-rendering.test.ts (outside filesystem sandbox)"
+        - "pnpm exec vitest run tests/acceptance/phase6-export-validate-inspect.test.ts (outside filesystem sandbox)"
+        - "pnpm exec vitest run packages/export-local/src/mp4Renderer.test.ts tests/acceptance/phase6-mp4-rendering.test.ts tests/acceptance/phase6-export-validate-inspect.test.ts (outside filesystem sandbox)"
+        - "pnpm typecheck"
+        - "pnpm test (outside filesystem sandbox)"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "Only REV-P6-002-R1 was remediated. The change was limited to the internal @cadenza-dev/export-local MP4 renderer pipeline and focused tests. No CONTRACT_FROZEN spec, Accepted ADR, STATUS.yaml.current_phase, CLI public surface, hosted/cloud rendering, Player App implementation, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, alpha announcement, PR work, or unselected Reviewer finding was changed."
     - id: reviewer-remediation
       completed_at: "2026-05-30 19:50 +0800"
       scenarios:

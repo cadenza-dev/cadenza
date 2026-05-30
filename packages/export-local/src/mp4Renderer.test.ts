@@ -57,6 +57,168 @@ describe("REV-P6-002 local MP4 renderer stage diagnostics", () => {
       await rm(tempRoot, { force: true, recursive: true });
     }
   });
+
+  it("classifies render media failures by renderer, codec/media-tool, and cancellation stages", async () => {
+    const cases = [
+      {
+        code: "VIDO_RENDER_INVOCATION_FAILED",
+        error: new Error("Chromium page closed while rendering frames"),
+        stage: "renderer-invocation",
+      },
+      {
+        code: "VIDO_CODEC_MEDIA_TOOL_FAILED",
+        error: new Error("ffmpeg exited while encoding h264 output"),
+        stage: "codec-media-tool",
+      },
+      {
+        code: "VIDO_RENDER_CANCELLED",
+        error: new Error("renderMedia() got cancelled"),
+        stage: "cancellation",
+      },
+    ] as const;
+
+    for (const rendererCase of cases) {
+      const tempRoot = await mkdtemp(
+        path.join(os.tmpdir(), "cadenza-mp4-render-stage-"),
+      );
+      const { LocalMp4RendererError, renderLocalMp4 } =
+        await loadRendererWithMocks({
+          renderMedia: vi.fn().mockRejectedValue(rendererCase.error),
+        });
+
+      try {
+        await renderLocalMp4(createRendererInput(tempRoot));
+        throw new Error("Expected renderLocalMp4 to fail.");
+      } catch (error) {
+        expect(error).toBeInstanceOf(LocalMp4RendererError);
+        expect(error).toMatchObject({
+          diagnostics: [
+            {
+              category: "renderer",
+              code: rendererCase.code,
+              rendererStage: rendererCase.stage,
+            },
+          ],
+          failureEvidence: {
+            cleanup: {
+              status: "completed",
+            },
+          },
+        });
+      } finally {
+        await rm(tempRoot, { force: true, recursive: true });
+      }
+    }
+  });
+
+  it("classifies composition preparation failures with a stable renderer stage", async () => {
+    const tempRoot = await mkdtemp(
+      path.join(os.tmpdir(), "cadenza-mp4-composition-stage-"),
+    );
+    const { LocalMp4RendererError, renderLocalMp4 } =
+      await loadRendererWithMocks({
+        selectComposition: vi
+          .fn()
+          .mockRejectedValue(new Error("composition not found")),
+      });
+
+    try {
+      await renderLocalMp4(createRendererInput(tempRoot));
+      throw new Error("Expected renderLocalMp4 to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(LocalMp4RendererError);
+      expect(error).toMatchObject({
+        diagnostics: [
+          {
+            category: "renderer",
+            code: "VIDO_COMPOSITION_FAILED",
+            rendererStage: "composition",
+          },
+        ],
+        failureEvidence: {
+          cleanup: {
+            status: "completed",
+          },
+        },
+      });
+    } finally {
+      await rm(tempRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("classifies missing MP4 output after render completion as an output write failure", async () => {
+    const tempRoot = await mkdtemp(
+      path.join(os.tmpdir(), "cadenza-mp4-output-stage-"),
+    );
+    const { LocalMp4RendererError, renderLocalMp4 } =
+      await loadRendererWithMocks();
+
+    try {
+      await renderLocalMp4(createRendererInput(tempRoot));
+      throw new Error("Expected renderLocalMp4 to fail.");
+    } catch (error) {
+      expect(error).toBeInstanceOf(LocalMp4RendererError);
+      expect(error).toMatchObject({
+        diagnostics: [
+          {
+            category: "renderer",
+            code: "VIDO_OUTPUT_WRITE_FAILED",
+            rendererStage: "output-write",
+          },
+        ],
+        failureEvidence: {
+          cleanup: {
+            status: "completed",
+          },
+        },
+      });
+    } finally {
+      await rm(tempRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("passes cancellation signals to renderMedia and preserves cancellation cleanup evidence", async () => {
+    const tempRoot = await mkdtemp(
+      path.join(os.tmpdir(), "cadenza-mp4-cancel-stage-"),
+    );
+    const cancelSignal = vi.fn();
+    const renderMediaMock = vi
+      .fn()
+      .mockRejectedValue(new Error("renderMedia() got cancelled"));
+    const { LocalMp4RendererError, renderLocalMp4 } =
+      await loadRendererWithMocks({
+        renderMedia: renderMediaMock,
+      });
+
+    try {
+      await renderLocalMp4({
+        ...createRendererInput(tempRoot),
+        cancelSignal,
+      });
+      throw new Error("Expected renderLocalMp4 to fail.");
+    } catch (error) {
+      expect(renderMediaMock).toHaveBeenCalledWith(
+        expect.objectContaining({ cancelSignal }),
+      );
+      expect(error).toBeInstanceOf(LocalMp4RendererError);
+      expect(error).toMatchObject({
+        diagnostics: [
+          {
+            category: "renderer",
+            code: "VIDO_RENDER_CANCELLED",
+            rendererStage: "cancellation",
+          },
+        ],
+        failureEvidence: {
+          cleanup: {
+            status: "completed",
+          },
+        },
+      });
+    } finally {
+      await rm(tempRoot, { force: true, recursive: true });
+    }
+  });
 });
 
 async function loadRendererWithMocks({
