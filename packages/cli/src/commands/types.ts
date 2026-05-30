@@ -1,5 +1,6 @@
 export type CommandContext = {
   cwd: string;
+  workspaceRoot: string;
 };
 
 export type CommandResult = {

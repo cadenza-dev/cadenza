@@ -1,4 +1,25 @@
 export type {
+  ExportLocalOptions,
+  ExportLocalResult,
+  InspectExportArtifactOptions,
+  InspectExportArtifactResult,
+  Phase6ArtifactRecord,
+  Phase6CapabilityStatus,
+  Phase6ExportManifest,
+  Phase6FormatCapability,
+  Phase6FormatEvidence,
+  ValidateDeckLocalOptions,
+  ValidateDeckLocalResult,
+} from "./artifacts.ts";
+export {
+  exportDeckLocal,
+  inspectExportArtifact,
+  PHASE6_EXPORT_SCHEMA_VERSION,
+  readPhase6ExportManifest,
+  readPhase6FormatEvidence,
+  validateDeckLocal,
+} from "./artifacts.ts";
+export type {
   CadenzaExportFormat,
   CadenzaProjectConfig,
   EnsureGeneratedOutputSafetyOptions,
@@ -29,7 +50,11 @@ export type {
   Phase6DiagnosticCategory,
   Phase6DiagnosticSeverity,
 } from "./diagnostics.ts";
-export { CadenzaPhase6Error, phase6Error } from "./diagnostics.ts";
+export {
+  CadenzaPhase6Error,
+  PHASE6_EXIT_CODES,
+  phase6Error,
+} from "./diagnostics.ts";
 export type {
   Phase5AlphaReadinessEvidence,
   Phase5BoundaryEvaluationEvidence,

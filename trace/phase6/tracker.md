@@ -1,5 +1,51 @@
 # Phase 6 Tracker
 
+## 2026-05-30 08:34 +0800 - B6.2 export, validate, inspect, and evidence reader
+
+- Scope: completed B6.2 for `TC-CLIS-002` through `TC-CLIS-004`,
+  `TC-CLIS-006`, `TC-CLIS-007`, `TC-VINS-001` through `TC-VINS-004`,
+  `TC-EXEN-001` through `TC-EXEN-005`, and `TC-CDIA-001` through
+  `TC-CDIA-003`.
+- Implementation: replaced the B6.1 command placeholders with working
+  `export`, `validate`, and `inspect` command adapters; added shared CLI
+  JSON/human output helpers; added argument parsing for selectors, `--format`,
+  `--output`, `--run-id`, `--json`, and `--force`; and extended the CLI test
+  harness context so temp project configs can reuse the repository workspace
+  package aliases.
+- Export evidence: added `@cadenza-dev/export-local` manifest/evidence writer
+  and shared reader. Successful exports write `manifest.json`,
+  `web-evidence.json`, `mp4-evidence.json`, generated-output ownership
+  metadata, a static web compatibility entrypoint placeholder, deterministic
+  timeline digest, stable hash over deterministic contract fields only,
+  per-format capability declarations, artifact inventory, diagnostics, and
+  known limitations.
+- Validate and inspect: `validate` uses the shared loader path for built-in
+  aliases, config aliases, config default selection, and direct local module
+  paths without writing export deliverables by default. `inspect` remains
+  artifact-only, reads manifests or artifact directories through the shared
+  reader, summarizes evidence and limitations, and fails predictably for
+  missing, malformed, unsupported-schema, and missing-evidence inputs.
+- Diagnostics and non-interactive behavior: `--json` success and failure
+  outputs are stable JSON on stdout with no ANSI/progress prose; usage,
+  validation, config ownership, and inspect failures preserve deterministic
+  exit codes and repair hints; unknown generated output directories require
+  explicit `--force`.
+- Verification: `pnpm exec vitest run tests/acceptance/phase6-cli.test.ts
+  tests/acceptance/phase6-export-validate-inspect.test.ts
+  packages/export-local/src/deck-loading.test.ts
+  packages/export-local/src/config.test.ts` passed with 4 files / 14 tests;
+  `pnpm test` passed with 36 files / 112 tests; `pnpm typecheck`,
+  `pnpm lint`, `pnpm format:check`, Markdown lint, shell formatting check,
+  `pnpm spec:lint`, `pnpm phase:check`, `pnpm check:harness`,
+  `pnpm check:memory`, and `git diff --check` passed.
+- Boundary preserved: no `CONTRACT_FROZEN` spec, Accepted ADR,
+  `STATUS.yaml.current_phase`, hosted/cloud rendering, Player App, PDF/PPTX,
+  cross-format IR, editor, MCP, plugin loading, sandboxing, external release,
+  npm publication, release tag, or PR work was changed.
+- Next batch: B6.3 starts with static web compatibility output, adapter
+  provenance, semantic anchors, web evidence limitations, and browser-only
+  semantic smoke tests under `tests/browser/`.
+
 ## 2026-05-30 08:06 +0800 - B6.1 CLI topology, config, and deck loading
 
 - Scope: completed B6.1 for `TC-CLIS-001`, `TC-CLIS-005`,

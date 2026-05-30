@@ -89,28 +89,101 @@ builder_progress:
   status: in_progress
   active_role: builder
   next_batch:
-    id: B6.2
+    id: B6.3
     scenarios:
-      - TC-CLIS-002
-      - TC-CLIS-003
-      - TC-CLIS-004
-      - TC-CLIS-006
-      - TC-CLIS-007
-      - TC-VINS-001
-      - TC-VINS-002
-      - TC-VINS-003
-      - TC-VINS-004
-      - TC-EXEN-001
-      - TC-EXEN-002
-      - TC-EXEN-003
-      - TC-EXEN-004
-      - TC-EXEN-005
-      - TC-CDIA-001
-      - TC-CDIA-002
-      - TC-CDIA-003
+      - TC-WEBC-001
+      - TC-WEBC-002
+    requirements:
+      - WEBC-001
+      - WEBC-002
+      - WEBC-003
+      - WEBC-004
+      - WEBC-005
+      - WEBC-006
+      - WEBC-007
     status: ready
-    summary: "Implement export, validate, inspect, manifest/evidence reader, stable JSON summaries, deterministic exit codes, and diagnostics."
+    summary: "Implement static web compatibility output, adapter provenance, semantic anchors, web evidence limitations, and browser-only semantic smoke checks."
   completed_batches:
+    - id: B6.2
+      completed_at: "2026-05-30 08:34 +0800"
+      scenarios:
+        - TC-CLIS-002
+        - TC-CLIS-003
+        - TC-CLIS-004
+        - TC-CLIS-006
+        - TC-CLIS-007
+        - TC-VINS-001
+        - TC-VINS-002
+        - TC-VINS-003
+        - TC-VINS-004
+        - TC-EXEN-001
+        - TC-EXEN-002
+        - TC-EXEN-003
+        - TC-EXEN-004
+        - TC-EXEN-005
+        - TC-CDIA-001
+        - TC-CDIA-002
+        - TC-CDIA-003
+      requirements:
+        - CLIS-002
+        - CLIS-003
+        - CLIS-004
+        - CLIS-007
+        - CLIS-008
+        - VINS-001
+        - VINS-002
+        - VINS-003
+        - VINS-004
+        - VINS-005
+        - VINS-006
+        - EXEN-001
+        - EXEN-002
+        - EXEN-003
+        - EXEN-004
+        - EXEN-005
+        - EXEN-006
+        - EXEN-007
+        - EXEN-008
+        - EXEN-009
+        - EXEN-010
+        - CDIA-001
+        - CDIA-002
+        - CDIA-003
+        - CDIA-005
+        - CDIA-006
+        - CDIA-007
+        - CDIA-008
+      tests:
+        - tests/acceptance/phase6-export-validate-inspect.test.ts
+        - tests/acceptance/phase6-cli.test.ts
+        - packages/export-local/src/deck-loading.test.ts
+        - packages/export-local/src/config.test.ts
+      code:
+        - packages/cli/src/commands/export.ts
+        - packages/cli/src/commands/validate.ts
+        - packages/cli/src/commands/inspect.ts
+        - packages/cli/src/commands/output.ts
+        - packages/cli/src/commands/parse.ts
+        - packages/cli/src/index.ts
+        - packages/export-local/src/artifacts.ts
+        - packages/export-local/src/stableJson.ts
+        - packages/export-local/src/deckLoader.ts
+        - packages/export-local/src/diagnostics.ts
+        - packages/export-local/src/index.ts
+      verification:
+        - "pnpm exec vitest run tests/acceptance/phase6-cli.test.ts tests/acceptance/phase6-export-validate-inspect.test.ts packages/export-local/src/deck-loading.test.ts packages/export-local/src/config.test.ts"
+        - "pnpm typecheck"
+        - "pnpm test"
+        - "pnpm lint"
+        - "pnpm format:check"
+        - "pnpm exec markdownlint-cli2 \"**/*.md\""
+        - "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+        - "pnpm spec:lint"
+        - "pnpm phase:check"
+        - "pnpm check:harness"
+        - "pnpm check:memory"
+        - "git diff --check"
+      boundary: "No frozen specs, Accepted ADRs, STATUS.yaml.current_phase, hosted/cloud rendering, Player App, PDF/PPTX/cross-format IR, editor, MCP, plugin loading, sandboxing, external release, npm publication, release tag, or PR work was changed. Maintainer-authorized commit/push/CI monitoring applies after batch verification."
     - id: B6.1
       completed_at: "2026-05-30 08:06 +0800"
       scenarios:

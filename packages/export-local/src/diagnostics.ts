@@ -3,8 +3,19 @@ export type Phase6DiagnosticCategory =
   | "deck-loading"
   | "environment"
   | "export"
+  | "inspect"
   | "internal"
-  | "usage";
+  | "usage"
+  | "validation";
+
+export const PHASE6_EXIT_CODES = {
+  deckValidation: 3,
+  environment: 5,
+  export: 4,
+  internal: 70,
+  success: 0,
+  usage: 2,
+} as const;
 
 export type Phase6DiagnosticSeverity = "error" | "info" | "warning";
 

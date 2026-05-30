@@ -15,6 +15,7 @@ const CLI_VERSION = "0.0.0";
 export async function runPhase6Cli(
   args: string[],
   cwd: string,
+  workspaceRoot = cwd,
 ): Promise<CommandResult> {
   const [first, ...rest] = args;
 
@@ -48,7 +49,7 @@ export async function runPhase6Cli(
     };
   }
 
-  return command.run(rest, { cwd });
+  return command.run(rest, { cwd, workspaceRoot });
 }
 
 export async function runPhase6CliEntrypoint(args: string[]): Promise<number> {

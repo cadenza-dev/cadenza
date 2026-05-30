@@ -4,12 +4,13 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 import {
+  CadenzaValidationError,
   compile,
   type DeckNode,
   type TimelineMap,
 } from "../../core/src/index.ts";
 import { type CadenzaProjectConfig, validateProjectConfig } from "./config.ts";
-import { phase6Error } from "./diagnostics.ts";
+import { CadenzaPhase6Error, phase6Error } from "./diagnostics.ts";
 
 export type DeckSelectorSource =
   | "built-in-alias"
@@ -60,7 +61,7 @@ export async function loadDeckModule({
   selector,
   workspaceRoot = cwd,
 }: LoadDeckModuleOptions): Promise<LoadedDeckModule> {
-  const projectConfig = await loadProjectConfig({ cwd, workspaceRoot });
+  const projectConfig = await loadPhase6ProjectConfig({ cwd, workspaceRoot });
   const resolved = resolveDeckSelector({
     cwd,
     projectConfig,
@@ -71,16 +72,20 @@ export async function loadDeckModule({
     workspaceRoot,
     resolved.absolutePath,
   );
-  const metadata = readDeckMetadata(bundled, resolved.resolvedPath);
-  const deck = readDeckValue(bundled, resolved.resolvedPath);
+  try {
+    const metadata = readDeckMetadata(bundled, resolved.resolvedPath);
+    const deck = readDeckValue(bundled, resolved.resolvedPath);
 
-  return {
-    contractExports: ["cadenzaDeckMetadata", "createCadenzaDeck"],
-    deck,
-    metadata,
-    selector: resolved,
-    timeline: compile(deck, { mode: "offline" }),
-  };
+    return {
+      contractExports: ["cadenzaDeckMetadata", "createCadenzaDeck"],
+      deck,
+      metadata,
+      selector: resolved,
+      timeline: compile(deck, { mode: "offline" }),
+    };
+  } catch (error) {
+    throw mapDeckContractError(error, resolved.resolvedPath);
+  }
 }
 
 type ResolveDeckSelectorOptions = {
@@ -241,7 +246,7 @@ async function bundleAndImportDeck(
   }
 }
 
-async function loadProjectConfig({
+export async function loadPhase6ProjectConfig({
   cwd,
   workspaceRoot,
 }: {
@@ -313,9 +318,16 @@ function readDeckMetadata(
   const metadata = moduleExports.cadenzaDeckMetadata;
 
   if (!isPhase6DeckMetadata(metadata)) {
-    throw new Error(
-      `Deck module ${resolvedPath} must export valid cadenzaDeckMetadata.`,
-    );
+    throw phase6Error(3, {
+      category: "deck-loading",
+      code: "DLOD_INVALID_METADATA",
+      locator: resolvedPath,
+      message: `Deck module ${resolvedPath} must export valid cadenzaDeckMetadata.`,
+      relatedRequirements: ["DLOD-001", "DLOD-003", "VINS-002"],
+      repairHint:
+        "Export cadenzaDeckMetadata with deckId, title, sourcePath, and outline fields.",
+      severity: "error",
+    });
   }
 
   return metadata;
@@ -328,12 +340,49 @@ function readDeckValue(
   const createDeck = moduleExports.createCadenzaDeck;
 
   if (typeof createDeck !== "function") {
-    throw new Error(
-      `Deck module ${resolvedPath} must export createCadenzaDeck().`,
-    );
+    throw phase6Error(3, {
+      category: "deck-loading",
+      code: "DLOD_MISSING_CREATE_DECK",
+      locator: resolvedPath,
+      message: `Deck module ${resolvedPath} must export createCadenzaDeck().`,
+      relatedRequirements: ["DLOD-001", "DLOD-003", "VINS-002"],
+      repairHint:
+        "Export a createCadenzaDeck function that returns a typed Cadenza Deck node.",
+      severity: "error",
+    });
   }
 
   return createDeck() as DeckNode;
+}
+
+function mapDeckContractError(error: unknown, resolvedPath: string): Error {
+  if (error instanceof CadenzaPhase6Error) {
+    return error;
+  }
+
+  if (error instanceof CadenzaValidationError) {
+    return phase6Error(3, {
+      category: "validation",
+      code: "VINS_COMPILE_FAILED",
+      locator: resolvedPath,
+      message: "Deck validation or offline timeline compilation failed.",
+      relatedRequirements: ["VINS-002", "CDIA-008"],
+      repairHint:
+        "Fix the authored deck diagnostics before running export or validate again.",
+      severity: "error",
+    });
+  }
+
+  return phase6Error(3, {
+    category: "deck-loading",
+    code: "DLOD_CONTRACT_ERROR",
+    locator: resolvedPath,
+    message: error instanceof Error ? error.message : "Deck module failed.",
+    relatedRequirements: ["DLOD-003", "VINS-002", "CDIA-008"],
+    repairHint:
+      "Check the deck module exports and ensure createCadenzaDeck returns a valid Deck.",
+    severity: "error",
+  });
 }
 
 function isPhase6DeckMetadata(value: unknown): value is Phase6DeckMetadata {
