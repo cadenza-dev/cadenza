@@ -121,6 +121,87 @@ The maintainer selected all findings for Builder remediation:
 请作为 Cadenza Builder remediation，读取 trace/phase6/review-phase6-closeout.md，只处理 maintainer-selected findings: REV-P6-001, REV-P6-002, REV-P6-003；不得扩大 scope，不修改 CONTRACT_FROZEN specs 或 Accepted ADRs；用 TDD 修复并更新 trace 后停止。
 ```
 
+## Reviewer Recheck of Commit `ba1fea8`
+
+Reviewer rechecked only commit `ba1fea8a6b669593eb13f59b2b437321f3da5d53`
+against the maintainer-selected remediation findings `REV-P6-001`,
+`REV-P6-002`, and `REV-P6-003`.
+
+Hosted CI evidence:
+
+- GitHub Actions `CI` run `26683367869`.
+- Head SHA: `ba1fea8a6b669593eb13f59b2b437321f3da5d53`.
+- Display title: `Remediate Phase 6 reviewer findings`.
+- Result: `completed` / `success`.
+- Jobs observed as successful included cross-platform TypeScript/Vitest,
+  Biome lint/format, governance checks, Markdown lint, shell format check,
+  whitespace check, browser preview, and CI summary.
+
+Recheck outcome:
+
+- `REV-P6-001`: accepted. `cadenzaDeck` is supported beside
+  `createCadenzaDeck()`, factory export wins deterministically when both are
+  present, and `contractExports` records actual stable export names.
+- `REV-P6-003`: accepted. README now distinguishes preview adapter peer
+  dependencies from Phase 6 `@cadenza-dev/export-local` direct local renderer
+  dependencies, with a docs guard against the stale blanket peer-dependency
+  claim.
+- `REV-P6-002`: not accepted. Commit `ba1fea8` splits several renderer stages,
+  but the frozen contracts still require independently routable diagnostics
+  for codec or media tool failure, output write failure, and cancellation.
+  Those stages are not represented in the stage taxonomy or focused tests.
+
+### Follow-up Finding
+
+REV-P6-002-R1 [high] MP4 renderer stage pipeline still misses required failure routes
+Evidence: `spec/phase6/SPEC_DIAGNOSTICS.md` requires MP4 diagnostics to
+classify adapter stages including codec or media tool failure, output write
+failure, and cancellation. `spec/phase6/SPEC_LOCAL_MP4_RENDERING.md` requires
+cleanup on success, failure, and cancellation, with cancellation cleanup
+verification. Commit `ba1fea8` adds stages for prerequisite detection, bundle,
+composition, renderer invocation, container metadata, cleanup, and unexpected
+internal failure, but `renderMedia()` failures remain collapsed under
+`VIDO_RENDER_INVOCATION_FAILED` and the focused test only covers bundle plus
+cleanup failure.
+Why it matters: Agent-routable remediation still cannot distinguish the full
+set of frozen adapter-stage failures. This leaves `CDIA-009`, `VIDO-007`, and
+`VIDO-008` only partially remediated.
+Recommended owner: builder-remediation
+
+### Maintainer-Selected Follow-up Approach
+
+The maintainer selected an internal pipeline refactor for `REV-P6-002-R1`.
+This is feasible if kept narrowly scoped:
+
+- Keep `renderLocalMp4()` as the public entrypoint and avoid changing CLI
+  public behavior.
+- Refactor only the internal `@cadenza-dev/export-local` MP4 renderer pipeline.
+- Introduce package-private pipeline dependencies or step functions for
+  entrypoint write, bundle, composition selection, media render, container
+  metadata, cancellation handling, and cleanup.
+- Make each stage return or throw typed stage diagnostics rather than relying
+  on broad catch-all mapping.
+- Add focused tests that inject representative failures for bundle,
+  composition, renderer invocation, codec or media tooling, output write,
+  cancellation, and cleanup failure evidence.
+- Preserve boundaries: no `CONTRACT_FROZEN` spec edits, Accepted ADR edits,
+  new renderer backend, plugin system, hosted rendering, Player App path,
+  PDF/PPTX, release, or npm publication work.
+
+Tradeoffs:
+
+- Pros: clearer stage boundaries, stronger tests, lower future review
+  ambiguity, and less dependence on real Remotion/Chrome/ffmpeg failures to
+  exercise diagnostics.
+- Cons: larger than a string/code-only patch, so it needs strict scope control
+  and full verification after touching the MP4 renderer path.
+
+## Follow-up Builder Remediation Launch Phrase
+
+```text
+请作为 Cadenza Builder remediation，读取 trace/phase6/review-phase6-closeout.md，只处理 REV-P6-002-R1；采用收束版方案 2：仅重构 @cadenza-dev/export-local 内部 MP4 renderer pipeline 以补齐 codec/media tool、output write、cancellation、cleanup 等 stage diagnostics 与测试；不得修改 CONTRACT_FROZEN specs、Accepted ADRs 或 CLI public surface；用 TDD 修复并更新 trace 后停止。
+```
+
 ## Memory Candidate
 
 When Reviewer emits a Builder remediation launch phrase that references a
