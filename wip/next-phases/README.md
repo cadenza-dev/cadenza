@@ -14,6 +14,9 @@ Current roadmap notes:
   records the pre-Phase 6 test and harness hygiene interlude.
 - [`phase-6-universal-cli-local-export-roadmap.md`](./phase-6-universal-cli-local-export-roadmap.md)
   records the universal CLI, local export engine, and real local MP4 path.
+- [`phase-6-5-alpha-surface-naming-hygiene-roadmap.md`](./phase-6-5-alpha-surface-naming-hygiene-roadmap.md)
+  records the pre-alpha cleanup of Phase 5/Phase 6 naming from the active
+  CLI/export surface.
 - [`phase-7-player-app-alpha-roadmap.md`](./phase-7-player-app-alpha-roadmap.md)
   records the Cadenza Player App, app-based web bundler, and alpha-launch path.
 - [`phase-8-plus-cloud-hosted-roadmap.md`](./phase-8-plus-cloud-hosted-roadmap.md)

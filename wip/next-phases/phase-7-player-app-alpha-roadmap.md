@@ -55,6 +55,32 @@ and exported web output.
   installation, config, deck loading, preview, web export, MP4 export, and
   inspect behavior are exercised like an alpha user would exercise them.
 
+## Preview Remotion Transition
+
+`@cadenza-dev/preview-remotion` currently carries important preview runtime
+logic, but its package name and boundary describe an implementation adapter, not
+the long-term Cadenza product surface. Phase 7 should treat it as a transition
+dependency rather than as the public alpha player package.
+
+- Phase 7 initial posture: keep `preview-remotion` private and usable as the
+  existing Remotion Player adapter. Do not deprecate or remove it before the
+  Player App can cover local preview behavior, readiness state, navigation,
+  diagnostics, presenter metadata, and browser evidence.
+- Architecture decision: introduce a product-facing package or app boundary such
+  as `@cadenza-dev/player-app` or `@cadenza-dev/player` to own the Cadenza shell.
+  The existing preview package should either become an internal dependency,
+  shrink into a Remotion adapter, or be renamed after the Player App boundary is
+  proven.
+- Runtime reuse: local preview, app-based web export, and any future Electron or
+  Tauri desktop wrapper should share the Player App web runtime. A desktop shell
+  may package that runtime, but it should not fork deck playback, navigation,
+  readiness, or diagnostics logic.
+- Completion posture: explicitly deprecate or remove `preview-remotion` only
+  after the Player App reaches feature parity for the current preview workflows
+  and the app-based web export is the preferred export path. If the package never
+  becomes public, deprecation can be an internal package-boundary cleanup rather
+  than a public compatibility promise.
+
 ## Design Workflow Note
 
 This phase is intentionally design-heavy. Before implementation starts, the
@@ -87,6 +113,9 @@ details, and release framing.
   navigation, playback, diagnostics, and responsive UI.
 - The app-based web bundle is exported through the CLI and supersedes the static
   compatibility bundle as the preferred web export path.
+- `preview-remotion` is no longer presented as the alpha player surface; it is
+  either internal, renamed as an adapter, or explicitly routed to removal after
+  Player App parity.
 - Export evidence distinguishes semantic compatibility output from
   visual-fidelity Player App output, and any remaining MP4 visual limitations are
   explicit rather than hidden behind a generic "MP4 supported" claim.
