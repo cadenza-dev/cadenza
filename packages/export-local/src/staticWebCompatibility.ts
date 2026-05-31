@@ -1,11 +1,11 @@
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { TimelineMap } from "../../core/src/index.ts";
-import type { Phase6DeckMetadata } from "./deckLoader.ts";
+import type { CadenzaDeckMetadata } from "./deckLoader.ts";
 
 export type StaticWebCompatibilityAdapterInput = {
   manifestReferencePath: string;
-  metadata: Phase6DeckMetadata;
+  metadata: CadenzaDeckMetadata;
   outputDirectory: string;
   runId: string;
   timeline: TimelineMap;
@@ -46,7 +46,7 @@ export type StaticWebCompatibilityAdapterResult = {
     primaryOracle: "semantic-browser-smoke";
     screenshotOrPixelEvidence: "supplemental-only";
     status: "covered-by-tests";
-    testPath: "tests/browser/phase6-static-web-compatibility.spec.ts";
+    testPath: "tests/browser/local-export-static-web-compatibility.spec.ts";
   };
   compatibilityMode: "static-web-compatibility";
   entrypointPath: "index.html";
@@ -101,7 +101,7 @@ export async function renderStaticWebCompatibility(
       primaryOracle: "semantic-browser-smoke",
       screenshotOrPixelEvidence: "supplemental-only",
       status: "covered-by-tests",
-      testPath: "tests/browser/phase6-static-web-compatibility.spec.ts",
+      testPath: "tests/browser/local-export-static-web-compatibility.spec.ts",
     },
     compatibilityMode: "static-web-compatibility",
     entrypointPath: "index.html",

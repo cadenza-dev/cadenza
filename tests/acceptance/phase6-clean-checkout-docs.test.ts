@@ -3,12 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import {
   exportDeckLocal,
-  findPhase6OverclaimViolations,
+  findAlphaSurfaceOverclaimViolations,
 } from "@cadenza-dev/export-local";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
-const walkthroughPath = path.join(repoRoot, "docs", "phase6-local-export.md");
+const walkthroughPath = path.join(repoRoot, "docs", "local-export.md");
 
 async function readRepoText(relativePath: string): Promise<string> {
   return readFile(path.join(repoRoot, relativePath), "utf8");
@@ -25,38 +25,36 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
     const readme = await readRepoText("README.md");
     const walkthrough = await readFile(walkthroughPath, "utf8");
 
-    expect(readme).toContain("[`docs/phase6-local-export.md`]");
-    expect(readme).toContain("Phase 6 local export");
-    expect(readme).not.toContain(
-      "docs/phase6-local-export.md#generated-transcript",
-    );
+    expect(readme).toContain("[`docs/local-export.md`]");
+    expect(readme).toContain("Cadenza local export");
+    expect(readme).not.toContain("docs/local-export.md#generated-transcript");
     expect(readme).toMatch(
       /The preview adapter keeps Remotion Player integration behind peer\s+dependencies\./,
     );
     expect(readme).toMatch(
-      /`@cadenza-dev\/export-local` declares direct local\s+renderer dependencies/,
+      /`@cadenza-dev\/export-local` declares direct local\s+renderer\s+dependencies/,
     );
     expect(readme).not.toContain(
       "Cadenza does not redistribute Remotion; it depends on it as a peer dependency.",
     );
 
     expectAll(walkthrough, [
-      "# Phase 6 Local Export Walkthrough",
+      "# Cadenza Local Export Walkthrough",
       "pnpm install",
       "pnpm cadenza --help",
       "pnpm cadenza --version",
-      "pnpm cadenza validate phase5-alpha-readiness-talk --json",
-      "pnpm cadenza export phase5-alpha-readiness-talk --run-id local-web --format web",
-      "pnpm cadenza export phase5-alpha-readiness-talk --run-id local-mp4 --format mp4",
-      "pnpm cadenza inspect dist/cadenza/phase5-alpha-readiness-talk/local-web/manifest.json --json",
+      "pnpm cadenza validate cadenza-alpha-readiness-talk --json",
+      "pnpm cadenza export cadenza-alpha-readiness-talk --run-id local-web --format web",
+      "pnpm cadenza export cadenza-alpha-readiness-talk --run-id local-mp4 --format mp4",
+      "pnpm cadenza inspect dist/cadenza/cadenza-alpha-readiness-talk/local-web/manifest.json --json",
       "dist/cadenza/<deck-id>/<run-id>/",
       "manifest.json",
       "web-evidence.json",
       "mp4-evidence.json",
       "index.html",
-      "phase5-alpha-readiness-talk.mp4",
+      "cadenza-alpha-readiness-talk.mp4",
       "local deck modules and `cadenza.config.ts` are trusted local code",
-      "No sandbox is provided in Phase 6.",
+      "No sandbox is provided by the local export workflow.",
       "Node.js",
       "pnpm",
       "Remotion renderer",
@@ -87,7 +85,7 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
       "not the future Player App web export",
       "compatibility adapter boundary",
       "semantic browser smoke",
-      "Phase 7+",
+      "future work",
     ]);
   });
 
@@ -102,7 +100,7 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
         formats: ["web"],
         outputRoot: tempRoot,
         runId: "overclaim-guard",
-        selector: "phase5-alpha-readiness-talk",
+        selector: "cadenza-alpha-readiness-talk",
         workspaceRoot: repoRoot,
       });
       const manifestText = JSON.stringify(exportResult.manifest, null, 2);
@@ -112,7 +110,7 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
       );
 
       expect(
-        findPhase6OverclaimViolations(
+        findAlphaSurfaceOverclaimViolations(
           [
             "Phase 6 is ready for hosted rendering.",
             "Phase 6 is ready for npm publication.",
@@ -131,11 +129,11 @@ describe("B6.5 Phase 6 clean-checkout documentation", () => {
 
       for (const [artifact, text] of [
         ["README.md", readme],
-        ["docs/phase6-local-export.md", walkthrough],
+        ["docs/local-export.md", walkthrough],
         ["manifest.json", manifestText],
         ["web-evidence.json", webEvidenceText],
       ] as const) {
-        expect(findPhase6OverclaimViolations(text), artifact).toEqual([]);
+        expect(findAlphaSurfaceOverclaimViolations(text), artifact).toEqual([]);
       }
 
       expect(walkthrough).toContain("## Generated Output Ownership");

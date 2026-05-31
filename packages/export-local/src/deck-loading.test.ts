@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { CadenzaPhase6Error, loadDeckModule } from "./index.ts";
+import { CadenzaLocalExportError, loadDeckModule } from "./index.ts";
 
 const tempProjects: string[] = [];
 
@@ -18,17 +18,17 @@ describe("B6.1 Phase 6 deck loading", () => {
   it("TC-DLOD-001 loads the canonical Phase 5 talk through the Phase 6 deck module contract", async () => {
     const loaded = await loadDeckModule({
       cwd: process.cwd(),
-      selector: "phase5-alpha-readiness-talk",
+      selector: "cadenza-alpha-readiness-talk",
     });
 
     expect(loaded.selector).toMatchObject({
-      alias: "phase5-alpha-readiness-talk",
+      alias: "cadenza-alpha-readiness-talk",
       source: "built-in-alias",
     });
     expect(loaded.metadata).toMatchObject({
-      deckId: "phase5-alpha-readiness-talk",
-      sourcePath: "examples/phase5/alpha-readiness-talk.tsx",
-      title: "Cadenza Phase 5 Alpha Readiness Talk",
+      deckId: "cadenza-alpha-readiness-talk",
+      sourcePath: "examples/cadenza/alpha-readiness-talk.tsx",
+      title: "Cadenza Alpha Readiness Talk",
     });
     expect(loaded.contractExports).toEqual([
       "cadenzaDeckMetadata",
@@ -92,7 +92,7 @@ export const cadenzaDeck = (
     tempProjects.push(projectRoot);
     const deckPath = path.join(
       workspaceRoot,
-      "examples/phase5/alpha-readiness-talk.tsx",
+      "examples/cadenza/alpha-readiness-talk.tsx",
     );
     const relativeDeckPath = path.relative(projectRoot, deckPath);
 
@@ -116,7 +116,7 @@ export default defineConfig({
 
     const builtIn = await loadDeckModule({
       cwd: projectRoot,
-      selector: "phase5-alpha-readiness-talk",
+      selector: "cadenza-alpha-readiness-talk",
       workspaceRoot,
     });
     const configAlias = await loadDeckModule({
@@ -149,10 +149,10 @@ export default defineConfig({
         (loaded) => loaded.metadata.deckId,
       ),
     ).toEqual([
-      "phase5-alpha-readiness-talk",
-      "phase5-alpha-readiness-talk",
-      "phase5-alpha-readiness-talk",
-      "phase5-alpha-readiness-talk",
+      "cadenza-alpha-readiness-talk",
+      "cadenza-alpha-readiness-talk",
+      "cadenza-alpha-readiness-talk",
+      "cadenza-alpha-readiness-talk",
     ]);
   });
 
@@ -178,7 +178,7 @@ export default defineConfig({
         cwd: process.cwd(),
         selector: "missing-talk",
       }),
-    ).rejects.toBeInstanceOf(CadenzaPhase6Error);
+    ).rejects.toBeInstanceOf(CadenzaLocalExportError);
   });
 
   it("TC-DLOD-004 gives project config aliases precedence over built-in aliases when names collide", async () => {
@@ -216,7 +216,7 @@ export function createCadenzaDeck() {
 
 export default defineConfig({
   decks: {
-    "phase5-alpha-readiness-talk": "./shadow.deck.tsx",
+    "cadenza-alpha-readiness-talk": "./shadow.deck.tsx",
   },
 });
 `,
@@ -224,12 +224,12 @@ export default defineConfig({
 
     const loaded = await loadDeckModule({
       cwd: projectRoot,
-      selector: "phase5-alpha-readiness-talk",
+      selector: "cadenza-alpha-readiness-talk",
       workspaceRoot,
     });
 
     expect(loaded.selector).toMatchObject({
-      alias: "phase5-alpha-readiness-talk",
+      alias: "cadenza-alpha-readiness-talk",
       source: "config-alias",
     });
     expect(loaded.metadata.deckId).toBe("shadow-talk");

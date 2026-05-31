@@ -236,7 +236,7 @@ async function loadRendererWithMocks({
     durationInFrames: 24,
     fps: 24,
     height: 360,
-    id: "CadenzaPhase6Mp4",
+    id: "CadenzaLocalExportMp4",
     width: 640,
   }),
 }: {

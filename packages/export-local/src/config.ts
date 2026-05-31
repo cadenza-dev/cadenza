@@ -1,6 +1,9 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
-import { CadenzaPhase6Error, type Phase6Diagnostic } from "./diagnostics.ts";
+import {
+  CadenzaLocalExportError,
+  type LocalExportDiagnostic,
+} from "./diagnostics.ts";
 
 export type CadenzaExportFormat = "mp4" | "web";
 
@@ -14,7 +17,7 @@ export type CadenzaProjectConfig = {
   };
 };
 
-export type Phase6RuntimeConfig = {
+export type LocalExportRuntimeConfig = {
   defaultFormats: CadenzaExportFormat[];
   evidenceFilenames: {
     manifest: string;
@@ -29,7 +32,7 @@ export type Phase6RuntimeConfig = {
   rendererTempRoot: string;
 };
 
-export type ResolvePhase6RuntimeConfigOptions = {
+export type ResolveLocalExportRuntimeConfigOptions = {
   cli?: {
     defaultFormats?: CadenzaExportFormat[];
     force?: boolean;
@@ -57,10 +60,10 @@ export function defineConfig(
 export function validateProjectConfig(
   value: unknown,
 ): asserts value is CadenzaProjectConfig {
-  const diagnostics: Phase6Diagnostic[] = [];
+  const diagnostics: LocalExportDiagnostic[] = [];
 
   if (!isRecord(value)) {
-    throw new CadenzaPhase6Error(2, [
+    throw new CadenzaLocalExportError(2, [
       {
         category: "config",
         code: "CNFG_INVALID_VALUE",
@@ -79,10 +82,10 @@ export function validateProjectConfig(
         category: "config",
         code: "CNFG_UNKNOWN_KEY",
         locator: key,
-        message: `Unknown Phase 6 config key "${key}".`,
+        message: `Unknown Cadenza config key "${key}".`,
         relatedRequirements: ["CNFG-004"],
         repairHint:
-          "Use only decks, output.root, and export.defaultFormats in Phase 6 config.",
+          "Use only decks, output.root, and export.defaultFormats in Cadenza config.",
         severity: "error",
       });
     }
@@ -97,7 +100,7 @@ export function validateProjectConfig(
       category: "config",
       code: "CNFG_INVALID_VALUE",
       locator: "decks",
-      message: "Phase 6 config decks must be an alias-to-path record.",
+      message: "Cadenza config decks must be an alias-to-path record.",
       relatedRequirements: ["CNFG-002", "CNFG-004", "CNFG-007"],
       repairHint:
         "Use decks: { alias: './path/to/deck.tsx' } without identity overrides.",
@@ -115,7 +118,7 @@ export function validateProjectConfig(
       category: "config",
       code: "CNFG_INVALID_VALUE",
       locator: "output.root",
-      message: "Phase 6 config output.root must be a string when provided.",
+      message: "Cadenza config output.root must be a string when provided.",
       relatedRequirements: ["CNFG-002", "CNFG-004"],
       repairHint: "Use output: { root: 'dist/cadenza' }.",
       severity: "error",
@@ -136,7 +139,7 @@ export function validateProjectConfig(
       code: "CNFG_INVALID_VALUE",
       locator: "export.defaultFormats",
       message:
-        'Phase 6 config export.defaultFormats must contain only "web" and "mp4".',
+        'Cadenza config export.defaultFormats must contain only "web" and "mp4".',
       relatedRequirements: ["CNFG-002", "CNFG-004"],
       repairHint: 'Use export: { defaultFormats: ["web", "mp4"] }.',
       severity: "error",
@@ -144,47 +147,49 @@ export function validateProjectConfig(
   }
 
   if (diagnostics.length > 0) {
-    throw new CadenzaPhase6Error(2, diagnostics);
+    throw new CadenzaLocalExportError(2, diagnostics);
   }
 }
 
-export const PHASE6_DEFAULT_FORMATS: readonly CadenzaExportFormat[] = [
+export const LOCAL_EXPORT_DEFAULT_FORMATS: readonly CadenzaExportFormat[] = [
   "web",
   "mp4",
 ] as const;
 
-export const PHASE6_DEFAULT_OUTPUT_ROOT = "dist/cadenza";
+export const LOCAL_EXPORT_DEFAULT_OUTPUT_ROOT = "dist/cadenza";
 
-export const PHASE6_ARTIFACT_FILENAMES = {
+export const LOCAL_EXPORT_ARTIFACT_FILENAMES = {
   manifest: "manifest.json",
   mp4Evidence: "mp4-evidence.json",
   webEvidence: "web-evidence.json",
 } as const;
 
-export const PHASE6_RENDERER_TEMP_ROOT = "tmp/cadenza-render";
+export const LOCAL_EXPORT_RENDERER_TEMP_ROOT = "tmp/cadenza-render";
 
-export function resolvePhase6RuntimeConfig({
+export function resolveLocalExportRuntimeConfig({
   cli,
   config,
-}: ResolvePhase6RuntimeConfigOptions): Phase6RuntimeConfig {
+}: ResolveLocalExportRuntimeConfigOptions): LocalExportRuntimeConfig {
   return {
     defaultFormats: [
       ...(cli?.defaultFormats ??
         config?.export?.defaultFormats ??
-        PHASE6_DEFAULT_FORMATS),
+        LOCAL_EXPORT_DEFAULT_FORMATS),
     ],
     evidenceFilenames: {
-      manifest: PHASE6_ARTIFACT_FILENAMES.manifest,
-      mp4: PHASE6_ARTIFACT_FILENAMES.mp4Evidence,
-      web: PHASE6_ARTIFACT_FILENAMES.webEvidence,
+      manifest: LOCAL_EXPORT_ARTIFACT_FILENAMES.manifest,
+      mp4: LOCAL_EXPORT_ARTIFACT_FILENAMES.mp4Evidence,
+      web: LOCAL_EXPORT_ARTIFACT_FILENAMES.webEvidence,
     },
     generatedOutputSafety: {
       force: cli?.force ?? false,
       prompt: false,
     },
     outputRoot:
-      cli?.outputRoot ?? config?.output?.root ?? PHASE6_DEFAULT_OUTPUT_ROOT,
-    rendererTempRoot: PHASE6_RENDERER_TEMP_ROOT,
+      cli?.outputRoot ??
+      config?.output?.root ??
+      LOCAL_EXPORT_DEFAULT_OUTPUT_ROOT,
+    rendererTempRoot: LOCAL_EXPORT_RENDERER_TEMP_ROOT,
   };
 }
 
@@ -213,7 +218,7 @@ export async function ensureGeneratedOutputSafety({
     };
   }
 
-  throw new CadenzaPhase6Error(2, [
+  throw new CadenzaLocalExportError(2, [
     {
       category: "config",
       code: "CNFG_OUTPUT_OWNERSHIP",

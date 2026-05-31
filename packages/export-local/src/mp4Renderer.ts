@@ -7,16 +7,16 @@ import {
   selectComposition,
 } from "@remotion/renderer";
 import type { TimelineMap } from "../../core/src/index.ts";
-import type { Phase6DeckMetadata } from "./deckLoader.ts";
+import type { CadenzaDeckMetadata } from "./deckLoader.ts";
 import {
-  CadenzaPhase6Error,
-  PHASE6_EXIT_CODES,
-  type Phase6Diagnostic,
+  CadenzaLocalExportError,
+  LOCAL_EXPORT_EXIT_CODES,
+  type LocalExportDiagnostic,
 } from "./diagnostics.ts";
 
 export type LocalMp4RendererInput = {
   cancelSignal?: (callback: () => void) => void;
-  metadata: Phase6DeckMetadata;
+  metadata: CadenzaDeckMetadata;
   outputDirectory: string;
   rendererTempRoot: string;
   runId: string;
@@ -73,7 +73,7 @@ export type LocalMp4RendererResult = {
     height: number;
     width: number;
   };
-  diagnostics: Phase6Diagnostic[];
+  diagnostics: LocalExportDiagnostic[];
   knownLimitations: string[];
   localPrerequisites: LocalMp4Prerequisite[];
   outputPath: string;
@@ -90,12 +90,12 @@ export type LocalMp4RendererFailureEvidence = Pick<
   | "rendererProvenance"
 >;
 
-export class LocalMp4RendererError extends CadenzaPhase6Error {
+export class LocalMp4RendererError extends CadenzaLocalExportError {
   readonly failureEvidence: LocalMp4RendererFailureEvidence;
 
   constructor(
     exitCode: number,
-    diagnostics: Phase6Diagnostic[],
+    diagnostics: LocalExportDiagnostic[],
     failureEvidence: LocalMp4RendererFailureEvidence,
   ) {
     super(exitCode, diagnostics);
@@ -105,10 +105,10 @@ export class LocalMp4RendererError extends CadenzaPhase6Error {
 }
 
 class RendererStageError extends Error {
-  readonly diagnostic: Phase6Diagnostic;
+  readonly diagnostic: LocalExportDiagnostic;
   readonly exitCode: number;
 
-  constructor(exitCode: number, diagnostic: Phase6Diagnostic) {
+  constructor(exitCode: number, diagnostic: LocalExportDiagnostic) {
     super(diagnostic.message);
     this.name = "RendererStageError";
     this.diagnostic = diagnostic;
@@ -116,7 +116,7 @@ class RendererStageError extends Error {
   }
 }
 
-const COMPOSITION_ID = "CadenzaPhase6Mp4";
+const COMPOSITION_ID = "CadenzaLocalExportMp4";
 const COMPOSITION_WIDTH = 640;
 const COMPOSITION_HEIGHT = 360;
 const RENDER_EVERY_NTH_FRAME = 6;
@@ -155,7 +155,7 @@ export async function renderLocalMp4(
     const cleanup = await cleanupTempDirectory(tempDirectory, tempDirectories);
 
     throw new LocalMp4RendererError(
-      PHASE6_EXIT_CODES.environment,
+      LOCAL_EXPORT_EXIT_CODES.environment,
       [diagnostic],
       {
         cleanup,
@@ -323,7 +323,7 @@ async function runRendererStage<T>({
     return await action();
   } catch (error) {
     throw new RendererStageError(
-      PHASE6_EXIT_CODES.export,
+      LOCAL_EXPORT_EXIT_CODES.export,
       rendererStageDiagnostic({
         code,
         error,
@@ -472,7 +472,7 @@ function createKnownLimitations(): string[] {
 
 function missingBrowserDiagnostic(
   browserPrerequisite: LocalMp4Prerequisite,
-): Phase6Diagnostic {
+): LocalExportDiagnostic {
   return {
     category: "environment",
     code: "VIDO_BROWSER_UNAVAILABLE",
@@ -490,7 +490,7 @@ function missingBrowserDiagnostic(
 function createCleanupDiagnostics({
   status,
   tempDirectories,
-}: LocalMp4RendererResult["cleanup"]): Phase6Diagnostic[] {
+}: LocalMp4RendererResult["cleanup"]): LocalExportDiagnostic[] {
   if (status !== "failed") {
     return [];
   }
@@ -516,7 +516,7 @@ function createUnexpectedRendererStageError(
   outputPath: string,
 ): RendererStageError {
   return new RendererStageError(
-    PHASE6_EXIT_CODES.export,
+    LOCAL_EXPORT_EXIT_CODES.export,
     rendererStageDiagnostic({
       code: "VIDO_UNEXPECTED_RENDERER_FAILURE",
       error,
@@ -534,7 +534,7 @@ function createRenderMediaStageError(
 ): RendererStageError {
   if (isCancellationError(error)) {
     return new RendererStageError(
-      PHASE6_EXIT_CODES.export,
+      LOCAL_EXPORT_EXIT_CODES.export,
       rendererStageDiagnostic({
         code: "VIDO_RENDER_CANCELLED",
         error,
@@ -548,7 +548,7 @@ function createRenderMediaStageError(
 
   if (isOutputWriteError(error)) {
     return new RendererStageError(
-      PHASE6_EXIT_CODES.export,
+      LOCAL_EXPORT_EXIT_CODES.export,
       rendererStageDiagnostic({
         code: "VIDO_OUTPUT_WRITE_FAILED",
         error,
@@ -562,7 +562,7 @@ function createRenderMediaStageError(
 
   if (isCodecOrMediaToolError(error)) {
     return new RendererStageError(
-      PHASE6_EXIT_CODES.export,
+      LOCAL_EXPORT_EXIT_CODES.export,
       rendererStageDiagnostic({
         code: "VIDO_CODEC_MEDIA_TOOL_FAILED",
         error,
@@ -575,7 +575,7 @@ function createRenderMediaStageError(
   }
 
   return new RendererStageError(
-    PHASE6_EXIT_CODES.export,
+    LOCAL_EXPORT_EXIT_CODES.export,
     rendererStageDiagnostic({
       code: "VIDO_RENDER_INVOCATION_FAILED",
       error,
@@ -623,7 +623,7 @@ function rendererStageDiagnostic({
   locator: string;
   repairHint: string;
   stage: LocalMp4RendererStage;
-}): Phase6Diagnostic {
+}): LocalExportDiagnostic {
   return {
     category: "renderer",
     code,
@@ -669,7 +669,7 @@ const DATA = ${JSON.stringify({
     width: COMPOSITION_WIDTH,
   })};
 
-function CadenzaPhase6Mp4() {
+function CadenzaLocalExportMp4() {
   // why: the renderer adapter must bind Remotion's current frame to Cadenza's
   // deterministic offline timeline while keeping the public adapter strategy private.
   const frame = useCurrentFrame();
@@ -708,7 +708,7 @@ function CadenzaPhase6Mp4() {
 function RemotionRoot() {
   return (
     <Composition
-      component={CadenzaPhase6Mp4}
+      component={CadenzaLocalExportMp4}
       durationInFrames={DATA.totalFrames}
       fps={DATA.fps}
       height={DATA.height}

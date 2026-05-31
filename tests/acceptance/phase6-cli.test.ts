@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { commandRegistry, runPhase6Cli } from "@cadenza-dev/cli";
+import { commandRegistry, runCadenzaCli } from "@cadenza-dev/cli";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
@@ -9,7 +9,7 @@ async function runCadenza(args: string[]): Promise<{
   stderr: string;
   stdout: string;
 }> {
-  const result = await runPhase6Cli(args, repoRoot);
+  const result = await runCadenzaCli(args, repoRoot);
 
   return {
     stderr: result.stderr,

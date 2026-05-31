@@ -1,5 +1,5 @@
 import {
-  PHASE6_EXPORT_SCHEMA_VERSION,
+  LOCAL_EXPORT_SCHEMA_VERSION,
   validateDeckLocal,
 } from "@cadenza-dev/export-local";
 import { failureResult, successResult, usageError } from "./output.ts";
@@ -28,7 +28,7 @@ export const validateCommand = {
           diagnostics: result.diagnostics,
           exitCode: 0,
           repairHints: [],
-          schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+          schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
           selector: result.selector,
           status: "success",
           timeline: result.timeline,

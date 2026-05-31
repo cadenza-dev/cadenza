@@ -2,11 +2,11 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
-import { runPhase6Cli } from "../../packages/cli/src/index.ts";
+import { runCadenzaCli } from "../../packages/cli/src/index.ts";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, "../..");
-const deckId = "phase5-alpha-readiness-talk";
+const deckId = "cadenza-alpha-readiness-talk";
 
 test.describe("B6.3 Phase 6 static web compatibility browser evidence", () => {
   test("TC-WEBC-002 uses semantic browser smoke as the primary web oracle", async ({
@@ -16,7 +16,7 @@ test.describe("B6.3 Phase 6 static web compatibility browser evidence", () => {
     const outputDir = path.join(repoRoot, "dist/cadenza", deckId, runId);
     rmSync(outputDir, { force: true, recursive: true });
 
-    const exported = await runPhase6Cli(
+    const exported = await runCadenzaCli(
       ["export", deckId, "--run-id", runId, "--format", "web", "--json"],
       repoRoot,
     );
@@ -85,8 +85,8 @@ test.describe("B6.3 Phase 6 static web compatibility browser evidence", () => {
       browserEvidence.semanticAnchors.map((anchor) => anchor.slideId),
     );
     expect(browserAnchorOrder).toEqual([
-      "launch-contract",
-      "phase4-to-phase5",
+      "local-alpha-contract",
+      "product-layer-to-local-export",
       "local-export-command",
       "deterministic-manifest",
       "evidence-gates",
@@ -95,7 +95,7 @@ test.describe("B6.3 Phase 6 static web compatibility browser evidence", () => {
     await expect(page.locator("[data-cadenza-notes-boundary]")).toHaveCount(6);
     await expect(
       page.getByText(
-        "Open by naming Phase 5 as a local launch-candidate proof",
+        "Open by naming the local alpha candidate as reviewable infrastructure",
       ),
     ).toHaveCount(0);
     expect(browserEvidence.timingEvidence.offlineTiming).toEqual({

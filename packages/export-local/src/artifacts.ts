@@ -5,18 +5,18 @@ import {
   type CadenzaExportFormat,
   type CadenzaProjectConfig,
   ensureGeneratedOutputSafety,
-  PHASE6_ARTIFACT_FILENAMES,
-  resolvePhase6RuntimeConfig,
+  LOCAL_EXPORT_ARTIFACT_FILENAMES,
+  resolveLocalExportRuntimeConfig,
 } from "./config.ts";
 import {
   type LoadedDeckModule,
   loadDeckModule,
-  loadPhase6ProjectConfig,
+  loadLocalExportProjectConfig,
 } from "./deckLoader.ts";
 import {
-  PHASE6_EXIT_CODES,
-  type Phase6Diagnostic,
-  phase6Error,
+  LOCAL_EXPORT_EXIT_CODES,
+  type LocalExportDiagnostic,
+  localExportError,
 } from "./diagnostics.ts";
 import {
   LocalMp4RendererError,
@@ -29,21 +29,21 @@ import {
   type StaticWebCompatibilityAdapterResult,
 } from "./staticWebCompatibility.ts";
 
-export const PHASE6_EXPORT_SCHEMA_VERSION = 1;
+export const LOCAL_EXPORT_SCHEMA_VERSION = 1;
 
-export type Phase6CapabilityStatus =
+export type LocalExportCapabilityStatus =
   | "limited"
   | "supported"
   | "unsupported"
   | "waived";
 
-export type Phase6FormatCapability = {
+export type LocalExportFormatCapability = {
   description: string;
   futureReusableConcepts: string[];
-  status: Phase6CapabilityStatus;
+  status: LocalExportCapabilityStatus;
 };
 
-export type Phase6ArtifactRecord = {
+export type LocalExportArtifactRecord = {
   byteSize?: number;
   format?: CadenzaExportFormat;
   path: string;
@@ -51,16 +51,16 @@ export type Phase6ArtifactRecord = {
   sha256?: string;
 };
 
-export type Phase6FormatEvidence = {
+export type LocalExportFormatEvidence = {
   adapterProvenance?: StaticWebCompatibilityAdapterResult["adapterProvenance"];
-  artifacts: Phase6ArtifactRecord[];
+  artifacts: LocalExportArtifactRecord[];
   browserSmoke?: StaticWebCompatibilityAdapterResult["browserSmoke"];
-  capability: Phase6FormatCapability;
+  capability: LocalExportFormatCapability;
   cleanup?: LocalMp4RendererResult["cleanup"];
   compatibilityMode?: StaticWebCompatibilityAdapterResult["compatibilityMode"];
   composition?: LocalMp4RendererResult["composition"];
   containerMetadata?: LocalMp4RendererResult["containerMetadata"];
-  diagnostics: Phase6Diagnostic[];
+  diagnostics: LocalExportDiagnostic[];
   entrypointPath?: StaticWebCompatibilityAdapterResult["entrypointPath"];
   format: CadenzaExportFormat;
   knownLimitations: string[];
@@ -70,13 +70,15 @@ export type Phase6FormatEvidence = {
   rendererProvenance?: LocalMp4RendererResult["rendererProvenance"];
   schemaVersion: number;
   semanticAnchors?: StaticWebCompatibilityAdapterResult["semanticAnchors"];
-  status: Phase6CapabilityStatus;
+  status: LocalExportCapabilityStatus;
   timingEvidence?: StaticWebCompatibilityAdapterResult["timingEvidence"];
 };
 
-export type Phase6ExportManifest = {
-  artifacts: Phase6ArtifactRecord[];
-  capabilities: Partial<Record<CadenzaExportFormat, Phase6FormatCapability>>;
+export type LocalExportManifest = {
+  artifacts: LocalExportArtifactRecord[];
+  capabilities: Partial<
+    Record<CadenzaExportFormat, LocalExportFormatCapability>
+  >;
   command: "export";
   deck: {
     id: string;
@@ -84,7 +86,9 @@ export type Phase6ExportManifest = {
     title: string;
   };
   deterministic: {
-    capabilities: Partial<Record<CadenzaExportFormat, Phase6FormatCapability>>;
+    capabilities: Partial<
+      Record<CadenzaExportFormat, LocalExportFormatCapability>
+    >;
     configDefaults: {
       defaultFormats: CadenzaExportFormat[];
       evidenceFilenames: {
@@ -97,7 +101,7 @@ export type Phase6ExportManifest = {
     timeline: ReturnType<typeof createDeterministicTimeline>;
     timelineDigest: string;
   };
-  diagnostics: Phase6Diagnostic[];
+  diagnostics: LocalExportDiagnostic[];
   evidence: Partial<Record<CadenzaExportFormat, string>>;
   formats: CadenzaExportFormat[];
   knownLimitations: string[];
@@ -133,7 +137,7 @@ export type ExportLocalOptions = {
 
 export type ExportLocalResult = {
   evidencePaths: Partial<Record<CadenzaExportFormat, string>>;
-  manifest: Phase6ExportManifest;
+  manifest: LocalExportManifest;
   manifestPath: string;
   outputDirectory: string;
 };
@@ -145,11 +149,11 @@ export type ValidateDeckLocalOptions = {
 };
 
 export type ValidateDeckLocalResult = {
-  deck: Phase6ExportManifest["deck"];
-  diagnostics: Phase6Diagnostic[];
+  deck: LocalExportManifest["deck"];
+  diagnostics: LocalExportDiagnostic[];
   schemaVersion: number;
-  selector: Phase6ExportManifest["selector"];
-  timeline: Phase6ExportManifest["deterministic"]["timeline"] & {
+  selector: LocalExportManifest["selector"];
+  timeline: LocalExportManifest["deterministic"]["timeline"] & {
     digest: string;
   };
 };
@@ -159,18 +163,20 @@ export type InspectExportArtifactOptions = {
 };
 
 export type InspectExportArtifactResult = {
-  artifacts: Phase6ArtifactRecord[];
-  capabilities: Partial<Record<CadenzaExportFormat, Phase6FormatCapability>>;
-  deck: Phase6ExportManifest["deck"];
-  diagnostics: Phase6Diagnostic[];
-  evidence: Partial<Record<CadenzaExportFormat, Phase6FormatEvidence>>;
+  artifacts: LocalExportArtifactRecord[];
+  capabilities: Partial<
+    Record<CadenzaExportFormat, LocalExportFormatCapability>
+  >;
+  deck: LocalExportManifest["deck"];
+  diagnostics: LocalExportDiagnostic[];
+  evidence: Partial<Record<CadenzaExportFormat, LocalExportFormatEvidence>>;
   formats: CadenzaExportFormat[];
   knownLimitations: string[];
-  manifest: Phase6ExportManifest;
+  manifest: LocalExportManifest;
   manifestPath: string;
   outputDirectory: string;
   schemaVersion: number;
-  selector: Phase6ExportManifest["selector"];
+  selector: LocalExportManifest["selector"];
 };
 
 export async function exportDeckLocal(
@@ -178,8 +184,11 @@ export async function exportDeckLocal(
 ): Promise<ExportLocalResult> {
   const cwd = options.cwd;
   const workspaceRoot = options.workspaceRoot ?? cwd;
-  const projectConfig = await loadPhase6ProjectConfig({ cwd, workspaceRoot });
-  const runtime = resolvePhase6RuntimeConfig({
+  const projectConfig = await loadLocalExportProjectConfig({
+    cwd,
+    workspaceRoot,
+  });
+  const runtime = resolveLocalExportRuntimeConfig({
     cli: {
       defaultFormats: options.formats,
       force: options.force,
@@ -210,7 +219,7 @@ export async function exportDeckLocal(
     deckId: loaded.metadata.deckId,
     generator: "@cadenza-dev/export-local",
     runId,
-    schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+    schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
   });
 
   const capabilities = createCapabilities(formats);
@@ -218,11 +227,11 @@ export async function exportDeckLocal(
   const timelineDigest = createStableHash(deterministicTimeline);
   const evidencePaths: Partial<Record<CadenzaExportFormat, string>> = {};
   const evidenceReferences: Partial<Record<CadenzaExportFormat, string>> = {};
-  const renderedArtifacts: Phase6ArtifactRecord[] = [];
+  const renderedArtifacts: LocalExportArtifactRecord[] = [];
 
   if (formats.includes("web")) {
     const webCompatibility = await renderStaticWebCompatibility({
-      manifestReferencePath: PHASE6_ARTIFACT_FILENAMES.manifest,
+      manifestReferencePath: LOCAL_EXPORT_ARTIFACT_FILENAMES.manifest,
       metadata: loaded.metadata,
       outputDirectory,
       runId,
@@ -234,7 +243,7 @@ export async function exportDeckLocal(
       relativePath: webCompatibility.entrypointPath,
       role: "entrypoint",
     });
-    const webEvidence: Phase6FormatEvidence = {
+    const webEvidence: LocalExportFormatEvidence = {
       adapterProvenance: webCompatibility.adapterProvenance,
       artifacts: [webArtifact],
       browserSmoke: webCompatibility.browserSmoke,
@@ -246,24 +255,24 @@ export async function exportDeckLocal(
       knownLimitations: webCompatibility.knownLimitations,
       manifestReference: webCompatibility.manifestReference,
       notesBoundary: webCompatibility.notesBoundary,
-      schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+      schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
       semanticAnchors: webCompatibility.semanticAnchors,
       status: "supported",
       timingEvidence: webCompatibility.timingEvidence,
     };
     const evidencePath = path.join(
       outputDirectory,
-      PHASE6_ARTIFACT_FILENAMES.webEvidence,
+      LOCAL_EXPORT_ARTIFACT_FILENAMES.webEvidence,
     );
     await writeJson(evidencePath, webEvidence);
     evidencePaths.web = evidencePath;
-    evidenceReferences.web = PHASE6_ARTIFACT_FILENAMES.webEvidence;
+    evidenceReferences.web = LOCAL_EXPORT_ARTIFACT_FILENAMES.webEvidence;
   }
 
   if (formats.includes("mp4")) {
     const evidencePath = path.join(
       outputDirectory,
-      PHASE6_ARTIFACT_FILENAMES.mp4Evidence,
+      LOCAL_EXPORT_ARTIFACT_FILENAMES.mp4Evidence,
     );
 
     try {
@@ -283,7 +292,7 @@ export async function exportDeckLocal(
         role: "mp4-render",
       });
       renderedArtifacts.push(mp4Artifact);
-      const mp4Evidence: Phase6FormatEvidence = {
+      const mp4Evidence: LocalExportFormatEvidence = {
         artifacts: [mp4Artifact],
         capability: capabilities.mp4,
         cleanup: mp4Render.cleanup,
@@ -294,12 +303,12 @@ export async function exportDeckLocal(
         knownLimitations: mp4Render.knownLimitations,
         localPrerequisites: mp4Render.localPrerequisites,
         rendererProvenance: mp4Render.rendererProvenance,
-        schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+        schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
         status: "supported",
       };
       await writeJson(evidencePath, mp4Evidence);
       evidencePaths.mp4 = evidencePath;
-      evidenceReferences.mp4 = PHASE6_ARTIFACT_FILENAMES.mp4Evidence;
+      evidenceReferences.mp4 = LOCAL_EXPORT_ARTIFACT_FILENAMES.mp4Evidence;
     } catch (error) {
       if (error instanceof LocalMp4RendererError) {
         capabilities.mp4 = mp4CapabilityWithStatus("unsupported");
@@ -312,9 +321,9 @@ export async function exportDeckLocal(
           knownLimitations: error.failureEvidence.knownLimitations,
           localPrerequisites: error.failureEvidence.localPrerequisites,
           rendererProvenance: error.failureEvidence.rendererProvenance,
-          schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+          schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
           status: "unsupported",
-        } satisfies Phase6FormatEvidence);
+        } satisfies LocalExportFormatEvidence);
       }
 
       throw error;
@@ -344,17 +353,17 @@ export async function exportDeckLocal(
     configDefaults: manifestWithoutHash.deterministic.configDefaults,
     deck: manifestWithoutHash.deck,
     formatSelection: formats,
-    schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+    schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
     timelineDigest,
   });
-  const manifest: Phase6ExportManifest = {
+  const manifest: LocalExportManifest = {
     ...manifestWithoutHash,
     artifacts: artifactInventory,
     stableHash,
   };
   const manifestPath = path.join(
     outputDirectory,
-    PHASE6_ARTIFACT_FILENAMES.manifest,
+    LOCAL_EXPORT_ARTIFACT_FILENAMES.manifest,
   );
   await writeJson(manifestPath, manifest);
 
@@ -379,7 +388,7 @@ export async function validateDeckLocal(
       title: loaded.metadata.title,
     },
     diagnostics: [],
-    schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+    schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
     selector: {
       ...(loaded.selector.alias === undefined
         ? {}
@@ -399,15 +408,16 @@ export async function inspectExportArtifact({
   inputPath,
 }: InspectExportArtifactOptions): Promise<InspectExportArtifactResult> {
   const manifestPath = await resolveManifestPath(inputPath);
-  const manifest = await readPhase6ExportManifest(manifestPath);
+  const manifest = await readLocalExportManifest(manifestPath);
   const outputDirectory = path.dirname(manifestPath);
-  const evidence: Partial<Record<CadenzaExportFormat, Phase6FormatEvidence>> =
-    {};
+  const evidence: Partial<
+    Record<CadenzaExportFormat, LocalExportFormatEvidence>
+  > = {};
 
   for (const format of manifest.formats) {
     const evidenceReference = manifest.evidence[format];
     if (evidenceReference === undefined) {
-      throw phase6Error(PHASE6_EXIT_CODES.usage, {
+      throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
         category: "inspect",
         code: "VINS_MISSING_EVIDENCE_REFERENCE",
         locator: manifestPath,
@@ -419,7 +429,7 @@ export async function inspectExportArtifact({
       });
     }
 
-    evidence[format] = await readPhase6FormatEvidence(
+    evidence[format] = await readLocalExportFormatEvidence(
       path.join(outputDirectory, evidenceReference),
       format,
     );
@@ -436,30 +446,30 @@ export async function inspectExportArtifact({
     manifest,
     manifestPath,
     outputDirectory,
-    schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+    schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
     selector: manifest.selector,
   };
 }
 
-export async function readPhase6ExportManifest(
+export async function readLocalExportManifest(
   manifestPath: string,
-): Promise<Phase6ExportManifest> {
+): Promise<LocalExportManifest> {
   const raw = await readJsonFile(manifestPath, "manifest");
 
   if (!isRecord(raw) || raw.command !== "export") {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "inspect",
       code: "VINS_NON_CADENZA_ARTIFACT",
       locator: manifestPath,
-      message: "The selected artifact is not a Phase 6 Cadenza export.",
+      message: "The selected artifact is not a Cadenza local export.",
       relatedRequirements: ["VINS-005", "CDIA-008"],
       repairHint:
-        "Pass a Phase 6 manifest.json path or an artifact directory containing one.",
+        "Pass a local export manifest.json path or an artifact directory containing one.",
       severity: "error",
     });
   }
 
-  if (raw.schemaVersion !== PHASE6_EXPORT_SCHEMA_VERSION) {
+  if (raw.schemaVersion !== LOCAL_EXPORT_SCHEMA_VERSION) {
     throw unsupportedSchemaDiagnostic(manifestPath, "manifest");
   }
 
@@ -469,32 +479,32 @@ export async function readPhase6ExportManifest(
     !isRecord(raw.deck) ||
     typeof raw.stableHash !== "string"
   ) {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "inspect",
       code: "VINS_MALFORMED_MANIFEST",
       locator: manifestPath,
-      message: "Phase 6 export manifest is missing required fields.",
+      message: "Cadenza local export manifest is missing required fields.",
       relatedRequirements: ["VINS-005", "EXEN-002", "CDIA-008"],
       repairHint:
-        "Regenerate the export or inspect a complete Phase 6 artifact directory.",
+        "Regenerate the export or inspect a complete local export artifact directory.",
       severity: "error",
     });
   }
 
-  return raw as Phase6ExportManifest;
+  return raw as LocalExportManifest;
 }
 
-export async function readPhase6FormatEvidence(
+export async function readLocalExportFormatEvidence(
   evidencePath: string,
   expectedFormat?: CadenzaExportFormat,
-): Promise<Phase6FormatEvidence> {
+): Promise<LocalExportFormatEvidence> {
   const raw = await readJsonFile(evidencePath, "evidence");
 
   if (!isRecord(raw)) {
     throw malformedEvidenceDiagnostic(evidencePath);
   }
 
-  if (raw.schemaVersion !== PHASE6_EXPORT_SCHEMA_VERSION) {
+  if (raw.schemaVersion !== LOCAL_EXPORT_SCHEMA_VERSION) {
     throw unsupportedSchemaDiagnostic(evidencePath, "evidence");
   }
 
@@ -507,7 +517,7 @@ export async function readPhase6FormatEvidence(
     throw malformedEvidenceDiagnostic(evidencePath);
   }
 
-  return raw as Phase6FormatEvidence;
+  return raw as LocalExportFormatEvidence;
 }
 
 function createManifestWithoutHash({
@@ -522,7 +532,9 @@ function createManifestWithoutHash({
   runId,
   timelineDigest,
 }: {
-  capabilities: Partial<Record<CadenzaExportFormat, Phase6FormatCapability>>;
+  capabilities: Partial<
+    Record<CadenzaExportFormat, LocalExportFormatCapability>
+  >;
   deterministicTimeline: ReturnType<typeof createDeterministicTimeline>;
   evidenceReferences: Partial<Record<CadenzaExportFormat, string>>;
   formats: CadenzaExportFormat[];
@@ -532,7 +544,7 @@ function createManifestWithoutHash({
   projectConfig: CadenzaProjectConfig | undefined;
   runId: string;
   timelineDigest: string;
-}): Omit<Phase6ExportManifest, "artifacts" | "stableHash"> {
+}): Omit<LocalExportManifest, "artifacts" | "stableHash"> {
   return {
     capabilities,
     command: "export",
@@ -548,9 +560,9 @@ function createManifestWithoutHash({
           ...(projectConfig?.export?.defaultFormats ?? ["web", "mp4"]),
         ],
         evidenceFilenames: {
-          manifest: PHASE6_ARTIFACT_FILENAMES.manifest,
-          mp4: PHASE6_ARTIFACT_FILENAMES.mp4Evidence,
-          web: PHASE6_ARTIFACT_FILENAMES.webEvidence,
+          manifest: LOCAL_EXPORT_ARTIFACT_FILENAMES.manifest,
+          mp4: LOCAL_EXPORT_ARTIFACT_FILENAMES.mp4Evidence,
+          web: LOCAL_EXPORT_ARTIFACT_FILENAMES.webEvidence,
         },
       },
       formatSelection: formats,
@@ -564,7 +576,7 @@ function createManifestWithoutHash({
     outputDirectory,
     outputRoot,
     runId,
-    schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+    schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
     selector: {
       ...(loaded.selector.alias === undefined
         ? {}
@@ -592,9 +604,9 @@ async function collectArtifactInventory({
   evidenceReferences: Partial<Record<CadenzaExportFormat, string>>;
   formats: CadenzaExportFormat[];
   outputDirectory: string;
-  renderedArtifacts: Phase6ArtifactRecord[];
-}): Promise<Phase6ArtifactRecord[]> {
-  const artifacts: Phase6ArtifactRecord[] = [...renderedArtifacts];
+  renderedArtifacts: LocalExportArtifactRecord[];
+}): Promise<LocalExportArtifactRecord[]> {
+  const artifacts: LocalExportArtifactRecord[] = [...renderedArtifacts];
 
   if (formats.includes("web")) {
     artifacts.push(
@@ -634,7 +646,7 @@ async function artifactRecord({
   outputDirectory: string;
   relativePath: string;
   role: string;
-}): Promise<Phase6ArtifactRecord> {
+}): Promise<LocalExportArtifactRecord> {
   const bytes = await readFile(path.join(outputDirectory, relativePath));
 
   return {
@@ -648,9 +660,9 @@ async function artifactRecord({
 
 function createCapabilities(
   formats: CadenzaExportFormat[],
-): Partial<Record<CadenzaExportFormat, Phase6FormatCapability>> {
+): Partial<Record<CadenzaExportFormat, LocalExportFormatCapability>> {
   const capabilities: Partial<
-    Record<CadenzaExportFormat, Phase6FormatCapability>
+    Record<CadenzaExportFormat, LocalExportFormatCapability>
   > = {};
 
   if (formats.includes("web")) {
@@ -663,7 +675,7 @@ function createCapabilities(
   return capabilities;
 }
 
-function webCapability(): Phase6FormatCapability {
+function webCapability(): LocalExportFormatCapability {
   return {
     description:
       "Static web compatibility artifact with semantic anchors and manifest-linked evidence.",
@@ -677,23 +689,23 @@ function webCapability(): Phase6FormatCapability {
   };
 }
 
-function mp4Capability(): Phase6FormatCapability {
+function mp4Capability(): LocalExportFormatCapability {
   return mp4CapabilityWithStatus("limited");
 }
 
 function mp4CapabilityWithStatus(
   status: Extract<
-    Phase6CapabilityStatus,
+    LocalExportCapabilityStatus,
     "limited" | "supported" | "unsupported"
   >,
-): Phase6FormatCapability {
+): LocalExportFormatCapability {
   return {
     description:
       status === "unsupported"
         ? "Local MP4 renderer capability was selected but the local renderer prerequisites or render stage failed."
         : status === "supported"
-          ? "Local MP4 renderer capability produced through the Phase 6 renderer adapter."
-          : "Local MP4 renderer capability selected for Phase 6, with media rendering completed by the B6.4 renderer adapter.",
+          ? "Local MP4 renderer capability produced through the local export renderer adapter."
+          : "Local MP4 renderer capability selected, with media rendering completed by the local renderer adapter.",
     futureReusableConcepts: [
       "renderer provenance",
       "media artifact metadata",
@@ -706,12 +718,12 @@ function mp4CapabilityWithStatus(
 
 function createKnownLimitations(formats: CadenzaExportFormat[]): string[] {
   const limitations = [
-    "Phase 6 export is local-only and does not claim hosted, cloud, Player App, PDF, PPTX, plugin, or npm-publication support.",
+    "Cadenza local export is local-only and does not claim hosted, cloud, Player App, PDF, PPTX, plugin, or npm-publication support.",
   ];
 
   if (formats.includes("mp4")) {
     limitations.push(
-      "MP4 media artifact generation is implemented by the B6.4 renderer adapter; B6.2 records capability and evidence shape only.",
+      "MP4 media artifact generation is implemented by the local renderer adapter.",
     );
   }
 
@@ -748,7 +760,7 @@ function normalizeFormats(
   }
 
   if (normalized.length === 0) {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "usage",
       code: "CLIS_FORMAT_REQUIRED",
       message: "At least one export format must be selected.",
@@ -766,19 +778,20 @@ async function resolveManifestPath(inputPath: string): Promise<string> {
     const inputStat = await stat(inputPath);
 
     if (inputStat.isDirectory()) {
-      return path.join(inputPath, PHASE6_ARTIFACT_FILENAMES.manifest);
+      return path.join(inputPath, LOCAL_EXPORT_ARTIFACT_FILENAMES.manifest);
     }
 
     return inputPath;
   } catch {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "inspect",
       code: "VINS_MISSING_MANIFEST",
       locator: inputPath,
-      message: "No Phase 6 export manifest was found at the selected path.",
+      message:
+        "No Cadenza local export manifest was found at the selected path.",
       relatedRequirements: ["VINS-005", "CDIA-008"],
       repairHint:
-        "Pass a manifest.json path or a directory containing a Phase 6 manifest.json.",
+        "Pass a manifest.json path or a directory containing a local export manifest.json.",
       severity: "error",
     });
   }
@@ -788,18 +801,18 @@ async function readJsonFile(filePath: string, kind: "evidence" | "manifest") {
   try {
     await access(filePath);
   } catch {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "inspect",
       code:
         kind === "manifest" ? "VINS_MISSING_MANIFEST" : "VINS_MISSING_EVIDENCE",
       locator: filePath,
       message:
         kind === "manifest"
-          ? "Phase 6 export manifest is missing."
-          : "Phase 6 format evidence file is missing.",
+          ? "Cadenza local export manifest is missing."
+          : "Cadenza local export format evidence file is missing.",
       relatedRequirements: ["VINS-005", "EXEN-010", "CDIA-008"],
       repairHint:
-        "Regenerate the export or inspect a complete Phase 6 artifact directory.",
+        "Regenerate the export or inspect a complete local export artifact directory.",
       severity: "error",
     });
   }
@@ -807,7 +820,7 @@ async function readJsonFile(filePath: string, kind: "evidence" | "manifest") {
   try {
     return JSON.parse(await readFile(filePath, "utf8")) as unknown;
   } catch {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "inspect",
       code:
         kind === "manifest"
@@ -816,8 +829,8 @@ async function readJsonFile(filePath: string, kind: "evidence" | "manifest") {
       locator: filePath,
       message:
         kind === "manifest"
-          ? "Phase 6 export manifest is not valid JSON."
-          : "Phase 6 format evidence is not valid JSON.",
+          ? "Cadenza local export manifest is not valid JSON."
+          : "Cadenza local export format evidence is not valid JSON.",
       relatedRequirements: ["VINS-005", "EXEN-010", "CDIA-008"],
       repairHint:
         "Regenerate the export or fix the malformed JSON before inspecting it.",
@@ -830,26 +843,26 @@ function unsupportedSchemaDiagnostic(
   filePath: string,
   kind: "evidence" | "manifest",
 ) {
-  return phase6Error(PHASE6_EXIT_CODES.usage, {
+  return localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
     category: "inspect",
     code:
       kind === "manifest"
         ? "EXEN_UNSUPPORTED_MANIFEST_SCHEMA"
         : "EXEN_UNSUPPORTED_EVIDENCE_SCHEMA",
     locator: filePath,
-    message: `Unsupported Phase 6 ${kind} schema version.`,
+    message: `Unsupported local export ${kind} schema version.`,
     relatedRequirements: ["EXEN-010", "VINS-005"],
-    repairHint: "Regenerate the artifact with the current Phase 6 exporter.",
+    repairHint: "Regenerate the artifact with the current local exporter.",
     severity: "error",
   });
 }
 
 function malformedEvidenceDiagnostic(evidencePath: string) {
-  return phase6Error(PHASE6_EXIT_CODES.usage, {
+  return localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
     category: "inspect",
     code: "VINS_MALFORMED_EVIDENCE",
     locator: evidencePath,
-    message: "Phase 6 format evidence is missing required fields.",
+    message: "Cadenza local export format evidence is missing required fields.",
     relatedRequirements: ["VINS-005", "EXEN-010", "CDIA-008"],
     repairHint:
       "Regenerate the export so each selected format has a valid evidence file.",
@@ -865,7 +878,7 @@ function sanitizeRunId(runId: string): string {
   const sanitized = runId.trim();
 
   if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(sanitized)) {
-    throw phase6Error(PHASE6_EXIT_CODES.usage, {
+    throw localExportError(LOCAL_EXPORT_EXIT_CODES.usage, {
       category: "usage",
       code: "CLIS_INVALID_RUN_ID",
       locator: runId,

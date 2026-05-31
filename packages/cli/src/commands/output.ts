@@ -1,13 +1,13 @@
 import {
-  CadenzaPhase6Error,
-  PHASE6_EXIT_CODES,
-  type Phase6Diagnostic,
+  CadenzaLocalExportError,
+  LOCAL_EXPORT_EXIT_CODES,
+  type LocalExportDiagnostic,
 } from "@cadenza-dev/export-local";
 import type { CommandResult } from "./types.ts";
 
 export type CommandSummary = {
   command: string;
-  diagnostics: Phase6Diagnostic[];
+  diagnostics: LocalExportDiagnostic[];
   exitCode: number;
   repairHints: string[];
   schemaVersion: number;
@@ -47,12 +47,12 @@ export function failureResult({
   error: unknown;
   json: boolean;
 }): CommandResult {
-  const phase6Error = toPhase6Error(error);
+  const localExportError = toLocalExportError(error);
   const summary: CommandSummary = {
     command,
-    diagnostics: phase6Error.diagnostics,
-    exitCode: phase6Error.exitCode,
-    repairHints: phase6Error.diagnostics.map(
+    diagnostics: localExportError.diagnostics,
+    exitCode: localExportError.exitCode,
+    repairHints: localExportError.diagnostics.map(
       (diagnostic) => diagnostic.repairHint,
     ),
     schemaVersion: 1,
@@ -61,15 +61,15 @@ export function failureResult({
 
   if (json) {
     return {
-      exitCode: phase6Error.exitCode,
+      exitCode: localExportError.exitCode,
       stderr: "",
       stdout: `${JSON.stringify(summary, null, 2)}\n`,
     };
   }
 
   return {
-    exitCode: phase6Error.exitCode,
-    stderr: `${phase6Error.diagnostics
+    exitCode: localExportError.exitCode,
+    stderr: `${localExportError.diagnostics
       .map((diagnostic) => `${diagnostic.code}: ${diagnostic.message}`)
       .join("\n")}\n`,
     stdout: "",
@@ -80,8 +80,8 @@ export function usageError(
   code: string,
   message: string,
   repairHint: string,
-): CadenzaPhase6Error {
-  return new CadenzaPhase6Error(PHASE6_EXIT_CODES.usage, [
+): CadenzaLocalExportError {
+  return new CadenzaLocalExportError(LOCAL_EXPORT_EXIT_CODES.usage, [
     {
       category: "usage",
       code,
@@ -93,12 +93,12 @@ export function usageError(
   ]);
 }
 
-function toPhase6Error(error: unknown): CadenzaPhase6Error {
-  if (error instanceof CadenzaPhase6Error) {
+function toLocalExportError(error: unknown): CadenzaLocalExportError {
+  if (error instanceof CadenzaLocalExportError) {
     return error;
   }
 
-  return new CadenzaPhase6Error(PHASE6_EXIT_CODES.internal, [
+  return new CadenzaLocalExportError(LOCAL_EXPORT_EXIT_CODES.internal, [
     {
       category: "internal",
       code: "CDIA_INTERNAL_ERROR",

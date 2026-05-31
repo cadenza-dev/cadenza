@@ -1,14 +1,14 @@
-export type Phase6OverclaimViolation = {
+export type AlphaSurfaceOverclaimViolation = {
   excerpt: string;
   label: string;
 };
 
-type Phase6OverclaimRule = {
+type AlphaSurfaceOverclaimRule = {
   label: string;
   pattern: RegExp;
 };
 
-const PHASE6_OVERCLAIM_RULES: Phase6OverclaimRule[] = [
+const ALPHA_SURFACE_OVERCLAIM_RULES: AlphaSurfaceOverclaimRule[] = [
   {
     label: "hosted rendering readiness",
     pattern:
@@ -51,12 +51,12 @@ const PHASE6_OVERCLAIM_RULES: Phase6OverclaimRule[] = [
   },
 ];
 
-export function findPhase6OverclaimViolations(
+export function findAlphaSurfaceOverclaimViolations(
   text: string,
-): Phase6OverclaimViolation[] {
+): AlphaSurfaceOverclaimViolation[] {
   const normalizedText = normalizeWhitespace(text);
 
-  return PHASE6_OVERCLAIM_RULES.flatMap((rule) => {
+  return ALPHA_SURFACE_OVERCLAIM_RULES.flatMap((rule) => {
     const match = rule.pattern.exec(normalizedText);
 
     if (match === null) {

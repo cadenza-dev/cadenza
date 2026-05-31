@@ -1,13 +1,13 @@
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { type CommandResult, runPhase6Cli } from "@cadenza-dev/cli";
+import { type CommandResult, runCadenzaCli } from "@cadenza-dev/cli";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
 
 async function runCadenza(args: string[]): Promise<CommandResult> {
-  return runPhase6Cli(args, repoRoot);
+  return runCadenzaCli(args, repoRoot);
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -29,7 +29,7 @@ describe("B6.3 Phase 6 static web compatibility", () => {
     await withTempRoot(async (tempRoot) => {
       const exported = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "b6-3-web",
         "--output",
@@ -91,11 +91,11 @@ describe("B6.3 Phase 6 static web compatibility", () => {
       );
       expect(indexHtml).toContain('id="cadenza-export-manifest-reference"');
       expect(indexHtml).toContain(
-        'data-cadenza-semantic-anchor="launch-contract"',
+        'data-cadenza-semantic-anchor="local-alpha-contract"',
       );
       expect(indexHtml).toContain('data-cadenza-notes-boundary="excluded"');
       expect(indexHtml).not.toContain(
-        "Open by naming Phase 5 as a local launch-candidate proof",
+        "Open by naming the local alpha candidate as reviewable infrastructure",
       );
 
       expect(webEvidence).toMatchObject({
@@ -108,7 +108,8 @@ describe("B6.3 Phase 6 static web compatibility", () => {
           primaryOracle: "semantic-browser-smoke",
           screenshotOrPixelEvidence: "supplemental-only",
           status: "covered-by-tests",
-          testPath: "tests/browser/phase6-static-web-compatibility.spec.ts",
+          testPath:
+            "tests/browser/local-export-static-web-compatibility.spec.ts",
         },
         compatibilityMode: "static-web-compatibility",
         entrypointPath: "index.html",
@@ -120,8 +121,8 @@ describe("B6.3 Phase 6 static web compatibility", () => {
       expect(
         webEvidence.semanticAnchors.map((anchor) => anchor.slideId),
       ).toEqual([
-        "launch-contract",
-        "phase4-to-phase5",
+        "local-alpha-contract",
+        "product-layer-to-local-export",
         "local-export-command",
         "deterministic-manifest",
         "evidence-gates",
@@ -153,7 +154,7 @@ describe("B6.3 Phase 6 static web compatibility", () => {
       expect(webEvidence.knownLimitations.join("\n")).toContain(
         "not a polished app shell",
       );
-      expect(JSON.stringify(webEvidence)).not.toContain("Phase 5 helper");
+      expect(JSON.stringify(webEvidence)).not.toContain("historical helper");
     });
   });
 });

@@ -1,6 +1,6 @@
 import {
   exportDeckLocal,
-  PHASE6_EXPORT_SCHEMA_VERSION,
+  LOCAL_EXPORT_SCHEMA_VERSION,
 } from "@cadenza-dev/export-local";
 import { failureResult, successResult, usageError } from "./output.ts";
 import { parseFormats, readFlagValue } from "./parse.ts";
@@ -36,7 +36,7 @@ export const exportCommand = {
           manifestPath: result.manifestPath,
           outputDirectory: result.outputDirectory,
           repairHints: [],
-          schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+          schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
           stableHash: result.manifest.stableHash,
           status: "success",
         },

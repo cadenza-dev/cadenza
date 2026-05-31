@@ -3,15 +3,15 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
-  CadenzaPhase6Error,
+  CadenzaLocalExportError,
   ensureGeneratedOutputSafety,
-  resolvePhase6RuntimeConfig,
+  resolveLocalExportRuntimeConfig,
   validateProjectConfig,
 } from "./index.ts";
 
 describe("B6.1 Phase 6 config and path registry", () => {
   it("TC-CNFG-001 and TC-CNFG-003 centralize path defaults and apply CLI over config over registry precedence", () => {
-    expect(resolvePhase6RuntimeConfig({})).toEqual({
+    expect(resolveLocalExportRuntimeConfig({})).toEqual({
       defaultFormats: ["web", "mp4"],
       evidenceFilenames: {
         manifest: "manifest.json",
@@ -27,7 +27,7 @@ describe("B6.1 Phase 6 config and path registry", () => {
     });
 
     expect(
-      resolvePhase6RuntimeConfig({
+      resolveLocalExportRuntimeConfig({
         cli: {
           defaultFormats: ["mp4"],
           force: true,
@@ -52,7 +52,7 @@ describe("B6.1 Phase 6 config and path registry", () => {
     });
 
     expect(
-      resolvePhase6RuntimeConfig({
+      resolveLocalExportRuntimeConfig({
         config: {
           export: {
             defaultFormats: ["web"],
@@ -74,7 +74,7 @@ describe("B6.1 Phase 6 config and path registry", () => {
         decks: ["not-a-record"],
         preview: {},
       }),
-    ).toThrow(CadenzaPhase6Error);
+    ).toThrow(CadenzaLocalExportError);
 
     try {
       validateProjectConfig({
@@ -82,19 +82,19 @@ describe("B6.1 Phase 6 config and path registry", () => {
         preview: {},
       });
     } catch (error) {
-      expect(error).toBeInstanceOf(CadenzaPhase6Error);
-      const phase6Error = error as CadenzaPhase6Error;
-      expect(phase6Error.exitCode).toBe(2);
-      expect(phase6Error.diagnostics.map((item) => item.code)).toEqual([
+      expect(error).toBeInstanceOf(CadenzaLocalExportError);
+      const localExportError = error as CadenzaLocalExportError;
+      expect(localExportError.exitCode).toBe(2);
+      expect(localExportError.diagnostics.map((item) => item.code)).toEqual([
         "CNFG_UNKNOWN_KEY",
         "CNFG_INVALID_VALUE",
       ]);
-      expect(phase6Error.diagnostics).toEqual(
+      expect(localExportError.diagnostics).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             category: "config",
             repairHint:
-              "Use only decks, output.root, and export.defaultFormats in Phase 6 config.",
+              "Use only decks, output.root, and export.defaultFormats in Cadenza config.",
             severity: "error",
           }),
         ]),

@@ -1,13 +1,13 @@
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { type CommandResult, runPhase6Cli } from "@cadenza-dev/cli";
+import { type CommandResult, runCadenzaCli } from "@cadenza-dev/cli";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
 
 async function runCadenza(args: string[]): Promise<CommandResult> {
-  return runPhase6Cli(args, repoRoot);
+  return runCadenzaCli(args, repoRoot);
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -33,7 +33,7 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
     await withTempRoot(async (tempRoot) => {
       const exported = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "b6-4-mp4",
         "--output",
@@ -94,7 +94,7 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
         expect.arrayContaining([
           expect.objectContaining({
             format: "mp4",
-            path: "phase5-alpha-readiness-talk.mp4",
+            path: "cadenza-alpha-readiness-talk.mp4",
             role: "mp4-render",
           }),
         ]),
@@ -139,14 +139,14 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
 
       const artifact = mp4Evidence.artifacts[0];
       expect(artifact).toMatchObject({
-        path: "phase5-alpha-readiness-talk.mp4",
+        path: "cadenza-alpha-readiness-talk.mp4",
         role: "mp4-render",
       });
       expect(artifact?.byteSize).toBeGreaterThan(1_000);
       expect(artifact?.sha256).toMatch(/^[a-f0-9]{64}$/);
 
       const bytes = await readFile(
-        path.join(summary.outputDirectory, "phase5-alpha-readiness-talk.mp4"),
+        path.join(summary.outputDirectory, "cadenza-alpha-readiness-talk.mp4"),
       );
       expect(bytes.subarray(0, 128).includes(Buffer.from("ftyp"))).toBe(true);
     });
@@ -163,7 +163,7 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
       try {
         const failed = await runCadenza([
           "export",
-          "phase5-alpha-readiness-talk",
+          "cadenza-alpha-readiness-talk",
           "--run-id",
           "b6-4-missing-browser",
           "--output",
@@ -200,7 +200,7 @@ describe("B6.4 Phase 6 local MP4 rendering", () => {
 
         const outputDirectory = path.join(
           tempRoot,
-          "phase5-alpha-readiness-talk",
+          "cadenza-alpha-readiness-talk",
           "b6-4-missing-browser",
         );
         const mp4Evidence = await readJson<{

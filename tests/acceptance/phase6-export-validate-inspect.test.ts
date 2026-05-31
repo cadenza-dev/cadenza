@@ -8,7 +8,7 @@ import {
 } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { type CommandResult, runPhase6Cli } from "@cadenza-dev/cli";
+import { type CommandResult, runCadenzaCli } from "@cadenza-dev/cli";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
@@ -18,7 +18,7 @@ async function runCadenza(
   args: string[],
   cwd = repoRoot,
 ): Promise<CommandResult> {
-  return runPhase6Cli(args, cwd, repoRoot);
+  return runCadenzaCli(args, cwd, repoRoot);
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -40,7 +40,7 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
     await withTempRoot(async (tempRoot) => {
       const run = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "b6-2-export",
         "--output",
@@ -71,7 +71,7 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
 
       const outputDirectory = path.join(
         tempRoot,
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "b6-2-export",
       );
       expect(summary.outputDirectory).toBe(outputDirectory);
@@ -104,9 +104,9 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
       expect(manifest).toMatchObject({
         command: "export",
         deck: {
-          id: "phase5-alpha-readiness-talk",
-          sourcePath: "examples/phase5/alpha-readiness-talk.tsx",
-          title: "Cadenza Phase 5 Alpha Readiness Talk",
+          id: "cadenza-alpha-readiness-talk",
+          sourcePath: "examples/cadenza/alpha-readiness-talk.tsx",
+          title: "Cadenza Alpha Readiness Talk",
         },
         diagnostics: [],
         evidence: {
@@ -118,8 +118,8 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
         runId: "b6-2-export",
         schemaVersion: 1,
         selector: {
-          alias: "phase5-alpha-readiness-talk",
-          requested: "phase5-alpha-readiness-talk",
+          alias: "cadenza-alpha-readiness-talk",
+          requested: "cadenza-alpha-readiness-talk",
           source: "built-in-alias",
         },
       });
@@ -133,7 +133,7 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
         expect.arrayContaining([
           expect.objectContaining({
             format: "mp4",
-            path: "phase5-alpha-readiness-talk.mp4",
+            path: "cadenza-alpha-readiness-talk.mp4",
             role: "mp4-render",
           }),
           expect.objectContaining({
@@ -179,7 +179,7 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
       expect(mp4Evidence).toMatchObject({
         artifacts: [
           expect.objectContaining({
-            path: "phase5-alpha-readiness-talk.mp4",
+            path: "cadenza-alpha-readiness-talk.mp4",
             role: "mp4-render",
           }),
         ],
@@ -195,7 +195,7 @@ describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
     await withTempRoot(async (projectRoot) => {
       const deckPath = path.join(
         repoRoot,
-        "examples/phase5/alpha-readiness-talk.tsx",
+        "examples/cadenza/alpha-readiness-talk.tsx",
       );
       const relativeDeckPath = path.relative(projectRoot, deckPath);
       const outputRoot = path.join(projectRoot, "dist", "validate-output");
@@ -240,7 +240,7 @@ export function createCadenzaDeck() {
       );
 
       const cases = [
-        ["validate", "phase5-alpha-readiness-talk", "--json"],
+        ["validate", "cadenza-alpha-readiness-talk", "--json"],
         ["validate", "project-talk", "--json"],
         ["validate", "--json"],
         ["validate", relativeDeckPath, "--json"],
@@ -257,7 +257,7 @@ export function createCadenzaDeck() {
           timeline: { digest: string; slideCount: number; totalFrames: number };
         };
         expect(summary).toMatchObject({
-          deckId: "phase5-alpha-readiness-talk",
+          deckId: "cadenza-alpha-readiness-talk",
           diagnostics: [],
           status: "success",
         });
@@ -298,7 +298,7 @@ export function createCadenzaDeck() {
     await withTempRoot(async (tempRoot) => {
       const exported = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "b6-2-inspect",
         "--output",
@@ -328,7 +328,7 @@ export function createCadenzaDeck() {
         };
 
         expect(summary).toMatchObject({
-          deckId: "phase5-alpha-readiness-talk",
+          deckId: "cadenza-alpha-readiness-talk",
           evidenceFormats: ["web"],
           formats: ["web"],
           status: "success",
@@ -530,7 +530,7 @@ export default defineConfig({
     "project-talk": ${JSON.stringify(
       path.relative(
         projectRoot,
-        path.join(repoRoot, "examples/phase5/alpha-readiness-talk.tsx"),
+        path.join(repoRoot, "examples/cadenza/alpha-readiness-talk.tsx"),
       ),
     )},
   },
@@ -546,7 +546,7 @@ export default defineConfig({
 
       const builtIn = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "built-in",
         "--output",
@@ -583,7 +583,7 @@ export default defineConfig({
       );
       const mp4Only = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "mp4-only",
         "--output",
@@ -613,10 +613,10 @@ export default defineConfig({
       );
 
       expect(summaries[1]?.outputDirectory).toBe(
-        path.join(configRoot, "phase5-alpha-readiness-talk", "config-alias"),
+        path.join(configRoot, "cadenza-alpha-readiness-talk", "config-alias"),
       );
       expect(summaries[2]?.outputDirectory).toBe(
-        path.join(cliRoot, "phase5-alpha-readiness-talk", "cli-override"),
+        path.join(cliRoot, "cadenza-alpha-readiness-talk", "cli-override"),
       );
       expect(manifests[1]).toMatchObject({
         outputRoot: configRoot,
@@ -637,7 +637,7 @@ export default defineConfig({
     await withTempRoot(async (tempRoot) => {
       const occupiedOutput = path.join(
         tempRoot,
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "occupied",
       );
       await mkdir(occupiedOutput, { recursive: true });
@@ -645,7 +645,7 @@ export default defineConfig({
 
       const blocked = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "occupied",
         "--output",
@@ -670,7 +670,7 @@ export default defineConfig({
 
       const forced = await runCadenza([
         "export",
-        "phase5-alpha-readiness-talk",
+        "cadenza-alpha-readiness-talk",
         "--run-id",
         "occupied",
         "--output",

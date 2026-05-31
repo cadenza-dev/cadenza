@@ -1,0 +1,99 @@
+version: 1
+phase: "6.5"
+phase_name: "Alpha Surface Naming Hygiene"
+status: reviewer_accepted
+timezone: Asia/Shanghai
+opened_at: "2026-06-01 01:23 +0800"
+
+session:
+  active_role: builder_orchestrator
+  approved_identity: GPT-5/Codex
+  approved_at: "2026-06-01 01:23 +0800"
+  approval_note: "Maintainer authorized GPT-5/Codex to execute Phase 6.5 in the Phase 5.5 scoped hygiene pattern without Architect/spec/kickfile, using the Phase 6.5 roadmap as maintainer-approved scope."
+
+scope:
+  roadmap: wip/next-phases/phase-6-5-alpha-surface-naming-hygiene-roadmap.md
+  maintainer_decisions:
+    - "1A: introduce a product-neutral canonical alpha deck selector/path; demote the Phase 5 demo to a historical fixture."
+    - "2A: do not retain Phase5/Phase6 public-ish aliases in active package barrels, CLI APIs, or diagnostic/type exports."
+  no_root_phase_flip: true
+  frozen_specs_modified: false
+  accepted_adrs_modified: false
+  status_current_phase_modified: false
+  excluded_work:
+    - Player App
+    - new export behavior
+    - visual-fidelity redesign
+    - hosted rendering
+    - npm release
+    - alpha announcement
+
+hygiene_batch:
+  id: P6.5-ASH
+  status: complete
+  started_at: "2026-06-01 01:23 +0800"
+  completed_at: "2026-06-01 01:36 +0800"
+  active_scope:
+    - active package export barrel naming
+    - CLI entrypoint naming
+    - diagnostics/types/config/manifest/evidence helper naming
+    - canonical alpha deck selector and path
+    - active docs examples and test imports
+  boundary: "Historical Phase5/Phase6 strings may remain only in frozen specs, trace/review archives, phase-named tests, historical fixtures, or explicit internal/test-owned helpers."
+  tdd:
+    red:
+      - command: "pnpm exec vitest run tests/acceptance/phase6-5-alpha-surface-naming.test.ts"
+        result: "failed as expected: missing runCadenzaCli and canonical alpha deck constants"
+    green:
+      - command: "pnpm exec vitest run tests/acceptance/phase6-5-alpha-surface-naming.test.ts"
+        result: "passed after exposing durable CLI/API names and canonical alpha deck constants"
+      - command: "pnpm exec vitest run packages/export-local/src/config.test.ts packages/export-local/src/deck-loading.test.ts tests/acceptance/phase6-cli.test.ts tests/acceptance/phase6-web-compatibility.test.ts tests/acceptance/phase6-clean-checkout-docs.test.ts tests/acceptance/phase6-5-alpha-surface-naming.test.ts"
+        result: "passed"
+      - command: "pnpm exec vitest run tests/acceptance/phase6-export-validate-inspect.test.ts tests/acceptance/phase6-mp4-rendering.test.ts"
+        result: "passed outside sandbox; sandbox run failed with Remotion uv_interface_addresses browser surface"
+  changes:
+    canonical_alpha_deck:
+      - examples/cadenza/alpha-readiness-talk.tsx
+      - packages/export-local/src/deckLoader.ts
+    durable_cli_surface:
+      - packages/cli/src/index.ts
+      - scripts/cadenza.ts
+    durable_export_local_surface:
+      - packages/export-local/src/index.ts
+      - packages/export-local/src/diagnostics.ts
+      - packages/export-local/src/config.ts
+      - packages/export-local/src/artifacts.ts
+      - packages/export-local/src/mp4Renderer.ts
+      - packages/export-local/src/overclaimGuard.ts
+      - packages/export-local/src/staticWebCompatibility.ts
+    docs_and_tests:
+      - docs/alpha-readiness.md
+      - docs/local-export.md
+      - tests/acceptance/phase6-5-alpha-surface-naming.test.ts
+      - tests/browser/local-export-static-web-compatibility.spec.ts
+      - tests/support/phase5-alpha-readiness-guide.md
+  behavior:
+    - "The active CLI API is runCadenzaCli/runCadenzaCliEntrypoint."
+    - "The active export-local barrel exposes durable LocalExport/Cadenza names and no longer re-exports legacy Phase 5 helpers or Phase 6 aliases."
+    - "The default built-in deck selector is cadenza-alpha-readiness-talk, resolved to examples/cadenza/alpha-readiness-talk.tsx."
+    - "The Phase 5 alpha readiness talk remains available only through historical/test-owned fixture paths."
+  verification:
+    typecheck: "pnpm typecheck"
+    test: "pnpm test (passed outside sandbox for local MP4 renderer acceptance)"
+    lint: "pnpm lint"
+    format: "pnpm format:check"
+    markdown: "pnpm exec markdownlint-cli2 \"**/*.md\""
+    shell: "find scripts .agents -name '*.sh' -print0 | xargs -0 shfmt -d"
+    spec: "pnpm spec:lint"
+    phase: "pnpm phase:check"
+    harness: "pnpm check:harness"
+    memory: "pnpm check:memory"
+    whitespace: "git diff --check"
+    browser: "pnpm test:browser (passed outside sandbox; sandbox Chromium launch blocked by sandbox_host_linux)"
+    full_stack_status: passed
+
+reviewer_pass:
+  status: accepted
+  completed_at: "2026-06-01 01:36 +0800"
+  report: trace/phase6-5/review-phase6-5-hygiene.md
+  findings: []

@@ -2,7 +2,7 @@ import { rmSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { expect, test } from "@playwright/test";
-import { runCadenzaCli } from "../../scripts/cadenza.js";
+import { runCadenzaCli } from "../../packages/export-local/src/legacyPhase5.js";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(currentDir, "../..");

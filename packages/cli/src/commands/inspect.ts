@@ -1,6 +1,6 @@
 import {
   inspectExportArtifact,
-  PHASE6_EXPORT_SCHEMA_VERSION,
+  LOCAL_EXPORT_SCHEMA_VERSION,
 } from "@cadenza-dev/export-local";
 import { failureResult, successResult, usageError } from "./output.ts";
 import type { CommandAdapter } from "./types.ts";
@@ -33,7 +33,7 @@ export const inspectCommand = {
           manifestPath: result.manifestPath,
           outputDirectory: result.outputDirectory,
           repairHints: [],
-          schemaVersion: PHASE6_EXPORT_SCHEMA_VERSION,
+          schemaVersion: LOCAL_EXPORT_SCHEMA_VERSION,
           status: "success",
         },
       });

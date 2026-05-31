@@ -64,6 +64,11 @@ phases:
     status: builder_ready
     owners: [architect, builder, reviewer, wizard]
     trace: trace/phase6/
+  "6.5":
+    name: "Alpha Surface Naming Hygiene"
+    status: reviewer_accepted
+    owners: [builder, reviewer, wizard]
+    trace: trace/phase6-5/
 
 # ------------------------------------------------------------------
 # Role → ownership boundaries. Canonical definitions live in

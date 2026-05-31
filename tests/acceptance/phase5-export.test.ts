@@ -733,7 +733,9 @@ describe("B5.5 Phase 5 alpha readiness and public launch-candidate surface", () 
     const readiness = readArtifactJson<Phase5AlphaReadinessEvidence>(
       "alpha-readiness-evidence.json",
     );
-    const launchGuide = readRepoText("docs/alpha-readiness.md");
+    const launchGuide = readRepoText(
+      "tests/support/phase5-alpha-readiness-guide.md",
+    );
     const rootManifest = readRepoJson<{
       scripts: Record<string, string>;
     }>("package.json");

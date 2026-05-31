@@ -1,10 +1,10 @@
-# Phase 6 Local Export Walkthrough
+# Cadenza Local Export Walkthrough
 
-This walkthrough documents the Phase 6 clean-checkout local developer workflow:
+This walkthrough documents the Cadenza clean-checkout local developer workflow:
 install dependencies, validate a trusted deck module, export static web
 compatibility output, export a local MP4, and inspect generated artifacts.
 
-Phase 6 local export is local-only. It is not an alpha announcement, npm
+Cadenza local export is local-only. It is not an alpha announcement, npm
 publication, hosted rendering path, Remotion Lambda production path, Player App
 export, PDF/PPTX support, arbitrary plugin loading surface, or release plan.
 
@@ -19,7 +19,7 @@ export, PDF/PPTX support, arbitrary plugin loading surface, or release plan.
   renderer stack.
 - The workflow runs local deck modules and project config in the current
   checkout: local deck modules and `cadenza.config.ts` are trusted local code.
-  No sandbox is provided in Phase 6.
+  No sandbox is provided by the local export workflow.
 
 ## Install and Discover
 
@@ -31,7 +31,7 @@ pnpm cadenza --help
 pnpm cadenza --version
 ```
 
-The root `pnpm cadenza` command is a thin local wrapper around the Phase 6 CLI
+The root `pnpm cadenza` command is a thin local wrapper around the Cadenza CLI
 package. It does not require npm publication.
 
 ## Validate a Deck
@@ -39,7 +39,7 @@ package. It does not require npm publication.
 Validate the canonical built-in deck:
 
 ```bash
-pnpm cadenza validate phase5-alpha-readiness-talk --json
+pnpm cadenza validate cadenza-alpha-readiness-talk --json
 ```
 
 Validation loads the selected trusted local deck module, checks deck metadata,
@@ -52,7 +52,7 @@ output on stdout without ANSI progress text.
 Generate the static web compatibility output:
 
 ```bash
-pnpm cadenza export phase5-alpha-readiness-talk --run-id local-web --format web
+pnpm cadenza export cadenza-alpha-readiness-talk --run-id local-web --format web
 ```
 
 By default, generated output is written under:
@@ -64,7 +64,7 @@ dist/cadenza/<deck-id>/<run-id>/
 For the command above, the expected directory shape is:
 
 ```text
-dist/cadenza/phase5-alpha-readiness-talk/local-web/
+dist/cadenza/cadenza-alpha-readiness-talk/local-web/
 |-- .cadenza-generated.json
 |-- index.html
 |-- manifest.json
@@ -73,7 +73,7 @@ dist/cadenza/phase5-alpha-readiness-talk/local-web/
 
 The web output is a compatibility export, not the future Player App web export.
 It is produced through the compatibility adapter boundary so later phases can
-replace it with a fuller app surface. Phase 6 web evidence records semantic
+replace it with a fuller app surface. Local export web evidence records semantic
 anchors, manifest linkage, static compatibility limitations, and the semantic browser smoke expectation checked in `tests/browser/` with semantic evidence as the primary oracle.
 
 ## Export a Local MP4
@@ -81,17 +81,17 @@ anchors, manifest linkage, static compatibility limitations, and the semantic br
 Generate a local MP4:
 
 ```bash
-pnpm cadenza export phase5-alpha-readiness-talk --run-id local-mp4 --format mp4
+pnpm cadenza export cadenza-alpha-readiness-talk --run-id local-mp4 --format mp4
 ```
 
 The expected directory shape is:
 
 ```text
-dist/cadenza/phase5-alpha-readiness-talk/local-mp4/
+dist/cadenza/cadenza-alpha-readiness-talk/local-mp4/
 |-- .cadenza-generated.json
 |-- manifest.json
 |-- mp4-evidence.json
-`-- phase5-alpha-readiness-talk.mp4
+`-- cadenza-alpha-readiness-talk.mp4
 ```
 
 MP4 rendering stays behind the renderer adapter boundary. Evidence records
@@ -106,13 +106,13 @@ failure evidence instead of a partial success claim.
 Inspect by manifest path:
 
 ```bash
-pnpm cadenza inspect dist/cadenza/phase5-alpha-readiness-talk/local-web/manifest.json --json
+pnpm cadenza inspect dist/cadenza/cadenza-alpha-readiness-talk/local-web/manifest.json --json
 ```
 
 You can also inspect the artifact directory:
 
 ```bash
-pnpm cadenza inspect dist/cadenza/phase5-alpha-readiness-talk/local-web --json
+pnpm cadenza inspect dist/cadenza/cadenza-alpha-readiness-talk/local-web --json
 ```
 
 `inspect` is artifact-only. It reads `manifest.json` plus per-format evidence
@@ -161,7 +161,7 @@ import { defineConfig } from "@cadenza-dev/cli";
 
 export default defineConfig({
   decks: {
-    "local-talk": "./examples/phase5/alpha-readiness-talk.tsx",
+    "local-talk": "./examples/cadenza/alpha-readiness-talk.tsx",
   },
   output: {
     root: "dist/cadenza",
@@ -173,9 +173,9 @@ export default defineConfig({
 ```
 
 CLI flags override config values. Config values override registry defaults.
-Phase 6 config is limited to `decks`, `output.root`, and
+Cadenza config is limited to `decks`, `output.root`, and
 `export.defaultFormats`; broader preview, Player App, hosted, plugin, and
-interactive config surfaces are Phase 7+ work.
+interactive config surfaces are future work.
 
 ## Non-Interactive Behavior
 

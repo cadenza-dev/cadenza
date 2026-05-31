@@ -12,7 +12,7 @@ export { commandRegistry, getCommand };
 
 const CLI_VERSION = "0.0.0";
 
-export async function runPhase6Cli(
+export async function runCadenzaCli(
   args: string[],
   cwd: string,
   workspaceRoot = cwd,
@@ -52,8 +52,8 @@ export async function runPhase6Cli(
   return command.run(rest, { cwd, workspaceRoot });
 }
 
-export async function runPhase6CliEntrypoint(args: string[]): Promise<number> {
-  const result = await runPhase6Cli(args, process.cwd());
+export async function runCadenzaCliEntrypoint(args: string[]): Promise<number> {
+  const result = await runCadenzaCli(args, process.cwd());
   if (result.stdout !== "") {
     process.stdout.write(result.stdout);
   }

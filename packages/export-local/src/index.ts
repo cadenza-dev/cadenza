@@ -3,20 +3,20 @@ export type {
   ExportLocalResult,
   InspectExportArtifactOptions,
   InspectExportArtifactResult,
-  Phase6ArtifactRecord,
-  Phase6CapabilityStatus,
-  Phase6ExportManifest,
-  Phase6FormatCapability,
-  Phase6FormatEvidence,
+  LocalExportArtifactRecord,
+  LocalExportCapabilityStatus,
+  LocalExportFormatCapability,
+  LocalExportFormatEvidence,
+  LocalExportManifest,
   ValidateDeckLocalOptions,
   ValidateDeckLocalResult,
 } from "./artifacts.ts";
 export {
   exportDeckLocal,
   inspectExportArtifact,
-  PHASE6_EXPORT_SCHEMA_VERSION,
-  readPhase6ExportManifest,
-  readPhase6FormatEvidence,
+  LOCAL_EXPORT_SCHEMA_VERSION,
+  readLocalExportFormatEvidence,
+  readLocalExportManifest,
   validateDeckLocal,
 } from "./artifacts.ts";
 export type {
@@ -24,46 +24,41 @@ export type {
   CadenzaProjectConfig,
   EnsureGeneratedOutputSafetyOptions,
   GeneratedOutputSafetyResult,
-  Phase6RuntimeConfig,
-  ResolvePhase6RuntimeConfigOptions,
+  LocalExportRuntimeConfig,
+  ResolveLocalExportRuntimeConfigOptions,
 } from "./config.ts";
 export {
   defineConfig,
   ensureGeneratedOutputSafety,
-  PHASE6_ARTIFACT_FILENAMES,
-  PHASE6_DEFAULT_FORMATS,
-  PHASE6_DEFAULT_OUTPUT_ROOT,
-  PHASE6_RENDERER_TEMP_ROOT,
-  resolvePhase6RuntimeConfig,
+  LOCAL_EXPORT_ARTIFACT_FILENAMES,
+  LOCAL_EXPORT_DEFAULT_FORMATS,
+  LOCAL_EXPORT_DEFAULT_OUTPUT_ROOT,
+  LOCAL_EXPORT_RENDERER_TEMP_ROOT,
+  resolveLocalExportRuntimeConfig,
   validateProjectConfig,
 } from "./config.ts";
 export type {
+  CadenzaDeckMetadata,
   DeckSelectorSource,
   LoadDeckModuleOptions,
   LoadedDeckModule,
   LoadedDeckSelector,
-  Phase6DeckMetadata,
 } from "./deckLoader.ts";
-export { loadDeckModule } from "./deckLoader.ts";
+export {
+  CADENZA_ALPHA_DECK_SELECTOR,
+  CADENZA_ALPHA_DECK_SOURCE_PATH,
+  loadDeckModule,
+} from "./deckLoader.ts";
 export type {
-  Phase6Diagnostic,
-  Phase6DiagnosticCategory,
-  Phase6DiagnosticSeverity,
+  LocalExportDiagnostic,
+  LocalExportDiagnosticCategory,
+  LocalExportDiagnosticSeverity,
 } from "./diagnostics.ts";
 export {
-  CadenzaPhase6Error,
-  PHASE6_EXIT_CODES,
-  phase6Error,
+  CadenzaLocalExportError,
+  LOCAL_EXPORT_EXIT_CODES,
+  localExportError,
 } from "./diagnostics.ts";
-export type {
-  Phase5AlphaReadinessEvidence,
-  Phase5BoundaryEvaluationEvidence,
-  Phase5ExportEvidence,
-  Phase5FormatScopeEvidence,
-  Phase5LocalWebExportManifest,
-  Phase5RepairRoutingEvidence,
-} from "./legacyPhase5.ts";
-export { runCadenzaCli as runPhase5CadenzaCli } from "./legacyPhase5.ts";
 export type {
   LocalMp4Prerequisite,
   LocalMp4RendererInput,
@@ -71,8 +66,8 @@ export type {
   LocalMp4RendererResult,
 } from "./mp4Renderer.ts";
 export { renderLocalMp4 } from "./mp4Renderer.ts";
-export type { Phase6OverclaimViolation } from "./overclaimGuard.ts";
-export { findPhase6OverclaimViolations } from "./overclaimGuard.ts";
+export type { AlphaSurfaceOverclaimViolation } from "./overclaimGuard.ts";
+export { findAlphaSurfaceOverclaimViolations } from "./overclaimGuard.ts";
 export type {
   StaticWebCompatibilityAdapterInput,
   StaticWebCompatibilityAdapterResult,

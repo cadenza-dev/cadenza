@@ -50,10 +50,10 @@ the next local CLI/export pass.
 
 Phase 6 is now open for Builder work from the frozen
 [`spec/phase6/`](./spec/phase6/) contracts. The active trace is
-[`trace/phase6/`](./trace/phase6/). Phase 6 local export work is focused on a
+[`trace/phase6/`](./trace/phase6/). Cadenza local export work is focused on a
 clean-checkout CLI, local static web compatibility output, local MP4 rendering,
 artifact inspection, and evidence boundaries. The clean-checkout walkthrough is
-[`docs/phase6-local-export.md`](./docs/phase6-local-export.md). This is local
+[`docs/local-export.md`](./docs/local-export.md). This is local
 developer infrastructure, not an alpha announcement, npm publication, hosted
 rendering path, Player App export, or unsupported-format claim.
 
@@ -150,9 +150,9 @@ Cadenza is built on top of [Remotion](https://www.remotion.dev/). **Remotion has
 your organization is subject to Remotion's commercial licensing, you must obtain
 that license directly from Remotion. Cadenza does not vendor or relicense
 Remotion. The preview adapter keeps Remotion Player integration behind peer
-dependencies. Phase 6 `@cadenza-dev/export-local` declares direct local
-renderer dependencies on Remotion renderer and bundler packages because local
-MP4 export is an operational renderer adapter.
+dependencies. `@cadenza-dev/export-local` declares direct local renderer
+dependencies on Remotion renderer and bundler packages because local MP4 export
+is an operational renderer adapter.
 
 ---
 
@@ -185,11 +185,11 @@ Full roadmap and rationale: [`ROADMAP.md`](./ROADMAP.md).
 Pre-alpha contributions are currently limited to:
 
 - Review feedback on [`ROADMAP.md`](./ROADMAP.md), completed phase traces, and
-  Phase 6 frozen contracts and active trace routing
+  active local-export trace routing
 - Discussion of architectural decisions in [`docs/adr/`](./docs/adr/)
 - Focused issues that respect [`goals-non-goals.md`](./goals-non-goals.md)
 
-Broader code contributions should wait until Phase 6 Builder work opens a
+Broader code contributions should wait until the Builder workflow opens a
 specific contribution surface and `CONTRIBUTING.md` lands.
 
 ---

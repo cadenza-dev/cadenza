@@ -10,7 +10,7 @@ import {
   type TimelineMap,
 } from "../../core/src/index.ts";
 import { type CadenzaProjectConfig, validateProjectConfig } from "./config.ts";
-import { CadenzaPhase6Error, phase6Error } from "./diagnostics.ts";
+import { CadenzaLocalExportError, localExportError } from "./diagnostics.ts";
 
 export type DeckSelectorSource =
   | "built-in-alias"
@@ -27,7 +27,7 @@ export type LoadedDeckSelector = {
   source: DeckSelectorSource;
 };
 
-export type Phase6DeckMetadata = {
+export type CadenzaDeckMetadata = {
   deckId: string;
   outline: {
     slideId: string;
@@ -41,7 +41,7 @@ export type Phase6DeckMetadata = {
 export type LoadedDeckModule = {
   contractExports: string[];
   deck: DeckNode;
-  metadata: Phase6DeckMetadata;
+  metadata: CadenzaDeckMetadata;
   selector: LoadedDeckSelector;
   timeline: TimelineMap;
 };
@@ -52,8 +52,12 @@ export type LoadDeckModuleOptions = {
   workspaceRoot?: string;
 };
 
+export const CADENZA_ALPHA_DECK_SELECTOR = "cadenza-alpha-readiness-talk";
+export const CADENZA_ALPHA_DECK_SOURCE_PATH =
+  "examples/cadenza/alpha-readiness-talk.tsx";
+
 const BUILT_IN_DECK_ALIASES = {
-  "phase5-alpha-readiness-talk": "examples/phase5/alpha-readiness-talk.tsx",
+  [CADENZA_ALPHA_DECK_SELECTOR]: CADENZA_ALPHA_DECK_SOURCE_PATH,
 } as const;
 
 export async function loadDeckModule({
@@ -61,7 +65,10 @@ export async function loadDeckModule({
   selector,
   workspaceRoot = cwd,
 }: LoadDeckModuleOptions): Promise<LoadedDeckModule> {
-  const projectConfig = await loadPhase6ProjectConfig({ cwd, workspaceRoot });
+  const projectConfig = await loadLocalExportProjectConfig({
+    cwd,
+    workspaceRoot,
+  });
   const resolved = resolveDeckSelector({
     cwd,
     projectConfig,
@@ -143,7 +150,7 @@ function resolveDeckSelector({
     return resolveBuiltInDeck(workspaceRoot, selector);
   }
 
-  return resolveBuiltInDeck(workspaceRoot, "phase5-alpha-readiness-talk");
+  return resolveBuiltInDeck(workspaceRoot, CADENZA_ALPHA_DECK_SELECTOR);
 }
 
 function resolveBuiltInDeck(
@@ -154,7 +161,7 @@ function resolveBuiltInDeck(
     BUILT_IN_DECK_ALIASES[selector as keyof typeof BUILT_IN_DECK_ALIASES];
 
   if (sourcePath === undefined) {
-    throw phase6Error(2, {
+    throw localExportError(2, {
       category: "deck-loading",
       code: "DLOD_UNKNOWN_SELECTOR",
       locator: selector,
@@ -246,7 +253,7 @@ async function bundleAndImportDeck(
   }
 }
 
-export async function loadPhase6ProjectConfig({
+export async function loadLocalExportProjectConfig({
   cwd,
   workspaceRoot,
 }: {
@@ -314,11 +321,11 @@ function toPortablePath(value: string): string {
 function readDeckMetadata(
   moduleExports: Record<string, unknown>,
   resolvedPath: string,
-): Phase6DeckMetadata {
+): CadenzaDeckMetadata {
   const metadata = moduleExports.cadenzaDeckMetadata;
 
-  if (!isPhase6DeckMetadata(metadata)) {
-    throw phase6Error(3, {
+  if (!isCadenzaDeckMetadata(metadata)) {
+    throw localExportError(3, {
       category: "deck-loading",
       code: "DLOD_INVALID_METADATA",
       locator: resolvedPath,
@@ -348,7 +355,7 @@ function readDeckValue(
     return deckValue as DeckNode;
   }
 
-  throw phase6Error(3, {
+  throw localExportError(3, {
     category: "deck-loading",
     code: "DLOD_MISSING_DECK_EXPORT",
     locator: resolvedPath,
@@ -367,12 +374,12 @@ function readContractExports(moduleExports: Record<string, unknown>): string[] {
 }
 
 function mapDeckContractError(error: unknown, resolvedPath: string): Error {
-  if (error instanceof CadenzaPhase6Error) {
+  if (error instanceof CadenzaLocalExportError) {
     return error;
   }
 
   if (error instanceof CadenzaValidationError) {
-    return phase6Error(3, {
+    return localExportError(3, {
       category: "validation",
       code: "VINS_COMPILE_FAILED",
       locator: resolvedPath,
@@ -384,7 +391,7 @@ function mapDeckContractError(error: unknown, resolvedPath: string): Error {
     });
   }
 
-  return phase6Error(3, {
+  return localExportError(3, {
     category: "deck-loading",
     code: "DLOD_CONTRACT_ERROR",
     locator: resolvedPath,
@@ -396,7 +403,7 @@ function mapDeckContractError(error: unknown, resolvedPath: string): Error {
   });
 }
 
-function isPhase6DeckMetadata(value: unknown): value is Phase6DeckMetadata {
+function isCadenzaDeckMetadata(value: unknown): value is CadenzaDeckMetadata {
   return (
     typeof value === "object" &&
     value !== null &&

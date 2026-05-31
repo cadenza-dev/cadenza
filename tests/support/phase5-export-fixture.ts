@@ -9,7 +9,7 @@ import {
   type Phase5LocalWebExportManifest,
   type Phase5RepairRoutingEvidence,
   runCadenzaCli,
-} from "../../scripts/cadenza.js";
+} from "../../packages/export-local/src/legacyPhase5.js";
 
 export type Phase5ExportManifest = Phase5LocalWebExportManifest;
 export type {

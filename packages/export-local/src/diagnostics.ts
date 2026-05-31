@@ -1,4 +1,4 @@
-export type Phase6DiagnosticCategory =
+export type LocalExportDiagnosticCategory =
   | "config"
   | "deck-loading"
   | "environment"
@@ -9,7 +9,7 @@ export type Phase6DiagnosticCategory =
   | "usage"
   | "validation";
 
-export const PHASE6_EXIT_CODES = {
+export const LOCAL_EXPORT_EXIT_CODES = {
   deckValidation: 3,
   environment: 5,
   export: 4,
@@ -18,34 +18,34 @@ export const PHASE6_EXIT_CODES = {
   usage: 2,
 } as const;
 
-export type Phase6DiagnosticSeverity = "error" | "info" | "warning";
+export type LocalExportDiagnosticSeverity = "error" | "info" | "warning";
 
-export type Phase6Diagnostic = {
-  category: Phase6DiagnosticCategory;
+export type LocalExportDiagnostic = {
+  category: LocalExportDiagnosticCategory;
   code: string;
   locator?: string;
   message: string;
   rendererStage?: string;
   relatedRequirements: string[];
   repairHint: string;
-  severity: Phase6DiagnosticSeverity;
+  severity: LocalExportDiagnosticSeverity;
 };
 
-export class CadenzaPhase6Error extends Error {
-  readonly diagnostics: Phase6Diagnostic[];
+export class CadenzaLocalExportError extends Error {
+  readonly diagnostics: LocalExportDiagnostic[];
   readonly exitCode: number;
 
-  constructor(exitCode: number, diagnostics: Phase6Diagnostic[]) {
+  constructor(exitCode: number, diagnostics: LocalExportDiagnostic[]) {
     super(diagnostics.map((diagnostic) => diagnostic.message).join("\n"));
-    this.name = "CadenzaPhase6Error";
+    this.name = "CadenzaLocalExportError";
     this.exitCode = exitCode;
     this.diagnostics = diagnostics;
   }
 }
 
-export function phase6Error(
+export function localExportError(
   exitCode: number,
-  diagnostic: Phase6Diagnostic,
-): CadenzaPhase6Error {
-  return new CadenzaPhase6Error(exitCode, [diagnostic]);
+  diagnostic: LocalExportDiagnostic,
+): CadenzaLocalExportError {
+  return new CadenzaLocalExportError(exitCode, [diagnostic]);
 }
