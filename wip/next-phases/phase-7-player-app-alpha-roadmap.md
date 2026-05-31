@@ -34,14 +34,26 @@ and exported web output.
 - App-based web bundler: export a self-contained web app bundle that reuses the
   Player App design and logic, replacing the Phase 6 static compatibility bundle
   as the long-term web export target.
+- Visual-fidelity export posture: decide whether Phase 7 must make exported web
+  and local MP4 output render the authored deck through the Player App or a
+  Player App-equivalent visual route, rather than preserving Phase 6's semantic
+  compatibility web page and outline-style MP4 renderer as the user-facing
+  alpha export experience.
 - CLI connection: add or refine CLI commands/options so `cadenza preview` and
   `cadenza export` can target the Player App and app-based web bundle without
   duplicating deck loading or diagnostics logic.
+- CLI invocation and install posture: define the alpha-safe way to invoke the
+  CLI from scripts and agents, including a pure machine-readable JSON path that
+  is not polluted by package-manager script banners, plus the local install or
+  package metadata stance needed before any public alpha claim.
 - Alpha launch material: prepare the README, quickstart, demo talk page or
   equivalent public material, package metadata, known limitations, and small
   technical-talk starters needed for a developer alpha.
 - Dogfood loop: collect maintainer or small external-developer feedback only
-  after the local app and export path are stable enough to evaluate.
+  after the local app and export path are stable enough to evaluate, including a
+  fresh-project dogfood path outside the Cadenza repository workspace so CLI
+  installation, config, deck loading, preview, web export, MP4 export, and
+  inspect behavior are exercised like an alpha user would exercise them.
 
 ## Design Workflow Note
 
@@ -75,6 +87,14 @@ details, and release framing.
   navigation, playback, diagnostics, and responsive UI.
 - The app-based web bundle is exported through the CLI and supersedes the static
   compatibility bundle as the preferred web export path.
+- Export evidence distinguishes semantic compatibility output from
+  visual-fidelity Player App output, and any remaining MP4 visual limitations are
+  explicit rather than hidden behind a generic "MP4 supported" claim.
+- The documented CLI invocation path supports clean machine-readable JSON output
+  for scripts and agents without package-manager banner contamination.
+- A fresh-project dogfood run proves the alpha workflow outside the monorepo
+  fixture path, or the remaining install/discovery blockers are documented as
+  explicit alpha non-goals.
 - The public alpha claim is narrow, documented, and backed by accepted local
   preview, web export, and MP4 export evidence.
 - Release material avoids overclaiming hosted rendering, cross-format parity,

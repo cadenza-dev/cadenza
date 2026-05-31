@@ -47,6 +47,26 @@ them as requirements.
   make documentation harder to read while Phase 6 command text is still
   settling.
 
+## Pure JSON Invocation Path
+
+- **Source**: Phase 6 closeout assessment of the documented `pnpm cadenza ...
+  --json` workflow. The CLI implementation can emit pure JSON through
+  `runPhase6Cli()` and direct `node --experimental-strip-types
+  scripts/cadenza.ts`, but package-manager script banners can pollute stdout
+  unless users invoke the command through a silent path.
+- **Phase 6 disposition**: expose stable `--json` command summaries and keep
+  command adapters free of progress bars, ANSI output, and human prose on JSON
+  stdout. Do not freeze a published binary or final package-manager invocation
+  shape.
+- **Future support**: define a documented pure JSON invocation path for scripts,
+  CI, and agents. Candidate options include `pnpm --silent cadenza`, a generated
+  local binary wrapper, a package `bin` entry after install posture is settled,
+  or a test-backed docs convention that distinguishes human commands from
+  machine-readable commands.
+- **Reason to defer**: the right invocation path depends on Phase 7 alpha
+  install posture. However, machine-readable output should not rely on readers
+  knowing package-manager banner behavior.
+
 ## Interactive Prompt Layer
 
 - **Source**: `skills.sh` uses interactive selection in human contexts and
