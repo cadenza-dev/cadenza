@@ -154,24 +154,38 @@
   immediately openable runtime environment and should become the preferred
   visual web output. MP4 export should produce a standard video artifact that
   can be opened by ordinary video players, without Player App chrome or runtime
-  environment UI. MP4 duration should come from a unified project/CLI duration
-  parameter or authored per-slide deck duration parameters, subject to later
-  review of animation and navigation semantics.
+  environment UI. Navigation should remain at `step/action anchor` granularity,
+  with `action anchor` as the preferred working term, and Phase 7 should not
+  introduce a separate navigable `motion unit`. Current-page continuous
+  animation may be promoted to P0 only as a scoped Player App / app-web visual
+  capability bound to the active action anchor. MP4 duration should keep the
+  finite offline compiled timeline as the baseline; project, CLI, or authored
+  duration parameters may feed finite segments where supported, but continuous
+  animation must be clipped rather than expanding deck duration.
 - Rationale: Web export is an interactive playback environment, so reusing the
   Player App route is the right alpha product promise. MP4 export is a portable
   media artifact, so including player chrome would confuse the output contract
   and make video evidence less reusable. The critical documentation boundary is
   to distinguish app-based web bundles, deck-content MP4, static compatibility
   output, and remaining visual limitations instead of making broad "web export"
-  or "MP4 supported" claims.
+  or "MP4 supported" claims. Keeping action-anchor navigation avoids both
+  page-only navigation that is too coarse for step reveals and motion-unit
+  navigation that would make authoring, preview, and export semantics too fine
+  grained for the Phase 7 alpha. The scoped continuous-animation P0 gives the
+  Player App enough visual life for alpha polish while avoiding paused-anchor
+  infinite looping or full MP4 animated visual parity as default commitments.
 - Stage A implications: Architect Stage A should define separate evidence and
-  wording for app-based web export and MP4 export. Stage A should also defer the
-  unresolved infinite-loop animation and deck-duration calculation questions to
-  a dedicated code review before freezing MP4 timing behavior; see
+  wording for app-based web export and MP4 export. Stage A should preserve
+  action-anchor navigation, define the exact API or visual-context surface for
+  scoped current-page continuous animation, and choose per-format evidence field
+  names for duration baseline and animation clipping. Stage A should treat
+  interactive paused-anchor infinite looping and full MP4 animated visual parity
+  as deferred enhancements unless the maintainer explicitly expands P0 scope;
+  see
   [phase7-pre-architect-mp4-duration-follow-up.md](./phase7-pre-architect-mp4-duration-follow-up.md).
-- Blocking question: resolved for web/MP4 posture; animation-loop duration
-  semantics are deferred to the linked follow-up.
-- Updated: 2026-06-03.
+- Blocking question: resolved for web/MP4 posture, action-anchor navigation,
+  scoped current-page continuous animation, and MP4 finite-duration baseline.
+- Updated: 2026-06-04.
 
 ## 6. App-Based Web Export And Bundler Contract
 
