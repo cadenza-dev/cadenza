@@ -1,6 +1,6 @@
 # Phase 7 Pre-Architect UI Prototype Follow-Up
 
-> Status: QA follow-up note, not a contract.
+> Status: QA follow-up note; discussion decisions captured; not a contract.
 > Date: 2026-06-03.
 > Source: Topic 3 discussion in
 > [phase7-pre-architect-brainstorming-decisions.md](./phase7-pre-architect-brainstorming-decisions.md).
@@ -8,6 +8,18 @@
 This note preserves the deferred discussion items for a future Phase 7 UI
 prototype session. It does not replace Architect Stage A/B, future specs, ADRs,
 or implementation plans.
+
+## Current Resolution
+
+The dedicated UI prototype QA discussion has been split into
+[phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
+and
+[phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
+Q1-Q20 are settled there. The remaining blocker is not another QA question; it
+is the Q17 promotion evidence packet: a previewable prototype in
+`design/ui-prototype/` or an explicitly accepted design substitute, annotated
+screenshots, fixture provenance map, limitation note, and guideline
+cross-references.
 
 ## Settled Direction So Far
 
@@ -21,7 +33,7 @@ or implementation plans.
 - Phase 7 should not include WYSIWYG editing, source editing, in-app repair
   workbench behavior, or AI patching UI.
 
-## Deferred Discussion Items
+## Original Deferred Discussion Items
 
 - Prototype artifact: where the previewable frontend prototype should live, and
   whether it should be disposable, reusable, or promoted into Phase 7 work.
@@ -38,13 +50,20 @@ or implementation plans.
 - Stage A handoff: how prototype findings should feed into Architect Stage A
   without accidentally becoming frozen contract language.
 
-## Suggested Next Session Prompt
+These items have now been discussed and settled in the UI prototype topic and
+decision pair:
+[phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
+and
+[phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
 
-Discuss the Phase 7 pre-Architect UI prototype. Read
+## Suggested Next Step Prompt
+
+Prepare the Phase 7 UI prototype promotion evidence packet. Read
 `QA/phase7-pre-architect-ui-prototype-follow-up.md`,
-`QA/phase7-pre-architect-brainstorming-decisions.md` Topic 3, and
-`wip/next-phases/phase-7-player-app-alpha-roadmap.md`; use
-`superpowers:brainstorming` and `grill-with-docs`; decide the prototype
-artifact, technology stack, fixture/data strategy, responsive layout questions,
-inspector IA, and promotion evidence; update the QA follow-up/decision notes
-only, and do not write specs, freeze contracts, or edit packages.
+`QA/phase7-pre-architect-ui-prototype-topics.md`,
+`QA/phase7-pre-architect-ui-prototype-decisions.md` Q17, and the guideline
+files under `design/ui-prototype/`. Build or accept a design substitute only if explicitly
+authorized, then collect annotated screenshots, fixture provenance map,
+prototype limitation note, and guideline cross-references. Update QA
+follow-up/decision notes only unless separately asked to implement the
+prototype; do not write specs, freeze contracts, or edit packages.

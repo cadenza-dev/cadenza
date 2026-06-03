@@ -105,17 +105,18 @@
   A read-only inspector can expose diagnostic codes, readiness state, provenance,
   known limitations, and copyable command or evidence references without turning
   Phase 7 into an editor or repair product.
-- Stage A implications: Before Phase 7 Architect freezes UI or package
-  contracts, the maintainer should run a dedicated UI prototype pass that
-  produces a previewable frontend page. That prototype pass should discuss the
-  prototype technology stack, fixture or real-data strategy, responsive desktop
-  and mobile behavior, inspector information architecture, visual quality bar,
-  and how prototype findings flow into Stage A without becoming a frozen
-  contract by accident.
-- Blocking question: What prototype artifact and technology stack should be
-  used before Phase 7 Architect work, and what evidence is enough to promote the
-  UI direction from open to decided?
-- Updated: 2026-06-03.
+- Stage A implications: The dedicated UI prototype QA pass is captured in
+  [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
+  and
+  [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
+  Before Phase 7 Architect freezes UI or package contracts, the maintainer
+  should prepare the Q17 promotion evidence packet: a previewable prototype or
+  explicitly accepted design substitute, annotated screenshots, fixture
+  provenance map, limitation note, and guideline cross-references.
+- Blocking question: The UI prototype questions are resolved; the remaining
+  blocker is the Q17 promotion evidence packet required before this topic can
+  move from `open` to `decided`.
+- Updated: 2026-06-04.
 
 ## 4. Player App Package Boundary And `preview-remotion` Transition
 

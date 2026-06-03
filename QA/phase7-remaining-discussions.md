@@ -12,20 +12,26 @@ future specs, ADRs, or implementation plans.
 
 | Item | Source | Status | Next Action |
 | :---- | :---- | :---- | :---- |
-| UI prototype | [phase7-pre-architect-ui-prototype-follow-up.md](./phase7-pre-architect-ui-prototype-follow-up.md) | pending | Run a dedicated prototype discussion before Phase 7 Architect freezes UI or package contracts. |
+| UI prototype | [phase7-pre-architect-ui-prototype-follow-up.md](./phase7-pre-architect-ui-prototype-follow-up.md) | pending | Prepare the Q17 promotion evidence packet: previewable prototype or accepted design substitute, annotated screenshots, fixture provenance map, limitation note, and guideline cross-references. |
 | MP4 duration and animation semantics | [phase7-pre-architect-mp4-duration-follow-up.md](./phase7-pre-architect-mp4-duration-follow-up.md) | resolved | Carry the settled action-anchor, scoped continuous-animation, and MP4 clipping posture into Phase 7 Architect Stage A; reopen only if P0 expands to paused-anchor infinite looping or full MP4 visual parity. |
 
 ## UI Prototype
 
 - Current direction: deck-primary balanced shell.
 - Product posture: polished, visually strong, read-only player plus inspector.
-- Deferred decisions: prototype artifact, technology stack, fixture/data
-  strategy, responsive layout, inspector IA, visual quality bar, and Stage A
-  handoff.
+- Discussion decisions: Q1-Q20 are settled in the UI prototype topic and
+  decision pair:
+  [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
+  and
+  [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
+- Remaining blocker: promotion evidence, not more QA questions.
 - Completion signal: Topic 3 in
   [phase7-pre-architect-brainstorming-decisions.md](./phase7-pre-architect-brainstorming-decisions.md)
   can move from `open` to `decided` only after a previewable prototype or
-  explicitly accepted design substitute resolves the blocker.
+  explicitly accepted design substitute resolves the blocker. The promotion
+  evidence shape is tracked in
+  [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md)
+  Q17.
 
 ## MP4 Duration And Animation Semantics
 
@@ -48,7 +54,8 @@ future specs, ADRs, or implementation plans.
 
 ## Suggested Order
 
-1. UI prototype discussion, because it can clarify Player App layout,
-   information architecture, and visual quality before Phase 7 Architect work.
+1. UI prototype promotion evidence, because Q1-Q20 are already settled but
+   Topic 3 still needs the Q17 evidence packet before it can move to `decided`.
 2. Carry the resolved MP4 timing and animation semantics into Phase 7 Architect
-   Stage A after the UI prototype discussion is resolved or explicitly deferred.
+   Stage A after the UI prototype promotion evidence exists or is explicitly
+   deferred.
