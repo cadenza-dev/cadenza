@@ -5,11 +5,16 @@
 ## Prototype Artifact
 
 - Directory: `design/ui-prototype/`
-- Preview command:
-  `node node_modules/.pnpm/vite@8.0.10_@types+node@25.6.0_esbuild@0.28.0_terser@5.48.0/node_modules/vite/bin/vite.js --config design/ui-prototype/vite.config.ts design/ui-prototype --host 127.0.0.1 --port 4177`
+- Preview command: `npm --prefix design/ui-prototype run dev`
+- Validation command: `npm --prefix design/ui-prototype run validate`
 - React entrypoint: `src/main.tsx`
+- App shell: `src/App.tsx`
+- Prototype-local UI primitives: `src/ui.tsx`
 - Fixture data: `src/fixture.ts`
 - Local typecheck: `tsconfig.json`
+- Dependency boundary: local `package.json` / `package-lock.json` under
+  `design/ui-prototype/`; this is a design package only, not a production
+  `packages/` workspace package.
 
 ## Q17 Required Evidence
 
@@ -19,6 +24,7 @@
 | Desktop normal shell screenshot | `evidence/screenshots/desktop-normal-shell.png` after smoke capture. |
 | Desktop diagnostics/provenance screenshot | `evidence/screenshots/desktop-diagnostics-state.png` and `evidence/screenshots/desktop-provenance-state.png` after smoke capture. |
 | Narrow/mobile viewer screenshot | `evidence/screenshots/mobile-viewer-state.png` after smoke capture. |
+| Strengthening screenshots | `desktop-swapped-rails.png`, `desktop-fullscreen-state.png`, `mobile-slides-drawer.png`, `mobile-inspector-drawer.png`, and `presenter-view-state.png`. |
 | Fixture provenance map | `evidence/fixture-provenance.md`. |
 | Prototype limitation note | `evidence/prototype-limitations.md`. |
 | Guideline cross-references | `evidence/guideline-cross-references.md`. |
@@ -37,9 +43,13 @@ risks, or explicit non-goals.
 
 ## Topic 3 Closeout Reading
 
-If the screenshots and focused validation pass, Topic 3 has the required Q17
-promotion evidence needed for maintainer-approved QA closeout. Because this
-goal does not authorize QA status-file edits, the recommended closeout change is
-to update Topic 3 from `open` to `decided` in
+The current packet is intended to satisfy Q17's evidence shape for
+maintainer-approved QA closeout: previewable prototype, annotated screenshots,
+fixture provenance, limitations, guideline cross-references, non-freeze note,
+and focused validation notes.
+
+Because this goal does not authorize QA status-file edits, the recommended
+closeout change, after maintainer visual review, is to update Topic 3 from
+`open` to `decided` in
 `QA/phase7-pre-architect-brainstorming-decisions.md`, and to mark the UI
 prototype item resolved in `QA/phase7-remaining-discussions.md`.

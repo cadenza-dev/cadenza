@@ -1,38 +1,17 @@
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 
-const repoRoot = fileURLToPath(new URL("../..", import.meta.url));
-const pnpmRoot = resolve(repoRoot, "node_modules/.pnpm");
-
-export default {
-  root: fileURLToPath(new URL(".", import.meta.url)),
+export default defineConfig({
   cacheDir: "/tmp/cadenza-ui-prototype-vite-cache",
-  server: {
-    host: "127.0.0.1",
-    port: 4177,
-    strictPort: true,
-  },
+  plugins: [react()],
   preview: {
     host: "127.0.0.1",
     port: 4177,
     strictPort: true,
   },
-  resolve: {
-    alias: {
-      react: resolve(pnpmRoot, "react@19.2.5/node_modules/react"),
-      "react-dom": resolve(
-        pnpmRoot,
-        "react-dom@19.2.5_react@19.2.5/node_modules/react-dom",
-      ),
-      "react-dom/client": resolve(
-        pnpmRoot,
-        "react-dom@19.2.5_react@19.2.5/node_modules/react-dom/client.js",
-      ),
-    },
+  server: {
+    host: "127.0.0.1",
+    port: 4177,
+    strictPort: true,
   },
-  esbuild: {
-    jsx: "transform",
-    jsxFactory: "React.createElement",
-    jsxFragment: "React.Fragment",
-  },
-};
+});

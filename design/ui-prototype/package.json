@@ -1,0 +1,29 @@
+{
+  "name": "@cadenza-dev/ui-prototype-design",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "npm@11.14.0",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4177",
+    "typecheck": "tsc -p tsconfig.json",
+    "validate": "node --experimental-strip-types scripts/visual-smoke.ts",
+    "preview": "vite --host 127.0.0.1 --port 4177"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.1",
+    "class-variance-authority": "^0.7.1",
+    "lucide-react": "^0.555.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-resizable-panels": "^4.0.10",
+    "vite": "^8.0.10"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}

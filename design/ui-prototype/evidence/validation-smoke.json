@@ -1,18 +1,36 @@
 {
-  "checkedAt": "2026-06-04T16:14:18.643Z",
+  "checkedAt": "2026-06-04T17:06:31.817Z",
   "focusedScope": "design/ui-prototype",
   "previewUrl": "http://127.0.0.1:4177",
   "results": [
     {
-      "annotation": "Desktop normal shell: deck-primary three-rail layout, quiet chrome, left static slide rail, right Outline inspector, bottom controls, and persistent status bar.",
+      "annotation": "Desktop normal shell: deck-primary three-rail layout with clickable slide rail, Outline inspector, icon-only layout controls, direct sash boundaries, bottom action-anchor controls, and persistent status bar.",
+      "clippedButtons": [],
       "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "next-anchor",
+          "passed": true,
+          "value": "Deterministic manifest"
+        },
+        {
+          "check": "thumbnail-anchor",
+          "passed": true,
+          "value": "Alpha boundaries"
+        },
+        {
+          "check": "outline-anchor",
+          "passed": true,
+          "value": "Deterministic manifest"
+        }
+      ],
       "name": "desktop-normal-shell.png",
       "overflow": {
         "bodyScrollWidth": 1440,
         "clientWidth": 1440,
         "hasHorizontalOverflow": false
       },
-      "query": "/?state=ready&topic=Outline&theme=light",
+      "query": "/?state=ready&topic=Outline&theme=light&anchor=2",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-normal-shell.png",
       "viewport": {
         "height": 960,
@@ -20,15 +38,23 @@
       }
     },
     {
-      "annotation": "Desktop diagnostics state: top-center blocking bar, bottom health signal, read-only diagnostic locator/hint, and no repair/editor actions.",
+      "annotation": "Desktop diagnostics state: blocking message bar, health route into Diagnostics, read-only locator/hint cards, copy affordances, and no repair/editor/re-export actions.",
+      "clippedButtons": [],
       "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "copy-locator",
+          "passed": true,
+          "value": "locator feedback visible"
+        }
+      ],
       "name": "desktop-diagnostics-state.png",
       "overflow": {
         "bodyScrollWidth": 1440,
         "clientWidth": 1440,
         "hasHorizontalOverflow": false
       },
-      "query": "/?state=blocked&topic=Diagnostics&theme=light",
+      "query": "/?state=blocked&topic=Diagnostics&theme=light&anchor=4",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-diagnostics-state.png",
       "viewport": {
         "height": 960,
@@ -36,15 +62,17 @@
       }
     },
     {
-      "annotation": "Desktop provenance state: dark mode, manifest selector, format capability chips, artifact inventory, and known-limitation sections.",
+      "annotation": "Desktop provenance state: dark mode inspector with format capabilities, evidence files, selector provenance, artifact inventory, and raw details folded behind sections.",
+      "clippedButtons": [],
       "hasDeckTitle": true,
+      "interactions": [],
       "name": "desktop-provenance-state.png",
       "overflow": {
         "bodyScrollWidth": 1440,
         "clientWidth": 1440,
         "hasHorizontalOverflow": false
       },
-      "query": "/?state=provenance&topic=Provenance&theme=dark",
+      "query": "/?state=provenance&topic=Provenance&theme=dark&anchor=3",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-provenance-state.png",
       "viewport": {
         "height": 960,
@@ -52,15 +80,65 @@
       }
     },
     {
-      "annotation": "Narrow/mobile viewer state: deck-first responsive viewer with sticky controls and folded inspector access, not a full mobile presenter promise.",
+      "annotation": "Desktop swapped rails: inspector is on the left, slide rail is on the right, and the bottom health signal follows the semantic inspector side.",
+      "clippedButtons": [],
       "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "side-swap-health",
+          "passed": true,
+          "value": "health-left"
+        }
+      ],
+      "name": "desktop-swapped-rails.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=provenance&topic=Provenance&theme=light&swap=true&anchor=3",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-swapped-rails.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Fullscreen state: nonessential app chrome is hidden, deck content remains visible, keyboard/pointer navigation stays available, and action-anchor navigation does not black out the slide.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "fullscreen-next",
+          "passed": true,
+          "value": "Command surface"
+        }
+      ],
+      "name": "desktop-fullscreen-state.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=1",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-fullscreen-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Narrow/mobile viewer state: deck-first responsive viewer with sticky action controls and compact drawer buttons, not a full mobile presenter promise.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [],
       "name": "mobile-viewer-state.png",
       "overflow": {
         "bodyScrollWidth": 390,
         "clientWidth": 390,
         "hasHorizontalOverflow": false
       },
-      "query": "/?state=pending&topic=Readiness&theme=dark",
+      "query": "/?state=pending&topic=Readiness&theme=dark&anchor=4",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/mobile-viewer-state.png",
       "viewport": {
         "height": 844,
@@ -68,15 +146,65 @@
       }
     },
     {
-      "annotation": "Presenter-view representation: explicit presenter metadata flow with notes hidden from the normal player view and browser multi-screen limitations left for Stage A.",
+      "annotation": "Mobile slide drawer: folded slide rail opens as a sheet and can navigate action anchors without horizontal overflow.",
+      "clippedButtons": [],
       "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "mobile-slides-open",
+          "passed": true,
+          "value": "slides drawer navigation"
+        }
+      ],
+      "name": "mobile-slides-drawer.png",
+      "overflow": {
+        "bodyScrollWidth": 390,
+        "clientWidth": 390,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=pending&topic=Readiness&theme=dark&panel=slides&anchor=4",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/mobile-slides-drawer.png",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "annotation": "Mobile inspector drawer: folded inspector opens as a sheet with icon topic tabs and summary-first sections.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "mobile-inspector-open",
+          "passed": true,
+          "value": "inspector drawer visible"
+        }
+      ],
+      "name": "mobile-inspector-drawer.png",
+      "overflow": {
+        "bodyScrollWidth": 390,
+        "clientWidth": 390,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=pending&topic=Diagnostics&theme=dark&panel=inspector&anchor=4",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/mobile-inspector-drawer.png",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "annotation": "Presenter-view representation: current deck, next action anchor, notes boundary, timer/progress, and browser multi-screen limitation posture.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [],
       "name": "presenter-view-state.png",
       "overflow": {
         "bodyScrollWidth": 1440,
         "clientWidth": 1440,
         "hasHorizontalOverflow": false
       },
-      "query": "/?state=ready&topic=Notes&theme=dark&presenter=true",
+      "query": "/?state=ready&topic=Notes&theme=dark&presenter=true&anchor=2",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/presenter-view-state.png",
       "viewport": {
         "height": 960,

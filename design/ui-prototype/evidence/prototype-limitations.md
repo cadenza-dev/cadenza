@@ -8,16 +8,24 @@ layout pixels, screenshots, icon choices, or production behavior.
 
 ## Implementation Limits
 
-- The prototype is a React + TypeScript design artifact under
-  `design/ui-prototype/`, not a workspace package.
-- The prototype uses shadcn-compatible CSS variables and component patterns, but
-  it does not install or freeze shadcn as a production dependency.
+- The prototype is a React + TypeScript design package under
+  `design/ui-prototype/`, not a production workspace package under `packages/`.
+- The prototype uses local `package.json` / `package-lock.json` dependencies so
+  it can start with ordinary package commands. This local package does not
+  create `@cadenza-dev/player-app` and does not change production workspace
+  topology.
+- The prototype uses shadcn-compatible CSS variables, component patterns,
+  `lucide-react` icons, and `react-resizable-panels` handles, but it does not
+  freeze shadcn, lucide, resizable panels, or any other production dependency.
 - Runtime data is hybrid fixture data in `src/fixture.ts`; generated `dist/`
   artifacts are source material only.
 - It does not import or instantiate `CadenzaPlayer`, Remotion,
   `preview-remotion`, authored deck modules, or package source.
 - Pseudo-fullscreen hides app chrome and shows the intended navigation overlay,
   but it is not a browser fullscreen API contract.
+- Touch and pointer branches are prototype-level interaction evidence. They are
+  not final hardware detection, controller-driver, or platform-normalization
+  contracts.
 - Presenter view is represented as an explicit metadata flow only. Browser
   multi-screen placement and desktop-app display control remain Stage A
   research topics.
