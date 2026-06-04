@@ -1,0 +1,87 @@
+{
+  "checkedAt": "2026-06-04T16:14:18.643Z",
+  "focusedScope": "design/ui-prototype",
+  "previewUrl": "http://127.0.0.1:4177",
+  "results": [
+    {
+      "annotation": "Desktop normal shell: deck-primary three-rail layout, quiet chrome, left static slide rail, right Outline inspector, bottom controls, and persistent status bar.",
+      "hasDeckTitle": true,
+      "name": "desktop-normal-shell.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=light",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-normal-shell.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Desktop diagnostics state: top-center blocking bar, bottom health signal, read-only diagnostic locator/hint, and no repair/editor actions.",
+      "hasDeckTitle": true,
+      "name": "desktop-diagnostics-state.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=blocked&topic=Diagnostics&theme=light",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-diagnostics-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Desktop provenance state: dark mode, manifest selector, format capability chips, artifact inventory, and known-limitation sections.",
+      "hasDeckTitle": true,
+      "name": "desktop-provenance-state.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=provenance&topic=Provenance&theme=dark",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-provenance-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Narrow/mobile viewer state: deck-first responsive viewer with sticky controls and folded inspector access, not a full mobile presenter promise.",
+      "hasDeckTitle": true,
+      "name": "mobile-viewer-state.png",
+      "overflow": {
+        "bodyScrollWidth": 390,
+        "clientWidth": 390,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=pending&topic=Readiness&theme=dark",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/mobile-viewer-state.png",
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "annotation": "Presenter-view representation: explicit presenter metadata flow with notes hidden from the normal player view and browser multi-screen limitations left for Stage A.",
+      "hasDeckTitle": true,
+      "name": "presenter-view-state.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Notes&theme=dark&presenter=true",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/presenter-view-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    }
+  ]
+}
