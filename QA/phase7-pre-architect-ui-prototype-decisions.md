@@ -136,7 +136,7 @@ cross-references.
 - Status: decided.
 
 - Consensus decision: Use the three-rail desktop layout recorded in
-  [layout-guideline.md](../design/ui-prototype/layout-guideline.md): center deck
+  [layout-guideline.md](../design/ui-prototype/docs/layout-guideline.md): center deck
   canvas, left collapsible/resizable static slide-preview rail, right
   collapsible/resizable inspector rail, and bottom collapsible/resizable
   controls. Left and right rails have higher layout priority than the bottom
@@ -144,7 +144,7 @@ cross-references.
   should expose left/bottom/right collapse buttons plus a side-rail swap button.
 
 - Stage A handoff note: Architect Stage A may cite
-  [layout-guideline.md](../design/ui-prototype/layout-guideline.md) as the
+  [layout-guideline.md](../design/ui-prototype/docs/layout-guideline.md) as the
   accepted pre-Architect desktop layout direction, while still deciding exact
   responsive behavior, implementation package, component library, and production
   acceptance criteria separately.
@@ -181,7 +181,7 @@ cross-references.
 
 - Consensus decision: Use minimal bottom controls plus required fullscreen
   support. Fullscreen behavior follows
-  [fullscreen-navigation-guideline.md](../design/ui-prototype/fullscreen-navigation-guideline.md):
+  [fullscreen-navigation-guideline.md](../design/ui-prototype/docs/fullscreen-navigation-guideline.md):
   configured/default keyboard navigation remains active; mouse-like pointer
   input uses left/right edge-reveal previous/next buttons plus right-click
   controls; touch input uses the maintainer-requested swipe/tap mapping; and
@@ -189,7 +189,7 @@ cross-references.
   any production contract is frozen.
 
 - Stage A handoff note: Architect Stage A may cite
-  [fullscreen-navigation-guideline.md](../design/ui-prototype/fullscreen-navigation-guideline.md)
+  [fullscreen-navigation-guideline.md](../design/ui-prototype/docs/fullscreen-navigation-guideline.md)
   as the accepted pre-Architect fullscreen/navigation direction. Stage A should
   research external presenter-controller standards and mature presentation-tool
   behavior before freezing implementation details for hardware/controller input.
@@ -205,13 +205,13 @@ cross-references.
 
 - Consensus decision: Use summary-first inspector IA with a right activity bar
   plus collapsible/resizable sections inside the active topic pane, following
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md).
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md).
   `Summary` is expanded by default; `Outline`, `Timeline`, `Readiness`,
   `Diagnostics`, `Provenance`, `Notes`, and `Limitations` are expandable
   sections with topic-specific default expansion rules.
 
 - Stage A handoff note: Architect Stage A may cite
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md)
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md)
   as the accepted pre-Architect inspector IA direction. Stage A should still
   decide exact data contracts, field names, component library, and accessibility
   acceptance separately.
@@ -253,7 +253,7 @@ cross-references.
   audience content and are inspectable only through explicit presenter metadata
   affordances. The UI prototype may design a complete presenter-view flow,
   following
-  [presenter-view-guideline.md](../design/ui-prototype/presenter-view-guideline.md):
+  [presenter-view-guideline.md](../design/ui-prototype/docs/presenter-view-guideline.md):
   multi-display split presentation when the runtime can support it, normal
   player view when it cannot, and right-click force-open presenter view on the
   current screen. Browser/web local-ready should not promise reliable automatic
@@ -279,8 +279,8 @@ cross-references.
 - Status: decided.
 
 - Consensus decision: Use the expanded global status model recorded in
-  [layout-guideline.md](../design/ui-prototype/layout-guideline.md) and
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md).
+  [layout-guideline.md](../design/ui-prototype/docs/layout-guideline.md) and
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md).
   The normal desktop shell has a narrow persistent bottom status bar with left
   and right summary clusters and an intentionally empty center. The health
   signal sits on the side nearest the inspector rail, follows the inspector
@@ -308,7 +308,7 @@ cross-references.
 
 - Consensus decision: Use compact provenance summary plus structured
   expandable evidence details, following
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md).
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md).
   The prototype should make Phase 6-style export evidence readable and
   locatable: deck identity, selected formats, stable hash, schema version,
   manifest path, per-format capability status, evidence file references,
@@ -360,7 +360,7 @@ cross-references.
 - Status: decided.
 
 - Consensus decision: Use the balanced technical-player direction recorded in
-  [visual-style-guideline.md](../design/ui-prototype/visual-style-guideline.md).
+  [visual-style-guideline.md](../design/ui-prototype/docs/visual-style-guideline.md).
   Non-color style is accepted now: the deck canvas remains visually primary and
   presentation-ready, while chrome, rails, inspector sections, and status
   surfaces stay quiet, compact, scannable, and developer-tool-like. Color is
@@ -374,7 +374,7 @@ cross-references.
   technical-player posture remains the baseline unless explicitly reopened.
 
 - Stage A handoff note: Architect Stage A may cite
-  [visual-style-guideline.md](../design/ui-prototype/visual-style-guideline.md)
+  [visual-style-guideline.md](../design/ui-prototype/docs/visual-style-guideline.md)
   as the accepted pre-Architect visual style direction. Stage A should still
   decide production design tokens, component library, theme implementation,
   accessibility constraints, final color palette, and visual verification
@@ -398,10 +398,10 @@ cross-references.
   reduced-motion handling for collapses/fades, and screen-reader-oriented
   labels for core regions such as deck, controls, status, and inspector. This
   direction is distributed across
-  [layout-guideline.md](../design/ui-prototype/layout-guideline.md),
-  [fullscreen-navigation-guideline.md](../design/ui-prototype/fullscreen-navigation-guideline.md),
+  [layout-guideline.md](../design/ui-prototype/docs/layout-guideline.md),
+  [fullscreen-navigation-guideline.md](../design/ui-prototype/docs/fullscreen-navigation-guideline.md),
   and
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md).
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md).
 
 - Stage A handoff note: Architect Stage A may cite this as the accepted
   pre-Architect accessibility posture. Stage A should still decide production
@@ -419,7 +419,7 @@ cross-references.
 - Status: decided.
 
 - Consensus decision: Use the conservative version of option B, following
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md).
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md).
   The prototype may show read-only repair hints and copy affordances for
   diagnostic code, locator, source/evidence path, command path, or inspect
   command. It must not show `Fix`, `Apply patch`, `Ask AI`, source editor,
@@ -479,7 +479,7 @@ cross-references.
 - Status: decided.
 
 - Consensus decision: Use option B, following
-  [stage-a-handoff-guideline.md](../design/ui-prototype/stage-a-handoff-guideline.md).
+  [stage-a-handoff-guideline.md](../design/ui-prototype/docs/stage-a-handoff-guideline.md).
   Prototype findings should enter Architect Stage A as a decision/evidence
   packet, not as implementation baseline. The handoff should summarize baseline
   direction, rejected alternatives, Freeze Candidates, required evidence, open

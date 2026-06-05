@@ -196,7 +196,7 @@ handoff notes live in the companion decision log.
   - C 优点: 适合临时查看。缺点: 会遮挡 deck, 不适合作为开发者 inspect surface。
 
 - 我的建议: 选 A-expanded, 并以
-  [layout-guideline.md](../design/ui-prototype/layout-guideline.md) 作为
+  [layout-guideline.md](../design/ui-prototype/docs/layout-guideline.md) 作为
   prototype layout direction。工作量是可控的, 前提是 prototype 只实现固定角色的
   left/right/bottom rails、基础 collapse toggles、基础 resize handles、右侧 topic
   buttons、top-bar rail controls 和 side swap; 不做完整 VS Code workbench docking。
@@ -246,7 +246,7 @@ handoff notes live in the companion decision log.
   - C 优点: 对开发者有用。缺点: debug 信息应进入 inspector, 不宜常驻底栏。
 
 - 我的建议: 选 A-expanded, 并以
-  [fullscreen-navigation-guideline.md](../design/ui-prototype/fullscreen-navigation-guideline.md)
+  [fullscreen-navigation-guideline.md](../design/ui-prototype/docs/fullscreen-navigation-guideline.md)
   作为 fullscreen/input behavior direction。Bottom controls P0 包含 previous,
   next, play/pause, slide/step or action-anchor indicator, and fullscreen toggle。
   Debug/frame/cursor/provenance detail 放进 inspector。
@@ -276,7 +276,7 @@ handoff notes live in the companion decision log.
     缺点: 需要约束为 inspector IA, 不能膨胀成 full workbench 或 source editor。
 
 - 我的建议: 选 C-expanded, 并以
-  [inspector-ia-guideline.md](../design/ui-prototype/inspector-ia-guideline.md)
+  [inspector-ia-guideline.md](../design/ui-prototype/docs/inspector-ia-guideline.md)
   作为 right inspector IA direction。默认 `Summary` 展开, `Outline` 和
   `Timeline` 等 detail sections 可折叠并可调整高度占比; diagnostics/provenance
   用 badges 和默认展开规则提示重要状态。
@@ -329,7 +329,7 @@ handoff notes live in the companion decision log.
 - 我的建议: 选 C-staged。普通 Player/audience view 中 notes hidden by default,
   只通过 explicit `Notes` section / `presenter metadata` label 检查; 同时把完整
   presenter-view flow 作为 UI prototype direction 记录到
-  [presenter-view-guideline.md](../design/ui-prototype/presenter-view-guideline.md)。
+  [presenter-view-guideline.md](../design/ui-prototype/docs/presenter-view-guideline.md)。
 
 ## Q11. Readiness And Diagnostics Presentation
 

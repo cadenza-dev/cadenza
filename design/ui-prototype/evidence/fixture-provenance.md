@@ -18,7 +18,7 @@ future Player App data field exists.
 | `diagnostics[]` | `player snapshot`, `prototype-only` | representative fixture state in `src/fixture.ts` | Demonstrates read-only diagnostic IA and locator copy posture; codes are not frozen UI copy. |
 | `limitations[]` | `format evidence`, `prototype-only` | Topic 5, Topic 12, Q17 decisions and state fixture | Demonstrates known-limitation surfacing; production limitation taxonomy remains open. |
 | rail collapse, direct sash handles, side swap, drawer, pseudo-fullscreen state | `prototype-only` | `src/App.tsx`, `src/ui.tsx`, layout/fullscreen guidelines | Interaction evidence only; not production layout persistence or browser API contract. |
-| presenter-view mock state | `prototype-only` | `presenter-view-guideline.md`, `src/App.tsx` | Shows intended notes boundary; browser/desktop presenter guarantees remain Stage A research. |
+| presenter-view mock state | `prototype-only` | `docs/presenter-view-guideline.md`, `src/App.tsx` | Shows intended notes boundary; browser/desktop presenter guarantees remain Stage A research. |
 
 ## Source Classes Used
 

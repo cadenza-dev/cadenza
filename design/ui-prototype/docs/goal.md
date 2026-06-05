@@ -92,16 +92,16 @@ Read these inputs before making prototype or evidence changes:
   and Q19.
 - `QA/phase7-remaining-discussions.md`, especially the UI Prototype section.
 - `QA/phase7-pre-architect-ui-prototype-follow-up.md`.
-- all `*guideline.md` files in `design/ui-prototype/`.
+- all `*guideline.md` files in `design/ui-prototype/docs/`.
 
 The current guideline set is:
 
-- `design/ui-prototype/layout-guideline.md`;
-- `design/ui-prototype/fullscreen-navigation-guideline.md`;
-- `design/ui-prototype/inspector-ia-guideline.md`;
-- `design/ui-prototype/presenter-view-guideline.md`;
-- `design/ui-prototype/visual-style-guideline.md`;
-- `design/ui-prototype/stage-a-handoff-guideline.md`.
+- `design/ui-prototype/docs/layout-guideline.md`;
+- `design/ui-prototype/docs/fullscreen-navigation-guideline.md`;
+- `design/ui-prototype/docs/inspector-ia-guideline.md`;
+- `design/ui-prototype/docs/presenter-view-guideline.md`;
+- `design/ui-prototype/docs/visual-style-guideline.md`;
+- `design/ui-prototype/docs/stage-a-handoff-guideline.md`.
 
 ## Skills
 
@@ -343,7 +343,7 @@ role-scoped prompt expands the task.
 For document-only edits to this file, run focused Markdown checks such as:
 
 ```bash
-pnpm exec markdownlint-cli2 design/ui-prototype/goal.md
+pnpm exec markdownlint-cli2 design/ui-prototype/docs/goal.md
 git diff --check
 ```
 

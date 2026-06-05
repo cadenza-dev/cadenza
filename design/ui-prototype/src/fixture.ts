@@ -483,12 +483,12 @@ export const provenanceRows = [
   [
     "fullscreen/touch behavior",
     "prototype-only",
-    "fullscreen-navigation-guideline.md",
+    "docs/fullscreen-navigation-guideline.md",
   ],
   [
     "presenter-view representation",
     "prototype-only",
-    "presenter-view-guideline.md",
+    "docs/presenter-view-guideline.md",
   ],
 ] as const satisfies readonly (readonly [
   field: string,
