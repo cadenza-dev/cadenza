@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T18:19:12.154Z",
+  "checkedAt": "2026-06-05T19:18:13.275Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
     {
@@ -38,6 +38,11 @@
       "value": "handle-width-12"
     },
     {
+      "check": "rail-boundary-sashes-visible",
+      "passed": true,
+      "value": "right-3x112 left-3x112"
+    },
+    {
       "check": "section-stack-does-not-scroll",
       "passed": true,
       "value": "outer stack fixed, section body scrolls"
@@ -51,6 +56,16 @@
       "check": "summary-divider-keeps-summary-locked",
       "passed": true,
       "value": "summary-223-223"
+    },
+    {
+      "check": "activity-section-layout-state-retained",
+      "passed": true,
+      "value": "outline-419-419"
+    },
+    {
+      "check": "section-toggle-animation",
+      "passed": true,
+      "value": "duration-0.15s, 0.15s"
     }
   ],
   "previewUrl": "http://127.0.0.1:4177",

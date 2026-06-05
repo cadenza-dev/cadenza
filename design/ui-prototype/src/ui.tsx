@@ -328,7 +328,20 @@ export function Section({
 }: SectionProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
   const expanded = open ?? uncontrolledOpen;
+  const [renderBody, setRenderBody] = useState(expanded);
   const bodyId = `${id}-section-body`;
+
+  useLayoutEffect(() => {
+    if (expanded) {
+      setRenderBody(true);
+      return undefined;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setRenderBody(false);
+    }, 170);
+    return () => window.clearTimeout(timeout);
+  }, [expanded]);
 
   const toggleOpen = () => {
     const nextOpen = !expanded;
@@ -361,7 +374,7 @@ export function Section({
           />
         </span>
       </button>
-      {expanded && (
+      {renderBody && (
         <div className="section-body" id={bodyId} ref={bodyRef}>
           {children}
         </div>

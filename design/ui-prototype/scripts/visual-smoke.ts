@@ -464,9 +464,12 @@ async function runLayoutRegressionChecks(browser: Browser) {
   checks.push(await checkCollapsedSectionsAreHeaderOnly(browser));
   checks.push(await checkSummaryMinimumTracksWidth(browser));
   checks.push(await checkCollapsedRailBoundaryHandleVisible(browser));
+  checks.push(await checkRailBoundarySashesAreVisible(browser));
   checks.push(await checkSectionStackDoesNotScroll(browser));
   checks.push(await checkSectionDividerAcrossCollapsedPane(browser));
   checks.push(await checkSummaryDividerKeepsSummaryLocked(browser));
+  checks.push(await checkActivitySectionLayoutStateRetained(browser));
+  checks.push(await checkSectionToggleAnimation(browser));
 
   return checks;
 }
@@ -536,6 +539,7 @@ async function checkCollapsedSectionsAreHeaderOnly(browser: Browser) {
         await summary.click();
       }
     }
+    await page.waitForTimeout(240);
 
     const collapsedPanels = await page.evaluate(() =>
       Array.from(
@@ -629,6 +633,43 @@ async function checkCollapsedRailBoundaryHandleVisible(browser: Browser) {
   }
 }
 
+async function checkRailBoundarySashesAreVisible(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&anchor=3`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator(".rail-panel-inspector").first()).toBeVisible();
+    const rightSash = await railSashGeometry(
+      page,
+      "Resize right rail boundary",
+    );
+
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&swap=true&anchor=3`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator(".rail-panel-inspector").first()).toBeVisible();
+    const leftSash = await railSashGeometry(page, "Resize left rail boundary");
+
+    expect(rightSash.height).toBeGreaterThanOrEqual(76);
+    expect(leftSash.height).toBeGreaterThanOrEqual(76);
+    expect(rightSash.width).toBeGreaterThanOrEqual(2);
+    expect(leftSash.width).toBeGreaterThanOrEqual(2);
+
+    return {
+      check: "rail-boundary-sashes-visible",
+      passed: true,
+      value: `right-${Math.round(rightSash.width)}x${Math.round(rightSash.height)} left-${Math.round(leftSash.width)}x${Math.round(leftSash.height)}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
 async function checkSectionStackDoesNotScroll(browser: Browser) {
   const page = await browser.newPage({
     viewport: { height: 760, width: 1280 },
@@ -678,6 +719,9 @@ async function checkSectionDividerAcrossCollapsedPane(browser: Browser) {
     );
     if ((await evidenceSummary.getAttribute("aria-expanded")) === "true") {
       await evidenceSummary.click();
+      await expect
+        .poll(() => panelHeight(page, "evidence-files"))
+        .toBeLessThanOrEqual(40);
     }
 
     const beforeFormat = await panelHeight(page, "format-capabilities");
@@ -724,6 +768,86 @@ async function checkSummaryDividerKeepsSummaryLocked(browser: Browser) {
   }
 }
 
+async function checkActivitySectionLayoutStateRetained(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-section-id="timeline"]')).toBeVisible();
+    await page.locator('[data-section-id="timeline"] .section-summary').click();
+    await expect.poll(() => sectionExpandedState(page, "timeline")).toBe(false);
+    await expect
+      .poll(() => panelHeight(page, "timeline"))
+      .toBeLessThanOrEqual(40);
+    const retainedOutlineHeight = await panelHeight(page, "outline");
+
+    await page.getByLabel("Open Diagnostics").click();
+    await expect(page.locator('[data-section-id="diagnostics"]')).toBeVisible();
+    await page.getByLabel("Open Outline").click();
+    await expect(page.locator('[data-section-id="outline"]')).toBeVisible();
+    await expect.poll(() => sectionExpandedState(page, "timeline")).toBe(false);
+    await expect
+      .poll(() => panelHeight(page, "timeline"))
+      .toBeLessThanOrEqual(40);
+    const restoredOutlineHeight = await panelHeight(page, "outline");
+    expect(
+      Math.abs(restoredOutlineHeight - retainedOutlineHeight),
+    ).toBeLessThanOrEqual(3);
+
+    return {
+      check: "activity-section-layout-state-retained",
+      passed: true,
+      value: `outline-${Math.round(retainedOutlineHeight)}-${Math.round(restoredOutlineHeight)}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSectionToggleAnimation(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-section-id="outline"]')).toBeVisible();
+    const before = await panelHeight(page, "outline");
+    await page.locator('[data-section-id="outline"] .section-summary').click();
+    const transition = await page.evaluate(() => {
+      const stack = document.querySelector<HTMLElement>(
+        ".inspector-pane .section-stack",
+      );
+      const panel = document.querySelector<HTMLElement>(
+        '[data-section-panel-id="outline"]',
+      );
+      const style = panel ? window.getComputedStyle(panel) : undefined;
+      return {
+        animated: stack?.classList.contains("section-stack-animated") ?? false,
+        duration: style?.transitionDuration ?? "",
+        property: style?.transitionProperty ?? "",
+      };
+    });
+    expect(transition.animated).toBe(true);
+    expect(transition.duration).not.toBe("0s");
+    expect(transition.property).toContain("flex-basis");
+    await expect.poll(() => panelHeight(page, "outline")).toBeLessThan(before);
+    await expect.poll(() => sectionBodyCount(page, "outline")).toBe(0);
+
+    return {
+      check: "section-toggle-animation",
+      passed: true,
+      value: `duration-${transition.duration}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
 async function sectionStackScrollState(page: Page) {
   return page.evaluate(() => {
     const stack = document.querySelector<HTMLElement>(
@@ -737,6 +861,34 @@ async function sectionStackScrollState(page: Page) {
       stackScrolls: stack ? stack.scrollHeight > stack.clientHeight + 1 : true,
     };
   });
+}
+
+async function sectionExpandedState(page: Page, id: string) {
+  return page.evaluate((sectionId) => {
+    const summary = document.querySelector<HTMLElement>(
+      `[data-section-id="${sectionId}"] .section-summary`,
+    );
+    return summary?.getAttribute("aria-expanded") === "true";
+  }, id);
+}
+
+async function sectionBodyCount(page: Page, id: string) {
+  return page.evaluate((sectionId) => {
+    const section = document.querySelector<HTMLElement>(
+      `[data-section-id="${sectionId}"]`,
+    );
+    return section?.querySelectorAll(".section-body").length ?? 0;
+  }, id);
+}
+
+async function railSashGeometry(page: Page, name: string) {
+  const handle = page.getByLabel(name).first();
+  await expect(handle).toBeVisible();
+  const sash = handle.locator("span").first();
+  await expect(sash).toBeVisible();
+  const box = await sash.boundingBox();
+  if (!box) throw new Error(`Rail sash ${name} has no bounding box`);
+  return box;
 }
 
 async function summaryBodyFits(page: Page) {

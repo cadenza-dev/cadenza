@@ -225,8 +225,20 @@ type InspectorSectionSpec = {
 
 const SECTION_HEADER_SIZE = 38;
 const SECTION_HANDLE_SIZE = 10;
+const SECTION_ANIMATION_DURATION_MS = 170;
 const SECTION_LAYOUT_STORAGE_PREFIX =
   "cadenza.uiPrototype.inspectorSectionLayout.v3";
+
+type InspectorSectionLayoutState = {
+  readonly expandedSections: Record<string, boolean>;
+  readonly sectionSizes: Record<string, number>;
+};
+
+type InspectorSectionLayoutUpdater = (
+  updater: (
+    current: InspectorSectionLayoutState,
+  ) => InspectorSectionLayoutState,
+) => void;
 
 export function InspectorContent({
   activeTopic,
@@ -243,6 +255,33 @@ export function InspectorContent({
     selectedSlide,
     state,
   });
+  const storageKey = `${SECTION_LAYOUT_STORAGE_PREFIX}.${activeTopic}`;
+  const [sectionLayouts, setSectionLayouts] = useState<
+    Record<string, InspectorSectionLayoutState>
+  >({});
+  const layoutState = useMemo(
+    () =>
+      normalizeSectionLayout(sectionLayouts[activeTopic], storageKey, sections),
+    [activeTopic, sectionLayouts, sections, storageKey],
+  );
+  const updateLayoutState = useCallback<InspectorSectionLayoutUpdater>(
+    (updater) => {
+      setSectionLayouts((current) => {
+        const currentLayout = normalizeSectionLayout(
+          current[activeTopic],
+          storageKey,
+          sections,
+        );
+        const nextLayout = normalizeSectionLayout(
+          updater(currentLayout),
+          storageKey,
+          sections,
+        );
+        return { ...current, [activeTopic]: nextLayout };
+      });
+    },
+    [activeTopic, sections, storageKey],
+  );
 
   if (mode === "mobile") {
     return (
@@ -264,9 +303,10 @@ export function InspectorContent({
 
   return (
     <InspectorSectionGroup
-      key={activeTopic}
+      layoutState={layoutState}
+      onLayoutChange={updateLayoutState}
       sections={sections}
-      storageKey={`${SECTION_LAYOUT_STORAGE_PREFIX}.${activeTopic}`}
+      storageKey={storageKey}
     />
   );
 }
@@ -492,6 +532,8 @@ function createInspectorSections({
 }
 
 type InspectorSectionGroupProps = {
+  readonly layoutState: InspectorSectionLayoutState;
+  readonly onLayoutChange: InspectorSectionLayoutUpdater;
   readonly sections: InspectorSectionSpec[];
   readonly storageKey: string;
 };
@@ -505,20 +547,19 @@ type SectionSizePlanInput = {
 };
 
 function InspectorSectionGroup({
+  layoutState,
+  onLayoutChange,
   sections,
   storageKey,
 }: InspectorSectionGroupProps) {
   const stackRef = useRef<HTMLDivElement | null>(null);
-  const [expandedSections, setExpandedSections] = useState(() =>
-    createInitialExpandedState(sections),
-  );
-  const [sectionSizes, setSectionSizes] = useState(() =>
-    readStoredSectionSizes(storageKey, sections),
-  );
+  const animationTimerRef = useRef<number | null>(null);
   const [measuredBodySizes, setMeasuredBodySizes] = useState<
     Record<string, number>
   >({});
   const [containerHeight, setContainerHeight] = useState(0);
+  const [animateLayout, setAnimateLayout] = useState(false);
+  const { expandedSections, sectionSizes } = layoutState;
   const sectionSizesForLayout = useMemo(
     () =>
       createSectionSizePlan({
@@ -540,6 +581,15 @@ function InspectorSectionGroup({
   useEffect(() => {
     storeSectionSizes(storageKey, sectionSizes, sections);
   }, [sectionSizes, sections, storageKey]);
+
+  useEffect(
+    () => () => {
+      if (animationTimerRef.current !== null) {
+        window.clearTimeout(animationTimerRef.current);
+      }
+    },
+    [],
+  );
 
   useLayoutEffect(() => {
     const stack = stackRef.current;
@@ -570,12 +620,30 @@ function InspectorSectionGroup({
     };
   }, []);
 
-  const setSectionExpanded = useCallback((id: string, expanded: boolean) => {
-    setExpandedSections((current) => {
-      if (current[id] === expanded) return current;
-      return { ...current, [id]: expanded };
-    });
+  const triggerSectionAnimation = useCallback(() => {
+    if (animationTimerRef.current !== null) {
+      window.clearTimeout(animationTimerRef.current);
+    }
+    setAnimateLayout(true);
+    animationTimerRef.current = window.setTimeout(() => {
+      animationTimerRef.current = null;
+      setAnimateLayout(false);
+    }, SECTION_ANIMATION_DURATION_MS);
   }, []);
+
+  const setSectionExpanded = useCallback(
+    (id: string, expanded: boolean) => {
+      triggerSectionAnimation();
+      onLayoutChange((current) => {
+        if (current.expandedSections[id] === expanded) return current;
+        return {
+          ...current,
+          expandedSections: { ...current.expandedSections, [id]: expanded },
+        };
+      });
+    },
+    [onLayoutChange, triggerSectionAnimation],
+  );
 
   const setMeasuredBodySize = useCallback((id: string, size: number) => {
     setMeasuredBodySizes((current) => {
@@ -631,10 +699,13 @@ function InspectorSectionGroup({
           secondStart - secondMinimum,
         );
         const delta = Math.min(Math.max(rawDelta, lowerBound), upperBound);
-        setSectionSizes((current) => ({
+        onLayoutChange((current) => ({
           ...current,
-          [firstSection.id]: Math.round(firstStart + delta),
-          [secondSection.id]: Math.round(secondStart - delta),
+          sectionSizes: {
+            ...current.sectionSizes,
+            [firstSection.id]: Math.round(firstStart + delta),
+            [secondSection.id]: Math.round(secondStart - delta),
+          },
         }));
       };
 
@@ -648,11 +719,23 @@ function InspectorSectionGroup({
       window.addEventListener("pointerup", stopResize);
       window.addEventListener("pointercancel", stopResize);
     },
-    [expandedSections, measuredBodySizes, sectionSizesForLayout, sections],
+    [
+      expandedSections,
+      measuredBodySizes,
+      onLayoutChange,
+      sectionSizesForLayout,
+      sections,
+    ],
   );
 
   return (
-    <div className="section-stack section-stack-resizable" ref={stackRef}>
+    <div
+      className={cn(
+        "section-stack section-stack-resizable",
+        animateLayout && "section-stack-animated",
+      )}
+      ref={stackRef}
+    >
       <div className="section-stack-inner">
         {sections.map((section, index) => (
           <FragmentedSectionPane
@@ -844,6 +927,44 @@ function createInitialExpandedState(
   return Object.fromEntries(
     sections.map((section) => [section.id, section.defaultOpen ?? false]),
   );
+}
+
+function createDefaultSectionLayout(
+  storageKey: string,
+  sections: readonly InspectorSectionSpec[],
+): InspectorSectionLayoutState {
+  return {
+    expandedSections: createInitialExpandedState(sections),
+    sectionSizes: readStoredSectionSizes(storageKey, sections),
+  };
+}
+
+function normalizeSectionLayout(
+  layout: InspectorSectionLayoutState | undefined,
+  storageKey: string,
+  sections: readonly InspectorSectionSpec[],
+): InspectorSectionLayoutState {
+  const defaultLayout = createDefaultSectionLayout(storageKey, sections);
+  return {
+    expandedSections: Object.fromEntries(
+      sections.map((section) => [
+        section.id,
+        layout?.expandedSections[section.id] ??
+          defaultLayout.expandedSections[section.id] ??
+          false,
+      ]),
+    ),
+    sectionSizes: Object.fromEntries(
+      sections.flatMap((section) => {
+        const value =
+          layout?.sectionSizes[section.id] ??
+          defaultLayout.sectionSizes[section.id];
+        return typeof value === "number" && Number.isFinite(value) && value > 0
+          ? [[section.id, value]]
+          : [];
+      }),
+    ),
+  };
 }
 
 function getPreferredSectionSize(section: InspectorSectionSpec) {
