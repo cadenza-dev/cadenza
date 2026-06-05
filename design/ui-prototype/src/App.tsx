@@ -1,3 +1,4 @@
+import type { PointerEvent } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { BlockingBanner, DeckSurface } from "./components/Deck";
 import { FullscreenView } from "./components/FullscreenView";
@@ -22,11 +23,41 @@ import type { MobilePanelId, Theme } from "./types";
 import { cn, ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui";
 
 type RailKind = "inspector" | "slides";
+type RailSide = "left" | "right";
 
-const railMinimumSizes = {
-  inspector: 20,
-  slides: 14,
-} as const satisfies Record<RailKind, number>;
+const inspectorCollapsedWidth = 42;
+
+const railSizeBounds = {
+  inspector: { defaultRatio: 0.21, max: 680, min: 300 },
+  slides: { defaultRatio: 0.16, max: 520, min: 240 },
+} as const satisfies Record<
+  RailKind,
+  { readonly defaultRatio: number; readonly max: number; readonly min: number }
+>;
+
+function clampRailSize(kind: RailKind, size: number, availableMax?: number) {
+  const bounds = railSizeBounds[kind];
+  const max = Math.max(
+    bounds.min,
+    Math.min(bounds.max, availableMax ?? bounds.max),
+  );
+  return Math.round(Math.min(Math.max(size, bounds.min), max));
+}
+
+function createInitialRailSizes(): Record<RailKind, number> {
+  const viewportWidth =
+    typeof window === "undefined" ? 1440 : window.innerWidth;
+  return {
+    inspector: clampRailSize(
+      "inspector",
+      viewportWidth * railSizeBounds.inspector.defaultRatio,
+    ),
+    slides: clampRailSize(
+      "slides",
+      viewportWidth * railSizeBounds.slides.defaultRatio,
+    ),
+  };
+}
 
 function App() {
   const initialState = initialParam("state", "ready");
@@ -65,24 +96,38 @@ function App() {
   const [presenterMode, setPresenterMode] = useState(
     initialParam("presenter", "false") === "true",
   );
-  const [railSizes, setRailSizes] =
-    useState<Record<RailKind, number>>(railMinimumSizes);
+  const [railSizes, setRailSizes] = useState(createInitialRailSizes);
+  const [activeRailResize, setActiveRailResize] = useState<RailSide | null>(
+    null,
+  );
 
   const selectedSlide = outlineAt(anchorIndex);
   const leftKind = sideSwap ? "inspector" : "slides";
   const rightKind = sideSwap ? "slides" : "inspector";
   const leftOpen = leftKind === "inspector" ? true : slideOpen;
   const rightOpen = rightKind === "inspector" ? true : slideOpen;
-  const visibleRailPercent = (kind: RailKind) => {
-    if (kind === "slides") return slideOpen ? railSizes.slides : 0;
-    return inspectorOpen ? railSizes.inspector : 0;
-  };
-  const centerDefaultSize = Math.max(
-    42,
-    100 -
-      (leftOpen ? visibleRailPercent(leftKind) : 0) -
-      (rightOpen ? visibleRailPercent(rightKind) : 0),
+  const railIsResizable = (kind: RailKind) =>
+    kind === "inspector" ? inspectorOpen : slideOpen;
+  const railRenderWidth = useCallback(
+    (kind: RailKind) =>
+      kind === "inspector" && !inspectorOpen
+        ? inspectorCollapsedWidth
+        : railSizes[kind],
+    [inspectorOpen, railSizes],
   );
+  const leftResizable = leftOpen && railIsResizable(leftKind);
+  const rightResizable = rightOpen && railIsResizable(rightKind);
+  const leftHandleVisible = leftOpen;
+  const rightHandleVisible = rightOpen;
+  const layoutColumns = [
+    leftOpen ? `${railRenderWidth(leftKind)}px` : null,
+    leftHandleVisible ? "10px" : null,
+    "minmax(0, 1fr)",
+    rightHandleVisible ? "10px" : null,
+    rightOpen ? `${railRenderWidth(rightKind)}px` : null,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -116,12 +161,46 @@ function App() {
     setAnchorIndex(states[nextState].selectedIndex);
   }, []);
 
-  const rememberRailSize = useCallback((kind: RailKind, size: number) => {
-    setRailSizes((current) => ({
-      ...current,
-      [kind]: size,
-    }));
-  }, []);
+  const startRailResize = useCallback(
+    (
+      kind: RailKind,
+      side: RailSide,
+      event: PointerEvent<HTMLButtonElement>,
+    ) => {
+      event.preventDefault();
+      const startX = event.clientX;
+      const startSize = railSizes[kind];
+      const otherKind = kind === leftKind ? rightKind : leftKind;
+      const otherMounted = otherKind === "inspector" ? true : slideOpen;
+      const otherWidth = otherMounted ? railRenderWidth(otherKind) : 0;
+      const availableMax =
+        window.innerWidth - otherWidth - inspectorCollapsedWidth - 620;
+      const direction = side === "left" ? 1 : -1;
+
+      setActiveRailResize(side);
+
+      const onPointerMove = (moveEvent: globalThis.PointerEvent) => {
+        const nextSize = clampRailSize(
+          kind,
+          startSize + (moveEvent.clientX - startX) * direction,
+          availableMax,
+        );
+        setRailSizes((current) => ({ ...current, [kind]: nextSize }));
+      };
+
+      const stopResize = () => {
+        setActiveRailResize(null);
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", stopResize);
+        window.removeEventListener("pointercancel", stopResize);
+      };
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", stopResize);
+      window.addEventListener("pointercancel", stopResize);
+    },
+    [leftKind, railRenderWidth, railSizes, rightKind, slideOpen],
+  );
 
   const openHealthTopic = useCallback(() => {
     setInspectorOpen(true);
@@ -205,114 +284,126 @@ function App() {
         theme={theme}
       />
 
-      <main className="layout-frame" aria-label="Cadenza Player App prototype">
-        <ResizablePanelGroup orientation="horizontal">
-          <RailPanel
-            contentOpen={leftKind === "inspector" ? inspectorOpen : undefined}
-            defaultSize={railSizes[leftKind]}
-            isOpen={leftOpen}
-            kind={leftKind}
-            onSizeChange={(size) => rememberRailSize(leftKind, size)}
-          >
-            {leftKind === "inspector" ? (
-              <InspectorRail
-                activeTopic={topic}
-                copyText={copyText}
-                onAnchor={goToAnchor}
-                onOpenChange={setInspectorOpen}
-                onTopic={setTopic}
-                open={inspectorOpen}
-                side="left"
-                selectedSlide={selectedSlide}
-                state={selectedState}
-              />
-            ) : (
-              <SlideRail
-                currentSlideId={selectedSlide.slideId}
-                onSelect={goToAnchor}
-              />
-            )}
-          </RailPanel>
-          {leftOpen && <ResizableHandle label="Resize left rail boundary" />}
-          <ResizablePanel
-            className="center-panel"
-            defaultSize={`${centerDefaultSize}%`}
-            minSize="42%"
-          >
-            <ResizablePanelGroup orientation="vertical">
-              <ResizablePanel
-                className="deck-panel"
-                defaultSize="78%"
-                minSize="58%"
-              >
-                {selectedState.health === "Blocked" &&
-                  selectedState.diagnostics[0] && (
-                    <BlockingBanner
-                      diagnostic={selectedState.diagnostics[0]}
-                      onOpenDiagnostics={() => {
-                        setInspectorOpen(true);
-                        setTopic("Diagnostics");
-                      }}
-                    />
-                  )}
-                <DeckSurface
-                  anchorIndex={anchorIndex}
-                  presenter={presenterMode}
-                  selectedSlide={selectedSlide}
-                  state={selectedState}
-                />
-              </ResizablePanel>
-              {bottomOpen && (
-                <>
-                  <ResizableHandle
-                    className="resize-handle-horizontal"
-                    label="Resize bottom action-anchor controls"
+      <main
+        className="layout-frame"
+        aria-label="Cadenza Player App prototype"
+        style={{ gridTemplateColumns: layoutColumns }}
+      >
+        <RailPanel
+          contentOpen={leftKind === "inspector" ? inspectorOpen : undefined}
+          isOpen={leftOpen}
+          kind={leftKind}
+          width={railRenderWidth(leftKind)}
+        >
+          {leftKind === "inspector" ? (
+            <InspectorRail
+              activeTopic={topic}
+              copyText={copyText}
+              onAnchor={goToAnchor}
+              onOpenChange={setInspectorOpen}
+              onTopic={setTopic}
+              open={inspectorOpen}
+              side="left"
+              selectedSlide={selectedSlide}
+              state={selectedState}
+            />
+          ) : (
+            <SlideRail
+              currentSlideId={selectedSlide.slideId}
+              onSelect={goToAnchor}
+            />
+          )}
+        </RailPanel>
+        {leftHandleVisible && (
+          <RailResizeHandle
+            active={activeRailResize === "left"}
+            label="Resize left rail boundary"
+            onPointerDown={(event) => startRailResize(leftKind, "left", event)}
+            resizable={leftResizable}
+          />
+        )}
+        <section className="center-panel" aria-label="Deck and controls">
+          <ResizablePanelGroup orientation="vertical">
+            <ResizablePanel
+              className="deck-panel"
+              defaultSize="78%"
+              minSize="58%"
+            >
+              {selectedState.health === "Blocked" &&
+                selectedState.diagnostics[0] && (
+                  <BlockingBanner
+                    diagnostic={selectedState.diagnostics[0]}
+                    onOpenDiagnostics={() => {
+                      setInspectorOpen(true);
+                      setTopic("Diagnostics");
+                    }}
                   />
-                  <ResizablePanel
-                    className="center-bottom-panel"
-                    defaultSize="88px"
-                    maxSize="124px"
-                    minSize="88px"
-                  >
-                    <PlaybackToolbar
-                      anchorIndex={anchorIndex}
-                      next={next}
-                      onFullscreen={() => setFullscreen(true)}
-                      previous={previous}
-                    />
-                  </ResizablePanel>
-                </>
-              )}
-            </ResizablePanelGroup>
-          </ResizablePanel>
-          {rightOpen && <ResizableHandle label="Resize right rail boundary" />}
-          <RailPanel
-            contentOpen={rightKind === "inspector" ? inspectorOpen : undefined}
-            defaultSize={railSizes[rightKind]}
-            isOpen={rightOpen}
-            kind={rightKind}
-            onSizeChange={(size) => rememberRailSize(rightKind, size)}
-          >
-            {rightKind === "slides" ? (
-              <SlideRail
-                currentSlideId={selectedSlide.slideId}
-                onSelect={goToAnchor}
-              />
-            ) : (
-              <InspectorRail
-                activeTopic={topic}
-                copyText={copyText}
-                onAnchor={goToAnchor}
-                onOpenChange={setInspectorOpen}
-                onTopic={setTopic}
-                open={inspectorOpen}
-                side="right"
+                )}
+              <DeckSurface
+                anchorIndex={anchorIndex}
+                presenter={presenterMode}
                 selectedSlide={selectedSlide}
                 state={selectedState}
               />
+            </ResizablePanel>
+            {bottomOpen && (
+              <>
+                <ResizableHandle
+                  className="resize-handle-horizontal"
+                  label="Resize bottom action-anchor controls"
+                />
+                <ResizablePanel
+                  className="center-bottom-panel"
+                  defaultSize="88px"
+                  maxSize="124px"
+                  minSize="88px"
+                >
+                  <PlaybackToolbar
+                    anchorIndex={anchorIndex}
+                    next={next}
+                    onFullscreen={() => setFullscreen(true)}
+                    previous={previous}
+                  />
+                </ResizablePanel>
+              </>
             )}
-          </RailPanel>
-        </ResizablePanelGroup>
+          </ResizablePanelGroup>
+        </section>
+        {rightHandleVisible && (
+          <RailResizeHandle
+            active={activeRailResize === "right"}
+            label="Resize right rail boundary"
+            onPointerDown={(event) =>
+              startRailResize(rightKind, "right", event)
+            }
+            resizable={rightResizable}
+          />
+        )}
+        <RailPanel
+          contentOpen={rightKind === "inspector" ? inspectorOpen : undefined}
+          isOpen={rightOpen}
+          kind={rightKind}
+          width={railRenderWidth(rightKind)}
+        >
+          {rightKind === "slides" ? (
+            <SlideRail
+              currentSlideId={selectedSlide.slideId}
+              onSelect={goToAnchor}
+            />
+          ) : (
+            <InspectorRail
+              activeTopic={topic}
+              copyText={copyText}
+              onAnchor={goToAnchor}
+              onOpenChange={setInspectorOpen}
+              onTopic={setTopic}
+              open={inspectorOpen}
+              side="right"
+              selectedSlide={selectedSlide}
+              state={selectedState}
+            />
+          )}
+        </RailPanel>
       </main>
 
       <main
@@ -363,6 +454,34 @@ function App() {
         topic={topic}
       />
     </div>
+  );
+}
+
+type RailResizeHandleProps = {
+  readonly active: boolean;
+  readonly label: string;
+  readonly onPointerDown: (event: PointerEvent<HTMLButtonElement>) => void;
+  readonly resizable: boolean;
+};
+
+function RailResizeHandle({
+  active,
+  label,
+  onPointerDown,
+  resizable,
+}: RailResizeHandleProps) {
+  return (
+    <button
+      aria-label={label}
+      className="resize-handle rail-resize-handle"
+      data-resize-handle-active={active ? "" : undefined}
+      disabled={!resizable}
+      onPointerDown={onPointerDown}
+      title={label}
+      type="button"
+    >
+      <span />
+    </button>
   );
 }
 

@@ -243,6 +243,8 @@ pre {
 }
 
 .layout-frame {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   padding: 8px;
 }
@@ -251,8 +253,12 @@ pre {
   display: none;
 }
 
-.layout-frame [data-slot="resizable-panel-group"],
 .deck-panel [data-slot="resizable-panel-group"] {
+  height: 100%;
+  width: 100%;
+}
+
+.center-panel [data-slot="resizable-panel-group"] {
   height: 100%;
   width: 100%;
 }
@@ -274,6 +280,7 @@ pre {
 }
 
 .center-panel {
+  min-height: 0;
   padding-inline: 8px;
 }
 
@@ -295,13 +302,21 @@ pre {
 .resize-handle {
   align-items: center;
   background: transparent;
+  border: 0;
   display: flex;
   flex: 0 0 10px;
   justify-content: center;
   margin-inline: -1px;
   position: relative;
+  touch-action: none;
   width: 10px;
   z-index: 2;
+}
+
+.rail-resize-handle {
+  cursor: col-resize;
+  height: 100%;
+  min-height: 0;
 }
 
 .resize-handle::before {
@@ -329,6 +344,16 @@ pre {
   background: var(--ring);
   opacity: 1;
   width: 4px;
+}
+
+.resize-handle:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.resize-handle:disabled span {
+  background: var(--border-strong);
+  opacity: 0.45;
 }
 
 .resize-handle-horizontal {
@@ -887,12 +912,40 @@ pre {
 }
 
 .section-stack {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.section-stack-static {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 0;
   overflow: auto;
-  padding: 10px;
+}
+
+.section-stack-resizable {
+  display: block;
+}
+
+.section-stack-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.section-panel {
+  flex: 0 0 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.section-panel-collapsed {
+  flex: 0 0 38px;
 }
 
 .section {
@@ -905,29 +958,39 @@ pre {
   overflow: hidden;
 }
 
-.section:not([open]) {
+.section-panel .section {
+  height: 100%;
+}
+
+.section[data-open="false"] {
   display: block;
 }
 
-.section summary {
+.section-summary {
   align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
   display: flex;
   gap: 8px;
+  height: 38px;
   justify-content: space-between;
-  list-style: none;
-  padding: 9px 10px;
+  line-height: 16px;
+  padding: 0 10px;
+  text-align: left;
+  width: 100%;
 }
 
-.section summary::-webkit-details-marker {
-  display: none;
+.section-summary:hover {
+  background: color-mix(in srgb, var(--accent-soft) 48%, transparent);
 }
 
-.section summary span {
+.section-summary span {
   font-size: 13px;
   font-weight: 650;
 }
 
-.section summary small {
+.section-summary small {
   color: var(--muted-foreground);
   font-size: 11px;
 }
@@ -943,18 +1006,36 @@ pre {
   transition: transform 140ms ease;
 }
 
-.section:not([open]) .section-chevron {
+.section[data-open="false"] .section-chevron {
   transform: rotate(-90deg);
 }
 
 .section-body {
+  align-content: start;
+  align-items: start;
   border-top: 1px solid var(--border);
   display: grid;
   gap: 10px;
-  max-height: min(28dvh, 260px);
+  grid-auto-rows: max-content;
   min-height: 0;
   overflow: auto;
   padding: 10px;
+}
+
+.section-resize-handle {
+  flex: 0 0 10px;
+  min-height: 10px;
+  touch-action: none;
+  z-index: 3;
+}
+
+.section-resize-handle span {
+  width: min(72px, 42%);
+}
+
+.section-resize-handle:hover span,
+.section-resize-handle[data-resize-handle-active] span {
+  width: min(88px, 52%);
 }
 
 .summary-grid {
@@ -962,6 +1043,7 @@ pre {
   display: grid;
   gap: 8px;
   grid-template-columns: auto 1fr;
+  line-height: 18px;
 }
 
 .summary-grid p,
@@ -971,7 +1053,7 @@ pre {
 .diagnostic-card p,
 .presenter-card p {
   color: var(--muted-foreground);
-  line-height: 1.45;
+  line-height: 18px;
   margin: 3px 0 0;
 }
 
@@ -996,9 +1078,11 @@ pre {
 dt {
   color: var(--muted-foreground);
   font-size: 11px;
+  line-height: 14px;
 }
 
 dd {
+  line-height: 18px;
   margin: 2px 0 0;
   min-width: 0;
   overflow-wrap: anywhere;
@@ -1051,7 +1135,10 @@ dd {
 .capability-list,
 .artifact-list,
 .limitation-list {
+  align-content: start;
+  align-items: start;
   display: grid;
+  grid-auto-rows: max-content;
   gap: 8px;
   min-height: 0;
 }
@@ -1072,6 +1159,7 @@ dd {
 
 .outline-row {
   grid-template-columns: auto 1fr;
+  min-height: 48px;
 }
 
 .outline-row span,
@@ -1090,6 +1178,7 @@ dd {
 .outline-row small {
   color: var(--muted-foreground);
   display: block;
+  line-height: 16px;
   margin-top: 2px;
 }
 
@@ -1102,7 +1191,9 @@ dd {
 }
 
 .timeline-list {
+  align-content: start;
   display: grid;
+  grid-auto-rows: max-content;
   gap: 6px;
   list-style: none;
   margin: 0;
@@ -1131,7 +1222,6 @@ dd {
 .limitation-card,
 .capability-card,
 .notice-card {
-  align-items: center;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   display: grid;
@@ -1141,21 +1231,27 @@ dd {
 }
 
 .readiness-row {
+  align-items: center;
   grid-template-columns: auto 1fr auto;
+  min-height: 54px;
 }
 
 .readiness-row small,
 .artifact-card small {
   color: var(--muted-foreground);
   display: block;
+  line-height: 16px;
   margin-top: 2px;
   overflow-wrap: anywhere;
 }
 
 .diagnostic-card {
+  align-content: start;
+  align-items: start;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   display: grid;
+  grid-auto-rows: max-content;
   gap: 9px;
   padding: 10px;
 }
@@ -1177,7 +1273,9 @@ dd {
 }
 
 .artifact-card {
+  align-items: center;
   grid-template-columns: auto 1fr auto;
+  min-height: 58px;
 }
 
 .artifact-card .ui-button {
@@ -1189,6 +1287,7 @@ dd {
 .notice-card {
   align-items: start;
   grid-template-columns: auto 1fr;
+  min-height: 48px;
 }
 
 .selector-grid dd {

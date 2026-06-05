@@ -14,74 +14,51 @@ import {
   Route,
   ShieldCheck,
 } from "lucide-react";
-import type { ReactNode } from "react";
+import type { ReactNode, PointerEvent as ReactPointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { OutlineEntry, PrototypeState, Topic } from "../fixture";
 import { deck, outline, topics } from "../fixture";
 import { topicIcons } from "../topic-icons";
 import type { CopyText, InspectorSide } from "../types";
-import { Badge, Button, cn, IconButton, ResizablePanel, Section } from "../ui";
+import { Badge, Button, cn, IconButton, Section } from "../ui";
 
 type RailPanelProps = {
   readonly children: ReactNode;
   readonly contentOpen?: boolean;
-  readonly defaultSize: number;
   readonly isOpen: boolean;
   readonly kind: "inspector" | "slides";
-  readonly onSizeChange: (size: number) => void;
+  readonly width: number;
 };
 
 export function RailPanel({
   children,
   contentOpen = true,
-  defaultSize,
   isOpen,
   kind,
-  onSizeChange,
+  width,
 }: RailPanelProps) {
   const inspectorCollapsed = kind === "inspector" && !contentOpen;
-  const minSize = kind === "inspector" ? 20 : 14;
-  const maxSize = kind === "inspector" ? 34 : 25;
-  const expandedSize = Math.max(minSize, Math.min(maxSize, defaultSize));
 
   if (!isOpen) return null;
 
   return (
-    <ResizablePanel
+    <div
       className={cn(
         "rail-panel",
         `rail-panel-${kind}`,
         inspectorCollapsed && "rail-panel-collapsed",
       )}
-      defaultSize={inspectorCollapsed ? "42px" : `${expandedSize}%`}
-      maxSize={inspectorCollapsed ? "42px" : `${maxSize}%`}
-      minSize={inspectorCollapsed ? "42px" : `${minSize}%`}
-      key={`${kind}-${inspectorCollapsed ? "collapsed" : "expanded"}`}
-      groupResizeBehavior={
-        inspectorCollapsed ? "preserve-pixel-size" : undefined
-      }
-      disabled={inspectorCollapsed}
-      onResize={(panelSize) => {
-        if (!inspectorCollapsed) {
-          onSizeChange(
-            Math.max(minSize, Math.min(maxSize, panelSize.asPercentage)),
-          );
-        }
-      }}
-      style={
-        inspectorCollapsed
-          ? {
-              flexBasis: "42px",
-              flexGrow: 0,
-              flexShrink: 0,
-              maxWidth: "42px",
-              minWidth: "42px",
-              width: "42px",
-            }
-          : undefined
-      }
+      style={{ width: `${width}px` }}
     >
       {children}
-    </ResizablePanel>
+    </div>
   );
 }
 
@@ -229,148 +206,955 @@ export function InspectorRail({
 type InspectorContentProps = {
   readonly activeTopic: Topic;
   readonly copyText: CopyText;
+  readonly mode?: "desktop" | "mobile";
   readonly onAnchor: (index: number) => void;
   readonly selectedSlide: OutlineEntry;
   readonly state: PrototypeState;
 };
 
+type InspectorSectionSpec = {
+  readonly children: ReactNode;
+  readonly defaultOpen?: boolean;
+  readonly defaultSize: number;
+  readonly id: string;
+  readonly maxSize?: number;
+  readonly meta?: string;
+  readonly minSize: number;
+  readonly title: string;
+};
+
+const SECTION_HEADER_SIZE = 38;
+const SECTION_HANDLE_SIZE = 10;
+const SECTION_LAYOUT_STORAGE_PREFIX =
+  "cadenza.uiPrototype.inspectorSectionLayout.v3";
+
 export function InspectorContent({
+  activeTopic,
+  copyText,
+  mode = "desktop",
+  onAnchor,
+  selectedSlide,
+  state,
+}: InspectorContentProps) {
+  const sections = createInspectorSections({
+    activeTopic,
+    copyText,
+    onAnchor,
+    selectedSlide,
+    state,
+  });
+
+  if (mode === "mobile") {
+    return (
+      <div className="section-stack section-stack-static">
+        {sections.map((section) => (
+          <Section
+            defaultOpen={section.defaultOpen}
+            id={section.id}
+            key={section.id}
+            meta={section.meta}
+            title={section.title}
+          >
+            {section.children}
+          </Section>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <InspectorSectionGroup
+      key={activeTopic}
+      sections={sections}
+      storageKey={`${SECTION_LAYOUT_STORAGE_PREFIX}.${activeTopic}`}
+    />
+  );
+}
+
+type CreateInspectorSectionsProps = {
+  readonly activeTopic: Topic;
+  readonly copyText: CopyText;
+  readonly onAnchor: (index: number) => void;
+  readonly selectedSlide: OutlineEntry;
+  readonly state: PrototypeState;
+};
+
+function createInspectorSections({
   activeTopic,
   copyText,
   onAnchor,
   selectedSlide,
   state,
-}: InspectorContentProps) {
-  return (
-    <div className="section-stack">
-      <Section defaultOpen id="summary" title="Summary">
-        <div className="summary-grid">
-          <Info size={16} />
-          <div>
-            <strong>{selectedSlide.title}</strong>
-            <p>{state.description}</p>
-          </div>
-        </div>
-        <dl className="key-value-grid">
-          <div>
-            <dt>Deck</dt>
-            <dd>{deck.deckId}</dd>
-          </div>
-          <div>
-            <dt>Anchor</dt>
-            <dd>
-              {selectedSlide.segment[0]}-{selectedSlide.segment[1]}
-            </dd>
-          </div>
-          <div>
-            <dt>Diagnostics</dt>
-            <dd>{state.diagnostics.length}</dd>
-          </div>
-          <div>
-            <dt>Limitations</dt>
-            <dd>{state.limitations.length}</dd>
-          </div>
-        </dl>
-      </Section>
-
-      {activeTopic === "Outline" && (
+}: CreateInspectorSectionsProps): InspectorSectionSpec[] {
+  const sections: InspectorSectionSpec[] = [
+    {
+      children: (
         <>
-          <Section defaultOpen id="outline" title="Outline">
-            <OutlineList
-              currentSlideId={selectedSlide.slideId}
-              onAnchor={onAnchor}
-            />
-          </Section>
-          <Section id="timeline" title="Timeline">
-            <TimelineList
-              currentSlideId={selectedSlide.slideId}
-              onAnchor={onAnchor}
-            />
-          </Section>
-        </>
-      )}
-
-      {activeTopic === "Readiness" && (
-        <>
-          <Section defaultOpen id="readiness" title="Readiness">
-            <ReadinessList state={state} />
-          </Section>
-          <Section id="readiness-diagnostics" title="Diagnostics">
-            <DiagnosticsList copyText={copyText} state={state} />
-          </Section>
-        </>
-      )}
-
-      {activeTopic === "Diagnostics" && (
-        <>
-          <Section
-            defaultOpen
-            id="diagnostics"
-            meta={`${state.diagnostics.length} items`}
-            title="Diagnostics"
-          >
-            <DiagnosticsList copyText={copyText} state={state} />
-          </Section>
-          <Section id="diagnostic-limitations" title="Limitations">
-            <LimitationsList state={state} />
-          </Section>
-        </>
-      )}
-
-      {activeTopic === "Provenance" && (
-        <>
-          <Section
-            defaultOpen
-            id="format-capabilities"
-            title="Format Capabilities"
-          >
-            <FormatCapabilities state={state} />
-          </Section>
-          <Section defaultOpen id="evidence-files" title="Evidence Files">
-            <EvidenceFiles copyText={copyText} state={state} />
-          </Section>
-          <Section id="selector-provenance" title="Selector Provenance">
-            <SelectorProvenance copyText={copyText} state={state} />
-          </Section>
-          <Section id="raw-details" title="Raw Details">
-            <RawDetailsCopy copyText={copyText} state={state} />
-          </Section>
-        </>
-      )}
-
-      {activeTopic === "Notes" && (
-        <>
-          <Section defaultOpen id="notes-boundary" title="Notes Boundary">
-            <div className="notice-card">
-              <Presentation size={16} />
-              <p>
-                Normal player view hides speaker notes. Notes appear only
-                through explicit presenter metadata affordances.
-              </p>
+          <div className="summary-grid">
+            <Info size={16} />
+            <div>
+              <strong>{selectedSlide.title}</strong>
+              <p>{state.description}</p>
             </div>
-          </Section>
-          <Section id="speaker-notes" title="Presenter Notes">
-            <p>
-              Suggested speaker cue: connect local export proof to the
-              maintainer-approved alpha boundary without implying hosted
-              release.
-            </p>
-          </Section>
+          </div>
+          <dl className="key-value-grid">
+            <div>
+              <dt>Deck</dt>
+              <dd>{deck.deckId}</dd>
+            </div>
+            <div>
+              <dt>Anchor</dt>
+              <dd>
+                {selectedSlide.segment[0]}-{selectedSlide.segment[1]}
+              </dd>
+            </div>
+            <div>
+              <dt>Diagnostics</dt>
+              <dd>{state.diagnostics.length}</dd>
+            </div>
+            <div>
+              <dt>Limitations</dt>
+              <dd>{state.limitations.length}</dd>
+            </div>
+          </dl>
         </>
-      )}
+      ),
+      defaultOpen: true,
+      defaultSize: 26,
+      id: "summary",
+      maxSize: 180,
+      minSize: 136,
+      title: "Summary",
+    },
+  ];
 
-      {activeTopic === "Limitations" && (
-        <>
-          <Section defaultOpen id="limitations" title="Limitations">
-            <LimitationsList state={state} />
-          </Section>
-          <Section id="limitation-provenance" title="Provenance">
-            <EvidenceFiles copyText={copyText} state={state} />
-          </Section>
-        </>
-      )}
+  if (activeTopic === "Outline") {
+    sections.push(
+      {
+        children: (
+          <OutlineList
+            currentSlideId={selectedSlide.slideId}
+            onAnchor={onAnchor}
+          />
+        ),
+        defaultOpen: true,
+        defaultSize: 34,
+        id: "outline",
+        minSize: 150,
+        title: "Outline",
+      },
+      {
+        children: (
+          <TimelineList
+            currentSlideId={selectedSlide.slideId}
+            onAnchor={onAnchor}
+          />
+        ),
+        defaultOpen: true,
+        defaultSize: 40,
+        id: "timeline",
+        minSize: 168,
+        title: "Timeline",
+      },
+    );
+  }
+
+  if (activeTopic === "Readiness") {
+    sections.push(
+      {
+        children: <ReadinessList state={state} />,
+        defaultOpen: true,
+        defaultSize: 42,
+        id: "readiness",
+        minSize: 174,
+        title: "Readiness",
+      },
+      {
+        children: <DiagnosticsList copyText={copyText} state={state} />,
+        defaultSize: 32,
+        id: "readiness-diagnostics",
+        minSize: 160,
+        title: "Diagnostics",
+      },
+    );
+  }
+
+  if (activeTopic === "Diagnostics") {
+    sections.push(
+      {
+        children: <DiagnosticsList copyText={copyText} state={state} />,
+        defaultOpen: true,
+        defaultSize: 50,
+        id: "diagnostics",
+        meta: `${state.diagnostics.length} items`,
+        minSize: 190,
+        title: "Diagnostics",
+      },
+      {
+        children: <LimitationsList state={state} />,
+        defaultSize: 24,
+        id: "diagnostic-limitations",
+        minSize: 136,
+        title: "Limitations",
+      },
+    );
+  }
+
+  if (activeTopic === "Provenance") {
+    sections.push(
+      {
+        children: <FormatCapabilities state={state} />,
+        defaultOpen: true,
+        defaultSize: 28,
+        id: "format-capabilities",
+        minSize: 172,
+        title: "Format Capabilities",
+      },
+      {
+        children: <EvidenceFiles copyText={copyText} state={state} />,
+        defaultOpen: true,
+        defaultSize: 28,
+        id: "evidence-files",
+        minSize: 160,
+        title: "Evidence Files",
+      },
+      {
+        children: <SelectorProvenance copyText={copyText} state={state} />,
+        defaultSize: 20,
+        id: "selector-provenance",
+        minSize: 140,
+        title: "Selector Provenance",
+      },
+      {
+        children: <RawDetailsCopy copyText={copyText} state={state} />,
+        defaultSize: 16,
+        id: "raw-details",
+        minSize: 132,
+        title: "Raw Details",
+      },
+    );
+  }
+
+  if (activeTopic === "Notes") {
+    sections.push(
+      {
+        children: (
+          <div className="notice-card">
+            <Presentation size={16} />
+            <p>
+              Normal player view hides speaker notes. Notes appear only through
+              explicit presenter metadata affordances.
+            </p>
+          </div>
+        ),
+        defaultOpen: true,
+        defaultSize: 42,
+        id: "notes-boundary",
+        minSize: 130,
+        title: "Notes Boundary",
+      },
+      {
+        children: (
+          <p>
+            Suggested speaker cue: connect local export proof to the
+            maintainer-approved alpha boundary without implying hosted release.
+          </p>
+        ),
+        defaultSize: 32,
+        id: "speaker-notes",
+        minSize: 112,
+        title: "Presenter Notes",
+      },
+    );
+  }
+
+  if (activeTopic === "Limitations") {
+    sections.push(
+      {
+        children: <LimitationsList state={state} />,
+        defaultOpen: true,
+        defaultSize: 46,
+        id: "limitations",
+        minSize: 170,
+        title: "Limitations",
+      },
+      {
+        children: <EvidenceFiles copyText={copyText} state={state} />,
+        defaultSize: 28,
+        id: "limitation-provenance",
+        minSize: 150,
+        title: "Provenance",
+      },
+    );
+  }
+
+  return sections;
+}
+
+type InspectorSectionGroupProps = {
+  readonly sections: InspectorSectionSpec[];
+  readonly storageKey: string;
+};
+
+type SectionSizePlanInput = {
+  readonly containerHeight: number;
+  readonly expandedSections: Record<string, boolean>;
+  readonly measuredBodySizes: Record<string, number>;
+  readonly sectionSizes: Record<string, number>;
+  readonly sections: readonly InspectorSectionSpec[];
+};
+
+function InspectorSectionGroup({
+  sections,
+  storageKey,
+}: InspectorSectionGroupProps) {
+  const stackRef = useRef<HTMLDivElement | null>(null);
+  const [expandedSections, setExpandedSections] = useState(() =>
+    createInitialExpandedState(sections),
+  );
+  const [sectionSizes, setSectionSizes] = useState(() =>
+    readStoredSectionSizes(storageKey, sections),
+  );
+  const [measuredBodySizes, setMeasuredBodySizes] = useState<
+    Record<string, number>
+  >({});
+  const [containerHeight, setContainerHeight] = useState(0);
+  const sectionSizesForLayout = useMemo(
+    () =>
+      createSectionSizePlan({
+        containerHeight,
+        expandedSections,
+        measuredBodySizes,
+        sectionSizes,
+        sections,
+      }),
+    [
+      containerHeight,
+      expandedSections,
+      measuredBodySizes,
+      sectionSizes,
+      sections,
+    ],
+  );
+
+  useEffect(() => {
+    storeSectionSizes(storageKey, sectionSizes, sections);
+  }, [sectionSizes, sections, storageKey]);
+
+  useLayoutEffect(() => {
+    const stack = stackRef.current;
+    if (!stack) return undefined;
+
+    let frame = 0;
+    const measure = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const style = window.getComputedStyle(stack);
+        const verticalPadding =
+          Number.parseFloat(style.paddingTop) +
+          Number.parseFloat(style.paddingBottom);
+        setContainerHeight(Math.round(stack.clientHeight - verticalPadding));
+      });
+    };
+    measure();
+
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(measure);
+    observer?.observe(stack);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
+  }, []);
+
+  const setSectionExpanded = useCallback((id: string, expanded: boolean) => {
+    setExpandedSections((current) => {
+      if (current[id] === expanded) return current;
+      return { ...current, [id]: expanded };
+    });
+  }, []);
+
+  const setMeasuredBodySize = useCallback((id: string, size: number) => {
+    setMeasuredBodySizes((current) => {
+      const previous = current[id] ?? 0;
+      if (Math.abs(previous - size) <= 1) return current;
+      return { ...current, [id]: size };
+    });
+  }, []);
+
+  const startSectionResize = useCallback(
+    (dividerIndex: number, event: ReactPointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      const resizePair = findResizePairForDivider(
+        sections,
+        expandedSections,
+        dividerIndex,
+      );
+      if (!resizePair) return;
+
+      const [firstSection, secondSection] = resizePair;
+      const firstStart = sectionSizesForLayout[firstSection.id];
+      const secondStart = sectionSizesForLayout[secondSection.id];
+      const firstMinimum = getSectionMinimumSize(
+        firstSection,
+        true,
+        measuredBodySizes,
+      );
+      const secondMinimum = getSectionMinimumSize(
+        secondSection,
+        true,
+        measuredBodySizes,
+      );
+      const firstMaximum = getSectionMaximumSize(
+        firstSection,
+        true,
+        measuredBodySizes,
+      );
+      const secondMaximum = getSectionMaximumSize(
+        secondSection,
+        true,
+        measuredBodySizes,
+      );
+      const startY = event.clientY;
+
+      const onPointerMove = (moveEvent: globalThis.PointerEvent) => {
+        const rawDelta = moveEvent.clientY - startY;
+        const lowerBound = Math.max(
+          firstMinimum - firstStart,
+          secondStart - secondMaximum,
+        );
+        const upperBound = Math.min(
+          firstMaximum - firstStart,
+          secondStart - secondMinimum,
+        );
+        const delta = Math.min(Math.max(rawDelta, lowerBound), upperBound);
+        setSectionSizes((current) => ({
+          ...current,
+          [firstSection.id]: Math.round(firstStart + delta),
+          [secondSection.id]: Math.round(secondStart - delta),
+        }));
+      };
+
+      const stopResize = () => {
+        window.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("pointerup", stopResize);
+        window.removeEventListener("pointercancel", stopResize);
+      };
+
+      window.addEventListener("pointermove", onPointerMove);
+      window.addEventListener("pointerup", stopResize);
+      window.addEventListener("pointercancel", stopResize);
+    },
+    [expandedSections, measuredBodySizes, sectionSizesForLayout, sections],
+  );
+
+  return (
+    <div className="section-stack section-stack-resizable" ref={stackRef}>
+      <div className="section-stack-inner">
+        {sections.map((section, index) => (
+          <FragmentedSectionPane
+            expanded={expandedSections[section.id] ?? false}
+            index={index}
+            key={section.id}
+            measuredBodySizes={measuredBodySizes}
+            onBodySizeChange={setMeasuredBodySize}
+            onExpandedChange={setSectionExpanded}
+            onResizeStart={startSectionResize}
+            section={section}
+            sectionCount={sections.length}
+            sectionSize={sectionSizesForLayout[section.id]}
+            sizePlanReady={containerHeight > 0}
+            resizable={Boolean(
+              findResizePairForDivider(sections, expandedSections, index),
+            )}
+          />
+        ))}
+      </div>
     </div>
   );
+}
+
+type FragmentedSectionPaneProps = {
+  readonly expanded: boolean;
+  readonly index: number;
+  readonly measuredBodySizes: Record<string, number>;
+  readonly onBodySizeChange: (id: string, size: number) => void;
+  readonly onExpandedChange: (id: string, expanded: boolean) => void;
+  readonly onResizeStart: (
+    dividerIndex: number,
+    event: ReactPointerEvent<HTMLButtonElement>,
+  ) => void;
+  readonly resizable: boolean;
+  readonly section: InspectorSectionSpec;
+  readonly sectionCount: number;
+  readonly sectionSize: number;
+  readonly sizePlanReady: boolean;
+};
+
+function FragmentedSectionPane({
+  expanded,
+  index,
+  measuredBodySizes,
+  onBodySizeChange,
+  onExpandedChange,
+  onResizeStart,
+  resizable,
+  section,
+  sectionCount,
+  sectionSize,
+  sizePlanReady,
+}: FragmentedSectionPaneProps) {
+  return (
+    <>
+      <InspectorSectionPane
+        expanded={expanded}
+        measuredBodySizes={measuredBodySizes}
+        onBodySizeChange={onBodySizeChange}
+        onExpandedChange={onExpandedChange}
+        section={section}
+        sectionSize={sectionSize}
+        sizePlanReady={sizePlanReady}
+      />
+      {index < sectionCount - 1 && (
+        <SectionResizeHandle
+          label={`Resize ${section.title} section`}
+          onPointerDown={(event) => onResizeStart(index, event)}
+          resizable={resizable}
+        />
+      )}
+    </>
+  );
+}
+
+type InspectorSectionPaneProps = {
+  readonly expanded: boolean;
+  readonly measuredBodySizes: Record<string, number>;
+  readonly onBodySizeChange: (id: string, size: number) => void;
+  readonly onExpandedChange: (id: string, expanded: boolean) => void;
+  readonly section: InspectorSectionSpec;
+  readonly sectionSize: number;
+  readonly sizePlanReady: boolean;
+};
+
+function InspectorSectionPane({
+  expanded,
+  measuredBodySizes,
+  onBodySizeChange,
+  onExpandedChange,
+  section,
+  sectionSize,
+  sizePlanReady,
+}: InspectorSectionPaneProps) {
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const minimumSize = getSectionMinimumSize(
+    section,
+    expanded,
+    measuredBodySizes,
+  );
+  const preferredSize = sizePlanReady ? sectionSize : minimumSize;
+  const renderedMinimumSize = Math.min(minimumSize, preferredSize);
+
+  useLayoutEffect(() => {
+    if (!expanded) {
+      onBodySizeChange(section.id, 0);
+      return undefined;
+    }
+    const body = bodyRef.current;
+    if (!body) return undefined;
+
+    let frame = 0;
+    const measure = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        onBodySizeChange(section.id, Math.ceil(body.scrollHeight));
+      });
+    };
+    measure();
+
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(measure);
+    observer?.observe(body);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer?.disconnect();
+    };
+  }, [expanded, onBodySizeChange, section.id]);
+
+  return (
+    <div
+      className={cn("section-panel", !expanded && "section-panel-collapsed")}
+      data-section-panel-id={section.id}
+      style={{
+        flexBasis: `${preferredSize}px`,
+        flexGrow: 0,
+        flexShrink: 0,
+        minHeight: `${renderedMinimumSize}px`,
+      }}
+    >
+      <Section
+        bodyRef={bodyRef}
+        id={section.id}
+        meta={section.meta}
+        onOpenChange={(nextExpanded) =>
+          onExpandedChange(section.id, nextExpanded)
+        }
+        open={expanded}
+        title={section.title}
+      >
+        {section.children}
+      </Section>
+    </div>
+  );
+}
+
+type SectionResizeHandleProps = {
+  readonly label: string;
+  readonly onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => void;
+  readonly resizable: boolean;
+};
+
+function SectionResizeHandle({
+  label,
+  onPointerDown,
+  resizable,
+}: SectionResizeHandleProps) {
+  return (
+    <button
+      aria-label={label}
+      className="resize-handle resize-handle-horizontal section-resize-handle"
+      disabled={!resizable}
+      onPointerDown={onPointerDown}
+      title={label}
+      type="button"
+    >
+      <span />
+    </button>
+  );
+}
+
+function createInitialExpandedState(
+  sections: readonly InspectorSectionSpec[],
+): Record<string, boolean> {
+  return Object.fromEntries(
+    sections.map((section) => [section.id, section.defaultOpen ?? false]),
+  );
+}
+
+function getPreferredSectionSize(section: InspectorSectionSpec) {
+  return Math.max(
+    section.minSize,
+    SECTION_HEADER_SIZE + section.defaultSize * 6,
+  );
+}
+
+function getSectionMinimumSize(
+  section: InspectorSectionSpec,
+  expanded: boolean,
+  measuredBodySizes: Record<string, number>,
+) {
+  if (!expanded) return SECTION_HEADER_SIZE;
+  if (section.id !== "summary") return section.minSize;
+  const measuredBodySize = measuredBodySizes[section.id] ?? 0;
+  return Math.max(section.minSize, SECTION_HEADER_SIZE + measuredBodySize + 4);
+}
+
+function getSectionMaximumSize(
+  section: InspectorSectionSpec,
+  expanded: boolean,
+  measuredBodySizes: Record<string, number>,
+) {
+  const minimumSize = getSectionMinimumSize(
+    section,
+    expanded,
+    measuredBodySizes,
+  );
+  if (!expanded || section.id === "summary") return minimumSize;
+  return Math.max(section.maxSize ?? Number.POSITIVE_INFINITY, minimumSize);
+}
+
+function getSectionFloorSize(
+  section: InspectorSectionSpec,
+  expanded: boolean,
+  measuredBodySizes: Record<string, number>,
+) {
+  if (!expanded || section.id === "summary") {
+    return getSectionMinimumSize(section, expanded, measuredBodySizes);
+  }
+  return Math.min(section.minSize, SECTION_HEADER_SIZE + 52);
+}
+
+function isResizableSection(
+  section: InspectorSectionSpec,
+  expandedSections: Record<string, boolean>,
+) {
+  return section.id !== "summary" && (expandedSections[section.id] ?? false);
+}
+
+function findResizePairForDivider(
+  sections: readonly InspectorSectionSpec[],
+  expandedSections: Record<string, boolean>,
+  dividerIndex: number,
+): readonly [InspectorSectionSpec, InspectorSectionSpec] | undefined {
+  let previous: InspectorSectionSpec | undefined;
+  for (let index = dividerIndex; index >= 0; index -= 1) {
+    const section = sections[index];
+    if (section && isResizableSection(section, expandedSections)) {
+      previous = section;
+      break;
+    }
+  }
+
+  let next: InspectorSectionSpec | undefined;
+  for (let index = dividerIndex + 1; index < sections.length; index += 1) {
+    const section = sections[index];
+    if (section && isResizableSection(section, expandedSections)) {
+      next = section;
+      break;
+    }
+  }
+
+  return previous && next ? [previous, next] : undefined;
+}
+
+function createSectionSizePlan({
+  containerHeight,
+  expandedSections,
+  measuredBodySizes,
+  sectionSizes,
+  sections,
+}: SectionSizePlanInput): Record<string, number> {
+  const plan: Record<string, number> = {};
+  const resizableSections: InspectorSectionSpec[] = [];
+
+  for (const section of sections) {
+    const expanded = expandedSections[section.id] ?? false;
+    const minimumSize = getSectionMinimumSize(
+      section,
+      expanded,
+      measuredBodySizes,
+    );
+    const maximumSize = getSectionMaximumSize(
+      section,
+      expanded,
+      measuredBodySizes,
+    );
+
+    if (!isResizableSection(section, expandedSections)) {
+      plan[section.id] = minimumSize;
+      continue;
+    }
+
+    const preferredSize =
+      sectionSizes[section.id] ?? getPreferredSectionSize(section);
+    plan[section.id] = clampSectionSize(
+      preferredSize,
+      minimumSize,
+      maximumSize,
+    );
+    resizableSections.push(section);
+  }
+
+  if (containerHeight <= 0 || resizableSections.length === 0) return plan;
+
+  const dividerHeight = Math.max(0, sections.length - 1) * SECTION_HANDLE_SIZE;
+  const targetPanelHeight = Math.max(0, containerHeight - dividerHeight);
+  const currentPanelHeight = sumSectionSizes(sections, plan);
+  const delta = targetPanelHeight - currentPanelHeight;
+
+  if (Math.abs(delta) <= 1) return roundSectionPlan(plan);
+
+  if (delta > 0) {
+    growSectionSizes({
+      amount: delta,
+      measuredBodySizes,
+      plan,
+      sections: resizableSections,
+    });
+    return roundSectionPlan(plan);
+  }
+
+  shrinkSectionSizes({
+    amount: Math.abs(delta),
+    getLimit: (section) =>
+      getSectionMinimumSize(
+        section,
+        expandedSections[section.id] ?? false,
+        measuredBodySizes,
+      ),
+    plan,
+    sections: resizableSections,
+  });
+
+  const overflow = sumSectionSizes(sections, plan) - targetPanelHeight;
+  if (overflow > 1) {
+    shrinkSectionSizes({
+      amount: overflow,
+      getLimit: (section) =>
+        getSectionFloorSize(
+          section,
+          expandedSections[section.id] ?? false,
+          measuredBodySizes,
+        ),
+      plan,
+      sections: resizableSections,
+    });
+  }
+
+  return roundSectionPlan(plan);
+}
+
+function clampSectionSize(value: number, minimum: number, maximum: number) {
+  return Math.min(Math.max(value, minimum), maximum);
+}
+
+function sumSectionSizes(
+  sections: readonly InspectorSectionSpec[],
+  plan: Record<string, number>,
+) {
+  return sections.reduce(
+    (total, section) => total + (plan[section.id] ?? 0),
+    0,
+  );
+}
+
+function roundSectionPlan(plan: Record<string, number>) {
+  return Object.fromEntries(
+    Object.entries(plan).map(([id, size]) => [
+      id,
+      Math.max(0, Math.round(size)),
+    ]),
+  );
+}
+
+type GrowSectionSizesInput = {
+  readonly amount: number;
+  readonly measuredBodySizes: Record<string, number>;
+  readonly plan: Record<string, number>;
+  readonly sections: readonly InspectorSectionSpec[];
+};
+
+function growSectionSizes({
+  amount,
+  measuredBodySizes,
+  plan,
+  sections,
+}: GrowSectionSizesInput) {
+  let remaining = amount;
+  let candidates = [...sections];
+
+  while (remaining > 1 && candidates.length > 0) {
+    const share = remaining / candidates.length;
+    let consumed = 0;
+    const nextCandidates: InspectorSectionSpec[] = [];
+
+    for (const section of candidates) {
+      const maximumSize = getSectionMaximumSize(
+        section,
+        true,
+        measuredBodySizes,
+      );
+      const room = maximumSize - (plan[section.id] ?? 0);
+      if (room <= 1) continue;
+      const increase = Math.min(room, share);
+      plan[section.id] = (plan[section.id] ?? 0) + increase;
+      consumed += increase;
+      if (room - increase > 1) nextCandidates.push(section);
+    }
+
+    if (consumed <= 0) return;
+    remaining -= consumed;
+    candidates = nextCandidates;
+  }
+}
+
+type ShrinkSectionSizesInput = {
+  readonly amount: number;
+  readonly getLimit: (section: InspectorSectionSpec) => number;
+  readonly plan: Record<string, number>;
+  readonly sections: readonly InspectorSectionSpec[];
+};
+
+function shrinkSectionSizes({
+  amount,
+  getLimit,
+  plan,
+  sections,
+}: ShrinkSectionSizesInput) {
+  let remaining = amount;
+  let candidates = [...sections];
+
+  while (remaining > 1 && candidates.length > 0) {
+    const share = remaining / candidates.length;
+    let consumed = 0;
+    const nextCandidates: InspectorSectionSpec[] = [];
+
+    for (const section of candidates) {
+      const minimumSize = getLimit(section);
+      const room = (plan[section.id] ?? 0) - minimumSize;
+      if (room <= 1) continue;
+      const decrease = Math.min(room, share);
+      plan[section.id] = (plan[section.id] ?? 0) - decrease;
+      consumed += decrease;
+      if (room - decrease > 1) nextCandidates.push(section);
+    }
+
+    if (consumed <= 0) return;
+    remaining -= consumed;
+    candidates = nextCandidates;
+  }
+}
+
+function readStoredSectionSizes(
+  storageKey: string,
+  sections: readonly InspectorSectionSpec[],
+): Record<string, number> {
+  if (typeof window === "undefined") return {};
+
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (!stored) return {};
+    const parsed = JSON.parse(stored) as unknown;
+    if (!isSectionSizeRecord(parsed, sections)) return {};
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function storeSectionSizes(
+  storageKey: string,
+  sizes: Record<string, number>,
+  sections: readonly InspectorSectionSpec[],
+) {
+  if (typeof window === "undefined") return;
+  if (!isSectionSizeRecord(sizes, sections)) return;
+
+  try {
+    window.localStorage.setItem(storageKey, JSON.stringify(sizes));
+  } catch {
+    // Ignore storage failures; layout persistence is a prototype affordance.
+  }
+}
+
+function isSectionSizeRecord(
+  sizes: unknown,
+  sections: readonly InspectorSectionSpec[],
+): sizes is Record<string, number> {
+  if (!sizes || typeof sizes !== "object") return false;
+  const record = sizes as Record<string, unknown>;
+  return sections.every((section) => {
+    const value = record[section.id];
+    return (
+      value === undefined ||
+      (typeof value === "number" && Number.isFinite(value) && value > 0)
+    );
+  });
 }
 
 type AnchorListProps = {

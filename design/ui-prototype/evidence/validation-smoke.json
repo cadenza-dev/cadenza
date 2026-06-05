@@ -1,6 +1,58 @@
 {
-  "checkedAt": "2026-06-05T00:35:03.032Z",
+  "checkedAt": "2026-06-05T18:19:12.154Z",
   "focusedScope": "design/ui-prototype",
+  "layoutRegressionChecks": [
+    {
+      "check": "slides-left-resize-collapse-roundtrip",
+      "passed": true,
+      "value": "width-240-336"
+    },
+    {
+      "check": "slides-right-resize-collapse-roundtrip",
+      "passed": true,
+      "value": "width-240-336"
+    },
+    {
+      "check": "inspector-right-resize-collapse-roundtrip",
+      "passed": true,
+      "value": "width-302-398"
+    },
+    {
+      "check": "inspector-left-resize-collapse-roundtrip",
+      "passed": true,
+      "value": "width-302-398"
+    },
+    {
+      "check": "collapsed-sections-header-only",
+      "passed": true,
+      "value": "panels-38-38-38 dividers-2"
+    },
+    {
+      "check": "summary-minimum-fits-current-width",
+      "passed": true,
+      "value": "summary body has no internal clipping"
+    },
+    {
+      "check": "collapsed-rail-boundary-handle-visible",
+      "passed": true,
+      "value": "handle-width-12"
+    },
+    {
+      "check": "section-stack-does-not-scroll",
+      "passed": true,
+      "value": "outer stack fixed, section body scrolls"
+    },
+    {
+      "check": "section-divider-across-collapsed-pane",
+      "passed": true,
+      "value": "format-208-172 raw-136-172"
+    },
+    {
+      "check": "summary-divider-keeps-summary-locked",
+      "passed": true,
+      "value": "summary-223-223"
+    }
+  ],
   "previewUrl": "http://127.0.0.1:4177",
   "results": [
     {
@@ -117,7 +169,7 @@
         {
           "check": "side-swap-health",
           "passed": true,
-          "value": "health-fixed-right inspector-282 slide-197"
+          "value": "health-fixed-right inspector-302 slide-240"
         }
       ],
       "name": "desktop-swapped-rails.png",

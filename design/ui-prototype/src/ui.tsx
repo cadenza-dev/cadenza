@@ -1,7 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import type React from "react";
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+} from "react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Group, Panel, Separator } from "react-resizable-panels";
@@ -301,23 +306,51 @@ export function ResizableHandle({
 }
 
 type SectionProps = {
+  readonly bodyRef?: Ref<HTMLDivElement>;
   readonly children: ReactNode;
   readonly defaultOpen?: boolean;
   readonly id: string;
   readonly meta?: string;
+  readonly onOpenChange?: (open: boolean) => void;
+  readonly open?: boolean;
   readonly title: string;
 };
 
 export function Section({
+  bodyRef,
   children,
   defaultOpen = false,
   id,
   meta,
+  onOpenChange,
+  open,
   title,
 }: SectionProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
+  const expanded = open ?? uncontrolledOpen;
+  const bodyId = `${id}-section-body`;
+
+  const toggleOpen = () => {
+    const nextOpen = !expanded;
+    if (open === undefined) {
+      setUncontrolledOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+  };
+
   return (
-    <details className="section" data-section-id={id} open={defaultOpen}>
-      <summary>
+    <section
+      className="section"
+      data-open={expanded ? "true" : "false"}
+      data-section-id={id}
+    >
+      <button
+        aria-controls={bodyId}
+        aria-expanded={expanded}
+        className="section-summary"
+        onClick={toggleOpen}
+        type="button"
+      >
         <span>{title}</span>
         <span className="section-summary-end">
           {meta && <small>{meta}</small>}
@@ -327,8 +360,12 @@ export function Section({
             size={15}
           />
         </span>
-      </summary>
-      <div className="section-body">{children}</div>
-    </details>
+      </button>
+      {expanded && (
+        <div className="section-body" id={bodyId} ref={bodyRef}>
+          {children}
+        </div>
+      )}
+    </section>
   );
 }

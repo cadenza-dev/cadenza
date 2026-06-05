@@ -70,6 +70,7 @@ export function MobilePanel({
             <InspectorContent
               activeTopic={topic}
               copyText={copyText}
+              mode="mobile"
               onAnchor={onAnchor}
               selectedSlide={selectedSlide}
               state={state}

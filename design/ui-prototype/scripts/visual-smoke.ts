@@ -164,6 +164,7 @@ async function main() {
     const browser = await chromium.launch();
     const results = [];
     let themePreferenceChecks = [];
+    let layoutRegressionChecks = [];
 
     try {
       for (const scenario of scenarios) {
@@ -173,6 +174,7 @@ async function main() {
         await page.close();
       }
       themePreferenceChecks = await runThemePreferenceChecks(browser);
+      layoutRegressionChecks = await runLayoutRegressionChecks(browser);
     } finally {
       await browser.close();
     }
@@ -183,6 +185,7 @@ async function main() {
         {
           checkedAt: new Date().toISOString(),
           focusedScope: "design/ui-prototype",
+          layoutRegressionChecks,
           previewUrl: baseUrl,
           results,
           themePreferenceChecks,
@@ -194,7 +197,12 @@ async function main() {
 
     console.log(
       JSON.stringify(
-        { results, themePreferenceChecks, validationPath },
+        {
+          layoutRegressionChecks,
+          results,
+          themePreferenceChecks,
+          validationPath,
+        },
         null,
         2,
       ),
@@ -410,6 +418,370 @@ async function storedTheme(page: Page) {
   );
 }
 
+async function runLayoutRegressionChecks(browser: Browser) {
+  const checks = [];
+
+  checks.push(
+    await checkRailResizeRoundTrip(browser, {
+      check: "slides-left-resize-collapse-roundtrip",
+      deltaX: 96,
+      handleName: "Resize left rail boundary",
+      query: "/?state=ready&topic=Outline&theme=dark&anchor=3",
+      railSelector: ".rail-panel-slides",
+      toggleName: "Toggle left slides rail",
+    }),
+  );
+  checks.push(
+    await checkRailResizeRoundTrip(browser, {
+      check: "slides-right-resize-collapse-roundtrip",
+      deltaX: -96,
+      handleName: "Resize right rail boundary",
+      query: "/?state=ready&topic=Outline&theme=dark&swap=true&anchor=3",
+      railSelector: ".rail-panel-slides",
+      toggleName: "Toggle right slides rail",
+    }),
+  );
+  checks.push(
+    await checkRailResizeRoundTrip(browser, {
+      check: "inspector-right-resize-collapse-roundtrip",
+      deltaX: -96,
+      handleName: "Resize right rail boundary",
+      query: "/?state=ready&topic=Outline&theme=dark&anchor=3",
+      railSelector: ".rail-panel-inspector",
+      toggleName: "Toggle right inspector rail",
+    }),
+  );
+  checks.push(
+    await checkRailResizeRoundTrip(browser, {
+      check: "inspector-left-resize-collapse-roundtrip",
+      deltaX: 96,
+      handleName: "Resize left rail boundary",
+      query: "/?state=ready&topic=Outline&theme=dark&swap=true&anchor=3",
+      railSelector: ".rail-panel-inspector",
+      toggleName: "Toggle left inspector rail",
+    }),
+  );
+  checks.push(await checkCollapsedSectionsAreHeaderOnly(browser));
+  checks.push(await checkSummaryMinimumTracksWidth(browser));
+  checks.push(await checkCollapsedRailBoundaryHandleVisible(browser));
+  checks.push(await checkSectionStackDoesNotScroll(browser));
+  checks.push(await checkSectionDividerAcrossCollapsedPane(browser));
+  checks.push(await checkSummaryDividerKeepsSummaryLocked(browser));
+
+  return checks;
+}
+
+type RailRoundTripOptions = {
+  readonly check: string;
+  readonly deltaX: number;
+  readonly handleName: string;
+  readonly query: string;
+  readonly railSelector: string;
+  readonly toggleName: string;
+};
+
+async function checkRailResizeRoundTrip(
+  browser: Browser,
+  options: RailRoundTripOptions,
+) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}${options.query}`, { waitUntil: "networkidle" });
+    await expect(page.locator(".deck-slide:visible").first()).toBeVisible();
+    const rail = page.locator(options.railSelector).first();
+    await expect(rail).toBeVisible();
+    const before = await elementWidth(rail);
+
+    await dragResizeHandle(page, options.handleName, options.deltaX, 0);
+    await expect.poll(() => elementWidth(rail)).toBeGreaterThan(before + 40);
+    const resized = await elementWidth(rail);
+
+    await page.getByRole("button", { name: options.toggleName }).click();
+    await page.getByRole("button", { name: options.toggleName }).click();
+    await expect(rail).toBeVisible();
+    await expect(page.locator(".deck-slide:visible h1").first()).toBeVisible();
+    await expect.poll(() => elementWidth(rail)).toBeGreaterThan(resized - 12);
+
+    await page.getByRole("button", { name: options.toggleName }).click();
+    await page.getByRole("button", { name: options.toggleName }).click();
+    await expect(rail).toBeVisible();
+    await expect(page.locator(".deck-slide:visible h1").first()).toBeVisible();
+
+    return {
+      check: options.check,
+      passed: true,
+      value: `width-${Math.round(before)}-${Math.round(await elementWidth(rail))}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkCollapsedSectionsAreHeaderOnly(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 760, width: 1280 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator(".inspector-pane").first()).toBeVisible();
+    const summaries = page.locator(".inspector-pane .section-summary");
+    const count = await summaries.count();
+    for (let index = 0; index < count; index += 1) {
+      const summary = summaries.nth(index);
+      if ((await summary.getAttribute("aria-expanded")) === "true") {
+        await summary.click();
+      }
+    }
+
+    const collapsedPanels = await page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          ".inspector-pane .section-panel",
+        ),
+      ).map((panel) => {
+        const section = panel.querySelector<HTMLElement>(".section");
+        const summary = panel.querySelector<HTMLElement>(".section-summary");
+        return {
+          bodyCount: panel.querySelectorAll(".section-body").length,
+          panelHeight: panel.getBoundingClientRect().height,
+          sectionHeight: section?.getBoundingClientRect().height ?? 0,
+          summaryHeight: summary?.getBoundingClientRect().height ?? 0,
+        };
+      }),
+    );
+    const dividerCount = await page
+      .locator(".inspector-pane .section-resize-handle")
+      .count();
+
+    expect(collapsedPanels.length).toBeGreaterThan(1);
+    expect(dividerCount).toBe(collapsedPanels.length - 1);
+    expect(
+      collapsedPanels.every(
+        (panel) =>
+          panel.bodyCount === 0 &&
+          panel.panelHeight <= panel.summaryHeight + 2 &&
+          panel.sectionHeight <= panel.summaryHeight + 2,
+      ),
+    ).toBe(true);
+
+    return {
+      check: "collapsed-sections-header-only",
+      passed: true,
+      value: `panels-${collapsedPanels.map((panel) => Math.round(panel.panelHeight)).join("-")} dividers-${dividerCount}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSummaryMinimumTracksWidth(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 760, width: 1280 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=provenance&topic=Provenance&theme=dark&anchor=3`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(
+      page.locator('[data-section-id="summary"] .section-body').first(),
+    ).toBeVisible();
+    await expect
+      .poll(() => summaryBodyFits(page))
+      .toEqual({ fits: true, overflow: 0 });
+
+    return {
+      check: "summary-minimum-fits-current-width",
+      passed: true,
+      value: "summary body has no internal clipping",
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkCollapsedRailBoundaryHandleVisible(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&inspector=closed`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator(".rail-panel-inspector").first()).toBeVisible();
+    const handle = page.getByLabel("Resize right rail boundary").first();
+    await expect(handle).toBeVisible();
+    const handleBox = await handle.boundingBox();
+    expect(handleBox?.width).toBeGreaterThanOrEqual(8);
+
+    return {
+      check: "collapsed-rail-boundary-handle-visible",
+      passed: true,
+      value: `handle-width-${Math.round(handleBox?.width ?? 0)}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSectionStackDoesNotScroll(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 760, width: 1280 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&anchor=5`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator(".inspector-pane").first()).toBeVisible();
+    await expect
+      .poll(() => sectionStackScrollState(page))
+      .toEqual({
+        bodyScrolls: true,
+        stackScrolls: false,
+      });
+
+    return {
+      check: "section-stack-does-not-scroll",
+      passed: true,
+      value: "outer stack fixed, section body scrolls",
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSectionDividerAcrossCollapsedPane(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=provenance&topic=Provenance&theme=dark&anchor=3`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator('[data-section-id="raw-details"]')).toBeVisible();
+    await page
+      .locator('[data-section-id="raw-details"] .section-summary')
+      .click();
+    await expect(
+      page.locator('[data-section-id="raw-details"] .section-body'),
+    ).toBeVisible();
+
+    const evidenceSummary = page.locator(
+      '[data-section-id="evidence-files"] .section-summary',
+    );
+    if ((await evidenceSummary.getAttribute("aria-expanded")) === "true") {
+      await evidenceSummary.click();
+    }
+
+    const beforeFormat = await panelHeight(page, "format-capabilities");
+    const beforeRaw = await panelHeight(page, "raw-details");
+    await dragResizeHandle(page, "Resize Format Capabilities section", 0, -56);
+    await expect
+      .poll(() => panelHeight(page, "raw-details"))
+      .toBeGreaterThan(beforeRaw + 30);
+    const afterFormat = await panelHeight(page, "format-capabilities");
+    const afterRaw = await panelHeight(page, "raw-details");
+    expect(afterFormat).toBeLessThan(beforeFormat - 30);
+
+    return {
+      check: "section-divider-across-collapsed-pane",
+      passed: true,
+      value: `format-${Math.round(beforeFormat)}-${Math.round(afterFormat)} raw-${Math.round(beforeRaw)}-${Math.round(afterRaw)}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSummaryDividerKeepsSummaryLocked(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator('[data-section-id="summary"]')).toBeVisible();
+    const before = await panelHeight(page, "summary");
+    await dragResizeHandle(page, "Resize Summary section", 0, 72);
+    const after = await panelHeight(page, "summary");
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(2);
+
+    return {
+      check: "summary-divider-keeps-summary-locked",
+      passed: true,
+      value: `summary-${Math.round(before)}-${Math.round(after)}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function sectionStackScrollState(page: Page) {
+  return page.evaluate(() => {
+    const stack = document.querySelector<HTMLElement>(
+      ".inspector-pane .section-stack",
+    );
+    const body = document.querySelector<HTMLElement>(
+      '[data-section-id="timeline"] .section-body',
+    );
+    return {
+      bodyScrolls: body ? body.scrollHeight > body.clientHeight + 1 : false,
+      stackScrolls: stack ? stack.scrollHeight > stack.clientHeight + 1 : true,
+    };
+  });
+}
+
+async function summaryBodyFits(page: Page) {
+  return page.evaluate(() => {
+    const body = document.querySelector<HTMLElement>(
+      '[data-section-id="summary"] .section-body',
+    );
+    if (!body) return { fits: false, overflow: Number.POSITIVE_INFINITY };
+    const overflow = body.scrollHeight - body.clientHeight;
+    return { fits: overflow <= 1, overflow: Math.max(0, Math.round(overflow)) };
+  });
+}
+
+async function dragResizeHandle(
+  page: Page,
+  name: string,
+  deltaX: number,
+  deltaY: number,
+) {
+  const handle = page.getByLabel(name).first();
+  await expect(handle).toBeVisible();
+  const box = await handle.boundingBox();
+  if (!box) throw new Error(`Resize handle ${name} has no bounding box`);
+  const startX = box.x + box.width / 2;
+  const startY = box.y + box.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + deltaX, startY + deltaY, { steps: 8 });
+  await page.mouse.up();
+}
+
+async function elementWidth(locator: ReturnType<Page["locator"]>) {
+  const box = await locator.boundingBox();
+  return box?.width ?? 0;
+}
+
+async function panelHeight(page: Page, id: string) {
+  return page.evaluate((sectionId) => {
+    const panel = document.querySelector<HTMLElement>(
+      `[data-section-panel-id="${sectionId}"]`,
+    );
+    return panel?.getBoundingClientRect().height ?? 0;
+  }, id);
+}
+
 async function runInteraction(page: Page, check: InteractionCheck) {
   if (check === "activity-tooltip-visible") {
     await page
@@ -491,7 +863,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
 
   if (check === "provenance-raw-copy") {
     await page
-      .locator('[data-section-id="raw-details"] summary')
+      .locator('[data-section-id="raw-details"] .section-summary')
       .first()
       .click();
     await expect(
@@ -647,7 +1019,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       page.locator('[data-mobile-panel="inspector"]').first(),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Diagnostics" }),
+      page.locator('.mobile-topic-tabs button[aria-label="Diagnostics"]'),
     ).toBeVisible();
     return { check, passed: true, value: "inspector drawer visible" };
   }
