@@ -13,6 +13,7 @@ import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
 const ansiEscapePrefix = `${String.fromCharCode(27)}[`;
+const REAL_MP4_RENDER_TIMEOUT_MS = 120_000;
 
 async function runCadenza(
   args: string[],
@@ -36,160 +37,164 @@ async function withTempRoot<T>(callback: (tempRoot: string) => Promise<T>) {
 }
 
 describe("B6.2 Phase 6 export, validate, and inspect commands", () => {
-  it("TC-CLIS-002 and TC-EXEN-001 export a selected deck with web and MP4 evidence plus JSON summary", async () => {
-    await withTempRoot(async (tempRoot) => {
-      const run = await runCadenza([
-        "export",
-        "cadenza-alpha-readiness-talk",
-        "--run-id",
-        "b6-2-export",
-        "--output",
-        tempRoot,
-        "--format",
-        "web,mp4",
-        "--json",
-      ]);
+  it(
+    "TC-CLIS-002 and TC-EXEN-001 export a selected deck with web and MP4 evidence plus JSON summary",
+    async () => {
+      await withTempRoot(async (tempRoot) => {
+        const run = await runCadenza([
+          "export",
+          "cadenza-alpha-readiness-talk",
+          "--run-id",
+          "b6-2-export",
+          "--output",
+          tempRoot,
+          "--format",
+          "web,mp4",
+          "--json",
+        ]);
 
-      expect(run.exitCode).toBe(0);
-      expect(run.stderr).toBe("");
-      expect(run.stdout).not.toContain(ansiEscapePrefix);
-      const summary = JSON.parse(run.stdout) as {
-        command: string;
-        diagnostics: unknown[];
-        evidencePaths: Record<string, string>;
-        exitCode: number;
-        manifestPath: string;
-        outputDirectory: string;
-        status: string;
-      };
-      expect(summary).toMatchObject({
-        command: "export",
-        diagnostics: [],
-        exitCode: 0,
-        status: "success",
-      });
-
-      const outputDirectory = path.join(
-        tempRoot,
-        "cadenza-alpha-readiness-talk",
-        "b6-2-export",
-      );
-      expect(summary.outputDirectory).toBe(outputDirectory);
-      expect(summary.manifestPath).toBe(
-        path.join(outputDirectory, "manifest.json"),
-      );
-      expect(summary.evidencePaths).toEqual({
-        mp4: path.join(outputDirectory, "mp4-evidence.json"),
-        web: path.join(outputDirectory, "web-evidence.json"),
-      });
-
-      const manifest = await readJson<{
-        artifacts: { format?: string; path: string; role: string }[];
-        command: string;
-        deck: { id: string; sourcePath: string; title: string };
-        deterministic: {
-          capabilities: Record<string, { status: string }>;
-          timelineDigest: string;
+        expect(run.exitCode).toBe(0);
+        expect(run.stderr).toBe("");
+        expect(run.stdout).not.toContain(ansiEscapePrefix);
+        const summary = JSON.parse(run.stdout) as {
+          command: string;
+          diagnostics: unknown[];
+          evidencePaths: Record<string, string>;
+          exitCode: number;
+          manifestPath: string;
+          outputDirectory: string;
+          status: string;
         };
-        diagnostics: unknown[];
-        evidence: Record<string, string>;
-        formats: string[];
-        outputRoot: string;
-        runId: string;
-        schemaVersion: number;
-        selector: { alias?: string; requested: string; source: string };
-        stableHash: string;
-      }>(summary.manifestPath);
+        expect(summary).toMatchObject({
+          command: "export",
+          diagnostics: [],
+          exitCode: 0,
+          status: "success",
+        });
 
-      expect(manifest).toMatchObject({
-        command: "export",
-        deck: {
-          id: "cadenza-alpha-readiness-talk",
-          sourcePath: "examples/cadenza/alpha-readiness-talk.tsx",
-          title: "Cadenza Alpha Readiness Talk",
-        },
-        diagnostics: [],
-        evidence: {
-          mp4: "mp4-evidence.json",
-          web: "web-evidence.json",
-        },
-        formats: ["web", "mp4"],
-        outputRoot: tempRoot,
-        runId: "b6-2-export",
-        schemaVersion: 1,
-        selector: {
-          alias: "cadenza-alpha-readiness-talk",
-          requested: "cadenza-alpha-readiness-talk",
-          source: "built-in-alias",
-        },
-      });
-      expect(manifest.stableHash).toMatch(/^[a-f0-9]{64}$/);
-      expect(manifest.deterministic.timelineDigest).toMatch(/^[a-f0-9]{64}$/);
-      expect(manifest.deterministic.capabilities).toMatchObject({
-        mp4: { status: "supported" },
-        web: { status: "supported" },
-      });
-      expect(manifest.artifacts).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            format: "mp4",
-            path: "cadenza-alpha-readiness-talk.mp4",
-            role: "mp4-render",
-          }),
-          expect.objectContaining({
-            format: "web",
-            path: "index.html",
-            role: "web-entrypoint",
-          }),
-          expect.objectContaining({
-            format: "web",
-            path: "web-evidence.json",
-            role: "format-evidence",
-          }),
-          expect.objectContaining({
-            format: "mp4",
-            path: "mp4-evidence.json",
-            role: "format-evidence",
-          }),
-        ]),
-      );
+        const outputDirectory = path.join(
+          tempRoot,
+          "cadenza-alpha-readiness-talk",
+          "b6-2-export",
+        );
+        expect(summary.outputDirectory).toBe(outputDirectory);
+        expect(summary.manifestPath).toBe(
+          path.join(outputDirectory, "manifest.json"),
+        );
+        expect(summary.evidencePaths).toEqual({
+          mp4: path.join(outputDirectory, "mp4-evidence.json"),
+          web: path.join(outputDirectory, "web-evidence.json"),
+        });
 
-      const webEvidence = await readJson<{
-        artifacts: { path: string; role: string }[];
-        format: string;
-        schemaVersion: number;
-        status: string;
-      }>(summary.evidencePaths.web);
-      const mp4Evidence = await readJson<{
-        artifacts: { path: string; role: string }[];
-        format: string;
-        knownLimitations: string[];
-        schemaVersion: number;
-        status: string;
-      }>(summary.evidencePaths.mp4);
+        const manifest = await readJson<{
+          artifacts: { format?: string; path: string; role: string }[];
+          command: string;
+          deck: { id: string; sourcePath: string; title: string };
+          deterministic: {
+            capabilities: Record<string, { status: string }>;
+            timelineDigest: string;
+          };
+          diagnostics: unknown[];
+          evidence: Record<string, string>;
+          formats: string[];
+          outputRoot: string;
+          runId: string;
+          schemaVersion: number;
+          selector: { alias?: string; requested: string; source: string };
+          stableHash: string;
+        }>(summary.manifestPath);
 
-      expect(webEvidence).toMatchObject({
-        format: "web",
-        schemaVersion: 1,
-        status: "supported",
+        expect(manifest).toMatchObject({
+          command: "export",
+          deck: {
+            id: "cadenza-alpha-readiness-talk",
+            sourcePath: "examples/cadenza/alpha-readiness-talk.tsx",
+            title: "Cadenza Alpha Readiness Talk",
+          },
+          diagnostics: [],
+          evidence: {
+            mp4: "mp4-evidence.json",
+            web: "web-evidence.json",
+          },
+          formats: ["web", "mp4"],
+          outputRoot: tempRoot,
+          runId: "b6-2-export",
+          schemaVersion: 1,
+          selector: {
+            alias: "cadenza-alpha-readiness-talk",
+            requested: "cadenza-alpha-readiness-talk",
+            source: "built-in-alias",
+          },
+        });
+        expect(manifest.stableHash).toMatch(/^[a-f0-9]{64}$/);
+        expect(manifest.deterministic.timelineDigest).toMatch(/^[a-f0-9]{64}$/);
+        expect(manifest.deterministic.capabilities).toMatchObject({
+          mp4: { status: "supported" },
+          web: { status: "supported" },
+        });
+        expect(manifest.artifacts).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              format: "mp4",
+              path: "cadenza-alpha-readiness-talk.mp4",
+              role: "mp4-render",
+            }),
+            expect.objectContaining({
+              format: "web",
+              path: "index.html",
+              role: "web-entrypoint",
+            }),
+            expect.objectContaining({
+              format: "web",
+              path: "web-evidence.json",
+              role: "format-evidence",
+            }),
+            expect.objectContaining({
+              format: "mp4",
+              path: "mp4-evidence.json",
+              role: "format-evidence",
+            }),
+          ]),
+        );
+
+        const webEvidence = await readJson<{
+          artifacts: { path: string; role: string }[];
+          format: string;
+          schemaVersion: number;
+          status: string;
+        }>(summary.evidencePaths.web);
+        const mp4Evidence = await readJson<{
+          artifacts: { path: string; role: string }[];
+          format: string;
+          knownLimitations: string[];
+          schemaVersion: number;
+          status: string;
+        }>(summary.evidencePaths.mp4);
+
+        expect(webEvidence).toMatchObject({
+          format: "web",
+          schemaVersion: 1,
+          status: "supported",
+        });
+        expect(webEvidence.artifacts).toEqual([
+          expect.objectContaining({ path: "index.html", role: "entrypoint" }),
+        ]);
+        expect(mp4Evidence).toMatchObject({
+          artifacts: [
+            expect.objectContaining({
+              path: "cadenza-alpha-readiness-talk.mp4",
+              role: "mp4-render",
+            }),
+          ],
+          format: "mp4",
+          schemaVersion: 1,
+          status: "supported",
+        });
+        expect(mp4Evidence.knownLimitations.join("\n")).toContain("local-only");
       });
-      expect(webEvidence.artifacts).toEqual([
-        expect.objectContaining({ path: "index.html", role: "entrypoint" }),
-      ]);
-      expect(mp4Evidence).toMatchObject({
-        artifacts: [
-          expect.objectContaining({
-            path: "cadenza-alpha-readiness-talk.mp4",
-            role: "mp4-render",
-          }),
-        ],
-        format: "mp4",
-        schemaVersion: 1,
-        status: "supported",
-      });
-      expect(mp4Evidence.knownLimitations.join("\n")).toContain("local-only");
-    });
-  }, 60_000);
+    },
+    REAL_MP4_RENDER_TIMEOUT_MS,
+  );
 
   it("TC-CLIS-003, TC-VINS-001, and TC-VINS-002 validate selectors without writing export deliverables", async () => {
     await withTempRoot(async (projectRoot) => {

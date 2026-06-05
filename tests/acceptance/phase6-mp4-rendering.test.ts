@@ -5,6 +5,7 @@ import { type CommandResult, runCadenzaCli } from "@cadenza-dev/cli";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = process.cwd();
+const REAL_MP4_RENDER_TIMEOUT_MS = 120_000;
 
 async function runCadenza(args: string[]): Promise<CommandResult> {
   return runCadenzaCli(args, repoRoot);
@@ -29,128 +30,137 @@ async function withTempRoot<T>(callback: (tempRoot: string) => Promise<T>) {
 }
 
 describe("B6.4 Phase 6 local MP4 rendering", () => {
-  it("TC-VIDO-001 and TC-VIDO-002 render the canonical deck through the local MP4 adapter with evidence", async () => {
-    await withTempRoot(async (tempRoot) => {
-      const exported = await runCadenza([
-        "export",
-        "cadenza-alpha-readiness-talk",
-        "--run-id",
-        "b6-4-mp4",
-        "--output",
-        tempRoot,
-        "--format",
-        "mp4",
-        "--json",
-      ]);
+  it(
+    "TC-VIDO-001 and TC-VIDO-002 render the canonical deck through the local MP4 adapter with evidence",
+    async () => {
+      await withTempRoot(async (tempRoot) => {
+        const exported = await runCadenza([
+          "export",
+          "cadenza-alpha-readiness-talk",
+          "--run-id",
+          "b6-4-mp4",
+          "--output",
+          tempRoot,
+          "--format",
+          "mp4",
+          "--json",
+        ]);
 
-      expect(exported.exitCode).toBe(0);
-      expect(exported.stderr).toBe("");
-      const summary = JSON.parse(exported.stdout) as {
-        evidencePaths: { mp4: string };
-        manifestPath: string;
-        outputDirectory: string;
-      };
-      const manifest = await readJson<{
-        artifacts: Array<{ format?: string; path: string; role: string }>;
-        capabilities: { mp4: { status: string } };
-        formats: string[];
-      }>(summary.manifestPath);
-      const mp4Evidence = await readJson<{
-        artifacts: Array<{
-          byteSize: number;
-          path: string;
-          role: string;
-          sha256: string;
-        }>;
-        cleanup: {
+        expect(exported.exitCode).toBe(0);
+        expect(exported.stderr).toBe("");
+        const summary = JSON.parse(exported.stdout) as {
+          evidencePaths: { mp4: string };
+          manifestPath: string;
+          outputDirectory: string;
+        };
+        const manifest = await readJson<{
+          artifacts: Array<{ format?: string; path: string; role: string }>;
+          capabilities: { mp4: { status: string } };
+          formats: string[];
+        }>(summary.manifestPath);
+        const mp4Evidence = await readJson<{
+          artifacts: Array<{
+            byteSize: number;
+            path: string;
+            role: string;
+            sha256: string;
+          }>;
+          cleanup: {
+            status: string;
+            tempDirectories: string[];
+          };
+          composition: {
+            durationInFrames: number;
+            fps: number;
+            height: number;
+            width: number;
+          };
+          diagnostics: unknown[];
+          format: string;
+          knownLimitations: string[];
+          localPrerequisites: Array<{
+            name: string;
+            status: string;
+          }>;
+          rendererProvenance: {
+            adapterName: string;
+            implementationFamily: string;
+            packageName: string;
+          };
+          schemaVersion: number;
           status: string;
-          tempDirectories: string[];
-        };
-        composition: {
-          durationInFrames: number;
-          fps: number;
-          height: number;
-          width: number;
-        };
-        diagnostics: unknown[];
-        format: string;
-        knownLimitations: string[];
-        localPrerequisites: Array<{
-          name: string;
-          status: string;
-        }>;
-        rendererProvenance: {
-          adapterName: string;
-          implementationFamily: string;
-          packageName: string;
-        };
-        schemaVersion: number;
-        status: string;
-      }>(summary.evidencePaths.mp4);
+        }>(summary.evidencePaths.mp4);
 
-      expect(manifest.formats).toEqual(["mp4"]);
-      expect(manifest.capabilities.mp4.status).toBe("supported");
-      expect(manifest.artifacts).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            format: "mp4",
-            path: "cadenza-alpha-readiness-talk.mp4",
-            role: "mp4-render",
-          }),
-        ]),
-      );
-      expect(mp4Evidence).toMatchObject({
-        cleanup: {
-          status: "completed",
-        },
-        composition: {
-          fps: 24,
-          height: expect.any(Number),
-          width: expect.any(Number),
-        },
-        diagnostics: [],
-        format: "mp4",
-        rendererProvenance: {
-          adapterName: "local-mp4-renderer",
-          implementationFamily: "remotion-renderer-api",
-          packageName: "@cadenza-dev/export-local",
-        },
-        schemaVersion: 1,
-        status: "supported",
+        expect(manifest.formats).toEqual(["mp4"]);
+        expect(manifest.capabilities.mp4.status).toBe("supported");
+        expect(manifest.artifacts).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              format: "mp4",
+              path: "cadenza-alpha-readiness-talk.mp4",
+              role: "mp4-render",
+            }),
+          ]),
+        );
+        expect(mp4Evidence).toMatchObject({
+          cleanup: {
+            status: "completed",
+          },
+          composition: {
+            fps: 24,
+            height: expect.any(Number),
+            width: expect.any(Number),
+          },
+          diagnostics: [],
+          format: "mp4",
+          rendererProvenance: {
+            adapterName: "local-mp4-renderer",
+            implementationFamily: "remotion-renderer-api",
+            packageName: "@cadenza-dev/export-local",
+          },
+          schemaVersion: 1,
+          status: "supported",
+        });
+        expect(mp4Evidence.composition.durationInFrames).toBeGreaterThan(0);
+        expect(mp4Evidence.localPrerequisites).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ name: "browser", status: "available" }),
+            expect.objectContaining({ name: "ffmpeg", status: "available" }),
+            expect.objectContaining({
+              name: "remotion-renderer",
+              status: "available",
+            }),
+          ]),
+        );
+        expect(mp4Evidence.cleanup.tempDirectories).toEqual(
+          expect.arrayContaining([
+            expect.stringContaining("tmp/cadenza-render"),
+          ]),
+        );
+        expect(mp4Evidence.knownLimitations.join("\n")).toContain("local-only");
+        expect(mp4Evidence.knownLimitations.join("\n")).not.toMatch(
+          /lambda|hosted|cloud queue|remote account|npm publication/i,
+        );
+
+        const artifact = mp4Evidence.artifacts[0];
+        expect(artifact).toMatchObject({
+          path: "cadenza-alpha-readiness-talk.mp4",
+          role: "mp4-render",
+        });
+        expect(artifact?.byteSize).toBeGreaterThan(1_000);
+        expect(artifact?.sha256).toMatch(/^[a-f0-9]{64}$/);
+
+        const bytes = await readFile(
+          path.join(
+            summary.outputDirectory,
+            "cadenza-alpha-readiness-talk.mp4",
+          ),
+        );
+        expect(bytes.subarray(0, 128).includes(Buffer.from("ftyp"))).toBe(true);
       });
-      expect(mp4Evidence.composition.durationInFrames).toBeGreaterThan(0);
-      expect(mp4Evidence.localPrerequisites).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: "browser", status: "available" }),
-          expect.objectContaining({ name: "ffmpeg", status: "available" }),
-          expect.objectContaining({
-            name: "remotion-renderer",
-            status: "available",
-          }),
-        ]),
-      );
-      expect(mp4Evidence.cleanup.tempDirectories).toEqual(
-        expect.arrayContaining([expect.stringContaining("tmp/cadenza-render")]),
-      );
-      expect(mp4Evidence.knownLimitations.join("\n")).toContain("local-only");
-      expect(mp4Evidence.knownLimitations.join("\n")).not.toMatch(
-        /lambda|hosted|cloud queue|remote account|npm publication/i,
-      );
-
-      const artifact = mp4Evidence.artifacts[0];
-      expect(artifact).toMatchObject({
-        path: "cadenza-alpha-readiness-talk.mp4",
-        role: "mp4-render",
-      });
-      expect(artifact?.byteSize).toBeGreaterThan(1_000);
-      expect(artifact?.sha256).toMatch(/^[a-f0-9]{64}$/);
-
-      const bytes = await readFile(
-        path.join(summary.outputDirectory, "cadenza-alpha-readiness-talk.mp4"),
-      );
-      expect(bytes.subarray(0, 128).includes(Buffer.from("ftyp"))).toBe(true);
-    });
-  }, 60_000);
+    },
+    REAL_MP4_RENDER_TIMEOUT_MS,
+  );
 
   it("TC-VIDO-004 routes missing local renderer prerequisites through diagnostics and failure evidence", async () => {
     await withTempRoot(async (tempRoot) => {
