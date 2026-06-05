@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T21:58:38.204Z",
+  "checkedAt": "2026-06-05T22:59:24.389Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
     {
@@ -293,14 +293,14 @@
       }
     },
     {
-      "annotation": "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the presenter-view representation.",
+      "annotation": "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the dark presenter-view shell.",
       "clippedButtons": [],
       "hasDeckTitle": true,
       "interactions": [
         {
           "check": "fullscreen-presenter-menu",
           "passed": true,
-          "value": "presenter route visible"
+          "value": "presenter shell menu visible"
         }
       ],
       "name": "desktop-fullscreen-presenter-menu.png",
@@ -317,7 +317,7 @@
       }
     },
     {
-      "annotation": "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with presenter, copy, navigation, and exit actions.",
+      "annotation": "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with open presenter view, copy, navigation, and exit actions.",
       "clippedButtons": [],
       "hasDeckTitle": true,
       "interactions": [
@@ -407,10 +407,16 @@
       }
     },
     {
-      "annotation": "Presenter-view representation: current deck, next action anchor, notes boundary, timer/progress, and browser multi-screen limitation posture.",
+      "annotation": "Presenter view: dark presenter shell with unchanged deck colors, timer and clock controls, highlighted presentation control, resizable Next and Notes panes, and presenter-only notes.",
       "clippedButtons": [],
       "hasDeckTitle": true,
-      "interactions": [],
+      "interactions": [
+        {
+          "check": "presenter-resize",
+          "passed": true,
+          "value": "presenter resize handles update"
+        }
+      ],
       "name": "presenter-view-state.png",
       "overflow": {
         "bodyScrollWidth": 1440,

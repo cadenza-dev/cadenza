@@ -1371,72 +1371,274 @@ dd {
   gap: 8px;
 }
 
-.presenter-grid {
+.presenter-shell {
+  --background: #1b1b1b;
+  --foreground: #e6e6e6;
+  --muted: #2a2a2a;
+  --muted-foreground: #a7a7a7;
+  --panel: #1f1f1f;
+  --panel-2: #242424;
+  --border: #3b3b3b;
+  --border-strong: #8a8a8a;
+  --ring: #f4f4f5;
+  --primary: #f4f4f5;
+  --primary-foreground: #171717;
+  --accent-soft: #2f2f2f;
+  --deck-stage: #1b1b1b;
+  --shadow: 0 18px 45px rgb(0 0 0 / 36%);
+  --shadow-soft: 0 8px 22px rgb(0 0 0 / 28%);
+  background: var(--background);
+  background-image: none;
+  color: var(--foreground);
+  color-scheme: dark;
+  height: 100dvh;
+  overflow: hidden;
+  padding: 22px 28px 24px;
+  position: relative;
+}
+
+.presenter-stage-grid {
   display: grid;
-  gap: 12px;
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.7fr);
   height: 100%;
   min-height: 0;
-}
-
-.presenter-current {
-  align-items: center;
-  background: var(--deck-stage);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  display: flex;
-  min-height: 0;
-  padding: 18px;
-}
-
-.presenter-current .deck-slide {
-  padding: clamp(28px, 3.6vw, 46px);
-}
-
-.presenter-current .deck-slide h1 {
-  font-size: clamp(34px, 4vw, 58px);
-  max-width: 9ch;
-}
-
-.presenter-current .deck-slide p {
-  font-size: clamp(15px, 1.3vw, 20px);
-  max-width: 34ch;
-}
-
-.presenter-side {
-  display: grid;
-  gap: 10px;
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto;
-  min-height: 0;
-}
-
-.presenter-card,
-.presenter-metrics {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
   min-width: 0;
-  padding: 14px;
 }
 
-.presenter-card h2 {
-  font-size: 22px;
-  line-height: 1.1;
-  margin: 16px 0 0;
+.presenter-preview-pane {
+  display: grid;
+  grid-template-rows: 34px minmax(0, 1fr) 90px;
+  min-height: 0;
+  min-width: 0;
+  padding-right: 18px;
 }
 
-.presenter-metrics {
+.presenter-topbar {
   align-items: center;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  display: flex;
+  font-size: 17px;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0 2px 8px;
+}
+
+.presenter-clock-cluster {
+  align-items: center;
+  display: inline-flex;
+  gap: 9px;
+  min-width: 0;
+}
+
+.presenter-clock-cluster span {
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.presenter-clock-cluster .ui-button-icon {
+  color: var(--muted-foreground);
+  height: 24px;
+  width: 24px;
+}
+
+.presenter-wall-clock {
+  justify-content: flex-end;
+}
+
+.presenter-slide-stage {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding: 14px 0 18px;
+}
+
+.presenter-slide-stage .deck-frame {
+  height: min(100%, calc(100vw * 9 / 16));
+  width: min(100%, calc(100dvh * 16 / 9));
+}
+
+.presenter-slide-stage .deck-slide,
+.presenter-next-preview .deck-slide {
+  border-radius: 2px;
+  box-shadow: none;
+}
+
+.presenter-bottom-nav {
+  align-items: start;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  padding-top: 10px;
+}
+
+.presenter-bottom-nav .playback-toolbar {
+  gap: 8px;
+  height: auto;
+  padding: 0;
+  width: min(520px, 100%);
+}
+
+.presenter-bottom-nav .progress-track {
+  min-width: 180px;
+  width: min(360px, 72%);
+}
+
+.presenter-side-pane {
+  border-left: 1px solid var(--border);
+  display: grid;
+  min-height: 0;
+  min-width: 0;
+  padding-left: 18px;
+}
+
+.presenter-panel {
+  background: transparent;
+  display: grid;
+  grid-template-rows: 36px minmax(0, 1fr);
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.presenter-panel-header {
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
   display: flex;
   gap: 10px;
   justify-content: space-between;
+  min-width: 0;
 }
 
-.presenter-metrics span {
-  align-items: center;
-  display: inline-flex;
+.presenter-panel-header h2 {
+  color: var(--muted-foreground);
+  font-size: 18px;
+  font-weight: 560;
+  line-height: 1;
+  margin: 0;
+}
+
+.presenter-panel-header span {
+  font-size: 12px;
+}
+
+.presenter-next-preview {
+  align-items: start;
+  display: flex;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  padding-top: 14px;
+}
+
+.presenter-next-preview .deck-frame {
+  align-items: flex-start;
+  height: auto;
+  width: 100%;
+}
+
+.presenter-next-preview .deck-slide {
+  padding: clamp(18px, 2.4vw, 34px);
+}
+
+.presenter-next-preview .deck-slide h1 {
+  font-size: clamp(20px, 2.8vw, 42px);
+  max-width: 11ch;
+}
+
+.presenter-next-preview .deck-slide p {
+  font-size: clamp(12px, 1vw, 16px);
+  max-width: 42ch;
+}
+
+.presenter-next-preview .slide-topline span:first-child,
+.presenter-next-preview .slide-evidence-strip {
+  font-size: 9px;
+}
+
+.presenter-end-state {
+  align-content: center;
+  color: var(--muted-foreground);
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-height: 0;
+  text-align: center;
+}
+
+.presenter-end-state strong {
+  color: var(--foreground);
+  font-size: 18px;
+}
+
+.presenter-notes-content {
+  align-content: start;
+  display: grid;
+  gap: 20px;
+  min-height: 0;
+  overflow: auto;
+  padding: 18px 8px 0 0;
+}
+
+.presenter-notes-content article {
+  display: grid;
   gap: 6px;
+  max-width: 72ch;
+}
+
+.presenter-notes-content span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.presenter-notes-content p {
+  color: var(--foreground);
+  font-size: clamp(16px, 1.35vw, 23px);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.presenter-resize-handle {
+  align-self: stretch;
+  justify-self: stretch;
+  margin: 0;
+  z-index: 4;
+}
+
+.presenter-resize-handle span {
+  background: var(--border-strong);
+  opacity: 0.7;
+}
+
+.presenter-resize-handle:hover span,
+.presenter-resize-handle[data-resize-handle-active] span {
+  background: var(--ring);
+  opacity: 1;
+}
+
+.presenter-resize-handle-horizontal {
+  flex: none;
+  height: 10px;
+  min-height: 10px;
+  width: 100%;
+}
+
+.presenter-resize-handle-horizontal span {
+  height: 2px;
+  width: min(88px, 42%);
+}
+
+.presenter-resize-handle-horizontal:hover span,
+.presenter-resize-handle-horizontal[data-resize-handle-active] span {
+  height: 4px;
+  width: min(112px, 52%);
 }
 
 .health-signal {

@@ -1,39 +1,14 @@
-import {
-  AlertTriangle,
-  ArrowRight,
-  Clock,
-  Presentation,
-  Route,
-  Terminal,
-} from "lucide-react";
+import { AlertTriangle, Terminal } from "lucide-react";
 import type { OutlineEntry, PrototypeState } from "../fixture";
-import { deck, outline } from "../fixture";
-import { outlineAt } from "../prototype-utils";
+import { deck } from "../fixture";
 import { Badge, Button } from "../ui";
 
 type DeckSurfaceProps = {
-  readonly anchorIndex: number;
-  readonly presenter: boolean;
   readonly selectedSlide: OutlineEntry;
   readonly state: PrototypeState;
 };
 
-export function DeckSurface({
-  anchorIndex,
-  presenter,
-  selectedSlide,
-  state,
-}: DeckSurfaceProps) {
-  if (presenter) {
-    return (
-      <PresenterView
-        anchorIndex={anchorIndex}
-        selectedSlide={selectedSlide}
-        state={state}
-      />
-    );
-  }
-
+export function DeckSurface({ selectedSlide, state }: DeckSurfaceProps) {
   return (
     <section className="deck-zone" aria-label="Deck playback surface">
       <DeckSlide selectedSlide={selectedSlide} state={state} />
@@ -92,61 +67,5 @@ export function BlockingBanner({
         Diagnostics
       </Button>
     </div>
-  );
-}
-
-type PresenterViewProps = {
-  readonly anchorIndex: number;
-  readonly selectedSlide: OutlineEntry;
-  readonly state: PrototypeState;
-};
-
-function PresenterView({
-  anchorIndex,
-  selectedSlide,
-  state,
-}: PresenterViewProps) {
-  const nextSlide = outlineAt(anchorIndex + 1);
-
-  return (
-    <section
-      className="presenter-grid"
-      aria-label="Presenter-view representation"
-    >
-      <div className="presenter-current">
-        <DeckSlide selectedSlide={selectedSlide} state={state} />
-      </div>
-      <aside className="presenter-side">
-        <div className="presenter-card next-card">
-          <Badge tone="neutral">
-            <ArrowRight size={12} />
-            Next
-          </Badge>
-          <h2>{nextSlide.title}</h2>
-          <p>{nextSlide.summary}</p>
-        </div>
-        <div className="presenter-card notes-card">
-          <Badge tone="checking">
-            <Presentation size={12} />
-            Presenter metadata
-          </Badge>
-          <p>
-            Notes are hidden in normal player view. This route represents the
-            explicit presenter affordance only; browser multi-screen placement
-            remains Stage A research.
-          </p>
-        </div>
-        <div className="presenter-metrics">
-          <span>
-            <Clock size={15} />
-            08:42
-          </span>
-          <span>
-            <Route size={15} />
-            {anchorIndex + 1}/{outline.length}
-          </span>
-        </div>
-      </aside>
-    </section>
   );
 }

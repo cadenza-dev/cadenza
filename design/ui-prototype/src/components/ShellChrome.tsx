@@ -7,6 +7,7 @@ import {
   Columns3,
   Gauge,
   Maximize,
+  Minimize,
   Moon,
   PanelBottom,
   PanelLeft,
@@ -183,6 +184,8 @@ export function TopBar({
 
 type PlaybackToolbarProps = {
   readonly anchorIndex: number;
+  readonly fullscreenActive?: boolean;
+  readonly fullscreenLabel?: string;
   readonly next: () => void;
   readonly onFullscreen: () => void;
   readonly previous: () => void;
@@ -190,6 +193,8 @@ type PlaybackToolbarProps = {
 
 export function PlaybackToolbar({
   anchorIndex,
+  fullscreenActive = false,
+  fullscreenLabel = "Enter fullscreen",
   next,
   onFullscreen,
   previous,
@@ -205,12 +210,13 @@ export function PlaybackToolbar({
           <ArrowLeft size={18} />
         </IconButton>
         <IconButton
-          label="Enter fullscreen"
+          aria-pressed={fullscreenActive}
+          label={fullscreenLabel}
           onClick={onFullscreen}
           tooltipSide="top"
-          variant="outline"
+          variant={fullscreenActive ? "primary" : "outline"}
         >
-          <Maximize size={18} />
+          {fullscreenActive ? <Minimize size={18} /> : <Maximize size={18} />}
         </IconButton>
         <IconButton label="Next action anchor" onClick={next} tooltipSide="top">
           <ArrowRight size={18} />

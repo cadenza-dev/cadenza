@@ -3,6 +3,11 @@ import { useCallback, useEffect, useState } from "react";
 import { BlockingBanner, DeckSurface } from "./components/Deck";
 import { FullscreenView } from "./components/FullscreenView";
 import { MobilePanel } from "./components/MobilePanel";
+import {
+  defaultPresenterLayout,
+  type PresenterLayout,
+  PresenterView,
+} from "./components/PresenterView";
 import { InspectorRail, RailPanel, SlideRail } from "./components/Rails";
 import { PlaybackToolbar, StatusBar, TopBar } from "./components/ShellChrome";
 import type { StateId, Topic } from "./fixture";
@@ -95,6 +100,9 @@ function App() {
   );
   const [presenterMode, setPresenterMode] = useState(
     initialParam("presenter", "false") === "true",
+  );
+  const [presenterLayout, setPresenterLayout] = useState<PresenterLayout>(
+    defaultPresenterLayout,
   );
   const [railSizes, setRailSizes] = useState(createInitialRailSizes);
   const [activeRailResize, setActiveRailResize] = useState<RailSide | null>(
@@ -234,16 +242,46 @@ function App() {
       }
       if (event.key.toLowerCase() === "f") {
         event.preventDefault();
-        setFullscreen((value) => !value);
+        if (presenterMode) {
+          setPresenterMode(false);
+          setFullscreen(false);
+        } else {
+          setFullscreen((value) => !value);
+        }
       }
       if (event.key === "Escape") {
         setFullscreen(false);
+        setPresenterMode(false);
         setMobilePanel("none");
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [next, previous]);
+  }, [next, presenterMode, previous]);
+
+  if (presenterMode) {
+    return (
+      <PresenterView
+        anchorIndex={anchorIndex}
+        copiedNotice={copiedNotice}
+        layout={presenterLayout}
+        next={next}
+        onCopy={copyText}
+        onExit={() => {
+          setPresenterMode(false);
+          setFullscreen(false);
+        }}
+        onHidePresenter={() => {
+          setPresenterMode(false);
+          setFullscreen(true);
+        }}
+        onLayoutChange={setPresenterLayout}
+        previous={previous}
+        selectedSlide={selectedSlide}
+        state={selectedState}
+      />
+    );
+  }
 
   if (fullscreen) {
     return (
@@ -255,7 +293,7 @@ function App() {
         onExit={() => setFullscreen(false)}
         onPresenter={() => {
           setPresenterMode(true);
-          setFullscreen(false);
+          setFullscreen(true);
         }}
         previous={previous}
         selectedSlide={selectedSlide}
@@ -340,8 +378,6 @@ function App() {
                   />
                 )}
               <DeckSurface
-                anchorIndex={anchorIndex}
-                presenter={presenterMode}
                 selectedSlide={selectedSlide}
                 state={selectedState}
               />
@@ -419,12 +455,7 @@ function App() {
             }}
           />
         )}
-        <DeckSurface
-          anchorIndex={anchorIndex}
-          presenter={false}
-          selectedSlide={selectedSlide}
-          state={selectedState}
-        />
+        <DeckSurface selectedSlide={selectedSlide} state={selectedState} />
         <PlaybackToolbar
           anchorIndex={anchorIndex}
           next={next}

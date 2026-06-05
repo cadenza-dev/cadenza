@@ -167,7 +167,7 @@ export function FullscreenView({
             variant="ghost"
           >
             <Presentation size={14} />
-            presenter view
+            open presenter view
           </Button>
           <Button
             onClick={() => runMenuAction(onExit)}

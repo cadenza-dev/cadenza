@@ -27,6 +27,7 @@ type InteractionCheck =
   | "mobile-slides-open"
   | "next-anchor"
   | "outline-anchor"
+  | "presenter-resize"
   | "provenance-raw-copy"
   | "right-inspector-collapsed"
   | "side-swap-health"
@@ -110,7 +111,7 @@ const scenarios: readonly Scenario[] = [
   },
   {
     annotation:
-      "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the presenter-view representation.",
+      "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the dark presenter-view shell.",
     interactions: ["fullscreen-presenter-menu"],
     name: "desktop-fullscreen-presenter-menu.png",
     query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
@@ -118,7 +119,7 @@ const scenarios: readonly Scenario[] = [
   },
   {
     annotation:
-      "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with presenter, copy, navigation, and exit actions.",
+      "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with open presenter view, copy, navigation, and exit actions.",
     interactions: ["fullscreen-menu-open"],
     name: "desktop-fullscreen-menu-open.png",
     query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
@@ -150,7 +151,8 @@ const scenarios: readonly Scenario[] = [
   },
   {
     annotation:
-      "Presenter-view representation: current deck, next action anchor, notes boundary, timer/progress, and browser multi-screen limitation posture.",
+      "Presenter view: dark presenter shell with unchanged deck colors, timer and clock controls, highlighted presentation control, resizable Next and Notes panes, and presenter-only notes.",
+    interactions: ["presenter-resize"],
     name: "presenter-view-state.png",
     query: "/?state=ready&topic=Notes&theme=dark&presenter=true&anchor=2",
     viewport: { height: 960, width: 1440 },
@@ -257,7 +259,10 @@ async function waitForServer(
 async function captureScenario(page: Page, scenario: Scenario) {
   const url = `${baseUrl}${scenario.query}`;
   await page.goto(url, { waitUntil: "networkidle" });
-  await page.locator(".deck-slide:visible").waitFor({ state: "visible" });
+  await page
+    .locator(".deck-slide:visible")
+    .first()
+    .waitFor({ state: "visible" });
   const title = await page
     .locator(".deck-slide:visible h1")
     .first()
@@ -1285,7 +1290,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
     expect(box?.y).toBeGreaterThanOrEqual(240);
     expect(box?.y).toBeLessThanOrEqual(270);
     await expect(
-      page.getByRole("button", { name: /presenter view/i }),
+      page.getByRole("button", { name: /open presenter view/i }),
     ).toBeVisible();
     return { check, passed: true, value: "menu open at pointer" };
   }
@@ -1304,10 +1309,88 @@ async function runInteraction(page: Page, check: InteractionCheck) {
   if (check === "fullscreen-presenter-menu") {
     await page.mouse.click(360, 260, { button: "right" });
     await expect(page.locator(".fullscreen-menu").first()).toBeVisible();
-    await page.getByRole("button", { name: /presenter view/i }).click();
+    await page.getByRole("button", { name: /open presenter view/i }).click();
     await expect(page.locator(".fullscreen-shell")).toHaveCount(0);
-    await expect(page.locator(".presenter-grid").first()).toBeVisible();
-    return { check, passed: true, value: "presenter route visible" };
+    await expect(page.locator(".presenter-shell").first()).toBeVisible();
+    await page.mouse.click(360, 260, { button: "right" });
+    await expect(
+      page.getByRole("button", { name: /hide presenter view/i }),
+    ).toBeVisible();
+    await page.mouse.click(40, 40);
+    return { check, passed: true, value: "presenter shell menu visible" };
+  }
+
+  if (check === "presenter-resize") {
+    const shell = page.locator(".presenter-shell").first();
+    await expect(shell).toBeVisible();
+    await expect(page.locator(".presenter-notes-panel").first()).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /Exit presentation/i }),
+    ).toHaveAttribute("aria-pressed", "true");
+
+    const stage = page.locator(".presenter-stage-grid").first();
+    const side = page.locator(".presenter-side-pane").first();
+    const beforeColumns = await stage.evaluate(
+      (element) => getComputedStyle(element).gridTemplateColumns,
+    );
+    const beforeRows = await side.evaluate(
+      (element) => getComputedStyle(element).gridTemplateRows,
+    );
+
+    const verticalHandle = page
+      .getByRole("button", {
+        name: /Resize presenter preview and notes boundary/i,
+      })
+      .first();
+    const verticalBox = await verticalHandle.boundingBox();
+    expect(verticalBox).not.toBeNull();
+    await page.mouse.move(
+      (verticalBox?.x ?? 0) + (verticalBox?.width ?? 0) / 2,
+      (verticalBox?.y ?? 0) + (verticalBox?.height ?? 0) / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(660, 420);
+    await page.mouse.up();
+
+    const horizontalHandle = page
+      .getByRole("button", {
+        name: /Resize presenter next and notes boundary/i,
+      })
+      .first();
+    const horizontalBox = await horizontalHandle.boundingBox();
+    expect(horizontalBox).not.toBeNull();
+    await page.mouse.move(
+      (horizontalBox?.x ?? 0) + (horizontalBox?.width ?? 0) / 2,
+      (horizontalBox?.y ?? 0) + (horizontalBox?.height ?? 0) / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(
+      (horizontalBox?.x ?? 0) + (horizontalBox?.width ?? 0) / 2,
+      360,
+    );
+    await page.mouse.up();
+
+    const afterColumns = await stage.evaluate(
+      (element) => getComputedStyle(element).gridTemplateColumns,
+    );
+    const afterRows = await side.evaluate(
+      (element) => getComputedStyle(element).gridTemplateRows,
+    );
+    expect(afterColumns).not.toBe(beforeColumns);
+    expect(afterRows).not.toBe(beforeRows);
+
+    await page.mouse.click(760, 300, { button: "right" });
+    await expect(
+      page.getByRole("button", { name: /hide presenter view/i }),
+    ).toBeVisible();
+    await page.mouse.click(40, 40);
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(shell).toBeVisible();
+    await page
+      .locator(".deck-slide:visible")
+      .first()
+      .waitFor({ state: "visible" });
+    return { check, passed: true, value: "presenter resize handles update" };
   }
 
   if (check === "mobile-slides-open") {
