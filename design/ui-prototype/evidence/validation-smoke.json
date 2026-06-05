@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-04T17:06:31.817Z",
+  "checkedAt": "2026-06-05T00:18:53.865Z",
   "focusedScope": "design/ui-prototype",
   "previewUrl": "http://127.0.0.1:4177",
   "results": [
@@ -62,10 +62,16 @@
       }
     },
     {
-      "annotation": "Desktop provenance state: dark mode inspector with format capabilities, evidence files, selector provenance, artifact inventory, and raw details folded behind sections.",
+      "annotation": "Desktop provenance state: dark mode inspector with format capabilities, evidence files, selector provenance, artifact inventory, adaptive section scrolling, and Raw Details represented as a copy affordance.",
       "clippedButtons": [],
       "hasDeckTitle": true,
-      "interactions": [],
+      "interactions": [
+        {
+          "check": "provenance-raw-copy",
+          "passed": true,
+          "value": "raw details copy affordance"
+        }
+      ],
       "name": "desktop-provenance-state.png",
       "overflow": {
         "bodyScrollWidth": 1440,
@@ -80,14 +86,38 @@
       }
     },
     {
-      "annotation": "Desktop swapped rails: inspector is on the left, slide rail is on the right, and the bottom health signal follows the semantic inspector side.",
+      "annotation": "Desktop right-inspector collapsed state: right-side activity bar remains on the right edge, inspector content is fully absent, and the collapsed panel is fixed to the icon rail width.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "right-inspector-collapsed",
+          "passed": true,
+          "value": "rail-width-42"
+        }
+      ],
+      "name": "desktop-right-inspector-collapsed.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=provenance&topic=Provenance&theme=dark&inspector=closed&anchor=3",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-right-inspector-collapsed.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Desktop swapped rails: inspector is on the left, slide rail is on the right, while the bottom status bar remains fixed instead of mirroring the rail order.",
       "clippedButtons": [],
       "hasDeckTitle": true,
       "interactions": [
         {
           "check": "side-swap-health",
           "passed": true,
-          "value": "health-left"
+          "value": "health-fixed-right inspector-282 slide-197"
         }
       ],
       "name": "desktop-swapped-rails.png",
@@ -104,6 +134,30 @@
       }
     },
     {
+      "annotation": "Activity-bar tooltip: hover tooltip renders as a pointer-style floating bubble above rails, without being clipped by the activity bar or side-panel boundary.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "activity-tooltip-visible",
+          "passed": true,
+          "value": "activity tooltip visible"
+        }
+      ],
+      "name": "desktop-activity-tooltip-state.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=dark&anchor=2",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-activity-tooltip-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
       "annotation": "Fullscreen state: nonessential app chrome is hidden, deck content remains visible, keyboard/pointer navigation stays available, and action-anchor navigation does not black out the slide.",
       "clippedButtons": [],
       "hasDeckTitle": true,
@@ -112,6 +166,11 @@
           "check": "fullscreen-next",
           "passed": true,
           "value": "Command surface"
+        },
+        {
+          "check": "fullscreen-context-menu",
+          "passed": true,
+          "value": "menu anchored and dismissed"
         }
       ],
       "name": "desktop-fullscreen-state.png",
@@ -122,6 +181,78 @@
       },
       "query": "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=1",
       "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-fullscreen-state.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Fullscreen final-anchor exit: the right edge advances out of fullscreen at the last action anchor instead of trapping the user at the end.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "fullscreen-last-exit",
+          "passed": true,
+          "value": "last anchor exits fullscreen"
+        }
+      ],
+      "name": "desktop-fullscreen-final-exit.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=5",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-fullscreen-final-exit.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the presenter-view representation.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "fullscreen-presenter-menu",
+          "passed": true,
+          "value": "presenter route visible"
+        }
+      ],
+      "name": "desktop-fullscreen-presenter-menu.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-fullscreen-presenter-menu.png",
+      "viewport": {
+        "height": 960,
+        "width": 1440
+      }
+    },
+    {
+      "annotation": "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with presenter, copy, navigation, and exit actions.",
+      "clippedButtons": [],
+      "hasDeckTitle": true,
+      "interactions": [
+        {
+          "check": "fullscreen-menu-open",
+          "passed": true,
+          "value": "menu open at pointer"
+        }
+      ],
+      "name": "desktop-fullscreen-menu-open.png",
+      "overflow": {
+        "bodyScrollWidth": 1440,
+        "clientWidth": 1440,
+        "hasHorizontalOverflow": false
+      },
+      "query": "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
+      "screenshotPath": "design/ui-prototype/evidence/screenshots/desktop-fullscreen-menu-open.png",
       "viewport": {
         "height": 960,
         "width": 1440

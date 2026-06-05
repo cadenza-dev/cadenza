@@ -24,7 +24,7 @@
 | Desktop normal shell screenshot | `evidence/screenshots/desktop-normal-shell.png` after smoke capture. |
 | Desktop diagnostics/provenance screenshot | `evidence/screenshots/desktop-diagnostics-state.png` and `evidence/screenshots/desktop-provenance-state.png` after smoke capture. |
 | Narrow/mobile viewer screenshot | `evidence/screenshots/mobile-viewer-state.png` after smoke capture. |
-| Strengthening screenshots | `desktop-swapped-rails.png`, `desktop-fullscreen-state.png`, `mobile-slides-drawer.png`, `mobile-inspector-drawer.png`, and `presenter-view-state.png`. |
+| Strengthening screenshots | `desktop-right-inspector-collapsed.png`, `desktop-swapped-rails.png`, `desktop-activity-tooltip-state.png`, `desktop-fullscreen-state.png`, `desktop-fullscreen-final-exit.png`, `desktop-fullscreen-presenter-menu.png`, `desktop-fullscreen-menu-open.png`, `mobile-slides-drawer.png`, `mobile-inspector-drawer.png`, and `presenter-view-state.png`. |
 | Fixture provenance map | `evidence/fixture-provenance.md`. |
 | Prototype limitation note | `evidence/prototype-limitations.md`. |
 | Guideline cross-references | `evidence/guideline-cross-references.md`. |

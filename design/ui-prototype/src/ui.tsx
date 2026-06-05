@@ -1,6 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { ChevronDown } from "lucide-react";
 import type React from "react";
 import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Group, Panel, Separator } from "react-resizable-panels";
 
 export function cn(...parts: Array<false | null | string | undefined>) {
@@ -52,17 +55,18 @@ export function Button({
 
 type IconButtonProps = ButtonProps & {
   readonly label: string;
+  readonly tooltipSide?: TooltipSide;
 };
 
 export function IconButton({
   children,
   label,
-  title,
+  tooltipSide,
   ...props
 }: IconButtonProps) {
   return (
-    <Tooltip label={label}>
-      <Button aria-label={label} size="icon" title={title ?? label} {...props}>
+    <Tooltip label={label} side={tooltipSide}>
+      <Button aria-label={label} size="icon" {...props}>
         {children}
       </Button>
     </Tooltip>
@@ -97,15 +101,106 @@ export function Badge({
 type TooltipProps = {
   readonly children: ReactNode;
   readonly label: string;
+  readonly side?: TooltipSide;
 };
 
-export function Tooltip({ children, label }: TooltipProps) {
+type TooltipSide = "bottom" | "left" | "right" | "top";
+
+type TooltipPosition = {
+  readonly left: number;
+  readonly top: number;
+};
+
+export function Tooltip({ children, label, side = "bottom" }: TooltipProps) {
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const dismissTimerRef = useRef<number | null>(null);
+  const [open, setOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+  const [position, setPosition] = useState<TooltipPosition>({
+    left: 0,
+    top: 0,
+  });
+
+  const updatePosition = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+
+    const rect = trigger.getBoundingClientRect();
+    const gap = 10;
+    const nextPosition =
+      side === "right"
+        ? { left: rect.right + gap, top: rect.top + rect.height / 2 }
+        : side === "left"
+          ? { left: rect.left - gap, top: rect.top + rect.height / 2 }
+          : side === "top"
+            ? { left: rect.left + rect.width / 2, top: rect.top - gap }
+            : { left: rect.left + rect.width / 2, top: rect.bottom + gap };
+
+    setPosition(nextPosition);
+  }, [side]);
+
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [open, updatePosition]);
+
+  const show = () => {
+    if (dismissTimerRef.current !== null) {
+      window.clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+    setDismissed(false);
+    setOpen(true);
+    updatePosition();
+  };
+
+  const hide = () => {
+    setOpen(false);
+  };
+
+  const dismissAfterClick = () => {
+    setDismissed(true);
+    setOpen(false);
+    dismissTimerRef.current = window.setTimeout(() => {
+      setDismissed(false);
+      dismissTimerRef.current = null;
+    }, 500);
+  };
+
   return (
-    <span className="tooltip-wrap">
+    // biome-ignore lint/a11y/noStaticElementInteractions: wrapper only positions the portal tooltip around the nested interactive control.
+    <span
+      className="tooltip-wrap"
+      onBlur={hide}
+      onFocus={show}
+      onMouseEnter={show}
+      onMouseLeave={hide}
+      onPointerDown={dismissAfterClick}
+      ref={triggerRef}
+    >
       {children}
-      <span className="tooltip-content" role="tooltip">
-        {label}
-      </span>
+      {open &&
+        !dismissed &&
+        createPortal(
+          <span
+            className={`tooltip-content tooltip-${side}`}
+            role="tooltip"
+            style={{
+              left: position.left,
+              top: position.top,
+            }}
+          >
+            {label}
+          </span>,
+          document.body,
+        )}
     </span>
   );
 }
@@ -165,7 +260,14 @@ export function Section({
     <details className="section" data-section-id={id} open={defaultOpen}>
       <summary>
         <span>{title}</span>
-        {meta && <small>{meta}</small>}
+        <span className="section-summary-end">
+          {meta && <small>{meta}</small>}
+          <ChevronDown
+            aria-hidden="true"
+            className="section-chevron"
+            size={15}
+          />
+        </span>
       </summary>
       <div className="section-body">{children}</div>
     </details>

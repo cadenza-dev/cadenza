@@ -27,6 +27,7 @@ Useful query examples:
 /?state=ready&topic=Outline&theme=light&anchor=2
 /?state=blocked&topic=Diagnostics&theme=light&anchor=4
 /?state=provenance&topic=Provenance&theme=dark&anchor=3
+/?state=provenance&topic=Provenance&theme=dark&inspector=closed&anchor=3
 /?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=1
 /?state=pending&topic=Readiness&theme=dark&panel=slides&anchor=4
 /?state=pending&topic=Diagnostics&theme=dark&panel=inspector&anchor=4
@@ -45,5 +46,8 @@ git diff --check -- design/ui-prototype
 
 The screenshot smoke starts this package's local Vite server, opens
 desktop/mobile viewports, exercises action-anchor navigation, copy feedback,
-fullscreen navigation, side swap, and drawer states, captures annotated
-evidence screenshots, and writes `evidence/validation-smoke.json`.
+fullscreen navigation, final-anchor fullscreen exit, pointer-position context
+menus, activity-bar tooltip layering, right-inspector collapsed rail behavior,
+fullscreen slide-background letterboxing, rail-kind width retention under side
+swap, fixed status-bar behavior under side swap, and drawer states, captures
+annotated evidence screenshots, and writes `evidence/validation-smoke.json`.

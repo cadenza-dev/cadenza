@@ -16,12 +16,19 @@ type Scenario = {
 };
 
 type InteractionCheck =
+  | "activity-tooltip-visible"
   | "copy-locator"
+  | "fullscreen-context-menu"
+  | "fullscreen-last-exit"
+  | "fullscreen-menu-open"
   | "fullscreen-next"
+  | "fullscreen-presenter-menu"
   | "mobile-inspector-open"
   | "mobile-slides-open"
   | "next-anchor"
   | "outline-anchor"
+  | "provenance-raw-copy"
+  | "right-inspector-collapsed"
   | "side-swap-health"
   | "thumbnail-anchor";
 
@@ -51,14 +58,24 @@ const scenarios: readonly Scenario[] = [
   },
   {
     annotation:
-      "Desktop provenance state: dark mode inspector with format capabilities, evidence files, selector provenance, artifact inventory, and raw details folded behind sections.",
+      "Desktop provenance state: dark mode inspector with format capabilities, evidence files, selector provenance, artifact inventory, adaptive section scrolling, and Raw Details represented as a copy affordance.",
+    interactions: ["provenance-raw-copy"],
     name: "desktop-provenance-state.png",
     query: "/?state=provenance&topic=Provenance&theme=dark&anchor=3",
     viewport: { height: 960, width: 1440 },
   },
   {
     annotation:
-      "Desktop swapped rails: inspector is on the left, slide rail is on the right, and the bottom health signal follows the semantic inspector side.",
+      "Desktop right-inspector collapsed state: right-side activity bar remains on the right edge, inspector content is fully absent, and the collapsed panel is fixed to the icon rail width.",
+    interactions: ["right-inspector-collapsed"],
+    name: "desktop-right-inspector-collapsed.png",
+    query:
+      "/?state=provenance&topic=Provenance&theme=dark&inspector=closed&anchor=3",
+    viewport: { height: 960, width: 1440 },
+  },
+  {
+    annotation:
+      "Desktop swapped rails: inspector is on the left, slide rail is on the right, while the bottom status bar remains fixed instead of mirroring the rail order.",
     interactions: ["side-swap-health"],
     name: "desktop-swapped-rails.png",
     query: "/?state=provenance&topic=Provenance&theme=light&swap=true&anchor=3",
@@ -66,10 +83,42 @@ const scenarios: readonly Scenario[] = [
   },
   {
     annotation:
+      "Activity-bar tooltip: hover tooltip renders as a pointer-style floating bubble above rails, without being clipped by the activity bar or side-panel boundary.",
+    interactions: ["activity-tooltip-visible"],
+    name: "desktop-activity-tooltip-state.png",
+    query: "/?state=ready&topic=Outline&theme=dark&anchor=2",
+    viewport: { height: 960, width: 1440 },
+  },
+  {
+    annotation:
       "Fullscreen state: nonessential app chrome is hidden, deck content remains visible, keyboard/pointer navigation stays available, and action-anchor navigation does not black out the slide.",
-    interactions: ["fullscreen-next"],
+    interactions: ["fullscreen-next", "fullscreen-context-menu"],
     name: "desktop-fullscreen-state.png",
     query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=1",
+    viewport: { height: 960, width: 1440 },
+  },
+  {
+    annotation:
+      "Fullscreen final-anchor exit: the right edge advances out of fullscreen at the last action anchor instead of trapping the user at the end.",
+    interactions: ["fullscreen-last-exit"],
+    name: "desktop-fullscreen-final-exit.png",
+    query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=5",
+    viewport: { height: 960, width: 1440 },
+  },
+  {
+    annotation:
+      "Fullscreen context-menu presenter entry: right-click menu is theme-aware, anchored to the pointer, closes on selection, and routes to the presenter-view representation.",
+    interactions: ["fullscreen-presenter-menu"],
+    name: "desktop-fullscreen-presenter-menu.png",
+    query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
+    viewport: { height: 960, width: 1440 },
+  },
+  {
+    annotation:
+      "Fullscreen context menu open: right-click opens a theme-aware pointer-anchored menu with presenter, copy, navigation, and exit actions.",
+    interactions: ["fullscreen-menu-open"],
+    name: "desktop-fullscreen-menu-open.png",
+    query: "/?state=ready&topic=Outline&theme=dark&fullscreen=true&anchor=2",
     viewport: { height: 960, width: 1440 },
   },
   {
@@ -238,6 +287,19 @@ async function captureScenario(page: Page, scenario: Scenario) {
 }
 
 async function runInteraction(page: Page, check: InteractionCheck) {
+  if (check === "activity-tooltip-visible") {
+    await page
+      .locator('.layout-frame .activity-button[aria-label="Open Diagnostics"]')
+      .first()
+      .hover();
+    const tooltip = page.locator(".tooltip-content").first();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText("Open Diagnostics");
+    const box = await tooltip.boundingBox();
+    expect(box?.width).toBeGreaterThan(80);
+    return { check, passed: true, value: "activity tooltip visible" };
+  }
+
   if (check === "next-anchor") {
     const before = await page
       .locator("[data-anchor-title]:visible")
@@ -285,15 +347,91 @@ async function runInteraction(page: Page, check: InteractionCheck) {
 
   if (check === "side-swap-health") {
     await expect(
-      page.locator('[data-health-side="left"]').first(),
+      page.locator('[data-health-side="right"]').first(),
     ).toBeVisible();
-    return { check, passed: true, value: "health-left" };
+    const inspectorBox = await page
+      .locator(".rail-panel-inspector")
+      .first()
+      .boundingBox();
+    const slideBox = await page
+      .locator(".rail-panel-slides")
+      .first()
+      .boundingBox();
+    expect(inspectorBox?.width).toBeGreaterThan(slideBox?.width ?? 0);
+    return {
+      check,
+      passed: true,
+      value: `health-fixed-right inspector-${Math.round(inspectorBox?.width ?? 0)} slide-${Math.round(slideBox?.width ?? 0)}`,
+    };
+  }
+
+  if (check === "provenance-raw-copy") {
+    await page
+      .locator('[data-section-id="raw-details"] summary')
+      .first()
+      .click();
+    await expect(
+      page.locator('[data-section-id="raw-details"] pre'),
+    ).toHaveCount(0);
+    await page.getByRole("button", { name: /Copy to the Clipboard/i }).click();
+    await expect(page.locator("[data-copy-status]").first()).toContainText(
+      /Raw provenance details (copied|selected)/,
+    );
+    const overflowModes = await page.evaluate(() =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(".inspector-pane .section-body"),
+      ).map((body) => ({
+        id: body.closest<HTMLElement>(".section")?.dataset.sectionId ?? "",
+        overflowY: getComputedStyle(body).overflowY,
+      })),
+    );
+    expect(overflowModes.every((entry) => entry.overflowY === "auto")).toBe(
+      true,
+    );
+    return { check, passed: true, value: "raw details copy affordance" };
+  }
+
+  if (check === "right-inspector-collapsed") {
+    const rail = page.locator(".rail-panel-inspector.rail-panel-collapsed");
+    await expect(rail.first()).toBeVisible();
+    await expect(
+      page.locator(".inspector-rail-right.inspector-rail-collapsed"),
+    ).toBeVisible();
+    await expect(page.locator(".inspector-pane")).toHaveCount(0);
+    const railBox = await rail.first().boundingBox();
+    expect(railBox?.width).toBeLessThanOrEqual(45);
+    const activityBox = await page
+      .locator(".inspector-rail-right.inspector-rail-collapsed .activity-bar")
+      .first()
+      .boundingBox();
+    expect(activityBox?.x).toBeGreaterThan(1380);
+    return {
+      check,
+      passed: true,
+      value: `rail-width-${Math.round(railBox?.width ?? 0)}`,
+    };
   }
 
   if (check === "fullscreen-next") {
     await expect(
       page.locator(".fullscreen-shell .deck-slide:visible").first(),
     ).toBeVisible();
+    const fullscreenColors = await page.evaluate(() => {
+      const shell = document.querySelector<HTMLElement>(".fullscreen-shell");
+      const slide = document.querySelector<HTMLElement>(
+        ".fullscreen-shell .deck-slide",
+      );
+      const edge = document.querySelector<HTMLElement>(".edge-hit");
+      return {
+        edgeBackground: edge ? getComputedStyle(edge).backgroundColor : "",
+        shellBackground: shell ? getComputedStyle(shell).backgroundColor : "",
+        slideBackground: slide ? getComputedStyle(slide).backgroundColor : "",
+      };
+    });
+    expect(fullscreenColors.shellBackground).toBe(
+      fullscreenColors.slideBackground,
+    );
+    expect(fullscreenColors.edgeBackground).toContain("rgba(0, 0, 0, 0.32)");
     const before = await page
       .locator(".deck-slide:visible h1")
       .first()
@@ -308,6 +446,56 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       .textContent();
     expect(after).not.toBe(before);
     return { check, passed: true, value: after };
+  }
+
+  if (check === "fullscreen-context-menu") {
+    await page.mouse.click(320, 240, { button: "right" });
+    const menu = page.locator(".fullscreen-menu").first();
+    await expect(menu).toBeVisible();
+    const box = await menu.boundingBox();
+    expect(box?.x).toBeGreaterThanOrEqual(300);
+    expect(box?.x).toBeLessThanOrEqual(330);
+    expect(box?.y).toBeGreaterThanOrEqual(220);
+    expect(box?.y).toBeLessThanOrEqual(250);
+    await page.mouse.click(80, 80);
+    await expect(menu).toBeHidden();
+    await page.mouse.move(720, 480);
+    return { check, passed: true, value: "menu anchored and dismissed" };
+  }
+
+  if (check === "fullscreen-menu-open") {
+    await page.mouse.click(360, 260, { button: "right" });
+    const menu = page.locator(".fullscreen-menu").first();
+    await expect(menu).toBeVisible();
+    const box = await menu.boundingBox();
+    expect(box?.x).toBeGreaterThanOrEqual(340);
+    expect(box?.x).toBeLessThanOrEqual(370);
+    expect(box?.y).toBeGreaterThanOrEqual(240);
+    expect(box?.y).toBeLessThanOrEqual(270);
+    await expect(
+      page.getByRole("button", { name: /presenter view/i }),
+    ).toBeVisible();
+    return { check, passed: true, value: "menu open at pointer" };
+  }
+
+  if (check === "fullscreen-last-exit") {
+    await expect(page.locator(".fullscreen-shell").first()).toBeVisible();
+    await page
+      .locator('button[aria-label="Next action anchor"]:visible')
+      .first()
+      .click();
+    await expect(page.locator(".fullscreen-shell")).toHaveCount(0);
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+    return { check, passed: true, value: "last anchor exits fullscreen" };
+  }
+
+  if (check === "fullscreen-presenter-menu") {
+    await page.mouse.click(360, 260, { button: "right" });
+    await expect(page.locator(".fullscreen-menu").first()).toBeVisible();
+    await page.getByRole("button", { name: /presenter view/i }).click();
+    await expect(page.locator(".fullscreen-shell")).toHaveCount(0);
+    await expect(page.locator(".presenter-grid").first()).toBeVisible();
+    return { check, passed: true, value: "presenter route visible" };
   }
 
   if (check === "mobile-slides-open") {

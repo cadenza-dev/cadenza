@@ -21,7 +21,7 @@ Date: 2026-06-05 Asia/Shanghai.
 | Check | Result | Notes |
 | :---- | :---- | :---- |
 | `npm --prefix design/ui-prototype run typecheck` | Passed | Checks `src/**/*.ts(x)`, `scripts/**/*.ts`, and `vite.config.ts`. |
-| `npm --prefix design/ui-prototype run validate` | Passed outside sandbox | Sandbox Vite bind fails with `listen EPERM`; approved external run on default port `4177` captured screenshots and wrote `evidence/validation-smoke.json`. |
+| `CADENZA_UI_PROTOTYPE_PORT=4188 npm --prefix design/ui-prototype run validate` | Passed outside sandbox | Sandbox/local default-port attempts were blocked by browser/server environment issues; approved external run on temporary port `4188` captured screenshots and wrote `evidence/validation-smoke.json`. |
 | `pnpm exec biome check design/ui-prototype` | Passed | Scope remains design-only. |
 | `pnpm exec markdownlint-cli2 "design/ui-prototype/**/*.md"` | Passed | Scope remains design-only. |
 | `git diff --check -- design/ui-prototype` | Passed | Scope remains design-only. |
@@ -33,12 +33,32 @@ Visual-smoke observations:
   jump.
 - `desktop-diagnostics-state.png`: deck title visible; horizontal overflow false.
   Locator copy feedback passed.
-- `desktop-provenance-state.png`: deck title visible; horizontal overflow false.
+- `desktop-provenance-state.png`: deck title visible; horizontal overflow
+  false; Raw Details no longer renders JSON as a visible `<pre>`, `Copy to the
+  Clipboard` feedback passed, and inspector section bodies report `overflow-y:
+  auto`.
+- `desktop-right-inspector-collapsed.png`: deck title visible; horizontal
+  overflow false; right-side activity bar remains on the right edge, inspector
+  pane is absent, and the measured collapsed rail width is 42px.
 - `desktop-swapped-rails.png`: deck title visible; horizontal overflow false;
-  health signal followed the semantic inspector side.
+  status bar remains fixed with health on the right after rail swap; inspector
+  and slide rail widths remain tied to their rail kind rather than their
+  physical side.
+- `desktop-activity-tooltip-state.png`: deck title visible; horizontal overflow
+  false; activity-bar tooltip is visible above the rail layer without clipping.
 - `desktop-fullscreen-state.png`: deck title visible; horizontal overflow false;
   fullscreen `next` navigation changed action anchor without blacking out the
-  deck.
+  deck; fullscreen letterbox background matches the active slide background,
+  the darker edge-hit overlay remains visible on that background, and
+  pointer-position context menu open/left-click dismissal passes.
+- `desktop-fullscreen-final-exit.png`: deck title visible; horizontal overflow
+  false; right navigation on the final action anchor exits fullscreen.
+- `desktop-fullscreen-presenter-menu.png`: deck title visible; horizontal
+  overflow false; fullscreen context-menu presenter action routes to the
+  presenter representation.
+- `desktop-fullscreen-menu-open.png`: deck title visible; horizontal overflow
+  false; theme-aware context menu remains open near the pointer for visual
+  evidence.
 - `mobile-viewer-state.png`: deck title visible; horizontal overflow false at
   390 x 844.
 - `mobile-slides-drawer.png`: deck title visible; horizontal overflow false;
@@ -57,8 +77,12 @@ This validation intentionally checks the design evidence packet only:
 - Nonblank deck surface.
 - Horizontal overflow signal per captured viewport.
 - Interaction evidence for action-anchor navigation, slide rail navigation,
-  Outline navigation, copy feedback, fullscreen navigation, semantic side swap,
-  and mobile drawer reachability.
+  Outline navigation, copy feedback, fullscreen navigation, final-anchor
+  fullscreen exit, pointer-position context menus, presenter-menu routing,
+  activity-bar tooltip layering, right-inspector collapsed rail behavior,
+  provenance raw-detail copy behavior, fullscreen slide-background letterbox
+  behavior, fixed status bar behavior under side swap, rail-kind width retention
+  under side swap, and mobile drawer reachability.
 - Markdown and Biome hygiene for `design/ui-prototype/`.
 
 It does not claim production accessibility acceptance, broad browser coverage,
