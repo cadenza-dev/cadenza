@@ -3,6 +3,7 @@ import { outline, states, topics } from "./fixture";
 import type { MobilePanelId, Theme } from "./types";
 
 export const stateEntries = Object.values(states);
+const themeStorageKey = "cadenza.ui-prototype.theme";
 
 export function initialParam(name: string, fallback: string): string {
   if (typeof window === "undefined") return fallback;
@@ -19,6 +20,61 @@ export function isTopic(value: string): value is Topic {
 
 export function isTheme(value: string): value is Theme {
   return value === "dark" || value === "light";
+}
+
+function initialThemeParam(): Theme | undefined {
+  const value = initialParam("theme", "");
+  return isTheme(value) ? value : undefined;
+}
+
+function storedTheme(): Theme | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const value = window.localStorage.getItem(themeStorageKey);
+    return value && isTheme(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function systemTheme(fallback: Theme): Theme {
+  if (
+    typeof window === "undefined" ||
+    typeof window.matchMedia !== "function"
+  ) {
+    return fallback;
+  }
+  if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+    return "light";
+  }
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return fallback;
+}
+
+export function getInitialTheme(): Theme {
+  return initialThemeParam() ?? storedTheme() ?? systemTheme("dark");
+}
+
+export function persistThemePreference(theme: Theme) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(themeStorageKey, theme);
+  } catch {
+    // Local storage can be disabled; the DOM theme still applies for the page.
+  }
+}
+
+export function replaceThemeSearchParam(theme: Theme) {
+  if (typeof window === "undefined") return;
+  const url = new URL(window.location.href);
+  url.searchParams.set("theme", theme);
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${url.pathname}${url.search}${url.hash}`,
+  );
 }
 
 export function isMobilePanelId(value: string): value is MobilePanelId {

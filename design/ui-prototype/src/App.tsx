@@ -9,12 +9,14 @@ import { states } from "./fixture";
 import {
   clampIndex,
   getInitialAnchor,
+  getInitialTheme,
   getInitialTopic,
   initialParam,
   isMobilePanelId,
   isStateId,
-  isTheme,
   outlineAt,
+  persistThemePreference,
+  replaceThemeSearchParam,
 } from "./prototype-utils";
 import type { MobilePanelId, Theme } from "./types";
 import { cn, ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui";
@@ -39,10 +41,7 @@ function App() {
   const [topic, setTopic] = useState<Topic>(() =>
     getInitialTopic(selectedState),
   );
-  const initialTheme = initialParam("theme", "light");
-  const [theme, setTheme] = useState<Theme>(
-    isTheme(initialTheme) ? initialTheme : "light",
-  );
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme());
   const [slideOpen, setSlideOpen] = useState(
     initialParam("slides", "open") !== "closed",
   );
@@ -87,7 +86,17 @@ function App() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    persistThemePreference(theme);
   }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((value) => {
+      const nextTheme = value === "dark" ? "light" : "dark";
+      persistThemePreference(nextTheme);
+      replaceThemeSearchParam(nextTheme);
+      return nextTheme;
+    });
+  }, []);
 
   const goToAnchor = useCallback((index: number) => {
     setAnchorIndex(clampIndex(index));
@@ -186,9 +195,7 @@ function App() {
         onMobilePanel={setMobilePanel}
         onScenario={switchScenario}
         onSwap={() => setSideSwap((value) => !value)}
-        onTheme={() =>
-          setTheme((value) => (value === "dark" ? "light" : "dark"))
-        }
+        onTheme={toggleTheme}
         scenarioId={scenarioId}
         setBottomOpen={setBottomOpen}
         setInspectorOpen={setInspectorOpen}

@@ -21,7 +21,7 @@ Date: 2026-06-05 Asia/Shanghai.
 | Check | Result | Notes |
 | :---- | :---- | :---- |
 | `npm --prefix design/ui-prototype run typecheck` | Passed | Checks `src/**/*.ts(x)`, `scripts/**/*.ts`, and `vite.config.ts`. |
-| `CADENZA_UI_PROTOTYPE_PORT=4188 npm --prefix design/ui-prototype run validate` | Passed outside sandbox | Sandbox/local default-port attempts were blocked by browser/server environment issues; approved external run on temporary port `4188` captured screenshots and wrote `evidence/validation-smoke.json`. |
+| `npm --prefix design/ui-prototype run validate` | Passed outside sandbox | Sandbox attempt was blocked by browser/server environment issues; approved external run captured screenshots, checked theme preference behavior, and wrote `evidence/validation-smoke.json`. |
 | `pnpm exec biome check design/ui-prototype` | Passed | Scope remains design-only. |
 | `pnpm exec markdownlint-cli2 "design/ui-prototype/**/*.md"` | Passed | Scope remains design-only. |
 | `git diff --check -- design/ui-prototype` | Passed | Scope remains design-only. |
@@ -66,6 +66,10 @@ Visual-smoke observations:
 - `mobile-inspector-drawer.png`: deck title visible; horizontal overflow false;
   inspector drawer and Diagnostics topic reachability passed.
 - `presenter-view-state.png`: deck title visible; horizontal overflow false.
+- `themePreferenceChecks`: theme toggle persisted dark mode through reload and
+  no-query navigation; fresh no-query contexts followed browser-reported OS
+  light and OS dark preferences; a context without `matchMedia` fell back to
+  dark.
 
 ## Scope
 
@@ -82,7 +86,9 @@ This validation intentionally checks the design evidence packet only:
   activity-bar tooltip layering, right-inspector collapsed rail behavior,
   provenance raw-detail copy behavior, fullscreen slide-background letterbox
   behavior, fixed status bar behavior under side swap, rail-kind width retention
-  under side swap, and mobile drawer reachability.
+  under side swap, theme preference persistence, OS theme defaulting, dark
+  fallback when OS theme detection is unavailable, and mobile drawer
+  reachability.
 - Markdown and Biome hygiene for `design/ui-prototype/`.
 
 It does not claim production accessibility acceptance, broad browser coverage,

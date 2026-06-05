@@ -2,7 +2,7 @@ import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, expect, type Page } from "@playwright/test";
+import { type Browser, chromium, expect, type Page } from "@playwright/test";
 
 type Scenario = {
   readonly annotation: string;
@@ -38,6 +38,7 @@ const baseUrl = `http://127.0.0.1:${port}`;
 const screenshotDir = resolve(packageRoot, "evidence/screenshots");
 const viteBin = resolve(packageRoot, "node_modules/vite/bin/vite.js");
 const validationPath = resolve(packageRoot, "evidence/validation-smoke.json");
+const themeStorageKey = "cadenza.ui-prototype.theme";
 
 const scenarios: readonly Scenario[] = [
   {
@@ -162,6 +163,7 @@ async function main() {
     await waitForServer(baseUrl, server);
     const browser = await chromium.launch();
     const results = [];
+    let themePreferenceChecks = [];
 
     try {
       for (const scenario of scenarios) {
@@ -170,6 +172,7 @@ async function main() {
         results.push(result);
         await page.close();
       }
+      themePreferenceChecks = await runThemePreferenceChecks(browser);
     } finally {
       await browser.close();
     }
@@ -182,13 +185,20 @@ async function main() {
           focusedScope: "design/ui-prototype",
           previewUrl: baseUrl,
           results,
+          themePreferenceChecks,
         },
         null,
         2,
       )}\n`,
     );
 
-    console.log(JSON.stringify({ results, validationPath }, null, 2));
+    console.log(
+      JSON.stringify(
+        { results, themePreferenceChecks, validationPath },
+        null,
+        2,
+      ),
+    );
   } finally {
     server.kill("SIGTERM");
   }
@@ -284,6 +294,120 @@ async function captureScenario(page: Page, scenario: Scenario) {
     screenshotPath: `design/ui-prototype/evidence/screenshots/${scenario.name}`,
     viewport: scenario.viewport,
   };
+}
+
+async function runThemePreferenceChecks(browser: Browser) {
+  const checks = [];
+  const page = await browser.newPage({
+    viewport: { height: 720, width: 1024 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&theme=light`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(page)).toBe("light");
+
+    await page.getByRole("button", { name: "Use dark theme" }).click();
+    await page.waitForFunction(
+      () => document.documentElement.dataset.theme === "dark",
+    );
+    expect(await storedTheme(page)).toBe("dark");
+    expect(new URL(page.url()).searchParams.get("theme")).toBe("dark");
+
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(page)).toBe("dark");
+
+    await page.goto(`${baseUrl}/?state=ready`, { waitUntil: "networkidle" });
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(page)).toBe("dark");
+    checks.push({
+      check: "theme-persistence",
+      passed: true,
+      value: "toggle persists through reload and no-query navigation",
+    });
+  } finally {
+    await page.close();
+  }
+
+  const lightContext = await browser.newContext({
+    colorScheme: "light",
+    viewport: { height: 720, width: 1024 },
+  });
+  try {
+    const lightPage = await lightContext.newPage();
+    await lightPage.goto(`${baseUrl}/?state=ready`, {
+      waitUntil: "networkidle",
+    });
+    await expect(lightPage.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(lightPage)).toBe("light");
+    checks.push({
+      check: "theme-os-light-default",
+      passed: true,
+      value: "fresh no-query context follows OS light preference",
+    });
+  } finally {
+    await lightContext.close();
+  }
+
+  const darkContext = await browser.newContext({
+    colorScheme: "dark",
+    viewport: { height: 720, width: 1024 },
+  });
+  try {
+    const darkPage = await darkContext.newPage();
+    await darkPage.goto(`${baseUrl}/?state=ready`, {
+      waitUntil: "networkidle",
+    });
+    await expect(darkPage.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(darkPage)).toBe("dark");
+    checks.push({
+      check: "theme-os-dark-default",
+      passed: true,
+      value: "fresh no-query context follows OS dark preference",
+    });
+  } finally {
+    await darkContext.close();
+  }
+
+  const fallbackContext = await browser.newContext({
+    viewport: { height: 720, width: 1024 },
+  });
+  await fallbackContext.addInitScript(() => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  try {
+    const fallbackPage = await fallbackContext.newPage();
+    await fallbackPage.goto(`${baseUrl}/?state=ready`, {
+      waitUntil: "networkidle",
+    });
+    await expect(fallbackPage.locator(".app-shell").first()).toBeVisible();
+    expect(await documentTheme(fallbackPage)).toBe("dark");
+    checks.push({
+      check: "theme-fallback-dark",
+      passed: true,
+      value: "fresh no-query context falls back to dark without matchMedia",
+    });
+  } finally {
+    await fallbackContext.close();
+  }
+
+  return checks;
+}
+
+async function documentTheme(page: Page) {
+  return page.evaluate(() => document.documentElement.dataset.theme ?? "");
+}
+
+async function storedTheme(page: Page) {
+  return page.evaluate(
+    (storageKey) => window.localStorage.getItem(storageKey),
+    themeStorageKey,
+  );
 }
 
 async function runInteraction(page: Page, check: InteractionCheck) {

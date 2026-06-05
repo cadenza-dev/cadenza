@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T00:18:53.865Z",
+  "checkedAt": "2026-06-05T00:35:03.032Z",
   "focusedScope": "design/ui-prototype",
   "previewUrl": "http://127.0.0.1:4177",
   "results": [
@@ -341,6 +341,28 @@
         "height": 960,
         "width": 1440
       }
+    }
+  ],
+  "themePreferenceChecks": [
+    {
+      "check": "theme-persistence",
+      "passed": true,
+      "value": "toggle persists through reload and no-query navigation"
+    },
+    {
+      "check": "theme-os-light-default",
+      "passed": true,
+      "value": "fresh no-query context follows OS light preference"
+    },
+    {
+      "check": "theme-os-dark-default",
+      "passed": true,
+      "value": "fresh no-query context follows OS dark preference"
+    },
+    {
+      "check": "theme-fallback-dark",
+      "passed": true,
+      "value": "fresh no-query context falls back to dark without matchMedia"
     }
   ]
 }

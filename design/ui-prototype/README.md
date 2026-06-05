@@ -49,5 +49,7 @@ desktop/mobile viewports, exercises action-anchor navigation, copy feedback,
 fullscreen navigation, final-anchor fullscreen exit, pointer-position context
 menus, activity-bar tooltip layering, right-inspector collapsed rail behavior,
 fullscreen slide-background letterboxing, rail-kind width retention under side
-swap, fixed status-bar behavior under side swap, and drawer states, captures
-annotated evidence screenshots, and writes `evidence/validation-smoke.json`.
+swap, fixed status-bar behavior under side swap, theme preference persistence,
+OS theme defaulting, dark fallback when OS theme detection is unavailable, and
+drawer states, captures annotated evidence screenshots, and writes
+`evidence/validation-smoke.json`.
