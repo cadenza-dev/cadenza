@@ -480,6 +480,7 @@ async function runLayoutRegressionChecks(browser: Browser) {
   checks.push(await checkSummaryDividerKeepsSummaryLocked(browser));
   checks.push(await checkActivitySectionLayoutStateRetained(browser));
   checks.push(await checkSectionToggleAnimation(browser));
+  checks.push(await checkPresenterFinalNextExits(browser));
 
   return checks;
 }
@@ -563,6 +564,57 @@ async function checkRailResizeRoundTrip(
   } finally {
     await page.close();
   }
+}
+
+async function checkPresenterFinalNextExits(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Notes&theme=dark&presenter=true&anchor=5`,
+      { waitUntil: "networkidle" },
+    );
+    await expect(page.locator(".presenter-shell").first()).toBeVisible();
+    await expect(page.getByText("End of deck")).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: /Use highlighted exit presentation to return/i,
+      }),
+    ).toBeVisible();
+    await page
+      .locator('button[aria-label="Next action anchor"]:visible')
+      .first()
+      .click();
+    await expect(page.locator(".presenter-shell")).toHaveCount(0);
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+
+    return {
+      check: "presenter-final-next-exits",
+      passed: true,
+      value: "final presenter next exits to app shell",
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+type PresenterPreviewMetrics = {
+  readonly centerDeltaX: number;
+  readonly centerDeltaY: number;
+  readonly contained: boolean;
+  readonly height: number;
+  readonly ratio: number;
+  readonly width: number;
+};
+
+function expectPresenterPreviewMetrics(metrics: PresenterPreviewMetrics) {
+  expect(metrics.contained).toBe(true);
+  expect(Math.abs(metrics.ratio - 16 / 9)).toBeLessThan(0.015);
+  expect(Math.abs(metrics.centerDeltaX)).toBeLessThanOrEqual(2);
+  expect(Math.abs(metrics.centerDeltaY)).toBeLessThanOrEqual(2);
+  expect(metrics.width).toBeGreaterThan(120);
+  expect(metrics.height).toBeGreaterThan(68);
 }
 
 async function checkCollapsedSectionsAreHeaderOnly(browser: Browser) {
@@ -1378,6 +1430,63 @@ async function runInteraction(page: Page, check: InteractionCheck) {
     );
     expect(afterColumns).not.toBe(beforeColumns);
     expect(afterRows).not.toBe(beforeRows);
+
+    const controls = page.locator(".presenter-bottom-nav").first();
+    const beforeControlsHeight = (await controls.boundingBox())?.height ?? 0;
+    await dragResizeHandle(
+      page,
+      "Resize presenter action-anchor controls",
+      0,
+      -24,
+    );
+    const afterControlsHeight = (await controls.boundingBox())?.height ?? 0;
+    expect(afterControlsHeight).toBeGreaterThan(beforeControlsHeight + 12);
+
+    const previewMetrics = await page.evaluate(() => {
+      const readMetrics = (selector: string) => {
+        const area = document.querySelector<HTMLElement>(selector);
+        const deck = area?.querySelector<HTMLElement>(
+          ".presenter-deck-scale-box",
+        );
+        if (!area || !deck) {
+          throw new Error(`Missing presenter preview metrics for ${selector}`);
+        }
+        const areaBox = area.getBoundingClientRect();
+        const deckBox = deck.getBoundingClientRect();
+        return {
+          centerDeltaX:
+            deckBox.left +
+            deckBox.width / 2 -
+            (areaBox.left + areaBox.width / 2),
+          centerDeltaY:
+            deckBox.top +
+            deckBox.height / 2 -
+            (areaBox.top + areaBox.height / 2),
+          contained:
+            deckBox.left >= areaBox.left - 1 &&
+            deckBox.right <= areaBox.right + 1 &&
+            deckBox.top >= areaBox.top - 1 &&
+            deckBox.bottom <= areaBox.bottom + 1,
+          height: deckBox.height,
+          ratio: deckBox.width / deckBox.height,
+          width: deckBox.width,
+        };
+      };
+      const badge = document.querySelector<HTMLElement>(
+        ".presenter-only-badge",
+      );
+      const badgeStyles = badge ? getComputedStyle(badge) : null;
+      return {
+        badgeBackground: badgeStyles?.backgroundColor ?? "",
+        badgeColor: badgeStyles?.color ?? "",
+        current: readMetrics(".presenter-slide-stage"),
+        next: readMetrics(".presenter-next-preview"),
+      };
+    });
+    expectPresenterPreviewMetrics(previewMetrics.current);
+    expectPresenterPreviewMetrics(previewMetrics.next);
+    expect(previewMetrics.badgeBackground).toBe("rgb(244, 244, 245)");
+    expect(previewMetrics.badgeColor).toBe("rgb(17, 17, 19)");
 
     await page.mouse.click(760, 300, { button: "right" });
     await expect(

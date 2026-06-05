@@ -104,6 +104,9 @@ function App() {
   const [presenterLayout, setPresenterLayout] = useState<PresenterLayout>(
     defaultPresenterLayout,
   );
+  const [actionControlsHeight, setActionControlsHeight] = useState(
+    defaultPresenterLayout.controlsHeight,
+  );
   const [railSizes, setRailSizes] = useState(createInitialRailSizes);
   const [activeRailResize, setActiveRailResize] = useState<RailSide | null>(
     null,
@@ -229,6 +232,15 @@ function App() {
     window.setTimeout(() => setCopiedNotice(""), 1600);
   }, []);
 
+  const openPresenterView = useCallback(() => {
+    setPresenterLayout((current) => ({
+      ...current,
+      controlsHeight: actionControlsHeight,
+    }));
+    setPresenterMode(true);
+    setFullscreen(true);
+  }, [actionControlsHeight]);
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -291,10 +303,7 @@ function App() {
         next={next}
         onCopy={copyText}
         onExit={() => setFullscreen(false)}
-        onPresenter={() => {
-          setPresenterMode(true);
-          setFullscreen(true);
-        }}
+        onPresenter={openPresenterView}
         previous={previous}
         selectedSlide={selectedSlide}
         state={selectedState}
@@ -393,6 +402,9 @@ function App() {
                   defaultSize="88px"
                   maxSize="124px"
                   minSize="88px"
+                  onResize={(panelSize) =>
+                    setActionControlsHeight(Math.round(panelSize.inPixels))
+                  }
                 >
                   <PlaybackToolbar
                     anchorIndex={anchorIndex}

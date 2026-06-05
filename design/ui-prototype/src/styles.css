@@ -1406,7 +1406,6 @@ dd {
 
 .presenter-preview-pane {
   display: grid;
-  grid-template-rows: 34px minmax(0, 1fr) 90px;
   min-height: 0;
   min-width: 0;
   padding-right: 18px;
@@ -1446,30 +1445,58 @@ dd {
   justify-content: flex-end;
 }
 
-.presenter-slide-stage {
+.presenter-deck-preview {
   align-items: center;
   display: flex;
   justify-content: center;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
+}
+
+.presenter-slide-stage {
   padding: 14px 0 18px;
 }
 
-.presenter-slide-stage .deck-frame {
-  height: min(100%, calc(100vw * 9 / 16));
-  width: min(100%, calc(100dvh * 16 / 9));
+.presenter-deck-scale-box {
+  flex: 0 0 auto;
+  height: 630px;
+  transform-origin: center center;
+  width: 1120px;
 }
 
-.presenter-slide-stage .deck-slide,
-.presenter-next-preview .deck-slide {
+.presenter-deck-scale-box .deck-frame {
+  height: 630px;
+  max-height: none;
+  width: 1120px;
+}
+
+.presenter-deck-scale-box .deck-slide {
   border-radius: 2px;
   box-shadow: none;
+  height: 630px;
+  max-height: none;
+  padding: 72px;
+  width: 1120px;
+}
+
+.presenter-deck-scale-box .deck-slide h1 {
+  font-size: 76px;
+  max-width: 12ch;
+}
+
+.presenter-deck-scale-box .deck-slide p {
+  font-size: 24px;
+  max-width: 58ch;
+}
+
+.presenter-deck-scale-box .slide-topline span:first-child,
+.presenter-deck-scale-box .slide-evidence-strip {
+  font-size: 12px;
 }
 
 .presenter-bottom-nav {
   align-items: start;
-  border-top: 1px solid var(--border);
   display: flex;
   justify-content: center;
   min-height: 0;
@@ -1528,38 +1555,7 @@ dd {
 }
 
 .presenter-next-preview {
-  align-items: start;
-  display: flex;
-  justify-content: center;
-  min-height: 0;
-  min-width: 0;
-  overflow: hidden;
-  padding-top: 14px;
-}
-
-.presenter-next-preview .deck-frame {
-  align-items: flex-start;
-  height: auto;
-  width: 100%;
-}
-
-.presenter-next-preview .deck-slide {
-  padding: clamp(18px, 2.4vw, 34px);
-}
-
-.presenter-next-preview .deck-slide h1 {
-  font-size: clamp(20px, 2.8vw, 42px);
-  max-width: 11ch;
-}
-
-.presenter-next-preview .deck-slide p {
-  font-size: clamp(12px, 1vw, 16px);
-  max-width: 42ch;
-}
-
-.presenter-next-preview .slide-topline span:first-child,
-.presenter-next-preview .slide-evidence-strip {
-  font-size: 9px;
+  padding: 14px 0;
 }
 
 .presenter-end-state {
@@ -1572,9 +1568,28 @@ dd {
   text-align: center;
 }
 
+.presenter-end-action {
+  align-items: center;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.presenter-end-action .ui-button-icon {
+  height: 30px;
+  width: 30px;
+}
+
 .presenter-end-state strong {
   color: var(--foreground);
   font-size: 18px;
+}
+
+.presenter-only-badge {
+  background: #f4f4f5;
+  border-color: #f4f4f5;
+  color: #111113;
 }
 
 .presenter-notes-content {
@@ -1639,6 +1654,24 @@ dd {
 .presenter-resize-handle-horizontal[data-resize-handle-active] span {
   height: 4px;
   width: min(112px, 52%);
+}
+
+.presenter-controls-resize-handle {
+  flex: none;
+  height: 10px;
+  min-height: 10px;
+  width: 100%;
+}
+
+.presenter-controls-resize-handle span {
+  height: 2px;
+  width: min(88px, 34%);
+}
+
+.presenter-controls-resize-handle:hover span,
+.presenter-controls-resize-handle[data-resize-handle-active] span {
+  height: 4px;
+  width: min(112px, 44%);
 }
 
 .health-signal {

@@ -14,7 +14,9 @@ import {
   type PointerEvent,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { OutlineEntry, PrototypeState } from "../fixture";
@@ -26,18 +28,23 @@ import { DeckSlide } from "./Deck";
 import { PlaybackToolbar } from "./ShellChrome";
 
 const presenterSplitBounds = {
+  defaultControlsHeight: 88,
   defaultPreviewPercent: 66.667,
   defaultNextPercent: 50,
+  maxControlsHeight: 124,
   max: 66.667,
+  minControlsHeight: 88,
   min: 33.333,
 } as const;
 
 export type PresenterLayout = {
+  readonly controlsHeight: number;
   readonly nextPercent: number;
   readonly previewPercent: number;
 };
 
 export const defaultPresenterLayout: PresenterLayout = {
+  controlsHeight: presenterSplitBounds.defaultControlsHeight,
   nextPercent: presenterSplitBounds.defaultNextPercent,
   previewPercent: presenterSplitBounds.defaultPreviewPercent,
 };
@@ -57,11 +64,24 @@ type PresenterViewProps = {
 };
 
 type PresenterResizeAxis = "horizontal" | "vertical";
+type PresenterResizeTarget = PresenterResizeAxis | "controls";
+
+const presenterDeckSize = {
+  height: 630,
+  width: 1120,
+} as const;
 
 function clampPresenterSplit(value: number) {
   return Math.min(
     Math.max(value, presenterSplitBounds.min),
     presenterSplitBounds.max,
+  );
+}
+
+function clampControlsHeight(value: number) {
+  return Math.min(
+    Math.max(value, presenterSplitBounds.minControlsHeight),
+    presenterSplitBounds.maxControlsHeight,
   );
 }
 
@@ -100,9 +120,8 @@ export function PresenterView({
   const [timerRunning, setTimerRunning] = useState(true);
   const [clockTime, setClockTime] = useState(() => new Date());
   const [menuPosition, setMenuPosition] = useState<MenuPosition | null>(null);
-  const [activeResize, setActiveResize] = useState<PresenterResizeAxis | null>(
-    null,
-  );
+  const [activeResize, setActiveResize] =
+    useState<PresenterResizeTarget | null>(null);
   const nextSlide = outlineAt(anchorIndex + 1);
   const isLastAnchor = anchorIndex >= outline.length - 1;
   const notes = useMemo(
@@ -148,10 +167,10 @@ export function PresenterView({
   };
 
   const startResize = useCallback(
-    (axis: PresenterResizeAxis, event: PointerEvent<HTMLButtonElement>) => {
+    (target: PresenterResizeTarget, event: PointerEvent<HTMLButtonElement>) => {
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
-      setActiveResize(axis);
+      setActiveResize(target);
 
       const container = event.currentTarget.parentElement;
       if (!container) {
@@ -161,13 +180,22 @@ export function PresenterView({
 
       const containerRect = container.getBoundingClientRect();
       const updateFromPointer = (moveEvent: globalThis.PointerEvent) => {
-        if (axis === "horizontal") {
+        if (target === "horizontal") {
           const previewPercent =
             ((moveEvent.clientX - containerRect.left) / containerRect.width) *
             100;
           onLayoutChange({
             ...layout,
             previewPercent: clampPresenterSplit(previewPercent),
+          });
+          return;
+        }
+
+        if (target === "controls") {
+          const controlsHeight = containerRect.bottom - moveEvent.clientY;
+          onLayoutChange({
+            ...layout,
+            controlsHeight: clampControlsHeight(controlsHeight),
           });
           return;
         }
@@ -221,7 +249,13 @@ export function PresenterView({
           gridTemplateColumns: `${layout.previewPercent}% 10px minmax(0, 1fr)`,
         }}
       >
-        <section className="presenter-preview-pane" aria-label="Current slide">
+        <section
+          className="presenter-preview-pane"
+          aria-label="Current slide"
+          style={{
+            gridTemplateRows: `34px minmax(0, 1fr) 10px ${layout.controlsHeight}px`,
+          }}
+        >
           <header className="presenter-topbar">
             <div className="presenter-clock-cluster">
               <Timer size={16} />
@@ -251,15 +285,28 @@ export function PresenterView({
               <span>{formatClock(clockTime)}</span>
             </div>
           </header>
-          <div className="presenter-slide-stage">
-            <DeckSlide selectedSlide={selectedSlide} state={state} />
-          </div>
+          <PresenterDeckPreview
+            className="presenter-slide-stage"
+            selectedSlide={selectedSlide}
+            state={state}
+          />
+          <button
+            aria-label="Resize presenter action-anchor controls"
+            className="resize-handle resize-handle-horizontal presenter-resize-handle presenter-controls-resize-handle"
+            data-resize-handle-active={
+              activeResize === "controls" ? "" : undefined
+            }
+            onPointerDown={(event) => startResize("controls", event)}
+            type="button"
+          >
+            <span />
+          </button>
           <div className="presenter-bottom-nav">
             <PlaybackToolbar
               anchorIndex={anchorIndex}
               fullscreenActive
               fullscreenLabel="Exit presentation"
-              next={next}
+              next={nextOrExit}
               onFullscreen={onExit}
               previous={previous}
             />
@@ -294,12 +341,34 @@ export function PresenterView({
               <div className="presenter-end-state">
                 <Presentation size={26} />
                 <strong>End of deck</strong>
-                <span>Use the highlighted fullscreen control to return.</span>
+                <span className="presenter-end-action">
+                  <span>Use</span>
+                  <Button
+                    aria-label="Use next action anchor to return"
+                    onClick={onExit}
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <ArrowRight size={15} />
+                  </Button>
+                  <span>/</span>
+                  <Button
+                    aria-label="Use highlighted exit presentation to return"
+                    onClick={onExit}
+                    size="icon"
+                    variant="primary"
+                  >
+                    <Minimize size={15} />
+                  </Button>
+                  <span>to return.</span>
+                </span>
               </div>
             ) : (
-              <div className="presenter-next-preview">
-                <DeckSlide selectedSlide={nextSlide} state={state} />
-              </div>
+              <PresenterDeckPreview
+                className="presenter-next-preview"
+                selectedSlide={nextSlide}
+                state={state}
+              />
             )}
           </section>
           <button
@@ -316,7 +385,9 @@ export function PresenterView({
           <section className="presenter-panel presenter-notes-panel">
             <header className="presenter-panel-header">
               <h2>Notes</h2>
-              <Badge tone="checking">presenter-only</Badge>
+              <Badge className="presenter-only-badge" tone="neutral">
+                presenter-only
+              </Badge>
             </header>
             <div className="presenter-notes-content">
               {notes.map((note) => (
@@ -396,5 +467,56 @@ export function PresenterView({
         <div className="copy-toast fullscreen">{copiedNotice}</div>
       )}
     </main>
+  );
+}
+
+type PresenterDeckPreviewProps = {
+  readonly className: string;
+  readonly selectedSlide: OutlineEntry;
+  readonly state: PrototypeState;
+};
+
+function PresenterDeckPreview({
+  className,
+  selectedSlide,
+  state,
+}: PresenterDeckPreviewProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+  const updateScale = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const nextScale = Math.min(
+      rect.width / presenterDeckSize.width,
+      rect.height / presenterDeckSize.height,
+      1,
+    );
+    setScale(Number.isFinite(nextScale) ? Math.max(0.05, nextScale) : 1);
+  }, []);
+
+  useLayoutEffect(() => {
+    updateScale();
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(container);
+    window.addEventListener("resize", updateScale);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, [updateScale]);
+
+  return (
+    <div className={cn("presenter-deck-preview", className)} ref={containerRef}>
+      <div
+        className="presenter-deck-scale-box"
+        style={{ transform: `scale(${scale})` }}
+      >
+        <DeckSlide selectedSlide={selectedSlide} state={state} />
+      </div>
+    </div>
   );
 }
