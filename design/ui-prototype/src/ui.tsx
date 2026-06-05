@@ -297,7 +297,6 @@ export function ResizableHandle({
       aria-label={label}
       className={cn("resize-handle", className)}
       data-slot="resizable-handle"
-      title={label}
       {...props}
     >
       <span />

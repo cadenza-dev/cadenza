@@ -943,7 +943,6 @@ function SectionResizeHandle({
       className="resize-handle resize-handle-horizontal section-resize-handle"
       disabled={!resizable}
       onPointerDown={onPointerDown}
-      title={label}
       type="button"
     >
       <span />

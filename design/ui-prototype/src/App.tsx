@@ -477,7 +477,6 @@ function RailResizeHandle({
       data-resize-handle-active={active ? "" : undefined}
       disabled={!resizable}
       onPointerDown={onPointerDown}
-      title={label}
       type="button"
     >
       <span />

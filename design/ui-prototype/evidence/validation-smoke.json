@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T21:18:49.210Z",
+  "checkedAt": "2026-06-05T21:58:38.204Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
     {
@@ -41,6 +41,11 @@
       "check": "summary-zoom-measurement-stable",
       "passed": true,
       "value": "summary-205-256-256-205"
+    },
+    {
+      "check": "resize-handles-have-no-native-title",
+      "passed": true,
+      "value": "no resize handle title attributes"
     },
     {
       "check": "collapsed-rail-boundary-handle-visible",

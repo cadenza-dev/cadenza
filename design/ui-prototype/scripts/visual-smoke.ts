@@ -467,6 +467,7 @@ async function runLayoutRegressionChecks(browser: Browser) {
   checks.push(await checkSummaryMinimumTracksWidth(browser));
   checks.push(await checkSummaryToggleRehydratesMeasurement(browser));
   checks.push(await checkSummaryZoomMeasurementStable(browser));
+  checks.push(await checkResizeHandlesHaveNoNativeTitle(browser));
   checks.push(await checkCollapsedRailBoundaryHandleVisible(browser));
   checks.push(await checkRailBoundarySashesAreVisible(browser));
   checks.push(await checkSectionStackDoesNotScroll(browser));
@@ -476,6 +477,39 @@ async function runLayoutRegressionChecks(browser: Browser) {
   checks.push(await checkSectionToggleAnimation(browser));
 
   return checks;
+}
+
+async function checkResizeHandlesHaveNoNativeTitle(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await expect(page.locator(".app-shell").first()).toBeVisible();
+
+    const handlesWithNativeTitle = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<HTMLElement>(".resize-handle"))
+        .filter((handle) => handle.hasAttribute("title"))
+        .map(
+          (handle) =>
+            handle.getAttribute("aria-label") ??
+            handle.getAttribute("title") ??
+            "unlabelled resize handle",
+        ),
+    );
+
+    expect(handlesWithNativeTitle).toEqual([]);
+
+    return {
+      check: "resize-handles-have-no-native-title",
+      passed: true,
+      value: "no resize handle title attributes",
+    };
+  } finally {
+    await page.close();
+  }
 }
 
 type RailRoundTripOptions = {
