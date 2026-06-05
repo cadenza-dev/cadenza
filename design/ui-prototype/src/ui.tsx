@@ -376,7 +376,7 @@ export function Section({
       </button>
       {renderBody && (
         <div className="section-body" id={bodyId} ref={bodyRef}>
-          {children}
+          <div className="section-body-content">{children}</div>
         </div>
       )}
     </section>

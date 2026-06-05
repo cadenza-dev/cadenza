@@ -831,7 +831,7 @@ function InspectorSectionPane({
   sectionSize,
   sizePlanReady,
 }: InspectorSectionPaneProps) {
-  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const [bodyElement, setBodyElement] = useState<HTMLDivElement | null>(null);
   const minimumSize = getSectionMinimumSize(
     section,
     expanded,
@@ -840,19 +840,32 @@ function InspectorSectionPane({
   const preferredSize = sizePlanReady ? sectionSize : minimumSize;
   const renderedMinimumSize = Math.min(minimumSize, preferredSize);
 
+  const measureBodySize = useCallback(
+    (body: HTMLDivElement) => {
+      onBodySizeChange(section.id, measureSectionBodyContentSize(body));
+    },
+    [onBodySizeChange, section.id],
+  );
+
+  const setBodyNode = useCallback(
+    (node: HTMLDivElement | null) => {
+      setBodyElement(node);
+      if (node && expanded) measureBodySize(node);
+    },
+    [expanded, measureBodySize],
+  );
+
   useLayoutEffect(() => {
-    if (!expanded) {
-      onBodySizeChange(section.id, 0);
-      return undefined;
-    }
-    const body = bodyRef.current;
+    if (!expanded) return undefined;
+    const body = bodyElement;
     if (!body) return undefined;
+    const content = body.querySelector<HTMLElement>(".section-body-content");
 
     let frame = 0;
     const measure = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
-        onBodySizeChange(section.id, Math.ceil(body.scrollHeight));
+        measureBodySize(body);
       });
     };
     measure();
@@ -862,12 +875,13 @@ function InspectorSectionPane({
         ? undefined
         : new ResizeObserver(measure);
     observer?.observe(body);
+    if (content) observer?.observe(content);
 
     return () => {
       window.cancelAnimationFrame(frame);
       observer?.disconnect();
     };
-  }, [expanded, onBodySizeChange, section.id]);
+  }, [bodyElement, expanded, measureBodySize]);
 
   return (
     <div
@@ -881,7 +895,7 @@ function InspectorSectionPane({
       }}
     >
       <Section
-        bodyRef={bodyRef}
+        bodyRef={setBodyNode}
         id={section.id}
         meta={section.meta}
         onOpenChange={(nextExpanded) =>
@@ -894,6 +908,22 @@ function InspectorSectionPane({
       </Section>
     </div>
   );
+}
+
+function measureSectionBodyContentSize(body: HTMLDivElement) {
+  const content = body.querySelector<HTMLElement>(".section-body-content");
+  if (!content) return Math.ceil(body.scrollHeight);
+
+  const style = window.getComputedStyle(body);
+  const verticalPadding =
+    parseCssPixelValue(style.paddingTop) +
+    parseCssPixelValue(style.paddingBottom);
+  return Math.ceil(content.scrollHeight + verticalPadding);
+}
+
+function parseCssPixelValue(value: string) {
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 type SectionResizeHandleProps = {

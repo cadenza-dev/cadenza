@@ -1043,15 +1043,19 @@ pre {
 }
 
 .section-body {
+  border-top: 1px solid var(--border);
+  min-height: 0;
+  overflow: auto;
+  padding: 10px;
+}
+
+.section-body-content {
   align-content: start;
   align-items: start;
-  border-top: 1px solid var(--border);
   display: grid;
   gap: 10px;
   grid-auto-rows: max-content;
   min-height: 0;
-  overflow: auto;
-  padding: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {

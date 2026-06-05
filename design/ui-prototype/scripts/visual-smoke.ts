@@ -39,6 +39,8 @@ const screenshotDir = resolve(packageRoot, "evidence/screenshots");
 const viteBin = resolve(packageRoot, "node_modules/vite/bin/vite.js");
 const validationPath = resolve(packageRoot, "evidence/validation-smoke.json");
 const themeStorageKey = "cadenza.ui-prototype.theme";
+const inspectorSectionLayoutStoragePrefix =
+  "cadenza.uiPrototype.inspectorSectionLayout.v3";
 
 const scenarios: readonly Scenario[] = [
   {
@@ -463,6 +465,8 @@ async function runLayoutRegressionChecks(browser: Browser) {
   );
   checks.push(await checkCollapsedSectionsAreHeaderOnly(browser));
   checks.push(await checkSummaryMinimumTracksWidth(browser));
+  checks.push(await checkSummaryToggleRehydratesMeasurement(browser));
+  checks.push(await checkSummaryZoomMeasurementStable(browser));
   checks.push(await checkCollapsedRailBoundaryHandleVisible(browser));
   checks.push(await checkRailBoundarySashesAreVisible(browser));
   checks.push(await checkSectionStackDoesNotScroll(browser));
@@ -602,6 +606,97 @@ async function checkSummaryMinimumTracksWidth(browser: Browser) {
       check: "summary-minimum-fits-current-width",
       passed: true,
       value: "summary body has no internal clipping",
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSummaryToggleRehydratesMeasurement(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 760, width: 1280 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&anchor=3`,
+      {
+        waitUntil: "networkidle",
+      },
+    );
+    await resetInspectorLayoutStorage(page);
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(page.locator('[data-section-id="summary"]')).toBeVisible();
+
+    const summary = page.locator(
+      '[data-section-id="summary"] .section-summary',
+    );
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      if ((await summary.getAttribute("aria-expanded")) === "true") {
+        await summary.click();
+      }
+      await expect.poll(() => sectionBodyCount(page, "summary")).toBe(0);
+      await summary.click();
+      await expect
+        .poll(() => summaryBodyFits(page))
+        .toEqual({ fits: true, overflow: 0 });
+    }
+
+    const metrics = await summaryPanelMetrics(page);
+    return {
+      check: "summary-toggle-rehydrates-measurement",
+      passed: true,
+      value: `summary-${Math.round(metrics.panelHeight)} overflow-${metrics.overflow}`,
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkSummaryZoomMeasurementStable(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 1264, width: 2048 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&anchor=3`,
+      {
+        waitUntil: "networkidle",
+      },
+    );
+    await resetInspectorLayoutStorage(page);
+    await page.reload({ waitUntil: "networkidle" });
+    await expect(page.locator('[data-section-id="summary"]')).toBeVisible();
+    await expect
+      .poll(() => summaryBodyFits(page))
+      .toEqual({ fits: true, overflow: 0 });
+
+    const initial = await summaryPanelMetrics(page);
+    await setDocumentZoom(page, "1.24");
+    await expect
+      .poll(() => summaryBodyFits(page))
+      .toEqual({ fits: true, overflow: 0 });
+    await setDocumentZoom(page, "1.25");
+    await page.waitForTimeout(500);
+    const zoomedFirst = await summaryPanelMetrics(page);
+    await page.waitForTimeout(500);
+    const zoomedSecond = await summaryPanelMetrics(page);
+
+    expect(
+      Math.abs(zoomedSecond.panelHeight - zoomedFirst.panelHeight),
+    ).toBeLessThanOrEqual(4);
+
+    await setDocumentZoom(page, "1");
+    await expect
+      .poll(() => summaryBodyFits(page))
+      .toEqual({ fits: true, overflow: 0 });
+    await page.waitForTimeout(300);
+    const restored = await summaryPanelMetrics(page);
+    expect(restored.panelHeight).toBeLessThanOrEqual(initial.panelHeight + 8);
+
+    return {
+      check: "summary-zoom-measurement-stable",
+      passed: true,
+      value: `summary-${Math.round(initial.panelHeight)}-${Math.round(zoomedFirst.panelHeight)}-${Math.round(zoomedSecond.panelHeight)}-${Math.round(restored.panelHeight)}`,
     };
   } finally {
     await page.close();
@@ -900,6 +995,41 @@ async function summaryBodyFits(page: Page) {
     const overflow = body.scrollHeight - body.clientHeight;
     return { fits: overflow <= 1, overflow: Math.max(0, Math.round(overflow)) };
   });
+}
+
+async function summaryPanelMetrics(page: Page) {
+  return page.evaluate(() => {
+    const body = document.querySelector<HTMLElement>(
+      '[data-section-id="summary"] .section-body',
+    );
+    const panel = document.querySelector<HTMLElement>(
+      '[data-section-panel-id="summary"]',
+    );
+    const overflow = body ? body.scrollHeight - body.clientHeight : 0;
+    return {
+      bodyClientHeight: body?.clientHeight ?? 0,
+      bodyScrollHeight: body?.scrollHeight ?? 0,
+      overflow: Math.max(0, Math.round(overflow)),
+      panelHeight: panel?.getBoundingClientRect().height ?? 0,
+    };
+  });
+}
+
+async function resetInspectorLayoutStorage(page: Page) {
+  await page.evaluate((storagePrefix) => {
+    for (const key of Object.keys(window.localStorage)) {
+      if (key.startsWith(storagePrefix)) {
+        window.localStorage.removeItem(key);
+      }
+    }
+  }, inspectorSectionLayoutStoragePrefix);
+}
+
+async function setDocumentZoom(page: Page, value: string) {
+  await page.evaluate((zoom) => {
+    document.documentElement.style.setProperty("zoom", zoom);
+    window.dispatchEvent(new Event("resize"));
+  }, value);
 }
 
 async function dragResizeHandle(

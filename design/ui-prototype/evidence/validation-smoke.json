@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T19:18:13.275Z",
+  "checkedAt": "2026-06-05T21:18:49.210Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
     {
@@ -31,6 +31,16 @@
       "check": "summary-minimum-fits-current-width",
       "passed": true,
       "value": "summary body has no internal clipping"
+    },
+    {
+      "check": "summary-toggle-rehydrates-measurement",
+      "passed": true,
+      "value": "summary-223 overflow-0"
+    },
+    {
+      "check": "summary-zoom-measurement-stable",
+      "passed": true,
+      "value": "summary-205-256-256-205"
     },
     {
       "check": "collapsed-rail-boundary-handle-visible",
