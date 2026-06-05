@@ -107,45 +107,100 @@ type TooltipProps = {
 type TooltipSide = "bottom" | "left" | "right" | "top";
 
 type TooltipPosition = {
+  readonly arrowLeft: number;
+  readonly arrowTop: number;
   readonly left: number;
   readonly top: number;
 };
 
+type TooltipStyle = React.CSSProperties & {
+  "--tooltip-arrow-left": string;
+  "--tooltip-arrow-top": string;
+};
+
+function clampValue(value: number, min: number, max: number) {
+  const safeMax = Math.max(min, max);
+  return Math.min(Math.max(value, min), safeMax);
+}
+
+function clampArrowOffset(value: number, size: number) {
+  const padding = Math.min(14, Math.max(0, size / 2));
+  return clampValue(value, padding, size - padding);
+}
+
 export function Tooltip({ children, label, side = "bottom" }: TooltipProps) {
   const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipRef = useRef<HTMLSpanElement>(null);
   const dismissTimerRef = useRef<number | null>(null);
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [position, setPosition] = useState<TooltipPosition>({
+    arrowLeft: 0,
+    arrowTop: 0,
     left: 0,
     top: 0,
   });
 
   const updatePosition = useCallback(() => {
     const trigger = triggerRef.current;
-    if (!trigger) return;
+    const tooltip = tooltipRef.current;
+    if (!trigger || !tooltip) return;
 
     const rect = trigger.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const anchorX = rect.left + rect.width / 2;
+    const anchorY = rect.top + rect.height / 2;
     const gap = 10;
-    const nextPosition =
+    const viewportPadding = 8;
+    const width = tooltipRect.width;
+    const height = tooltipRect.height;
+    const unclampedLeft =
       side === "right"
-        ? { left: rect.right + gap, top: rect.top + rect.height / 2 }
+        ? rect.right + gap
         : side === "left"
-          ? { left: rect.left - gap, top: rect.top + rect.height / 2 }
-          : side === "top"
-            ? { left: rect.left + rect.width / 2, top: rect.top - gap }
-            : { left: rect.left + rect.width / 2, top: rect.bottom + gap };
+          ? rect.left - gap - width
+          : anchorX - width / 2;
+    const unclampedTop =
+      side === "bottom"
+        ? rect.bottom + gap
+        : side === "top"
+          ? rect.top - gap - height
+          : anchorY - height / 2;
+    const left = clampValue(
+      unclampedLeft,
+      viewportPadding,
+      window.innerWidth - width - viewportPadding,
+    );
+    const top = clampValue(
+      unclampedTop,
+      viewportPadding,
+      window.innerHeight - height - viewportPadding,
+    );
 
-    setPosition(nextPosition);
+    setPosition({
+      arrowLeft: clampArrowOffset(anchorX - left, width),
+      arrowTop: clampArrowOffset(anchorY - top, height),
+      left,
+      top,
+    });
   }, [side]);
 
   useLayoutEffect(() => {
     if (!open) return undefined;
 
     updatePosition();
+    const observer =
+      typeof ResizeObserver === "undefined"
+        ? undefined
+        : new ResizeObserver(updatePosition);
+    if (observer) {
+      if (triggerRef.current) observer.observe(triggerRef.current);
+      if (tooltipRef.current) observer.observe(tooltipRef.current);
+    }
     window.addEventListener("resize", updatePosition);
     window.addEventListener("scroll", updatePosition, true);
     return () => {
+      observer?.disconnect();
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
@@ -173,6 +228,12 @@ export function Tooltip({ children, label, side = "bottom" }: TooltipProps) {
       dismissTimerRef.current = null;
     }, 500);
   };
+  const tooltipStyle: TooltipStyle = {
+    "--tooltip-arrow-left": `${position.arrowLeft}px`,
+    "--tooltip-arrow-top": `${position.arrowTop}px`,
+    left: position.left,
+    top: position.top,
+  };
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: wrapper only positions the portal tooltip around the nested interactive control.
@@ -191,13 +252,11 @@ export function Tooltip({ children, label, side = "bottom" }: TooltipProps) {
         createPortal(
           <span
             className={`tooltip-content tooltip-${side}`}
+            ref={tooltipRef}
             role="tooltip"
-            style={{
-              left: position.left,
-              top: position.top,
-            }}
+            style={tooltipStyle}
           >
-            {label}
+            <span className="tooltip-label">{label}</span>
           </span>,
           document.body,
         )}
