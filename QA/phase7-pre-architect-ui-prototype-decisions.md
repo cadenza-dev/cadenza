@@ -1,6 +1,6 @@
 # Phase 7 Pre-Architect UI Prototype Decisions
 
-> Status: QA decisions settled; promotion evidence pending; not a contract.
+> Status: QA decisions settled; promotion evidence complete; not a contract.
 > Date: 2026-06-04.
 > Companion topic map:
 > [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md).
@@ -15,16 +15,16 @@ Each question's problem statement, options, tradeoffs, and recommendation live
 in [the topic map](./phase7-pre-architect-ui-prototype-topics.md).
 
 It does not freeze `spec/phase7/`, create a `@cadenza-dev/player-app` package,
-define public API, or replace Architect Stage A/B. Only after the full prototype
-blocker is resolved should Topic 3 move from `open` to `decided`.
+define public API, or replace Architect Stage A/B. The full prototype blocker
+is now resolved by the Q17 evidence packet under `design/ui-prototype/`.
 
 ## Discussion Status
 
-Q1-Q20 are settled. Topic 3 remains blocked from moving to `decided` until the
-promotion evidence in Q17 exists: a previewable prototype in
-`design/ui-prototype/` or an explicitly maintainer-accepted design substitute,
-annotated screenshots, fixture provenance map, limitation note, and guideline
-cross-references.
+Q1-Q20 are settled. Topic 3 is no longer blocked by UI prototype evidence: the
+Q17 packet now exists under `design/ui-prototype/`, including a previewable
+React prototype, annotated screenshots, fixture provenance map, limitation
+note, guideline cross-references, validation notes, and an explicit non-freeze
+boundary.
 
 ## Decision Summary
 
@@ -551,8 +551,7 @@ cross-references.
 
 ## Discussion Closeout
 
-Q1-Q20 已决定。下一步不是继续提问, 而是准备 Q17 定义的 promotion
-evidence:
+Q1-Q20 已决定。Q17 定义的 promotion evidence 已经准备完成:
 
 - previewable React prototype in `design/ui-prototype/` or explicitly accepted
   design substitute;
@@ -561,4 +560,4 @@ evidence:
 - prototype limitation note;
 - references to the topic map, decision log, and guideline files.
 
-Only after that packet exists should Topic 3 move from `open` to `decided`.
+Topic 3 has now moved from `open` to `decided`.

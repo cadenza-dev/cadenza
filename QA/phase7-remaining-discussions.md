@@ -12,7 +12,7 @@ future specs, ADRs, or implementation plans.
 
 | Item | Source | Status | Next Action |
 | :---- | :---- | :---- | :---- |
-| UI prototype | [phase7-pre-architect-ui-prototype-follow-up.md](./phase7-pre-architect-ui-prototype-follow-up.md) | pending | Prepare the Q17 promotion evidence packet: previewable prototype or accepted design substitute, annotated screenshots, fixture provenance map, limitation note, and guideline cross-references. |
+| UI prototype | [phase7-pre-architect-ui-prototype-follow-up.md](./phase7-pre-architect-ui-prototype-follow-up.md) | resolved | Carry the accepted Q17 promotion evidence packet into Phase 7 Architect Stage A; do not reopen UI prototype questions unless the maintainer asks for a new design pass. |
 | MP4 duration and animation semantics | [phase7-pre-architect-mp4-duration-follow-up.md](./phase7-pre-architect-mp4-duration-follow-up.md) | resolved | Carry the settled action-anchor, scoped continuous-animation, and MP4 clipping posture into Phase 7 Architect Stage A; reopen only if P0 expands to paused-anchor infinite looping or full MP4 visual parity. |
 
 ## UI Prototype
@@ -24,12 +24,13 @@ future specs, ADRs, or implementation plans.
   [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
   and
   [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
-- Remaining blocker: promotion evidence, not more QA questions.
+- Resolution: Q17 promotion evidence now exists under
+  [../design/ui-prototype/](../design/ui-prototype/), including a previewable
+  React prototype, annotated screenshots, fixture provenance, limitations,
+  guideline cross-references, non-freeze notes, and focused validation notes.
 - Completion signal: Topic 3 in
   [phase7-pre-architect-brainstorming-decisions.md](./phase7-pre-architect-brainstorming-decisions.md)
-  can move from `open` to `decided` only after a previewable prototype or
-  explicitly accepted design substitute resolves the blocker. The promotion
-  evidence shape is tracked in
+  has moved from `open` to `decided`. The promotion evidence shape is tracked in
   [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md)
   Q17.
 
@@ -54,8 +55,7 @@ future specs, ADRs, or implementation plans.
 
 ## Suggested Order
 
-1. UI prototype promotion evidence, because Q1-Q20 are already settled but
-   Topic 3 still needs the Q17 evidence packet before it can move to `decided`.
+1. Carry the resolved UI prototype direction and Q17 promotion evidence into
+   Phase 7 Architect Stage A.
 2. Carry the resolved MP4 timing and animation semantics into Phase 7 Architect
-   Stage A after the UI prototype promotion evidence exists or is explicitly
-   deferred.
+   Stage A.

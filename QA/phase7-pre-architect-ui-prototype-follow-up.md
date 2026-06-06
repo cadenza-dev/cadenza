@@ -15,11 +15,11 @@ The dedicated UI prototype QA discussion has been split into
 [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
 and
 [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
-Q1-Q20 are settled there. The remaining blocker is not another QA question; it
-is the Q17 promotion evidence packet: a previewable prototype in
-`design/ui-prototype/` or an explicitly accepted design substitute, annotated
-screenshots, fixture provenance map, limitation note, and guideline
-cross-references.
+Q1-Q20 are settled there. The former blocker was Q17 promotion evidence; it is
+now resolved by the packet under `design/ui-prototype/`: a previewable React
+prototype, annotated screenshots, fixture provenance map, limitation note,
+guideline cross-references, focused validation notes, and an explicit
+non-freeze boundary.
 
 ## Settled Direction So Far
 
@@ -47,6 +47,9 @@ cross-references.
   diagnostics, provenance, notes boundaries, and known limitations.
 - Visual quality bar: what level of polish is required before the UI direction
   can move from `open` to `decided`.
+- Prototype promotion evidence: what evidence was needed before Topic 3 itself
+  could move from `open` to `decided`. This is now satisfied by
+  `design/ui-prototype/evidence/promotion-evidence.md`.
 - Stage A handoff: how prototype findings should feed into Architect Stage A
   without accidentally becoming frozen contract language.
 
@@ -58,12 +61,9 @@ and
 
 ## Suggested Next Step Prompt
 
-Prepare the Phase 7 UI prototype promotion evidence packet. Read
-`QA/phase7-pre-architect-ui-prototype-follow-up.md`,
-`QA/phase7-pre-architect-ui-prototype-topics.md`,
-`QA/phase7-pre-architect-ui-prototype-decisions.md` Q17, and the guideline
-files under `design/ui-prototype/`. Build or accept a design substitute only if explicitly
-authorized, then collect annotated screenshots, fixture provenance map,
-prototype limitation note, and guideline cross-references. Update QA
-follow-up/decision notes only unless separately asked to implement the
-prototype; do not write specs, freeze contracts, or edit packages.
+Carry the Phase 7 UI prototype promotion evidence packet into Architect Stage A.
+Read `QA/phase7-pre-architect-ui-prototype-topics.md`,
+`QA/phase7-pre-architect-ui-prototype-decisions.md` Q17, and the evidence files
+under `design/ui-prototype/`. Treat the prototype as design-only evidence: do
+not write specs, freeze contracts, or edit packages unless a later role-scoped
+task explicitly promotes that work.

@@ -26,7 +26,7 @@
 | :---- | :---- | :---- | :---- |
 | 1 | Alpha claim boundary and audience promise | decided | [Topic 1](./phase7-pre-architect-brainstorming-topics.md#1-alpha-claim-boundary-and-audience-promise) |
 | 2 | Phase 7 success slice and non-goals | decided | [Topic 2](./phase7-pre-architect-brainstorming-topics.md#2-phase-7-success-slice-and-non-goals) |
-| 3 | Player App role and UI / App Design direction | open | [Topic 3](./phase7-pre-architect-brainstorming-topics.md#3-player-app-role-and-ui--app-design-direction) |
+| 3 | Player App role and UI / App Design direction | decided | [Topic 3](./phase7-pre-architect-brainstorming-topics.md#3-player-app-role-and-ui--app-design-direction) |
 | 4 | Player App package boundary and `preview-remotion` transition | decided | [Topic 4](./phase7-pre-architect-brainstorming-topics.md#4-player-app-package-boundary-and-preview-remotion-transition) |
 | 5 | Visual-fidelity export posture | decided | [Topic 5](./phase7-pre-architect-brainstorming-topics.md#5-visual-fidelity-export-posture) |
 | 6 | App-based web export and bundler contract | decided | [Topic 6](./phase7-pre-architect-brainstorming-topics.md#6-app-based-web-export-and-bundler-contract) |
@@ -92,7 +92,7 @@
 
 - Topic reference:
   [Player App role and UI / App Design direction](./phase7-pre-architect-brainstorming-topics.md#3-player-app-role-and-ui--app-design-direction)
-- Status: open
+- Status: decided
 - Consensus decision: The emerging direction is a deck-primary balanced shell:
   a full-featured, polished, visually strong, read-only Player App where deck
   playback is the primary surface, controls live in a stable bottom bar, and a
@@ -109,14 +109,19 @@
   [phase7-pre-architect-ui-prototype-topics.md](./phase7-pre-architect-ui-prototype-topics.md)
   and
   [phase7-pre-architect-ui-prototype-decisions.md](./phase7-pre-architect-ui-prototype-decisions.md).
-  Before Phase 7 Architect freezes UI or package contracts, the maintainer
-  should prepare the Q17 promotion evidence packet: a previewable prototype or
-  explicitly accepted design substitute, annotated screenshots, fixture
-  provenance map, limitation note, and guideline cross-references.
-- Blocking question: The UI prototype questions are resolved; the remaining
-  blocker is the Q17 promotion evidence packet required before this topic can
-  move from `open` to `decided`.
-- Updated: 2026-06-04.
+  The Q17 promotion evidence packet is now available under
+  [design/ui-prototype/](../design/ui-prototype/), including a previewable
+  React prototype, annotated screenshots, fixture provenance map, limitation
+  note, guideline cross-references, focused validation notes, and an explicit
+  non-freeze boundary. Architect Stage A may use this as visible, traceable UI
+  direction evidence, but must still restate any promoted behavior as options,
+  Freeze Candidates, requirements, evidence gates, rejected alternatives,
+  deferred risks, or explicit non-goals rather than copying prototype CSS,
+  fixture field names, component structure, screenshots, exact pixels, icon
+  choices, or labels as contracts.
+- Blocking question: resolved by the Q17 promotion evidence packet in
+  [design/ui-prototype/evidence/promotion-evidence.md](../design/ui-prototype/evidence/promotion-evidence.md).
+- Updated: 2026-06-06.
 
 ## 4. Player App Package Boundary And `preview-remotion` Transition
 
