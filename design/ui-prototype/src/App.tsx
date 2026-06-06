@@ -358,6 +358,7 @@ function App() {
             <SlideRail
               currentSlideId={selectedSlide.slideId}
               onSelect={goToAnchor}
+              state={selectedState}
             />
           )}
         </RailPanel>
@@ -399,7 +400,7 @@ function App() {
                 />
                 <ResizablePanel
                   className="center-bottom-panel"
-                  defaultSize="88px"
+                  defaultSize={`${defaultPresenterLayout.controlsHeight}px`}
                   maxSize="124px"
                   minSize="88px"
                   onResize={(panelSize) =>
@@ -437,6 +438,7 @@ function App() {
             <SlideRail
               currentSlideId={selectedSlide.slideId}
               onSelect={goToAnchor}
+              state={selectedState}
             />
           ) : (
             <InspectorRail

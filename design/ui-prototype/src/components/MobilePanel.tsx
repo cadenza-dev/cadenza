@@ -48,6 +48,7 @@ export function MobilePanel({
               onAnchor(index);
               onClose();
             }}
+            state={state}
           />
         ) : (
           <>

@@ -256,17 +256,27 @@ async function waitForServer(
   throw new Error(`Timed out waiting for ${url}: ${lastError}`);
 }
 
+function primaryDeckSlide(page: Page) {
+  return page
+    .locator(
+      ".presenter-slide-stage .deck-slide:visible, .fullscreen-shell .deck-slide:visible, .deck-zone .deck-slide:visible",
+    )
+    .first();
+}
+
+function primaryDeckTitle(page: Page) {
+  return page
+    .locator(
+      ".presenter-slide-stage .deck-slide:visible h1, .fullscreen-shell .deck-slide:visible h1, .deck-zone .deck-slide:visible h1",
+    )
+    .first();
+}
+
 async function captureScenario(page: Page, scenario: Scenario) {
   const url = `${baseUrl}${scenario.query}`;
   await page.goto(url, { waitUntil: "networkidle" });
-  await page
-    .locator(".deck-slide:visible")
-    .first()
-    .waitFor({ state: "visible" });
-  const title = await page
-    .locator(".deck-slide:visible h1")
-    .first()
-    .textContent();
+  await primaryDeckSlide(page).waitFor({ state: "visible" });
+  const title = await primaryDeckTitle(page).textContent();
   const interactionResults = [];
 
   for (const interaction of scenario.interactions ?? []) {
@@ -536,7 +546,7 @@ async function checkRailResizeRoundTrip(
   });
   try {
     await page.goto(`${baseUrl}${options.query}`, { waitUntil: "networkidle" });
-    await expect(page.locator(".deck-slide:visible").first()).toBeVisible();
+    await expect(primaryDeckSlide(page)).toBeVisible();
     const rail = page.locator(options.railSelector).first();
     await expect(rail).toBeVisible();
     const before = await elementWidth(rail);
@@ -548,13 +558,13 @@ async function checkRailResizeRoundTrip(
     await page.getByRole("button", { name: options.toggleName }).click();
     await page.getByRole("button", { name: options.toggleName }).click();
     await expect(rail).toBeVisible();
-    await expect(page.locator(".deck-slide:visible h1").first()).toBeVisible();
+    await expect(primaryDeckTitle(page)).toBeVisible();
     await expect.poll(() => elementWidth(rail)).toBeGreaterThan(resized - 12);
 
     await page.getByRole("button", { name: options.toggleName }).click();
     await page.getByRole("button", { name: options.toggleName }).click();
     await expect(rail).toBeVisible();
-    await expect(page.locator(".deck-slide:visible h1").first()).toBeVisible();
+    await expect(primaryDeckTitle(page)).toBeVisible();
 
     return {
       check: options.check,
@@ -577,11 +587,19 @@ async function checkPresenterFinalNextExits(browser: Browser) {
     );
     await expect(page.locator(".presenter-shell").first()).toBeVisible();
     await expect(page.getByText("End of deck")).toBeVisible();
-    await expect(
-      page.getByRole("button", {
-        name: /Use highlighted exit presentation to return/i,
-      }),
-    ).toBeVisible();
+    const exitButton = page.getByRole("button", {
+      name: /Use highlighted exit presentation to return/i,
+    });
+    await expect(exitButton).toBeVisible();
+    const exitButtonColors = await exitButton.evaluate((element) => {
+      const styles = getComputedStyle(element);
+      return {
+        background: styles.backgroundColor,
+        color: styles.color,
+      };
+    });
+    expect(exitButtonColors.background).toBe("rgb(244, 244, 245)");
+    expect(exitButtonColors.color).toBe("rgb(23, 23, 23)");
     await page
       .locator('button[aria-label="Next action anchor"]:visible')
       .first()
@@ -1186,9 +1204,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
 
   if (check === "thumbnail-anchor") {
     await page.locator('[data-anchor-index="5"]').first().click();
-    await expect(page.locator(".deck-slide:visible h1").first()).toHaveText(
-      "Alpha boundaries",
-    );
+    await expect(primaryDeckTitle(page)).toHaveText("Alpha boundaries");
     return { check, passed: true, value: "Alpha boundaries" };
   }
 
@@ -1197,9 +1213,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       .getByRole("button", { name: /Deterministic manifest/i })
       .first()
       .click();
-    await expect(page.locator(".deck-slide:visible h1").first()).toHaveText(
-      "Deterministic manifest",
-    );
+    await expect(primaryDeckTitle(page)).toHaveText("Deterministic manifest");
     return { check, passed: true, value: "Deterministic manifest" };
   }
 
@@ -1302,7 +1316,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
     );
     expect(fullscreenColors.edgeBackground).toContain("rgba(0, 0, 0, 0.32)");
     const before = await page
-      .locator(".deck-slide:visible h1")
+      .locator(".fullscreen-shell .deck-slide:visible h1")
       .first()
       .textContent();
     await page
@@ -1310,7 +1324,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       .first()
       .click();
     const after = await page
-      .locator(".deck-slide:visible h1")
+      .locator(".fullscreen-shell .deck-slide:visible h1")
       .first()
       .textContent();
     expect(after).not.toBe(before);
@@ -1437,17 +1451,15 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       page,
       "Resize presenter action-anchor controls",
       0,
-      -24,
+      24,
     );
     const afterControlsHeight = (await controls.boundingBox())?.height ?? 0;
-    expect(afterControlsHeight).toBeGreaterThan(beforeControlsHeight + 12);
+    expect(afterControlsHeight).toBeLessThan(beforeControlsHeight - 12);
 
     const previewMetrics = await page.evaluate(() => {
       const readMetrics = (selector: string) => {
         const area = document.querySelector<HTMLElement>(selector);
-        const deck = area?.querySelector<HTMLElement>(
-          ".presenter-deck-scale-box",
-        );
+        const deck = area?.querySelector<HTMLElement>(".scaled-deck-scale-box");
         if (!area || !deck) {
           throw new Error(`Missing presenter preview metrics for ${selector}`);
         }
@@ -1495,10 +1507,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
     await page.mouse.click(40, 40);
     await page.reload({ waitUntil: "networkidle" });
     await expect(shell).toBeVisible();
-    await page
-      .locator(".deck-slide:visible")
-      .first()
-      .waitFor({ state: "visible" });
+    await primaryDeckSlide(page).waitFor({ state: "visible" });
     return { check, passed: true, value: "presenter resize handles update" };
   }
 
@@ -1510,9 +1519,7 @@ async function runInteraction(page: Page, check: InteractionCheck) {
       .locator('.mobile-sheet-panel [data-anchor-index="0"]')
       .first()
       .click();
-    await expect(page.locator(".deck-slide:visible h1").first()).toHaveText(
-      "Local alpha contract",
-    );
+    await expect(primaryDeckTitle(page)).toHaveText("Local alpha contract");
     await page
       .locator('button[aria-label="Open slide drawer"]:visible')
       .click();

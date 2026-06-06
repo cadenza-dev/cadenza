@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-05T23:36:10.107Z",
+  "checkedAt": "2026-06-06T00:40:19.574Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
     {
@@ -88,7 +88,7 @@
       "value": "final presenter next exits to app shell"
     }
   ],
-  "previewUrl": "http://127.0.0.1:4177",
+  "previewUrl": "http://127.0.0.1:4191",
   "results": [
     {
       "annotation": "Desktop normal shell: deck-primary three-rail layout with clickable slide rail, Outline inspector, icon-only layout controls, direct sash boundaries, bottom action-anchor controls, and persistent status bar.",

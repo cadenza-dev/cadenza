@@ -14,21 +14,19 @@ import {
   type PointerEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import type { OutlineEntry, PrototypeState } from "../fixture";
 import { outline } from "../fixture";
 import { outlineAt } from "../prototype-utils";
 import type { CopyText, MenuPosition } from "../types";
-import { Badge, Button, cn } from "../ui";
-import { DeckSlide } from "./Deck";
+import { Badge, Button, cn, IconButton, ScrollPager } from "../ui";
+import { ScaledDeckPreview } from "./Deck";
 import { PlaybackToolbar } from "./ShellChrome";
 
 const presenterSplitBounds = {
-  defaultControlsHeight: 88,
+  defaultControlsHeight: 124,
   defaultPreviewPercent: 66.667,
   defaultNextPercent: 50,
   maxControlsHeight: 124,
@@ -65,11 +63,6 @@ type PresenterViewProps = {
 
 type PresenterResizeAxis = "horizontal" | "vertical";
 type PresenterResizeTarget = PresenterResizeAxis | "controls";
-
-const presenterDeckSize = {
-  height: 630,
-  width: 1120,
-} as const;
 
 function clampPresenterSplit(value: number) {
   return Math.min(
@@ -260,32 +253,34 @@ export function PresenterView({
             <div className="presenter-clock-cluster">
               <Timer size={16} />
               <span>{formatElapsed(elapsedSeconds)}</span>
-              <Button
+              <IconButton
                 aria-label={timerRunning ? "Pause timer" : "Start timer"}
+                label={timerRunning ? "Pause timer" : "Start timer"}
                 onClick={() => setTimerRunning((value) => !value)}
-                size="icon"
+                tooltipSide="bottom"
                 variant="ghost"
               >
                 {timerRunning ? <Pause size={15} /> : <Play size={15} />}
-              </Button>
-              <Button
+              </IconButton>
+              <IconButton
                 aria-label="Reset timer"
+                label="Reset timer"
                 onClick={() => {
                   setElapsedSeconds(0);
                   setTimerRunning(true);
                 }}
-                size="icon"
+                tooltipSide="bottom"
                 variant="ghost"
               >
                 <RotateCcw size={15} />
-              </Button>
+              </IconButton>
             </div>
             <div className="presenter-clock-cluster presenter-wall-clock">
               <Clock3 size={16} />
               <span>{formatClock(clockTime)}</span>
             </div>
           </header>
-          <PresenterDeckPreview
+          <ScaledDeckPreview
             className="presenter-slide-stage"
             selectedSlide={selectedSlide}
             state={state}
@@ -347,16 +342,17 @@ export function PresenterView({
                     aria-label="Use next action anchor to return"
                     onClick={onExit}
                     size="icon"
-                    variant="ghost"
+                    variant="outline"
                   >
                     <ArrowRight size={15} />
                   </Button>
                   <span>/</span>
                   <Button
                     aria-label="Use highlighted exit presentation to return"
+                    className="presenter-end-exit-button"
                     onClick={onExit}
                     size="icon"
-                    variant="primary"
+                    variant="outline"
                   >
                     <Minimize size={15} />
                   </Button>
@@ -364,7 +360,7 @@ export function PresenterView({
                 </span>
               </div>
             ) : (
-              <PresenterDeckPreview
+              <ScaledDeckPreview
                 className="presenter-next-preview"
                 selectedSlide={nextSlide}
                 state={state}
@@ -389,14 +385,18 @@ export function PresenterView({
                 presenter-only
               </Badge>
             </header>
-            <div className="presenter-notes-content">
+            <ScrollPager
+              ariaLabel="Presenter notes"
+              className="presenter-notes-scroll"
+              contentClassName="presenter-notes-content"
+            >
               {notes.map((note) => (
                 <article key={note.label}>
                   <span>{note.label}</span>
                   <p>{note.body}</p>
                 </article>
               ))}
-            </div>
+            </ScrollPager>
           </section>
         </aside>
       </section>
@@ -467,56 +467,5 @@ export function PresenterView({
         <div className="copy-toast fullscreen">{copiedNotice}</div>
       )}
     </main>
-  );
-}
-
-type PresenterDeckPreviewProps = {
-  readonly className: string;
-  readonly selectedSlide: OutlineEntry;
-  readonly state: PrototypeState;
-};
-
-function PresenterDeckPreview({
-  className,
-  selectedSlide,
-  state,
-}: PresenterDeckPreviewProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [scale, setScale] = useState(1);
-  const updateScale = useCallback(() => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-
-    const nextScale = Math.min(
-      rect.width / presenterDeckSize.width,
-      rect.height / presenterDeckSize.height,
-      1,
-    );
-    setScale(Number.isFinite(nextScale) ? Math.max(0.05, nextScale) : 1);
-  }, []);
-
-  useLayoutEffect(() => {
-    updateScale();
-    const container = containerRef.current;
-    if (!container) return undefined;
-
-    const observer = new ResizeObserver(updateScale);
-    observer.observe(container);
-    window.addEventListener("resize", updateScale);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateScale);
-    };
-  }, [updateScale]);
-
-  return (
-    <div className={cn("presenter-deck-preview", className)} ref={containerRef}>
-      <div
-        className="presenter-deck-scale-box"
-        style={{ transform: `scale(${scale})` }}
-      >
-        <DeckSlide selectedSlide={selectedSlide} state={state} />
-      </div>
-    </div>
   );
 }

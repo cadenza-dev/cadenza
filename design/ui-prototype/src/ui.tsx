@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import type React from "react";
 import type {
   ButtonHTMLAttributes,
@@ -301,6 +301,94 @@ export function ResizableHandle({
     >
       <span />
     </Separator>
+  );
+}
+
+type ScrollPagerProps = {
+  readonly ariaLabel: string;
+  readonly children: ReactNode;
+  readonly className?: string;
+  readonly contentClassName?: string;
+  readonly pageRatio?: number;
+};
+
+export function ScrollPager({
+  ariaLabel,
+  children,
+  className,
+  contentClassName,
+  pageRatio = 0.82,
+}: ScrollPagerProps) {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [scrollState, setScrollState] = useState({
+    canScrollDown: false,
+    canScrollUp: false,
+  });
+  const updateScrollState = useCallback(() => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    const maxScrollTop = content.scrollHeight - content.clientHeight;
+    setScrollState({
+      canScrollDown: content.scrollTop < maxScrollTop - 1,
+      canScrollUp: content.scrollTop > 1,
+    });
+  }, []);
+  const scrollPage = (direction: 1 | -1) => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    content.scrollBy({
+      behavior: "smooth",
+      top: direction * content.clientHeight * pageRatio,
+    });
+  };
+
+  useLayoutEffect(() => {
+    updateScrollState();
+    const content = contentRef.current;
+    if (!content) return undefined;
+
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(content);
+    content.addEventListener("scroll", updateScrollState);
+    window.addEventListener("resize", updateScrollState);
+    return () => {
+      observer.disconnect();
+      content.removeEventListener("scroll", updateScrollState);
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [updateScrollState]);
+
+  return (
+    <div className={cn("scroll-pager", className)}>
+      <div
+        className={cn("scroll-pager-content", contentClassName)}
+        ref={contentRef}
+      >
+        {children}
+      </div>
+      <button
+        aria-label={`${ariaLabel}: previous page`}
+        className="scroll-pager-button scroll-pager-button-top"
+        data-scroll-visible={scrollState.canScrollUp ? "true" : undefined}
+        disabled={!scrollState.canScrollUp}
+        onClick={() => scrollPage(-1)}
+        type="button"
+      >
+        <ChevronUp size={16} />
+      </button>
+      <button
+        aria-label={`${ariaLabel}: next page`}
+        className="scroll-pager-button scroll-pager-button-bottom"
+        data-scroll-visible={scrollState.canScrollDown ? "true" : undefined}
+        disabled={!scrollState.canScrollDown}
+        onClick={() => scrollPage(1)}
+        type="button"
+      >
+        <ChevronDown size={16} />
+      </button>
+    </div>
   );
 }
 

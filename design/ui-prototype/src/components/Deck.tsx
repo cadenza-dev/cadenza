@@ -1,7 +1,8 @@
 import { AlertTriangle, Terminal } from "lucide-react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { OutlineEntry, PrototypeState } from "../fixture";
 import { deck } from "../fixture";
-import { Badge, Button } from "../ui";
+import { Badge, Button, cn } from "../ui";
 
 type DeckSurfaceProps = {
   readonly selectedSlide: OutlineEntry;
@@ -42,6 +43,62 @@ export function DeckSlide({ selectedSlide, state }: DeckSlideProps) {
           <span>{selectedSlide.purpose}</span>
         </div>
       </article>
+    </div>
+  );
+}
+
+const deckPreviewSize = {
+  height: 630,
+  width: 1120,
+} as const;
+
+type ScaledDeckPreviewProps = DeckSlideProps & {
+  readonly className?: string;
+  readonly maxScale?: number;
+};
+
+export function ScaledDeckPreview({
+  className,
+  maxScale = 1,
+  selectedSlide,
+  state,
+}: ScaledDeckPreviewProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [scale, setScale] = useState(1);
+  const updateScale = useCallback(() => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const nextScale = Math.min(
+      rect.width / deckPreviewSize.width,
+      rect.height / deckPreviewSize.height,
+      maxScale,
+    );
+    setScale(Number.isFinite(nextScale) ? Math.max(0.05, nextScale) : 1);
+  }, [maxScale]);
+
+  useLayoutEffect(() => {
+    updateScale();
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    const observer = new ResizeObserver(updateScale);
+    observer.observe(container);
+    window.addEventListener("resize", updateScale);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScale);
+    };
+  }, [updateScale]);
+
+  return (
+    <div className={cn("scaled-deck-preview", className)} ref={containerRef}>
+      <div
+        className="scaled-deck-scale-box"
+        style={{ transform: `scale(${scale})` }}
+      >
+        <DeckSlide selectedSlide={selectedSlide} state={state} />
+      </div>
     </div>
   );
 }

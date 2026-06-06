@@ -27,7 +27,8 @@ import type { OutlineEntry, PrototypeState, Topic } from "../fixture";
 import { deck, outline, topics } from "../fixture";
 import { topicIcons } from "../topic-icons";
 import type { CopyText, InspectorSide } from "../types";
-import { Badge, Button, cn, IconButton, Section } from "../ui";
+import { Badge, Button, cn, IconButton, ScrollPager, Section } from "../ui";
+import { ScaledDeckPreview } from "./Deck";
 
 type RailPanelProps = {
   readonly children: ReactNode;
@@ -65,9 +66,10 @@ export function RailPanel({
 type SlideRailProps = {
   readonly currentSlideId: string;
   readonly onSelect: (index: number) => void;
+  readonly state: PrototypeState;
 };
 
-export function SlideRail({ currentSlideId, onSelect }: SlideRailProps) {
+export function SlideRail({ currentSlideId, onSelect, state }: SlideRailProps) {
   return (
     <aside className="slide-rail" aria-label="Static slide preview rail">
       <div className="rail-header">
@@ -80,7 +82,11 @@ export function SlideRail({ currentSlideId, onSelect }: SlideRailProps) {
           step/action
         </Badge>
       </div>
-      <div className="thumbnail-list">
+      <ScrollPager
+        ariaLabel="Slide thumbnails"
+        className="thumbnail-scroll-region"
+        contentClassName="thumbnail-list"
+      >
         {outline.map((slide, index) => (
           <button
             aria-current={currentSlideId === slide.slideId ? "step" : undefined}
@@ -94,16 +100,14 @@ export function SlideRail({ currentSlideId, onSelect }: SlideRailProps) {
             type="button"
           >
             <span className="thumb-number">{index + 1}</span>
-            <span className="thumb-frame">
-              <span className="thumb-title">{slide.title}</span>
-              <span className="thumb-summary">{slide.summary}</span>
-              <span className="thumb-segment">
-                {slide.segment[0]}-{slide.segment[1]}
-              </span>
-            </span>
+            <ScaledDeckPreview
+              className="thumb-preview"
+              selectedSlide={slide}
+              state={state}
+            />
           </button>
         ))}
-      </div>
+      </ScrollPager>
     </aside>
   );
 }
