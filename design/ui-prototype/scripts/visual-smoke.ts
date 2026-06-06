@@ -438,6 +438,8 @@ async function storedTheme(page: Page) {
 async function runLayoutRegressionChecks(browser: Browser) {
   const checks = [];
 
+  checks.push(await checkDefaultAnchorStartsAtFirstSlide(browser));
+  checks.push(await checkNormalWheelPaging(browser));
   checks.push(
     await checkRailResizeRoundTrip(browser, {
       check: "slides-left-resize-collapse-roundtrip",
@@ -493,6 +495,76 @@ async function runLayoutRegressionChecks(browser: Browser) {
   checks.push(await checkPresenterFinalNextExits(browser));
 
   return checks;
+}
+
+async function checkDefaultAnchorStartsAtFirstSlide(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(`${baseUrl}/?state=ready&topic=Outline&theme=dark`, {
+      waitUntil: "networkidle",
+    });
+    await primaryDeckSlide(page).waitFor({ state: "visible" });
+    await expect(primaryDeckTitle(page)).toHaveText("Local alpha contract");
+    return {
+      check: "default-anchor-starts-at-first-slide",
+      passed: true,
+      value: "Local alpha contract",
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function checkNormalWheelPaging(browser: Browser) {
+  const page = await browser.newPage({
+    viewport: { height: 900, width: 1440 },
+  });
+  try {
+    await page.goto(
+      `${baseUrl}/?state=ready&topic=Outline&theme=dark&anchor=0`,
+      {
+        waitUntil: "networkidle",
+      },
+    );
+    await primaryDeckSlide(page).waitFor({ state: "visible" });
+    await expect(primaryDeckTitle(page)).toHaveText("Local alpha contract");
+
+    const deckZone = page.locator(".deck-zone").first();
+    const deckBox = await deckZone.boundingBox();
+    expect(deckBox).not.toBeNull();
+    await page.mouse.move(
+      (deckBox?.x ?? 0) + (deckBox?.width ?? 0) / 2,
+      (deckBox?.y ?? 0) + (deckBox?.height ?? 0) / 2,
+    );
+    await page.mouse.wheel(0, 480);
+    await expect(primaryDeckTitle(page)).toHaveText(
+      "From product layer to export proof",
+    );
+
+    const controls = page.locator(".center-bottom-panel").first();
+    const controlsBox = await controls.boundingBox();
+    expect(controlsBox).not.toBeNull();
+    await page.mouse.move(
+      (controlsBox?.x ?? 0) + (controlsBox?.width ?? 0) / 2,
+      (controlsBox?.y ?? 0) + (controlsBox?.height ?? 0) / 2,
+    );
+    await page.mouse.wheel(0, 480);
+    await expect(primaryDeckTitle(page)).toHaveText("Command surface");
+    await page.mouse.wheel(0, -480);
+    await expect(primaryDeckTitle(page)).toHaveText(
+      "From product layer to export proof",
+    );
+
+    return {
+      check: "normal-wheel-paging",
+      passed: true,
+      value: "deck-and-controls-wheel",
+    };
+  } finally {
+    await page.close();
+  }
 }
 
 async function checkResizeHandlesHaveNoNativeTitle(browser: Browser) {

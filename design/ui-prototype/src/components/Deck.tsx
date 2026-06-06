@@ -1,17 +1,27 @@
 import { AlertTriangle, Terminal } from "lucide-react";
+import type { WheelEventHandler } from "react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import type { OutlineEntry, PrototypeState } from "../fixture";
 import { deck } from "../fixture";
 import { Badge, Button, cn } from "../ui";
 
 type DeckSurfaceProps = {
+  readonly onWheel?: WheelEventHandler<HTMLElement>;
   readonly selectedSlide: OutlineEntry;
   readonly state: PrototypeState;
 };
 
-export function DeckSurface({ selectedSlide, state }: DeckSurfaceProps) {
+export function DeckSurface({
+  onWheel,
+  selectedSlide,
+  state,
+}: DeckSurfaceProps) {
   return (
-    <section className="deck-zone" aria-label="Deck playback surface">
+    <section
+      className="deck-zone"
+      aria-label="Deck playback surface"
+      onWheel={onWheel}
+    >
       <DeckSlide selectedSlide={selectedSlide} state={state} />
     </section>
   );

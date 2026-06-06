@@ -89,11 +89,9 @@ export function outlineAt(index: number): OutlineEntry {
   return outline[clampIndex(index)] ?? outline[0];
 }
 
-export function getInitialAnchor(stateId: StateId) {
-  const raw = Number(
-    initialParam("anchor", String(states[stateId].selectedIndex)),
-  );
-  return Number.isFinite(raw) ? clampIndex(raw) : states[stateId].selectedIndex;
+export function getInitialAnchor() {
+  const raw = Number(initialParam("anchor", "0"));
+  return Number.isFinite(raw) ? clampIndex(raw) : 0;
 }
 
 export function getInitialTopic(state: PrototypeState) {

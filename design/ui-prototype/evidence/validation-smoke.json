@@ -1,7 +1,17 @@
 {
-  "checkedAt": "2026-06-06T00:40:19.574Z",
+  "checkedAt": "2026-06-06T00:58:57.314Z",
   "focusedScope": "design/ui-prototype",
   "layoutRegressionChecks": [
+    {
+      "check": "default-anchor-starts-at-first-slide",
+      "passed": true,
+      "value": "Local alpha contract"
+    },
+    {
+      "check": "normal-wheel-paging",
+      "passed": true,
+      "value": "deck-and-controls-wheel"
+    },
     {
       "check": "slides-left-resize-collapse-roundtrip",
       "passed": true,

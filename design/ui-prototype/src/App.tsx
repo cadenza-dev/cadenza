@@ -1,4 +1,4 @@
-import type { PointerEvent } from "react";
+import type { PointerEvent, WheelEvent } from "react";
 import { useCallback, useEffect, useState } from "react";
 import { BlockingBanner, DeckSurface } from "./components/Deck";
 import { FullscreenView } from "./components/FullscreenView";
@@ -71,9 +71,7 @@ function App() {
     : "ready";
   const [scenarioId, setScenarioId] = useState<StateId>(initialStateId);
   const selectedState = states[scenarioId];
-  const [anchorIndex, setAnchorIndex] = useState(
-    getInitialAnchor(initialStateId),
-  );
+  const [anchorIndex, setAnchorIndex] = useState(getInitialAnchor);
   const [topic, setTopic] = useState<Topic>(() =>
     getInitialTopic(selectedState),
   );
@@ -165,6 +163,20 @@ function App() {
   const next = useCallback(() => {
     goToAnchor(anchorIndex + 1);
   }, [anchorIndex, goToAnchor]);
+
+  const wheelAnchor = useCallback((event: WheelEvent<HTMLElement>) => {
+    if (
+      Math.abs(event.deltaY) < 12 ||
+      Math.abs(event.deltaY) < Math.abs(event.deltaX)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    setAnchorIndex((current) =>
+      clampIndex(current + (event.deltaY > 0 ? 1 : -1)),
+    );
+  }, []);
 
   const switchScenario = useCallback((nextState: StateId) => {
     setScenarioId(nextState);
@@ -388,6 +400,7 @@ function App() {
                   />
                 )}
               <DeckSurface
+                onWheel={wheelAnchor}
                 selectedSlide={selectedSlide}
                 state={selectedState}
               />
@@ -403,6 +416,7 @@ function App() {
                   defaultSize={`${defaultPresenterLayout.controlsHeight}px`}
                   maxSize="124px"
                   minSize="88px"
+                  onWheel={wheelAnchor}
                   onResize={(panelSize) =>
                     setActionControlsHeight(Math.round(panelSize.inPixels))
                   }
@@ -469,7 +483,11 @@ function App() {
             }}
           />
         )}
-        <DeckSurface selectedSlide={selectedSlide} state={selectedState} />
+        <DeckSurface
+          onWheel={wheelAnchor}
+          selectedSlide={selectedSlide}
+          state={selectedState}
+        />
         <PlaybackToolbar
           anchorIndex={anchorIndex}
           next={next}
